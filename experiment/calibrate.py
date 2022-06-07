@@ -21,7 +21,7 @@ class CalibrationInstructionTrial(InstructionTrial):
 
             In this task, you will see two piles of Swiss Franc coins in succession. Both piles are combined with a pie chart. The part of the pie chart that is lightly colored indicates the probability of a lottery you will gain the amount of Swiss Francs represented by the pile.
 
-            Your task is to either select the first lottery or the second lottery, by using your index or middle finger. Immediately after your choice, we ask how certain you were about your choice from a scale from 1 (very CERTAIN) to 4 (very UNCERTAIN).
+            Your task is to either select the first lottery or the second lottery, by using your index or middle finger. 
 
             NOTE: if you are too late in responding, or you do not respond. You will gain no money for that trial. Take some time to take a break, if you want to.
 

@@ -92,12 +92,8 @@ class GambleTrial(Trial):
 
         self.choice_stim = TextStim(self.session.win)
         button_size = self.session.settings['various'].get('button_size')
-        self.certainty_stim = CertaintyStimulus(
-            self.session.win, response_size=[button_size, button_size])
 
         self.choice = None
-        self.certainty = None
-        self.certainty_time = np.inf
 
         self.last_key_responses = dict(zip(self.buttons + [self.session.mri_trigger], [0.0] * 5))
 
@@ -122,10 +118,6 @@ class GambleTrial(Trial):
             if self.choice is not None:
                 if (self.session.clock.getTime() - self.choice_time) < .5:
                     self.choice_stim.draw()
-                else:
-                    if (self.session.clock.getTime() - self.certainty_time) < .5:
-                        self.certainty_stim.draw()
-
 
     def get_events(self):
         events = super().get_events()
@@ -146,13 +138,6 @@ class GambleTrial(Trial):
                             self.choice_stim.text = f'You chose pile {self.choice}'
 
                             self.log(choice=self.choice)
-
-                    elif (self.phase > 8) & (self.certainty is None) & ((self.session.clock.getTime() - self.certainty_time) < .5):
-                        if key in self.buttons:
-                            self.certainty_time = self.session.clock.getTime()
-                            self.certainty = self.buttons.index(key)
-                            self.certainty_stim.rectangles[self.certainty].opacity = 1.0
-                            self.log(certainty=self.certainty+1)
 
             self.last_key_responses[key] = t
 
@@ -175,9 +160,9 @@ class GambleTrial(Trial):
 
         return log
 
-    def log(self, choice=None, certainty=None):
+    def log(self, choice=None):
 
-        if (choice is not None) or (certainty is not None):
+        if (choice is not None):
             onset = self.session.clock.getTime()
             idx = self.session.global_log.shape[0]
             self.session.global_log.loc[idx, 'trial_nr'] = self.trial_nr
@@ -189,8 +174,3 @@ class GambleTrial(Trial):
         if choice is not None:
             self.session.global_log.loc[idx, 'event_type'] = 'choice'
             self.session.global_log.loc[idx, 'choice'] = choice
-        if certainty is not None:
-            self.session.global_log.loc[idx, 'event_type'] = 'certainty'
-            self.session.global_log.loc[idx, 'certainty'] = certainty
-
-

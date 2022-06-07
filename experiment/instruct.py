@@ -8,8 +8,6 @@ import argparse
 from trial import InstructionTrial
 import numpy as np
 from exptools2.core import Trial
-from mapper import MapperTrial
-
 
 class GambleInstructTrial(GambleTrial):
 
@@ -91,14 +89,12 @@ class InstructionSession(PileSession):
         On this computer, these are:
         * the j-key (index finger)
         * the k-key (middle finger)
-        * the l-key (ring finger)
-        * the ;-key (pinky)
 
         TIP: let your index-/middle-/ring-finger and pinky lie down on these keys during the experiment. Note that, on the computer, key 1 (j) has a little bar on top that you can feel.
 
         In the scanner, there will be a red, blue, yellow, and green key.
 
-        From now on, we will call them key 1 (index finger), key 2 (middle finger), key 3 (ring finger), and key 4 (pinky).
+        From now on, we will call them key 1 (index finger), key 2 (middle finger).
 
         Press key 1 to continue.
         """
@@ -106,7 +102,7 @@ class InstructionSession(PileSession):
         self.trials.append(InstructionTrial(self, 1,
                                             txt=txt, keys=[self.buttons[0]]))
 
-        for key in [2, 3, 4]:
+        for key in [2]:
             txt = f"""
             Press key {key} to continue.
             """
@@ -118,7 +114,7 @@ class InstructionSession(PileSession):
 
         During the course of the experiment, you will make many different choices. After each session, we will randomly select one such choice you made during the task. When you selected the 55%-lottery option, we will perform a digital lottery that determines whether you win the offered amount.
 
-        *** WE WILL ADD UP THE AMOUNTS YOU COLLECTED ACROSS THE FOUR SESSIONS AND YOU WILL BE PAID OUT THE AVERAGE OF THOSE AMOUNTS AFTER THE FOURTH SESSION. ***
+        *** WE WILL ADD UP THE AMOUNTS YOU COLLECTED ACROSS THE THREE SESSIONS AND YOU WILL BE PAID OUT THE AVERAGE OF THOSE AMOUNTS AFTER THE FOURTH SESSION. ***
 
         Press key 1 to continue
         """
@@ -128,10 +124,10 @@ class InstructionSession(PileSession):
 
         txt = """
 
-        Let's say you won 0 CHF on the first session, 100 CHF in the second session, 0 CHF in the third session and 100 CHF in the fourth session. How much actual money will you be paid out at the end of the fourth session, on top of your hourly 30CHF/hour rate?
+        Let's say you won 0 CHF on the first session, 100 CHF in the second session, and 0 CHF in the third session and . How much actual money will you be paid out at the end of the fourth session, on top of your hourly 30CHF/hour rate?
 
         1. 100CHF
-        2. 50CHF
+        2. 33CHF
         3. 0CHF
 
         Press the key that corresponds to the correct answer.
@@ -220,19 +216,6 @@ class InstructionSession(PileSession):
         trial16.choice_stim.text = f'You chose pile {trial16.choice}'
         self.trials.append(trial16)
 
-        txt = "after your choice, you should also indicate from a scale of one to four how certain you were about your choice."
-        bottom_txt = "Press key 1 to indicate you were very certain of your choice"
-
-        self.trials.append(GambleInstructTrial(
-            self, 17, txt, show_phase=11, bottom_txt=bottom_txt, keys=[self.buttons[0]]))
-
-        txt = "You now can see which certainty you've indicated"
-        trial18 = GambleInstructTrial(
-            self, 18, txt, show_phase=11)
-        trial18.certainty = 1
-        trial18.certainty_stim.rectangles[0].opacity = 1.0
-        self.trials.append(trial18)
-
         txt = """
         We will now go through a trial again and we will ask you some questions about it at the end. So pay close attention!
 
@@ -260,19 +243,6 @@ class InstructionSession(PileSession):
         trial29.choice_stim.text = f'You chose pile {trial29.choice}'
         self.trials.append(trial29)
 
-
-        bottom_txt = "Press key 2 to indicate you were somewhat certain of your choice"
-
-        self.trials.append(GambleInstructTrial(
-            self, 30, txt, show_phase=11, bottom_txt=bottom_txt, keys=[self.buttons[1]]))
-
-        trial31 = GambleInstructTrial(
-            self, 31, txt, show_phase=11)
-        trial31.certainty = 2
-        trial31.certainty_stim.rectangles[1].opacity = 1.0
-        self.trials.append(trial31)
-
-
         txt = """
         Pick the correct answer:
 
@@ -293,29 +263,10 @@ class InstructionSession(PileSession):
 
 
         txt = """
-        Pick the correct answer:
-
-        I answered the certainty question with 2, this means that ...
-
-        1. I was very certain about the choice I made.
-
-        2. I was somewhat certain about the choice I made.
-
-        3. I was very uncertain about the choice I made.
-
-        Press the key that corresponds to the correct answer.
-        """
-
-        self.trials.append(InstructionTrial(self, 32,
-                                            txt=txt, keys=[self.buttons[1]]))
-
-        txt = """
         Well done!!
 
         You will now do 10 practice trials. Note that the trial now automatically goes forwad.
 
-        You only have to respond twice:
-        Once to indicate your choice between the two options and once to indicate how certain you were about your choice. 
         """
 
         self.trials.append(InstructionTrial(self, 33,
@@ -354,61 +305,9 @@ class InstructionSession(PileSession):
         txt = f"""
         Well done!
 
-        You now finished the training for the first part of the experiment.
-
-        There is also a much simpler task that you will have to perform in the scanner
-        as well.
-
-
-        Press any button to continue...
-        """
-
-        self.trials.append(InstructionTrial(self, trial_nr=trial_nr, txt=txt))
-        trial_nr += 1
-
-        txt = f"""
-        In this second "detection task", your job is to press KEY 1 every time that
-        you see DARK coins. When you see the standard LIGHT coins, do not press
-        any button.
-
-        We will now practice this for some time...
-
-        Press any button to continue...
-
-        """
-
-        self.trials.append(InstructionTrial(self, trial_nr=trial_nr, txt=txt))
-        trial_nr += 1
-
-        design = [5, 7, 10, 20, 28, 56, 28, 20, 10, 7, 5]
-        n_blocks = 1
-        block_length = len(design)
-        n_repeats_stimulus = 6
-
-        colors = sample_isis(n_blocks * block_length * n_repeats_stimulus)
-
-        for block in range(n_blocks):
-            for ix, n_dots in enumerate(design):
-                ix += block*block_length + 1
-
-                color_ix = (ix-1) * \
-                    n_repeats_stimulus, ix*n_repeats_stimulus
-                self.trials.append(
-                    MapperTrial(session=self,
-                               trial_nr=trial_nr,
-                               phase_durations=[],
-                               n_dots=n_dots,
-                               colors=colors[color_ix[0]:color_ix[1]],
-                               verbose=True,)
-                )
-                trial_nr += 1
-
-        txt = f"""
-        Well done!
-
         You came to the end of the instruction part of the experiment.
 
-        You will now do the two tasks (the "gamble task" and the "detection task") in the scanner.
+        You will now do the task in the scanner.
 
         In case anything is unclear. Please do not hesitate to ask the experimenters anything!
 
@@ -419,7 +318,7 @@ class InstructionSession(PileSession):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('subject', default='instructee', nargs='?')
-    parser.add_argument('--settings', default='instruction', nargs='?')
+    parser.add_argument('--settings', default='instructions', nargs='?')
     cmd_args = parser.parse_args()
 
     subject, session, task, run = cmd_args.subject, 'instruction', 'instruction',  None

@@ -18,7 +18,7 @@ def main(subject, test=False):
         prob1 = [1.]
         prob2 = [.55]
     else:
-        base = np.array([5, 7, 10, 14, 20, 28])
+        base = np.array([7, 10, 14, 20, 28])
         prob1 = [1., .55]
         prob2 = [.55, 1.]
 

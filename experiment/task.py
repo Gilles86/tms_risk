@@ -96,7 +96,7 @@ class TaskInstructionTrial(InstructionTrial):
 
         if txt is None:
             txt = f"""
-            This is run {run}/6.
+            This is run {run}/8.
 
             In this task, you will see two piles of Swiss Franc coins in
             succession. Both piles are combined with a pie chart in.
@@ -106,14 +106,11 @@ class TaskInstructionTrial(InstructionTrial):
 
             Your task is to either select the first lottery or
             the second lottery, by using your index or middle finger.
-            Immediately after your choice, we ask how certain you were
-            about your choice from a scale from 1 (very CERTAIN)
-            to 4 (very UNCERTAIN).
 
             NOTE: if you are to late in responding, or you do not 
             respond. You will gain no money for that trial.
 
-            Take some time to take a break, if you want to.
+            Take some time to take a break between runs if you want to.
 
             Press any of your buttons to continue.
 

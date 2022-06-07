@@ -153,7 +153,7 @@ def fit_psychometric_curve(log_file, plot=False, thresholds=(1, 4)):
     df = pd.read_table(log_file)
 
     df = df[df.phase == 9]
-    df = df.pivot_table(index=['trial_nr'], values=['choice', 'certainty', 'n1', 'n2', 'prob1', 'prob2'])
+    df = df.pivot_table(index=['trial_nr'], values=['choice', 'n1', 'n2', 'prob1', 'prob2'])
     df = df[~df.choice.isnull()]
 
     df['log(risky/safe)'] = np.log(df['n1'] / df['n2'])
