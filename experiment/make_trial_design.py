@@ -35,7 +35,7 @@ def main(subject, session=None, run=None):
  
 
     print(x_lower, x_upper)
-    fractions = np.exp(np.linspace(np.log(x_lower), np.log(x_upper), 8))
+    fractions = np.exp(np.linspace(np.log(x_lower), np.log(x_upper), 6, True))
     base = np.array([7, 10, 14, 20, 28])
     prob1 = [1., .55]
     prob2 = [.55, 1.]
@@ -48,7 +48,9 @@ def main(subject, session=None, run=None):
     fn = op.abspath(op.join(task_settings_folder,
                             f'sub-{subject}_ses-task.tsv'))
 
-    df = create_design(prob1, prob2, fractions, base=base, repetitions=2, n_runs=8)
+    df = create_design(prob1, prob2, fractions, base=base, repetitions=2, n_runs=6)
+
+    print(df)
 
     df.to_csv(fn, sep='\t')
     plt.show()
