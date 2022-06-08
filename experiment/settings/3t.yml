@@ -4,22 +4,23 @@ preferences:
     units: deg
 
 window:
-  size: [1280, 1024]
+#  size: [1280, 1024]
+  size: [1920, 1080]
   pos: [0, 0]
   color: [0, 0, 0]
-  fullscr: False
+  fullscr: True
   winType: pyglet
   screen: 0
   viewPos: [0, 0]
 
 monitor:
   name: default
-  width: 42
+  width: 55
   distance: 125  # in cm
   gamma: 1
 
 mouse:
-  visible: True
+  visible: False
 
 eyetracker:
   model: eyelink
@@ -69,7 +70,7 @@ various:
   piechart_width: 1 
   text_width: 14
   text_height: .5
-  buttons: ['b', 'z', 'g', 'r']
+  buttons: ['g', 'b']
   button_size: 2
 
 
