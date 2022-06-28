@@ -150,14 +150,13 @@ class InstructionSession(PileSession):
         Let's say that the first choice was a 55% probability to win 5CHF and the second option 100% probability to win 1CHF. You *do not respond within 3 seconds*. Now this trial gets selected after the experiment. How much money will you earn?
 
         1. I have a 55% probability of winning 5CHF
-        2. I win 1 CHF
-        3. I win 0 CHF
+        2. I win 0 CHF
 
         Press the key that corresponds to the correct answer.
         """
 
         self.trials.append(InstructionTrial(self, 7,
-                                            txt=txt, keys=[self.buttons[2]]))
+                                            txt=txt, keys=[self.buttons[1]]))
 
         txt = """
         We will now take you through all the steps of a trial.
