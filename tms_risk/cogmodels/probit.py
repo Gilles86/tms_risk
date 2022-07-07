@@ -12,7 +12,8 @@ from scipy.stats import zscore
 bids_folder = '/data'
 
 
-models = { 'model1': 'chose_risky ~ 1 + C(n_safe)*x + x*risky_first + (C(n_safe)*x|subject) + (x*risky_first|subject)'}
+models = { 'model1': 'chose_risky ~ 1 + C(n_safe)*x + x*risky_first + (C(n_safe)*x|subject) + (x*risky_first|subject)',
+           'model2':'chose_risky ~ 1 + C(n_safe)*x*risky_first + (C(n_safe)*x*risky_first|subject)'}
 
 def build_model(model, bids_folder='/data/ds-tmsrisk'):
     df = get_all_behavior(bids_folder=bids_folder)
