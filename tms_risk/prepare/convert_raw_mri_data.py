@@ -12,19 +12,28 @@ def main(subject, session, bids_folder='/data/ds-tms'):
     sourcedata_root = op.join(bids_folder, 'sourcedata', 'mri',
     f'SNS_MRI_RTMS_S{subject:05d}_{session:02d}')
 
-    # # *** ANATOMICAL DATA ***
-    t1w = glob.glob(op.join(sourcedata_root, '*t1w*.nii'))
-    assert(len(t1w) == 1), "More than 1/no T1w {t1w}"
+    if session == 1:
+        # # *** ANATOMICAL DATA ***
+        # So not vt1w, which are reconstructed at different angle
+        t1w = glob.glob(op.join(sourcedata_root, '*_t1w*.nii'))
+        assert(len(t1w) != 0), "No T1w {t1w}"
 
-    flair = glob.glob(op.join(sourcedata_root, '*flair*.nii'))
-    assert(len(flair) == 1), f"More than 1/no FLAIR {flair}"
+        flair = glob.glob(op.join(sourcedata_root, '*flair*.nii'))
+        assert(len(flair) == 1), f"More than 1/no FLAIR {flair}"
 
-    target_dir = op.join(bids_folder, f'sub-{subject:02d}', f'ses-{session}', 'anat')
-    if not op.exists(target_dir):
-        os.makedirs(target_dir)
+        target_dir = op.join(bids_folder, f'sub-{subject:02d}', f'ses-{session}', 'anat')
+        if not op.exists(target_dir):
+            os.makedirs(target_dir)
 
-    shutil.copy(t1w[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_T1w.nii'))
-    shutil.copy(flair[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_FLAIR.nii'))
+        if len(t1w) == 1:
+            shutil.copy(t1w[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_T1w.nii'))
+        else:
+            for run0, t in enumerate(t1w):
+                print(t)
+                shutil.copy(t1w[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_run-{run0+1}_T1w.nii'))
+
+
+        shutil.copy(flair[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_FLAIR.nii'))
 
     # # *** FUNCTIONAL DATA ***
     with open(op.abspath('./bold_template.json'), 'r') as f:
