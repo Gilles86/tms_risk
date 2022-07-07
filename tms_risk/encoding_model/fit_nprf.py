@@ -26,10 +26,15 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
 
     target_dir = get_target_dir(subject, session, bids_folder, target_dir)
 
+    runs = range(1, 7)
+    if (str(subject) == '10') & (str(session) == '1'):
+        runs = range(1, 6)
+
+
     paradigm = [pd.read_csv(op.join(bids_folder, f'sub-{subject}', f'ses-{session}',
                                'func', f'sub-{subject}_ses-{session}_task-task_run-{run}_events.tsv'), sep='\t')
-                for run in range(1, 7)]
-    paradigm = pd.concat(paradigm, keys=range(1,7), names=['run'])
+                for run in runs]
+    paradigm = pd.concat(paradigm, keys=runs, names=['run'])
     paradigm = paradigm[paradigm.trial_type == 'stimulus 1'].set_index('trial_nr')
 
     paradigm['log(n1)'] = np.log(paradigm['n1'])
@@ -42,7 +47,7 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
     amplitudes = np.array([1.], dtype=np.float32)
     baselines = np.array([0], dtype=np.float32)
 
-    mask = op.join(bids_folder, 'derivatives', f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
+    mask = op.join(bids_folder, 'derivatives', 'fmriprep', f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
 
     masker = NiftiMasker(mask_img=mask)
 
