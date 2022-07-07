@@ -1,4 +1,30 @@
 import os.path as op
+from re import I
+import pandas as pd
+from itertools import product
+import numpy as np
+
+def get_subjects(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False):
+    subjects = list(range(1, 19))
+
+    # Does not exist
+    subjects.pop(subjects.index(14))
+
+    if correct_behavior:
+       # Pure random behavior
+       subjects.pop(subjects.index(17))
+
+    subjects = [Subject(subject, bids_folder) for subject in subjects]
+
+    return subjects
+
+def get_all_behavior(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False):
+
+    subjects = get_subjects(bids_folder, correct_behavior, correct_npc)
+    behavior = [s.get_behavior() for s in subjects]
+    return pd.concat(behavior)
+
+
 
 class Subject(object):
 
@@ -56,3 +82,49 @@ class Subject(object):
         f'sub-{self.subject}_ses-{session}_desc-{parameter}.optim_space-T1w_pars.nii.gz')
 
         return im
+
+    def get_behavior(self, sessions=None):
+        if sessions is None:
+            sessions = [1, 2, 3]
+
+        runs = range(1, 7)
+        df = []
+        for session, run in product(sessions, runs):
+            fn = op.join(self.bids_folder, f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv')
+
+            if op.exists(fn):
+                d = pd.read_csv(fn, sep='\t',
+                            index_col=['trial_nr', 'trial_type'])
+                d['subject'], d['session'], d['run'] = int(self.subject), session, run
+                df.append(d)
+
+        if len(df) > 0:
+            df = pd.concat(df)
+            df = df.reset_index().set_index(['subject', 'session', 'run', 'trial_nr', 'trial_type']) 
+            df = df.unstack('trial_type')
+            return self._cleanup_behavior(df)
+        else:
+            return pd.DataFrame([])
+
+    @staticmethod
+    def _cleanup_behavior(df_):
+        df = df_[[]].copy()
+        df['rt'] = df_.loc[:, ('onset', 'choice')] - df_.loc[:, ('onset', 'stimulus 2')]
+        df['n1'], df['n2'] = df_['n1']['stimulus 1'], df_['n2']['stimulus 1']
+        df['prob1'], df['prob2'] = df_['prob1']['stimulus 1'], df_['prob2']['stimulus 1']
+
+        df['choice'] = df_[('choice', 'choice')]
+        df['risky_first'] = df['prob1'] == 0.55
+        df['chose_risky'] = (df['risky_first'] & (df['choice'] == 1.0)) | (~df['risky_first'] & (df['choice'] == 2.0))
+        df.loc[df.choice.isnull(), 'chose_risky'] = np.nan
+
+
+        df['n_risky'] = df['n1'].where(df['risky_first'], df['n2'])
+        df['n_safe'] = df['n2'].where(df['risky_first'], df['n1'])
+        df['frac'] = df['n_risky'] / df['n_safe']
+        df['log(risky/safe)'] = np.log(df['frac'])
+
+        df = df[~df.chose_risky.isnull()]
+        df['chose_risky'] = df['chose_risky'].astype(bool)
+        return df.droplevel(-1, 1)
+        
