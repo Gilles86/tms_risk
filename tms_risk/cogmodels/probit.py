@@ -21,9 +21,6 @@ def build_model(model, bids_folder='/data/ds-tmsrisk'):
     df['x'] = df['log(risky/safe)']
     formula = models[model]
 
-    df = df.loc[:5]
-
-
     model_probit = bmb.Model(formula, df[['chose_risky', 'x', 'risky_first', 'n_safe']].reset_index(
     ), family="bernoulli", link='probit')
 
