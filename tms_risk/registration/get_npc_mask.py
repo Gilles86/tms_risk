@@ -11,7 +11,7 @@ import numpy as np
 
 def main(subject, bids_folder, roi='npc1'):
 
-    subjects_dir = op.join(bids_folder, 'derivatives', 'sourcedata', 'freesurfer')
+    subjects_dir = op.join(bids_folder, 'derivatives', 'fmriprep', 'sourcedata', 'freesurfer')
 
     def transform_surface(in_file,
             out_file, 
@@ -48,8 +48,8 @@ def main(subject, bids_folder, roi='npc1'):
         os.makedirs(target_dir)
 
     target_fn = op.join(target_dir, f'sub-{subject}_space-T1w_desc-{roi}_mask.nii.gz')
-    sub = fs_subject(op.join(bids_folder, 'derivatives', 'sourcedata', 'freesurfer', f'sub-{subject}'))
-    im = load(op.join(bids_folder, 'derivatives', f'sub-{subject}', 'ses-1', 'anat', f'sub-{subject}_ses-1_desc-preproc_T1w.nii.gz'))
+    sub = fs_subject(op.join(bids_folder, 'derivatives', 'fmriprep', 'sourcedata', 'freesurfer', f'sub-{subject}'))
+    im = load(op.join(bids_folder, 'derivatives', 'fmriprep', f'sub-{subject}', 'ses-1', 'anat', f'sub-{subject}_ses-1_desc-preproc_T1w.nii.gz'))
     im = to_image(image_clear(im, fill=0.0), dtype=np.int)
 
     print('Generating volume...')
