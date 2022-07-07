@@ -22,10 +22,13 @@ def main(subject, session, bids_folder, smoothed=False,
 
     runs = range(1, 7)
 
-    ims = [
-        op.join(derivatives, f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-{run}_space-T1w_desc-preproc_bold.nii.gz') for run in runs]
+    if (str(subject) == '10') & (str(session) == '1'):
+        runs = range(1, 6)
 
-    mask = op.join(derivatives, f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
+    ims = [
+        op.join(derivatives, 'fmriprep', f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-{run}_space-T1w_desc-preproc_bold.nii.gz') for run in runs]
+
+    mask = op.join(derivatives, 'fmriprep', f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
 
     base_dir = 'glm_stim1'
 
@@ -88,7 +91,7 @@ def main(subject, session, bids_folder, smoothed=False,
                                   'a_comp_cor_00', 'a_comp_cor_01', 'a_comp_cor_02', 'a_comp_cor_03', 'cosine00', 'cosine01', 'cosine02', 
                                   'non_steady_state_outlier00', 'non_steady_state_outlier01', 'non_steady_state_outlier02']
     fmriprep_confounds = [
-        op.join(bids_folder, f'derivatives/sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-{run}_desc-confounds_timeseries.tsv') for run in runs]
+        op.join(bids_folder, 'derivatives', 'fmriprep', f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-{run}_desc-confounds_timeseries.tsv') for run in runs]
     fmriprep_confounds = [pd.read_table(
         cf)[fmriprep_confounds_include] for cf in fmriprep_confounds]
 

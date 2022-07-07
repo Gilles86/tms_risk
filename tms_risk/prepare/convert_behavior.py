@@ -16,7 +16,11 @@ def main(subject, session, bids_folder, max_rt=1.0):
     for run in range(1, 7):
         print(run)
         nii = op.join(target_dir, f'sub-{subject}_ses-{session}_task-task_run-{run}_bold.nii')
-        n_volumes = image.load_img(nii).shape[-1]
+
+        if op.exists(nii):
+            n_volumes = image.load_img(nii).shape[-1]
+        else:
+            n_volumes = 135
 
 
         behavior = pd.read_table(op.join(sourcedata, f'behavior/sub-{subject}/ses-{session}/sub-{subject}_ses-{session}_task-task_run-{run}_events.tsv'))
