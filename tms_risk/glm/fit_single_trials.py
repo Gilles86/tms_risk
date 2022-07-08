@@ -100,6 +100,9 @@ def main(subject, session, bids_folder, smoothed=False,
     retroicor_confounds = [pd.read_table(
         cf, header=None, usecols=range(18)) if op.exists(cf) else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
 
+    if (subject == '20') & (session == '1'):
+        retroicor_confounds = [rc.loc[:, :5] for rc in retroicor_confounds]
+
     print(retroicor_confounds)
 
     # if (subject, session) in [('10', '3t2')]:
