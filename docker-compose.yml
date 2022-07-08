@@ -1,0 +1,12 @@
+version: '2'
+services:
+  risk:
+    entrypoint: zsh
+    build: .
+    environment:
+            - SUBJECTS_DIR=/data/derivatives/fmriprep/sourcedata/freesurfer
+    volumes:
+      - ./tms_risk:/tms_risk
+      - $DATA_DIR/ds-tmsrisk:/data
+      - $HOME/freesurfer/license.txt:/opt/freesurfer-6.0.1/license.txt
+      - /data/tmp:/tmp
