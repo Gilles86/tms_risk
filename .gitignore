@@ -54,3 +54,5 @@ experiment/logs/*
 experiment/settings/*
 
 *output.nipype
+
+batch.m
