@@ -185,10 +185,13 @@ class Subject(object):
         retroicor_confounds = [pd.read_table(
             cf, header=None, usecols=include) if op.exists(cf) else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
 
+        return retroicor_confounds 
+
     def get_confounds(self, session, include_fmriprep=None, include_retroicor=None, pca=False, pca_n_components=.95):
         
         fmriprep_confounds = self.get_fmriprep_confounds(session, include=include_fmriprep)
-        retroicor_confounds = self.get_fmriprep_confounds(session, include=include_retroicor)
+        retroicor_confounds = self.get_retroicor_confounds(session, include=include_retroicor)
+        print(retroicor_confounds)
         confounds = [pd.concat((rcf, fcf), axis=1) for rcf, fcf in zip(retroicor_confounds, fmriprep_confounds)]
         confounds = [c.fillna(method='bfill') for c in confounds]
 
