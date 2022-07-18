@@ -3,6 +3,7 @@
   3: ips
 '02':
   2: vertex
+  3: ips
 '03':
   2: vertex
   3: ips
@@ -12,6 +13,7 @@
   2: vertex
 '06':
   2: ips
+  3: vertex
 '07':
   2: 'ips'
 '09':
