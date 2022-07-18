@@ -153,8 +153,21 @@ class Subject(object):
 
         df = df[~df.chose_risky.isnull()]
         df['chose_risky'] = df['chose_risky'].astype(bool)
+
+        def get_risk_bin(d):
+            try: 
+                return pd.qcut(d, 6, range(1, 7))
+            except Exception as e:
+                n = len(d)
+                ix = np.linspace(1, 7, n, False)
+
+                d[d.sort_values().index] = np.floor(ix)
+                
+                return d
+        df['bin(risky/safe)'] = df.groupby(['subject'])['frac'].apply(get_risk_bin)
+
         return df.droplevel(-1, 1)
-        
+
     def get_fmriprep_confounds(self, session, include=None):
 
         if include is None:
@@ -185,13 +198,15 @@ class Subject(object):
         retroicor_confounds = [pd.read_table(
             cf, header=None, usecols=include) if op.exists(cf) else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
 
+        for cf in retroicor_confounds:
+            cf.columns = [f'retroicor_{i}' for i in range(cf.shape[1])]
+
         return retroicor_confounds 
 
     def get_confounds(self, session, include_fmriprep=None, include_retroicor=None, pca=False, pca_n_components=.95):
         
         fmriprep_confounds = self.get_fmriprep_confounds(session, include=include_fmriprep)
         retroicor_confounds = self.get_retroicor_confounds(session, include=include_retroicor)
-        print(retroicor_confounds)
         confounds = [pd.concat((rcf, fcf), axis=1) for rcf, fcf in zip(retroicor_confounds, fmriprep_confounds)]
         confounds = [c.fillna(method='bfill') for c in confounds]
 
