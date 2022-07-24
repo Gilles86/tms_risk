@@ -48,8 +48,8 @@ Some more tips:
 ### Before subject enters
 Before the subject enters the scanning room (coming from TMS prep), prepare a bit:
  * Make sure the power of the projector and eye tracking computer are on (_do this before booting up the Eyelink an Stimulus computer_). When you walk into the scanner room there is a door at the end of the room on the right. There you find a little techincal room. You can see a plug hanging next to the socket. This is from the eye tracker. Put it in the socket. There is also a remote for the projector. Use the power button on the top left of the remote to turn on the projector.
- * *Only now* you can turn on both the Eyelink and stimulus computer.
- * Open Powershell on the stimulus computer:
+ * *Only now* you can turn on both the Eyelink and stimulus computer. The Eyelink computer has a power button on its front. For the stimulus computer, the power button is on top of the case, close to the face of the case.
+ * After booting up, ppen Powershell on the stimulus computer:
    * Press the start button and type "power". When you see Powershell selected, press enter.
  * Activate the virtual environment: `Documents\Gilles\risk_experiment\virtualenv\Scripts\activate` (*Maike*, please check this. You could also use the identical virtualenv in our stress study `C:\Users\Econ_Experimenter\Documents\SNS\Gilles\stress_risk\experiment\virtualenv\risk\Scripts\activate`)
  * Make a new trial design for the subject, so we have randomized order across sessions:
