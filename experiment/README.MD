@@ -53,6 +53,7 @@ Before the subject enters the scanning room (coming from TMS prep), prepare a bi
    * Press the start button and type "power". When you see Powershell selected, press enter.
  * Activate the virtual environment: `Documents\Gilles\risk_experiment\virtualenv\Scripts\activate` (*Maike*, please check this. You could also use the identical virtualenv in our stress study `C:\Users\Econ_Experimenter\Documents\SNS\Gilles\stress_risk\experiment\virtualenv\risk\Scripts\activate`)
     * Maike: what worked was ` C:\Users\Econ_Experimenter\Documents\SNS\Gilles\risk\virtualenv\risk\Scripts\activate`
+    * Maike: or `cd` into the `Scripts` folder and then do `.\activate` 
  * Make a new trial design for the subject, so we have randomized order across sessions:
    * `cd Documents\SNS\Gilles\tms_risk\experiment`
    * `python make_trial_design.py <subject> 1 1` (Session 1 corresponds to the session on which the calibration was done, not the current session)
