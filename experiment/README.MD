@@ -59,6 +59,7 @@ Before the subject enters the scanning room (coming from TMS prep), prepare a bi
 
 ### When subject enters
 * When Marius puts the subject in the scanner the first time, you can open the `Eye (monitor 1)` (or something like that)-script on the desktop. This will show a eye calibrations cript on the scanner display.
+    * Maike:  `Track-ScreenNr1` 
 * Press `enter` to show the input to the camera. Marius will know what to do next.
 * Once the eye camera is okay, you can quit the calibration script by pressing `escape`
 * You will now make the first survey scan, before stimulation.
