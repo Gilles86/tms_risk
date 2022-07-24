@@ -1,5 +1,5 @@
  * **_Crucial_ tip 1: when I run the experiments, I use `ctrl+r` to find the old command that I need, then I just slighty edit the old command where necessary (usually the subject and/or session). I almost never type out the complete commands myself.**
- * **_Crucial_ tip 2: The scripts have a protection against overwriting log files that are already there. When it already exists. It will ask whether you are sure about that. If you have to continue, the correct answer is `y` (so not `yes`). I think the best strategy is to never use session 1/2/3 for testing scripts, but use session 99 or something.**
+ * **_Crucial_ tip 2: The scripts have a protection against overwriting log files that are already there. When logfiles already exist, the script will ask whether you are sure about overwriting them. If you have to continue, the correct answer is `y` (so not `yes`). I think the best strategy is to never use session 1/2/3 for testing scripts, but use session 99 or something.**
 
 Some more tips:
 
