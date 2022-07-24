@@ -77,7 +77,7 @@ python task.py <SUBJECT> <SESSION> $run --settings 3t
   *  Use `q` to exit the script after the last volume has been colleceted
   *  Press `escape` when you see the calibration screen to exit the calibration phase and start the next run (unless you want to recalibrate, but during TMS you never want this).
 
-* After the last run, `python payout.py <subject> <session> --settings 3t` to shwo the subject how much money they made on this session. This should be noted on the 1st sheeft of the Google spreadsheet document.
+* After the last (6th) run, immediately run `python payout.py <subject> <session> --settings 3t` to show the subject how much money they made on this session. This should also be noted down on the 1st sheeft of the Google spreadsheet document.
 
 
 
