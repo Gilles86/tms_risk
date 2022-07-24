@@ -78,6 +78,7 @@ python task.py <SUBJECT> <SESSION> $run --settings 3t
   *  Press `escape` when you see the calibration screen to exit the calibration phase and start the next run (unless you want to recalibrate, but during TMS you never want this).
 
 * After the last (6th) run, immediately run `python payout.py <subject> <session> --settings 3t` to show the subject how much money they made on this session. This should also be noted down on the 1st sheeft of the Google spreadsheet document.
+* Write TMS stimulation parameters down in the third sheet fo the Google spreadsheet document.
 
 
 
