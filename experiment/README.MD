@@ -1,12 +1,10 @@
-The experiments consists of a couple of phases
-
  * **_Crucial_ tip 1: when I run the experiments, I use `ctrl+r` to find the old command that I need, then I just slighty edit the old command where necessary (usually the subject and/or session). I almost never type out the complete commands myself.**
  * **_Crucial_ tip 2: The scripts have a protection against overwriting log files that are already there. When it already exists. It will ask whether you are sure about that. If you have to continue, the correct answer is `y` (so not `yes`). I think the best strategy is to never use session 1/2/3 for testing scripts, but use session 99 or something.**
 
 Some more tips:
 
  * Marius knows where the key + locker is in which there is the money and necessary forms.
- * The forms can also be found on the "transfer computer" in the scanning room. I think it is either in `Desktop/Gilles` or `Documents/Gilles`. Karl would know.
+ * The forms can also be found on the "transfer computer" in the scanning room. You can print them from there. I think it is either in `Desktop/Gilles` or `Documents/Gilles`. Karl would know.
 
 # Session 1 (no TMS)
 
