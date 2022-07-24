@@ -4,7 +4,7 @@ The experiments consists of a couple of phases
  * **_Crucial_ tip 2: The scripts have a protection against overwriting log files that are already there. When it already exists. It will ask whether you are sure about that. If you have to continue, the correct answer is `y` (so not `yes`). I think the best strategy is to never use session 1/2/3 for testing scripts, but use session 99 or something.**
 
 Some more tips:
- * 
+
  * Marius knows where the key + locker is in which there is the money and necessary forms.
  * The forms can also be found on the "transfer computer" in the scanning room. I think it is either in `Desktop/Gilles` or `Documents/Gilles`. Karl would know.
 
@@ -45,14 +45,18 @@ Some more tips:
 ## Task phase
 
 ### Before subject enters
- * Before the subject enters the scanning room. Prepare a bit.
- * Make sure the 
- * Open Powershell
+ * Before the subject enters the scanning room (coming from TMS prep), prepare a bit.
+ * Make sure the power of the projector and eye tracking computer are on. When you walk into the scanning room there is a door at the end of the room on the right. There you find a little techincal room. You can see a plug hanging next to the socket. This is from the eye tracker. Put it in the socket. There is also a remote for the projector. Use the power button to turn on the projector.
+ * *Only now* you can turn on both the Eyelink and stimulus computer.
+ * Open Powershell on the stimulus computer:
    * Press the start button and type "power". When you see powershell selected, press enter.
  * Activate the virtual environment: `Documents\Gilles\risk_experiment\virtualenv\Scripts\activate` (*Maike*, please check this. You could also use the identical virtualenv in our stress study `C:\Users\Econ_Experimenter\Documents\SNS\Gilles\stress_risk\experiment\virtualenv\risk\Scripts\activate`)
- * Make a new trial design for the 
+ * Make a new trial design for the subject, so we have randomized order:
+   * `cd Documents\SNS\Gilles\tms_risk\experiment`
+   * `python make_trial_design.py <subject> 1` (Session corresponds to the session on which the calibration was done, not the current session)
 
 ### When subject enters
 * When Marius puts the subject in the scanner the first time, you can open the `Eye (monitor 1)` (or something like that)-script on the desktop. This will show a eye calibrations cript on the scanner display.
 * Press `enter` to show the input to the camera. Marius will know what to do next.
-* Once the camera is okay. 
+* Once the camera is okay, you can quit the calibration script by pressing `escape`
+
