@@ -52,10 +52,10 @@ Before the subject enters the scanning room (coming from TMS prep), prepare a bi
  * After booting up, ppen Powershell on the stimulus computer:
    * Press the start button and type "power". When you see Powershell selected, press enter.
  * Activate the virtual environment: `Documents\Gilles\risk_experiment\virtualenv\Scripts\activate` (*Maike*, please check this. You could also use the identical virtualenv in our stress study `C:\Users\Econ_Experimenter\Documents\SNS\Gilles\stress_risk\experiment\virtualenv\risk\Scripts\activate`)
-  *[Maike] what worked was ` C:\Users\Econ_Experimenter\Documents\SNS\Gilles\risk\virtualenv\risk\Scripts\activate`
+    * Maike: what worked was ` C:\Users\Econ_Experimenter\Documents\SNS\Gilles\risk\virtualenv\risk\Scripts\activate`
  * Make a new trial design for the subject, so we have randomized order across sessions:
    * `cd Documents\SNS\Gilles\tms_risk\experiment`
-   * `python make_trial_design.py <subject> 1` (Session 1 corresponds to the session on which the calibration was done, not the current session)
+   * `python make_trial_design.py <subject> 1 1` (Session 1 corresponds to the session on which the calibration was done, not the current session)
 
 ### When subject enters
 * When Marius puts the subject in the scanner the first time, you can open the `Eye (monitor 1)` (or something like that)-script on the desktop. This will show a eye calibrations cript on the scanner display.
