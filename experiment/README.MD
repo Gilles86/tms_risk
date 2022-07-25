@@ -55,7 +55,7 @@ Before the subject enters the scanning room (coming from TMS prep), prepare a bi
     * Maike: what worked was ` C:\Users\Econ_Experimenter\Documents\SNS\Gilles\risk\virtualenv\risk\Scripts\activate`
     * Maike: or `cd` into the `Scripts` folder and then do `.\activate` 
  * Make a new trial design for the subject, so we have randomized order across sessions:
-   * `cd Documents\SNS\Gilles\tms_risk\experiment`
+   * `cd  C:\Users\Econ_Experimenter\Documents\SNS\Gilles\tms_risk\experiment`
    * `python make_trial_design.py <subject> 1 1` (Session 1 corresponds to the session on which the calibration was done, not the current session)
 
 ### When subject enters
