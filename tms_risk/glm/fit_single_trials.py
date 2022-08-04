@@ -86,8 +86,8 @@ def main(subject, session, bids_folder, smoothed=False,
     print(events.loc[1].sort_values('onset').head(100))
 
     sub = Subject(subject, bids_folder=bids_folder)
-    confounds = sub.get_confounds(session, pca=pca_confounds)
-    print(confounds, confounds[0].columns)
+    confounds = sub.get_confounds(session, pca=pca_confounds, pca_n_components=0.9)
+    # print(confounds, confounds[0].columns)
 
     model = FirstLevelModel(t_r=2.3, slice_time_ref=.5, signal_scaling=False, drift_model=None, 
             mask_img=mask,
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('subject', default=None)
     parser.add_argument('session', default=None)
-    parser.add_argument('--bids_folder', default='/data/ds-tmsrisk')
+    parser.add_argument('--bids_folder', default='/data')
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
     args = parser.parse_args()
