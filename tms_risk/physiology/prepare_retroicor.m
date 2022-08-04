@@ -7,8 +7,14 @@ function physio = prepare_retroicor(subject, session)
      physio = tapas_physio_new();
 % 
 %     %% Individual Parameter settings. Modify to your need and remove default settings
-     runs = 1:6;
-     task = 'task'; 
+
+    if strcmp(subject, '33') & strcmp(session, '1')
+        runs = [1 3 4 5];
+    else
+        runs = 1:6;
+    end
+   
+    task = 'task'; 
 
     disp(runs)
     
