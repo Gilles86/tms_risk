@@ -1,6 +1,6 @@
 version: '2'
 services:
-  risk:
+  tms_risk:
     entrypoint: zsh
     build: .
     environment:

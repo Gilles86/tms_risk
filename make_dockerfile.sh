@@ -19,6 +19,7 @@ neurodocker generate docker --base-image ubuntu --pkg-manager apt\
 		  neuropythy
 		  bambi
 		  pymc3
+		  pyyaml
 		  svgutils==0.3.1" \
       env_exists=false \
       env_name="neuro" \
@@ -27,7 +28,7 @@ neurodocker generate docker --base-image ubuntu --pkg-manager apt\
    --run 'echo "conda activate neuro" >> ~/.zshrc && conda init' \
    --workdir /tms_risk \
    --copy braincoder /braincoder \
-   --run-bash "source activate neuro && cd /braincoder && python setup.py develop --no-deps" \
+   --run-bash "source activate neuro && cd /braincoder && python setup.py develop" \
    --copy tms_risk /tms_risk \
    --copy setup.py /setup.py \
    --run-bash "source activate neuro && cd / && python setup.py develop"  > Dockerfile
