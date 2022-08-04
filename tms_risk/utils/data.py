@@ -173,24 +173,39 @@ class Subject(object):
 
         return fmriprep_confounds
 
-    def get_retroicor_confounds(self, session, include=None):
-
-        if include is None:
-            include = range(18)
+    def get_retroicor_confounds(self, session, n_cardiac=3, n_respiratory=4, n_interaction=2):
 
         runs = range(1, 7)
+
+        columns = []
+        for n, modality in zip([3, 4, 2], ['cardiac', 'respiratory', 'interaction']):
+            for order in range(1, n+1):
+                columns += [(modality, order, 'sin'), (modality, order, 'cos')]
+        columns = pd.MultiIndex.from_tuples(
+            columns, names=['modality', 'order', 'type'])                        
 
         retroicor_confounds = [
             op.join(self.bids_folder, f'derivatives/physiotoolbox/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_desc-retroicor_timeseries.tsv') for run in runs]
         retroicor_confounds = [pd.read_table(
-            cf, header=None, usecols=include) if op.exists(cf) else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
+            cf, header=None, usecols=np.arange(18), names=columns) if op.exists(cf) else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
+
+        retroicor_confounds = pd.concat(retroicor_confounds, 0, keys=runs,
+                            names=['run']).sort_index(axis=1)
+
+        retroicor_confounds = pd.concat((retroicor_confounds.loc[:, ('cardiac', slice(n_cardiac))],
+                            retroicor_confounds.loc[:, ('respiratory',
+                                                slice(n_respiratory))],
+                            retroicor_confounds .loc[:, ('interaction', slice(n_interaction))]), axis=1)
+
+        retroicor_confounds = [cf.droplevel('run') for _, cf in retroicor_confounds.groupby(['run'])]
+
 
         return retroicor_confounds 
 
     def get_confounds(self, session, include_fmriprep=None, include_retroicor=None, pca=False, pca_n_components=.95):
         
         fmriprep_confounds = self.get_fmriprep_confounds(session, include=include_fmriprep)
-        retroicor_confounds = self.get_retroicor_confounds(session, include=include_retroicor)
+        retroicor_confounds = self.get_retroicor_confounds(session)
         print(retroicor_confounds)
         confounds = [pd.concat((rcf, fcf), axis=1) for rcf, fcf in zip(retroicor_confounds, fmriprep_confounds)]
         confounds = [c.fillna(method='bfill') for c in confounds]
@@ -204,5 +219,9 @@ class Subject(object):
                 cf.columns = [f'pca_{i}' for i in range(1, cf.shape[1]+1)]
                 return cf
             confounds = [map_cf(cf) for cf in confounds]
+
+        else:
+            # remove column names
+            confounds = [cf.T.reset_index(drop=True).T for cf in confounds]
 
         return confounds
