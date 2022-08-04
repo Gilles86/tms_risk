@@ -6,7 +6,7 @@ from tkinter import W
 from get_npc_mask import main as get_npc
 from nilearn import image
 from tms_risk.utils import Subject
-from nilearn.input_data.nifti_spheres_masker import _apply_mask_and_get_affinity
+from nilearn.maskers.nifti_spheres_masker import _apply_mask_and_get_affinity
 
 def main(subject, bids_folder):
 
