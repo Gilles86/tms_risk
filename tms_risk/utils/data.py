@@ -153,8 +153,21 @@ class Subject(object):
 
         df = df[~df.chose_risky.isnull()]
         df['chose_risky'] = df['chose_risky'].astype(bool)
+
+        def get_risk_bin(d):
+            try: 
+                return pd.qcut(d, 6, range(1, 7))
+            except Exception as e:
+                n = len(d)
+                ix = np.linspace(1, 7, n, False)
+
+                d[d.sort_values().index] = np.floor(ix)
+                
+                return d
+        df['bin(risky/safe)'] = df.groupby(['subject'])['frac'].apply(get_risk_bin)
+
         return df.droplevel(-1, 1)
-        
+
     def get_fmriprep_confounds(self, session, include=None):
 
         if include is None:
@@ -199,6 +212,9 @@ class Subject(object):
 
         retroicor_confounds = [cf.droplevel('run') for _, cf in retroicor_confounds.groupby(['run'])]
 
+
+        for cf in retroicor_confounds:
+            cf.columns = [f'retroicor_{i}' for i in range(cf.shape[1])]
 
         return retroicor_confounds 
 

@@ -6,7 +6,7 @@ from tkinter import W
 from get_npc_mask import main as get_npc
 from nilearn import image
 from tms_risk.utils import Subject
-from nilearn.input_data.nifti_spheres_masker import _apply_mask_and_get_affinity
+from nilearn.maskers.nifti_spheres_masker import _apply_mask_and_get_affinity
 
 def main(subject, bids_folder):
 
@@ -22,7 +22,7 @@ def main(subject, bids_folder):
     # r2_unsmoothed = s.get_nprf_pars(model='encoding_model')
     # r2_unsmoothed = image.resample_to_img(r2_unsmoothed, t1w)
     
-    r2 = s.get_nprf_pars(model='encoding_model.smoothed')
+    r2 = s.get_nprf_pars(model='encoding_model.smoothed.pca_confounds')
     r2 = image.resample_to_img(r2, t1w)
     thr_r2_90 = image.math_img('np.where(r2 > .15, r2, 0.0)', r2=r2)
 

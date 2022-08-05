@@ -3,17 +3,22 @@
   3: ips
 '02':
   2: vertex
+  3: ips
 '03':
   2: vertex
   3: ips
 '04':
   2: ips
+  3: vertex
 '05':
   2: vertex
+  3: ips
 '06':
   2: ips
+  3: vertex
 '07':
-  2: 'ips'
+  2: ips
+  3: vertex
 '09':
   2: ips
   3: vertex
@@ -23,5 +28,33 @@
 '11':
   2: vertex
   3: ips
-
-
+'18':
+  2: ips
+  3: vertex
+'19':
+  2: vertex
+  3: ips
+'21':
+  2: ips
+'22':
+  2: ips
+  3: vertex
+'26':
+  2: ips
+  3: vertex
+'29':
+  2: vertex
+  3: ips
+'30':
+  2: vertex
+  3: ips
+'31':
+  2: vertex
+  3: ips
+'34':
+  2: vertex
+  3: ips
+'35':
+  2: ips
+'37':
+  2: ips
