@@ -39,6 +39,9 @@
 '22':
   2: ips
   3: vertex
+'25':
+  2: vertex
+  3: ips
 '26':
   2: ips
   3: vertex
@@ -56,5 +59,25 @@
   3: ips
 '35':
   2: ips
+  3: vertex
+'36':
+  2: vertex
+  3: ips
 '37':
   2: ips
+  3: vertex
+'46':
+  2: vertex
+'47':
+  2: ips
+  3: vertex
+'49':
+  2: vertex
+'50':
+  2: ips
+'53':
+  2: vertex
+  3: ips
+'56':
+  2: ips
+  3: vertex
