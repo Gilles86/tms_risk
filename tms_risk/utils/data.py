@@ -9,7 +9,7 @@ from sklearn.decomposition import PCA
 
 
 def get_subjects(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False):
-    subjects = list(range(1, 60))
+    subjects = list(range(1, 100))
 
     # Does not exist
     subjects.pop(subjects.index(14))
