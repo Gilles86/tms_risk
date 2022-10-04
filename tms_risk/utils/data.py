@@ -164,7 +164,7 @@ class Subject(object):
                 d[d.sort_values().index] = np.floor(ix)
                 
                 return d
-        df['bin(risky/safe)'] = df.groupby(['subject'])['frac'].apply(get_risk_bin)
+        df['bin(risky/safe)'] = df.groupby(['subject'], group_keys=False)['frac'].apply(get_risk_bin)
 
         return df.droplevel(-1, 1)
 
