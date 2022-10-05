@@ -429,9 +429,9 @@ class EvidenceModelDiminishingUtility(EvidenceModel):
         with model:
             # Hyperpriors for group nodes
             alpha_mu = pm.Normal("alpha_mu", mu=1.0, sigma=0.1)
-            alpha_sd = pm.halfcauchy('alpha_sd', .25)
-            alpha_offset = pm.normal('alpha_offset', mu=0, sigma=1, dims='subject')  # shape=n_subjects)
-            alpha = pm.deterministic('alpha', alpha_mu + alpha_sd * alpha_offset,
+            alpha_sd = pm.HalfCauchy('alpha_sd', .25)
+            alpha_offset = pm.Normal('alpha_offset', mu=0, sigma=1, dims='subject')  # shape=n_subjects)
+            alpha = pm.Deterministic('alpha', alpha_mu + alpha_sd * alpha_offset,
                                               dims='subject')
 
         super(EvidenceModelDiminishingUtility, self).build_priors(model)
