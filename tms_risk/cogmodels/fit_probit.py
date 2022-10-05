@@ -8,7 +8,7 @@ import bambi
 
 def main(model_label=1, bids_folder='/data/ds-tmsrisk'):
 
-    model, df = build_model(model_label, bids_folder)
+    model = build_model(model_label, bids_folder)
 
     idata = model.fit(init='adapt_diag',
     target_accept=0.9, draws=500, tune=500)
@@ -21,7 +21,7 @@ def main(model_label=1, bids_folder='/data/ds-tmsrisk'):
     az.to_netcdf(idata,
                  op.join(target_folder, f'model-probit{model_label}_trace.netcdf'))
 
-def build_model(model_label, bids_folder='/data/ds-tmsrisk'):
+def build_model(model_label, df, bids_folder='/data/ds-tmsrisk'):
 
     model_label = int(model_label)
 
@@ -41,7 +41,7 @@ def build_model(model_label, bids_folder='/data/ds-tmsrisk'):
     elif model_label == 3:
         formula = 'chose_risky ~ x*C(risky_first) + (x*C(risky_first)|subject)'
 
-    return bambi.Model(formula, data=df, link='probit', family='bernoulli'), df
+    return bambi.Model(formula, data=df, link='probit', family='bernoulli')
 
 
 if __name__ == '__main__':
