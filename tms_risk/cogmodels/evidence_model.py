@@ -642,6 +642,71 @@ class EvidenceModelDifferentEvidenceTwoPriors(EvidenceModelDifferentEvidence, Ev
  
             self._get_rnp_precision(get_rnp, get_precision, paradigm, diff_mu, diff_sd)
 
+class WoodfordModel(EvidenceModel):
+
+    free_parameters = {'prior_mu':3.,
+                       'prior_sd':1.,
+                       'evidence_sd':.15}
+
+
+    def build_priors(self, model):
+        with model:
+            # Hyperpriors for group nodes
+            prior_mu_mu = pm.HalfNormal("prior_mu_mu", sigma=np.log(20.))
+            prior_mu_sd = pm.HalfCauchy('prior_mu_sd', .5)
+            prior_mu_offset = pm.Normal('prior_mu_offset', mu=0, sigma=1, dims='subject')  # shape=n_subjects)
+            prior_mu = pm.Deterministic('prior_mu', prior_mu_mu + prior_mu_sd * prior_mu_offset,
+                                              dims='subject')
+
+            prior_sd_mu = pm.HalfNormal("prior_sd_mu", sigma=1.25)
+            prior_sd_sd = pm.HalfCauchy('prior_sd_sd', .5)
+
+            prior_sd = pm.TruncatedNormal('prior_sd',
+                                                mu=prior_sd_mu,
+                                                sigma=prior_sd_sd,
+                                                lower=0,
+                                                dims='subject')
+
+            # ix0 = first presented, ix1=later presented
+            evidence_sd_mu = pm.HalfNormal( "evidence_sd_mu", sigma=1.)
+            evidence_sd_sd = pm.HalfCauchy( "evidence_sd_sd", 1.)
+            evidence_sd = pm.TruncatedNormal('evidence_sd',
+                                             mu=evidence_sd_mu,
+                                             sigma=evidence_sd_sd,
+                                             lower=0,
+                                             dims='subject')
+
+            self.build_fixed_parameters(model)
+
+    def build_likelihood(self, paradigm, model, get_rnp=False, get_precision=False):
+
+        risky_prior_mu = model['risky_prior_mu']
+        risky_prior_sd = model['risky_prior_sd']
+        safe_prior_mu = model['safe_prior_mu']
+        safe_prior_sd = model['safe_prior_sd']
+        evidence_sd = model['evidence_sd']
+
+        with model:
+            post_risky_mu, post_risky_sd = get_posterior(risky_prior_mu[paradigm['subject_ix']],
+                                                         risky_prior_sd[paradigm['subject_ix']],
+                                                         tt.log(paradigm['n_risky']),
+                                                         evidence_sd[paradigm['subject_ix']])
+
+            post_safe_mu, post_safe_sd = get_posterior(safe_prior_mu[paradigm['subject_ix']],
+                                                       safe_prior_sd[paradigm['subject_ix']],
+                                                       tt.log(paradigm['n_safe']),
+                                                       evidence_sd[paradigm['subject_ix']])
+
+            diff_mu, diff_sd = get_diff_dist(post_risky_mu, post_risky_sd, post_safe_mu, post_safe_sd)
+
+            post_risky_mu = pm.Deterministic('post_risky_mu', post_risky_mu)
+            p = pm.Deterministic('p', cumulative_normal( tt.log(.55), diff_mu, diff_sd))
+
+            ll = pm.Bernoulli('ll_bernoulli', p=p,
+                              observed=paradigm['choices'])
+
+            self._get_rnp_precision(get_rnp, get_precision, paradigm, diff_mu, diff_sd)
+
 def get_posterior(mu1, sd1, mu2, sd2):
 
     var1, var2 = sd1**2, sd2**2
