@@ -31,7 +31,7 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         groupby = ['risky_first', 'log(risky/safe)']
     elif plot_type in [2, 4]:
         groupby = ['risky_first', 'n_safe']
-    elif plot_type == 3:
+    elif plot_type in [3, 5]:
         groupby = ['risky_first', 'n_safe', 'log(risky/safe)']
     else:
         raise NotImplementedError
@@ -42,30 +42,45 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
     if level == 'subject':
         groupby = ['subject'] + groupby
 
+    print(ppc)
     ppc_summary = summarize_ppc(ppc, groupby=groupby)
+    print(ppc_summary)
     p = df.groupby(groupby).mean()[['chose_risky']]
     # ppc_summary = pd.concat((p, ppc_summary)).sort_index()
-    ppc_summary = ppc_summary.join(p)
+    ppc_summary = ppc_summary.join(p).reset_index()
 
+    print(ppc_summary)
+    ppc_summary['Order'] = ppc_summary['risky_first'].map({True:'Risky first', False:'Safe first'})
+
+    if 'n_safe' in groupby:
+        ppc_summary['Safe offer'] = ppc_summary['n_safe'].astype(int)
+
+    ppc_summary['Prop. chosen risky'] = ppc_summary['chose_risky']
+
+    if 'log(risky/safe)' in groupby:
+        if level == 'group':
+            ppc_summary['Predicted acceptance'] = ppc_summary['log(risky/safe)']
+        else:
+            ppc_summary['Log-ratio offer'] = ppc_summary['log(risky/safe)']
+
+    if level == 'group':
+        x = 'Predicted acceptance'
+    else:
+        x = 'Log-ratio offer'
 
     if plot_type in [1, 2]:
-        if plot_type == 1:
-            x = 'log(risky/safe)'
-
         if plot_type == 2:
-            x = 'n_safe'
+            x = 'Safe offer'
 
-        fac = sns.FacetGrid(ppc_summary.reset_index(),
+        fac = sns.FacetGrid(ppc_summary,
                             col='subject' if level == 'subject' else None,
-                            hue='risky_first',
+                            hue='Order',
                             col_wrap=col_wrap if level == 'subject' else None)
 
     elif plot_type == 3:
-        x = 'log(risky/safe)'
-
-        fac = sns.FacetGrid(ppc_summary.reset_index(),
-                            col='n_safe',
-                            hue='risky_first',
+        fac = sns.FacetGrid(ppc_summary,
+                            col='Safe offer',
+                            hue='Order',
                             row='subject' if level == 'subject' else None)
     elif plot_type == 4:
 
@@ -80,26 +95,36 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         print(rnp)
         ppc_summary = ppc_summary.join(rnp)
         print(ppc_summary)
-        fac = sns.FacetGrid(ppc_summary.reset_index(),
-                            hue='risky_first',
+        fac = sns.FacetGrid(ppc_summary,
+                            hue='Order',
                             col='subject' if level == 'subject' else None,
                             col_wrap=col_wrap if level == 'subject' else None)
 
         print(ppc_summary)
-        fac.map_dataframe(plot_prediction, x='n_safe', y='p_predicted')
-        fac.map(plt.scatter, 'n_safe', 'rnp')
+        fac.map_dataframe(plot_prediction, x='Safe offer', y='p_predicted')
+        fac.map(plt.scatter, 'Safe offer', 'rnp')
         fac.map(lambda *args, **kwargs: plt.axhline(.55, c='k', ls='--'))
 
-    if plot_type in [1,2,3]:
+    elif plot_type == 5:
+        fac = sns.FacetGrid(ppc_summary,
+                            col='Order',
+                            hue='Safe offer',
+                            row='subject' if level == 'subject' else None,
+                            palette='coolwarm')
+
+    if plot_type in [1,2,3, 5]:
         fac.map_dataframe(plot_prediction, x=x)
-        fac.map(plt.scatter, x, 'chose_risky')
+        fac.map(plt.scatter, x, 'Prop. chosen risky')
         fac.map(lambda *args, **kwargs: plt.axhline(.5, c='k', ls='--'))
 
-    if plot_type in [1, 3]:
+    if plot_type in [1, 3, 5]:
         if level == 'subject':
             fac.map(lambda *args, **kwargs: plt.axvline(np.log(1./.55), c='k', ls='--'))
         else:
-            fac.map(lambda *args, **kwargs: plt.axvline(3.5, c='k', ls='--'))
+            fac.map(lambda *args, **kwargs: plt.axvline(2.5, c='k', ls='--'))
+
+    
+    fac.add_legend()
 
     return fac
 
@@ -121,7 +146,84 @@ def summarize_ppc(ppc, groupby=None):
     hdi = pd.DataFrame(az.hdi(ppc.T.values), index=ppc.index,
                        columns=['hdi025', 'hdi975'])
 
+    print(hdi)
     return pd.concat((e, hdi), axis=1)
 
 def get_rnp(d):
     return (1./d['frac']).quantile(d.chose_risky.mean())
+
+
+def format_bambi_ppc(trace, model, df):
+
+    preds = []
+    for key, kind in zip(['ll_bernoulli', 'p'], ['pps', 'mean']):
+        pred = model.predict(trace, kind=kind, inplace=False) 
+        if kind == 'pps':
+            pred = pred['posterior_predictive']['chose_risky'].to_dataframe().unstack(['chain', 'draw'])['chose_risky']
+        else:
+            pred = pred['posterior']['chose_risky_mean'].to_dataframe().unstack(['chain', 'draw'])['chose_risky_mean']
+        pred.index = df.index
+        pred = pred.set_index(pd.MultiIndex.from_frame(df), append=True)
+        preds.append(pred)
+
+    pred = pd.concat(preds, keys=['ll_bernoulli', 'p'], names=['variable'])
+    return pred
+
+
+def plot_subjectwise_posterior(trace, key, hue=None, ref_value=None, color=None,
+palette=sns.color_palette()):
+    d = trace.posterior[key].to_dataframe()
+
+    if ref_value is not None:
+        if isinstance(ref_value, pd.DataFrame):
+            print('yooo')
+            d = d.join(ref_value)
+
+    print(d)
+
+    if (color is None) and (hue is None):
+        color = palette[0]
+
+    fac = sns.catplot(x='subject', y=key, hue=hue, data=d.reset_index(),
+    kind='violin', aspect=8, color=color, palette=palette if hue is not None else None)
+
+    if ref_value is not None:
+        print('yoooo')
+        fac.map(sns.pointplot, 'subject', 'ref_value', color='k')
+
+    # if ref_value:
+    #     fac.map(lambda *args, **kwargs: plt.axhline(ref_value, c='k', ls='--'))
+
+    return fac
+
+def plot_groupwise_posterior(trace, key, hue, ref_value, palette=sns.color_palette(), color=None):
+
+    d = trace.posterior[key+'_mu'].to_dataframe()
+
+    if ref_value is not None:
+        if isinstance(ref_value, pd.DataFrame):
+            print('yooo')
+            d = d.join(ref_value)
+        else:
+            d['ref_value'] = ref_value
+
+    if (color is None) and (hue is None):
+        color = palette[0]
+
+    # if hue is not None:
+    #     fac = sns.catplot(x=hue, y=key+'_mu', data=d.reset_index(), kind='violin', aspect=1., palette=palette)
+    # else:
+    fac = sns.FacetGrid(d.reset_index(), hue=hue)
+    fac.map(sns.kdeplot, key+'_mu', fill=True)
+    # fac.map(sns.histplot, key+'_mu', stat='density')
+
+    if ref_value is not None:
+        print(f'REF VALUE {ref_value}')
+        fac.map(lambda *args, **kwargs: plt.axvline(ref_value.values, c='k', ls='--'))
+
+    if hue is not None:
+        fac.add_legend()
+
+    fac.set(ylabel=f'p({key})')
+
+    return fac
