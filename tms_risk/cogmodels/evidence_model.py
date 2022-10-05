@@ -8,6 +8,7 @@ from ipywidgets import interact
 import seaborn as sns
 import matplotlib.pyplot as plt
 from IPython.display import display
+from collections.abc import Iterable 
 
 def softplus_np(x): return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
 
@@ -16,7 +17,7 @@ class EvidenceModel(object):
 
     free_parameters = {'prior_mu':3.,
                        'prior_sd':1.,
-                       'evidence_sd':[.25, .15]}
+                       'evidence_sd':[.25, .25]}
 
     def __init__(self, data=None, n_subjects=20):
 
@@ -125,12 +126,9 @@ class EvidenceModel(object):
             self.build_prediction_model(parameters)
 
         for key in self.free_parameters.keys():
-            if key == 'evidence_sd':
-                key_ = ['evidence_sd1', 'evidence_sd2']
-            elif key == 'evidence_sd_safe':
-                key_ = ['evidence_sd_safe1', 'evidence_sd_safe2']
-            elif key == 'evidence_sd_risky':
-                key_ = ['evidence_sd_risky1', 'evidence_sd_risky2']
+
+            if isinstance(self.free_parameters[key], Iterable):
+                key_ = [f'{key}{i+1}' for i in range(len(self.free_parameters[key]))]
             else:
                 key_ = key
 
@@ -162,8 +160,8 @@ class EvidenceModel(object):
             paradigm = self._get_paradigm(self.data)
 
             for key in self.free_parameters.keys():
-                if key.startswith('evidence_sd'):
-                    key_ = [key+'1', key+'2']
+                if isinstance(self.free_parameters[key], Iterable):
+                    key_ = [f'{key}{i+1}' for i in range(len(self.free_parameters[key]))]
                     dims = ('subject', 'presentation')
                 else:
                     key_ = key
@@ -295,23 +293,24 @@ class EvidenceModel(object):
     def get_widget(self):
         pars = self.free_parameters.copy()
 
-        if 'evidence_sd' in pars:
-            pars['evidence_sd1'], pars['evidence_sd2'] = pars.pop('evidence_sd')
-
-        if 'evidence_sd_safe' in pars:
-            pars['evidence_sd_safe1'], pars['evidence_sd_safe2'] = pars.pop('evidence_sd_safe')
-
-        if 'evidence_sd_risky' in pars:
-            pars['evidence_sd_risky1'], pars['evidence_sd_risky2'] = pars.pop('evidence_sd_risky')
+        for key in self.free_parameters:
+            if isinstance(self.free_parameters[key], Iterable):
+                values = pars.pop(key)
+                for i in range(len(self.free_parameters[key])):
+                    pars[f'{key}{i+1}'] = values[i]
 
         def make_plot(**parameters):
             parameters = pd.DataFrame([parameters])
-            pred = self.predict(parameters)
+            pred = self.predict(parameters).reset_index()
+
+            pred['Safe offer'] = pred['n_safe']
+            pred['Predicted prop. accept risky'] = pred['predicted_p']
+            pred['Order'] = pred['risky_first'].map({True:'Risky first', False:'Safe first'})
 
             fig, (ax1, ax2) = plt.subplots(1, 2) 
             fig.set_size_inches(12, 5)
-            sns.lineplot(x='n_safe', y='predicted_p', hue='risky_first', data=pred.reset_index(), ax=ax1)
-            sns.lineplot(x='log(risky/safe)', y='predicted_p', hue='risky_first', data=pred.reset_index(), ax=ax2)
+            sns.lineplot(x='Safe offer', y='Predicted prop. accept risky', hue='Order', data=pred.reset_index(), ax=ax1, hue_order=['Safe first', 'Risky first'])
+            sns.lineplot(x='log(risky/safe)', y='Predicted prop. accept risky', hue='Order', data=pred.reset_index(), ax=ax2, hue_order=['Safe first', 'Risky first'])
             ax1.set_ylim(0, 1)
             ax2.set_ylim(0, 1)
             ax1.axhline(.5, c='k', ls='--')
@@ -329,7 +328,7 @@ class EvidenceModelTwoPriors(EvidenceModel):
 
     free_parameters = {'risky_prior_mu':3.,
                        'risky_prior_sd':1.,
-                       'evidence_sd':[.25, .15]}
+                       'evidence_sd':[.25, .25]}
 
     def build_fixed_parameters(self, model):
         with model:
