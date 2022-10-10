@@ -1,3 +1,4 @@
+import os
 import os.path as op
 from re import I
 import pandas as pd
@@ -243,3 +244,12 @@ class Subject(object):
             confounds = [cf.T.reset_index(drop=True).T for cf in confounds]
 
         return confounds
+
+def get_target_dir(subject, session, sourcedata, base, modality='func'):
+    target_dir = op.join(sourcedata, 'derivatives', base, f'sub-{subject}', f'ses-{session}',
+                         modality)
+
+    if not op.exists(target_dir):
+        os.makedirs(target_dir)
+
+    return target_dir
