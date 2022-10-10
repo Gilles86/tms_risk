@@ -54,3 +54,6 @@ experiment/logs/*
 experiment/settings/*
 
 *output.nipype
+
+batch.m
+.ipynb_checkpoints

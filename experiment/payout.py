@@ -34,7 +34,7 @@ def get_payout(subject, session, settings='default'):
     df = pd.concat(df)
     df = df[np.in1d(df.phase, [8, 9])]
     df = df.pivot_table(index=['task', 'trial_nr'], values=[
-                        'choice', 'certainty', 'n1', 'n2', 'prob1', 'prob2'])
+                        'choice',  'n1', 'n2', 'prob1', 'prob2'])
 
     row = df.sample().iloc[0]
 
@@ -79,8 +79,6 @@ def get_payout(subject, session, settings='default'):
             else:
                 txt += f'\n\nSo you got a bonus of {int(row.n1)} CHF.'
                 payout = row.n1
-
-    txt += '\n\nNote that after four sessions you will get the average bonus over the four sessions.'
 
     output_dir, output_str = get_output_dir_str(subject, session, task, None)
 
