@@ -7,7 +7,9 @@ import numpy as np
 import pkg_resources
 import yaml
 from sklearn.decomposition import PCA
-
+from nilearn import image
+from nilearn.maskers import NiftiMasker
+from collections.abc import Iterable
 
 def get_subjects(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False):
     subjects = list(range(1, 100))
@@ -59,6 +61,7 @@ class Subject(object):
                 if session in tms_conditions[self.subject]:
                     return tms_conditions[self.subject][session]
             return None
+
     def get_volume_mask(self, roi='NPC12r'):
 
         if roi.startswith('NPC'):
@@ -108,9 +111,12 @@ class Subject(object):
 
         return im
 
-    def get_behavior(self, sessions=None):
+    def get_behavior(self, sessions=None, drop_no_responses=True):
         if sessions is None:
             sessions = [1, 2, 3]
+
+        if not isinstance(sessions, Iterable):
+            sessions = [sessions]
 
         runs = range(1, 7)
         df = []
@@ -130,12 +136,12 @@ class Subject(object):
             df = pd.concat(df)
             df = df.reset_index().set_index(['subject', 'session', 'stimulation_condition', 'run', 'trial_nr', 'trial_type']) 
             df = df.unstack('trial_type')
-            return self._cleanup_behavior(df)
+            return self._cleanup_behavior(df, drop_no_responses=drop_no_responses)
         else:
             return pd.DataFrame([])
 
     @staticmethod
-    def _cleanup_behavior(df_):
+    def _cleanup_behavior(df_, drop_no_responses=True):
         df = df_[[]].copy()
         df['rt'] = df_.loc[:, ('onset', 'choice')] - df_.loc[:, ('onset', 'stimulus 2')]
         df['n1'], df['n2'] = df_['n1']['stimulus 1'], df_['n2']['stimulus 1']
@@ -152,8 +158,9 @@ class Subject(object):
         df['frac'] = df['n_risky'] / df['n_safe']
         df['log(risky/safe)'] = np.log(df['frac'])
 
-        df = df[~df.chose_risky.isnull()]
-        df['chose_risky'] = df['chose_risky'].astype(bool)
+        if drop_no_responses:
+            df = df[~df.chose_risky.isnull()]
+            df['chose_risky'] = df['chose_risky'].astype(bool)
 
         def get_risk_bin(d):
             labels = [f'{int(e)}%' for e in np.linspace(20, 80, 6)]
@@ -244,6 +251,93 @@ class Subject(object):
             confounds = [cf.T.reset_index(drop=True).T for cf in confounds]
 
         return confounds
+
+    def get_single_trial_volume(self, session, mask=None, 
+            smoothed=False,
+            pca_confounds=False):
+
+        key= 'glm_stim1'
+
+        if smoothed:
+            key += '.smoothed'
+
+        if pca_confounds:
+            key += '.pca_confounds'
+
+        fn = op.join(self.bids_folder, 'derivatives', key, f'sub-{self.subject}', f'ses-{session}', 'func', 
+                f'sub-{self.subject}_ses-{session}_task-task_space-T1w_desc-stims1_pe.nii.gz')
+
+        im = image.load_img(fn)
+        
+        mask = self.get_volume_mask(session, mask)
+        # paradigm = get_task_behavior(subject, session, bids_folder)
+        masker = NiftiMasker(mask_img=mask)
+
+        data = pd.DataFrame(masker.fit_transform(im))
+
+        return data
+
+    def get_volume_mask(self, roi, session=None, epi_space=False):
+
+        if roi.startswith('NPC'):
+            mask = op.join(self.derivatives_dir
+            ,'ips_masks',
+            f'sub-{self.subject}',
+            'anat',
+            f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
+            )
+
+        else:
+            raise NotImplementedError
+        if epi_space:
+            base_mask = op.join(self.bids_folder, 'derivatives', f'fmriprep/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
+
+            mask = image.resample_to_img(mask, base_mask, interpolation='nearest')
+
+        return mask
+    
+    def get_prf_parameters_volume(self, session, 
+            run=None,
+            smoothed=False,
+            pca_confounds=False,
+            cross_validated=True,
+            hemi=None,
+            mask=None,
+            space='fsnative'):
+
+        dir = 'encoding_model'
+        if cross_validated:
+            if run is None:
+                raise Exception('Give run')
+
+            dir += '.cv'
+
+        if smoothed:
+            dir += '.smoothed'
+
+        if pca_confounds:
+            dir += '.pca_confounds'
+
+        parameters = []
+
+        keys = ['mu', 'sd', 'amplitude', 'baseline']
+
+        mask = self.get_volume_mask(session, mask)
+        masker = NiftiMasker(mask)
+
+        for parameter_key in keys:
+            if cross_validated:
+                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                        'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+            else:
+                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+            
+            pars = pd.Series(masker.fit_transform(fn).ravel())
+            parameters.append(pars)
+
+        return pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
+
 
 def get_target_dir(subject, session, sourcedata, base, modality='func'):
     target_dir = op.join(sourcedata, 'derivatives', base, f'sub-{subject}', f'ses-{session}',
