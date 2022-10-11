@@ -13,7 +13,7 @@ def main(subject, bids_folder):
     s = Subject(subject, bids_folder)
     t1w = s.t1w
 
-    npc_mask = s.get_volume_mask('NPC12r')
+    npc_mask = s.get_volume_mask(roi='NPC12r')
     npc_mask = image.resample_to_img(npc_mask, t1w)
 
     if npc_mask.ndim > 3:
@@ -27,8 +27,6 @@ def main(subject, bids_folder):
     thr_r2_90 = image.math_img('np.where(r2 > .15, r2, 0.0)', r2=r2)
 
     thr_r2 = image.math_img('npc_mask*r2', r2=r2, npc_mask=npc_mask)
-
-
 
     coords, ball = get_coords_ball(thr_r2)
 
