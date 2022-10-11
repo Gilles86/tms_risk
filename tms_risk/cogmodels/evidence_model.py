@@ -1,3 +1,4 @@
+from pandas.core.arrays import base
 import pymc as pm
 import numpy as np
 import pandas as pd
@@ -19,9 +20,15 @@ class EvidenceModel(object):
                        'prior_sd':1.,
                        'evidence_sd':[.25, .25]}
 
-    def __init__(self, data=None, n_subjects=20):
+    def __init__(self, data=None, n_subjects=20, base_numbers=None):
 
-        self.base_numbers = [7, 10, 14, 20, 28]
+        if base_numbers is None:
+            if data is None:
+                self.base_numbers = [7, 10, 14, 20, 28]
+            else:
+                self.base_numbers = data['n_safe'].unique()
+        else:
+            self.base_numbers = base_numbers
 
         if data is not None:
             self.data = data
@@ -479,7 +486,7 @@ class EvidenceModelTwoPriorsDiminishingUtility(EvidenceModelTwoPriors, EvidenceM
 
         with model:
             # Hyperpriors for group nodes
-            alpha_mu = pm.Normal("alpha_mu", mu=1.0, sigma=0.5)
+            alpha_mu = pm.Normal("alpha_mu", mu=1.0, sigma=0.1)
             alpha_sd = pm.HalfCauchy('alpha_sd', .25)
             alpha_offset = pm.Normal('alpha_offset', mu=0, sigma=1, dims='subject')  # shape=n_subjects)
             alpha = pm.Deterministic('alpha', alpha_mu + alpha_sd * alpha_offset,

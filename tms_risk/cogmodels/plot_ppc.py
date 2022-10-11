@@ -16,16 +16,24 @@ from fit_probit import build_model
 
 def main(model_label, bids_folder, group_only=False, subject=None, col_wrap=5):
 
-    print(subject)
-
     df = get_all_behavior(bids_folder=bids_folder)
     df = df.xs(1, 0, 'session')
-    df['log(risky/safe)'] = df.groupby(['subject'],
-                                       group_keys=False).apply(cluster_offers)
+
+    plot_ppc_(df, model_label, bids_folder, group_only, subject, col_wrap)
 
     trace_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
     trace = az.from_netcdf(
         op.join(trace_folder, f'model-{model_label}_trace.netcdf'))
+
+
+def plot_ppc_(df, trace, model_label, bids_folder, group_only=False, subject=None, col_wrap=5, thin=None):
+
+    df['log(risky/safe)'] = df.groupby(['subject'],
+                                       group_keys=False).apply(cluster_offers)
+
+    if thin is not None: 
+        trace = trace.sel(draw=slice(None, None, thin))
+
 
     if group_only:
         levels = ['group']
@@ -49,7 +57,7 @@ def main(model_label, bids_folder, group_only=False, subject=None, col_wrap=5):
     elif model_label == '8':
         model = WoodfordModel(df)
     elif model_label.startswith('probit'):
-        model = build_model(model_label[-1])
+        model = build_model(model_label[-1], df)
     else:
         raise Exception(f'Do not know model label {model_label}')
 

@@ -7,15 +7,14 @@ from tms_risk.utils.data import get_all_behavior
 from fit_model import build_model
 import numpy as np
 
-
-
-
-
 def main(model_label, bids_folder, group_only):
 
     df = get_all_behavior(bids_folder=bids_folder)
     df = df.xs(1, 0, 'session')
 
+    plot_parameter_estimates(df, model_label, bids_folder, group_only)
+
+def plot_parameter_estimates(df, model_label, bids_folder, group_only):
     trace_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
     trace = az.from_netcdf(
         op.join(trace_folder, f'model-{model_label}_trace.netcdf'))
