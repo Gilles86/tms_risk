@@ -36,6 +36,7 @@
   3: ips
 '21':
   2: ips
+  3: vertex
 '22':
   2: ips
   3: vertex
@@ -87,4 +88,6 @@
   2: ips
   3: vertex
 '62':
+  2: vertex
+'63':
   2: vertex
