@@ -9,11 +9,11 @@
 module load volta
 module load nvidia/cuda11.2-cudnn8.1.0
 
-. $HOME/init_conda.sh
-. $HOME/init_freesurfer.sh
-#. $HOME/bashrc.sh
+# . $HOME/init_conda.sh
+# . $HOME/init_freesurfer.sh
+. $HOME/.bashrc.sh
 
 export PARTICIPANT_LABEL=$(printf "%02d" $SLURM_ARRAY_TASK_ID)
 
 source activate tf2-gpu
-python $HOME/git/tms_risk/tms_risk/encoding_model/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /scratch/gdehol/ds-tmsrisk --pca_confounds --smoothed
+python $HOME/git/tms_risk/tms_risk/encoding_model/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /scratch/gdehol/ds-tmsrisk
