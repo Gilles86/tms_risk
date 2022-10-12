@@ -25,10 +25,10 @@ def get_subjects(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_
 
     return subjects
 
-def get_all_behavior(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False):
+def get_all_behavior(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False, drop_no_responses=True):
 
     subjects = get_subjects(bids_folder, correct_behavior, correct_npc)
-    behavior = [s.get_behavior() for s in subjects]
+    behavior = [s.get_behavior(drop_no_responses=drop_no_responses) for s in subjects]
     return pd.concat(behavior)
 
 def get_tms_conditions():
@@ -99,6 +99,15 @@ class Subject(object):
 
         return t1w
 
+    def get_preprocessed_bold(self, session=1, runs=None, space='T1w'):
+        if runs is None:
+            runs = range(1, 7)
+
+        images = [op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}',
+         f'ses-{session}', 'func', f'sub-{self.subject}_ses-{session}_task-task_run-{run}_space-{space}_desc-preproc_bold.nii.gz') for run in runs]
+
+        return images
+
     def get_nprf_pars(self, session=1, model='encoding_model.smoothed', parameter='r2',
     volume=True):
 
@@ -157,6 +166,8 @@ class Subject(object):
         df['n_safe'] = df['n2'].where(df['risky_first'], df['n1'])
         df['frac'] = df['n_risky'] / df['n_safe']
         df['log(risky/safe)'] = np.log(df['frac'])
+
+        df['log(n1)'] = np.log(df['n1'])
 
         if drop_no_responses:
             df = df[~df.chose_risky.isnull()]
@@ -277,16 +288,21 @@ class Subject(object):
 
         return data
 
-    def get_volume_mask(self, roi, session=None, epi_space=False):
+    def get_volume_mask(self, roi=None, session=None, epi_space=False):
 
-        if roi.startswith('NPC'):
+        if roi is None:
+            if epi_space:
+                base_mask = op.join(self.bids_folder, 'derivatives', f'fmriprep/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
+                return image.load_img(base_mask)
+            else:
+                raise NotImplementedError
+        elif roi.startswith('NPC'):
             mask = op.join(self.derivatives_dir
             ,'ips_masks',
             f'sub-{self.subject}',
             'anat',
             f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
             )
-
         else:
             raise NotImplementedError
         if epi_space:
@@ -338,12 +354,39 @@ class Subject(object):
 
         return pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
 
+    def get_fmri_events(self, session, runs=None):
 
-def get_target_dir(subject, session, sourcedata, base, modality='func'):
-    target_dir = op.join(sourcedata, 'derivatives', base, f'sub-{subject}', f'ses-{session}',
-                         modality)
+        if runs is None:
+            runs = range(1,7)
 
-    if not op.exists(target_dir):
-        os.makedirs(target_dir)
+        behavior = []
+        for run in runs:
+            behavior.append(pd.read_table(op.join(
+                self.bids_folder, f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv')))
 
-    return target_dir
+        behavior = pd.concat(behavior, keys=runs, names=['run'])
+        behavior = behavior.reset_index().set_index(
+            ['run', 'trial_type'])
+
+
+        stimulus1 = behavior.xs('stimulus 1', 0, 'trial_type', drop_level=False).reset_index('trial_type')[['onset', 'trial_nr', 'trial_type']]
+        stimulus1['duration'] = 0.6
+        stimulus1['trial_type'] = stimulus1.trial_nr.map(lambda trial: f'trial_{trial:03d}_n1')
+
+        
+        stimulus2 = behavior.xs('stimulus 2', 0, 'trial_type', drop_level=False).reset_index('trial_type')[['onset', 'trial_nr', 'trial_type']]
+        stimulus2['duration'] = 0.6
+        stimulus2['trial_type'] = stimulus1.trial_nr.map(lambda trial: f'trial_{trial:03d}_n2')
+
+        events = pd.concat((stimulus1, stimulus2)).sort_index()
+
+        return events
+
+    def get_target_dir(subject, session, sourcedata, base, modality='func'):
+        target_dir = op.join(sourcedata, 'derivatives', base, f'sub-{subject}', f'ses-{session}',
+                            modality)
+
+        if not op.exists(target_dir):
+            os.makedirs(target_dir)
+
+        return target_dir
