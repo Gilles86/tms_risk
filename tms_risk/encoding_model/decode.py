@@ -51,7 +51,7 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
 
     print(2)
 
-    data = sub.get_single_trial_volume(session, mask=mask, smoothed=smoothed, pca_confounds=pca_confounds).astype(np.float32)
+    data = sub.get_single_trial_volume(session=session, roi=mask, smoothed=smoothed, pca_confounds=pca_confounds).astype(np.float32)
     data.index = paradigm.index
     print(3)
     print(data)
@@ -67,7 +67,8 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
 
         pars = sub.get_prf_parameters_volume(session, cross_validated=True,
                 smoothed=smoothed, pca_confounds=pca_confounds,
-                run=test_run, mask=mask)
+                roi=mask,
+                run=test_run)
         
         print(pars)
 
@@ -77,7 +78,6 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
         r2 = get_rsq(train_data, pred)
         print(r2.describe())
         r2_mask = r2.sort_values(ascending=False).index[:n_voxels]
-        print(r2_mask)
 
         train_data = train_data[r2_mask]
         test_data = test_data[r2_mask]
@@ -90,10 +90,10 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
                                   train_paradigm['log(n1)'].astype(np.float32))
 
         omega, dof = residfit.fit(init_sigma2=10.0,
-                init_dof=10,
+                init_dof=10.0,
                 method='t',
-                learning_rate=0.001,
-                max_n_iterations=10000)
+                learning_rate=0.005,
+                max_n_iterations=20000)
 
         print('DOF', dof)
 

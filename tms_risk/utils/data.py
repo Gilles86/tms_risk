@@ -252,7 +252,7 @@ class Subject(object):
 
         return confounds
 
-    def get_single_trial_volume(self, session, mask=None, 
+    def get_single_trial_volume(self, session, roi=None, 
             smoothed=False,
             pca_confounds=False):
 
@@ -269,8 +269,7 @@ class Subject(object):
 
         im = image.load_img(fn)
         
-        mask = self.get_volume_mask(session, mask)
-        # paradigm = get_task_behavior(subject, session, bids_folder)
+        mask = self.get_volume_mask(roi=roi, session=session, epi_space=True)
         masker = NiftiMasker(mask_img=mask)
 
         data = pd.DataFrame(masker.fit_transform(im))
@@ -289,6 +288,7 @@ class Subject(object):
 
         else:
             raise NotImplementedError
+
         if epi_space:
             base_mask = op.join(self.bids_folder, 'derivatives', f'fmriprep/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
 
@@ -302,7 +302,7 @@ class Subject(object):
             pca_confounds=False,
             cross_validated=True,
             hemi=None,
-            mask=None,
+            roi=None,
             space='fsnative'):
 
         dir = 'encoding_model'
@@ -322,7 +322,7 @@ class Subject(object):
 
         keys = ['mu', 'sd', 'amplitude', 'baseline']
 
-        mask = self.get_volume_mask(session, mask)
+        mask = self.get_volume_mask(session=session, roi=roi, epi_space=True)
         masker = NiftiMasker(mask)
 
         for parameter_key in keys:
