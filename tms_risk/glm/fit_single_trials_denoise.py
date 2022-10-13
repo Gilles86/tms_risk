@@ -30,8 +30,7 @@ def main(subject, session, bids_folder, smoothed=False):
         base_dir += '.smoothed'
         ims = [image.smooth_img(im, fwhm=5.0) for im in ims]
 
-    data = [image.math_img(
-        'np.nan_to_num((im / im.mean(-1)[..., np.newaxis]) * 100 - 100)', im=im).get_fdata() for im in ims]
+    data = [image.load_img(im).get_fdata() for im in ims]
 
     base_dir = op.join(derivatives, base_dir, f'sub-{subject}',
                        f'ses-{session}', 'func')
@@ -69,7 +68,7 @@ def main(subject, session, bids_folder, smoothed=False):
 
     # for the purpose of this example we will keep the relevant outputs in memory
     # and also save them to the disk
-    opt['wantfileoutputs'] = [1, 1, 1, 1]
+    opt['wantfileoutputs'] = [0, 0, 0, 1]
 
     # running python GLMsingle involves creating a GLM_single object
     # and then running the procedure using the .fit() routine
