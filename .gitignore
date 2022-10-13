@@ -57,3 +57,4 @@ experiment/settings/*
 
 batch.m
 .ipynb_checkpoints
+*.job
