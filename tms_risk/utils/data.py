@@ -264,10 +264,14 @@ class Subject(object):
         return confounds
 
     def get_single_trial_volume(self, session, roi=None, 
+            denoise=False,
             smoothed=False,
             pca_confounds=False):
 
         key= 'glm_stim1'
+
+        if denoise:
+            key += '.denoise'
 
         if smoothed:
             key += '.smoothed'

@@ -27,10 +27,13 @@ stimulus_range = np.linspace(0, 6, 1000)
 mask = 'NPC_R'
 space = 'T1w'
 
-def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='/data',
+def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids_folder='/data',
         mask='wang15_ips'):
 
     target_dir = op.join(bids_folder, 'derivatives', 'decoded_pdfs.volume')
+
+    if denoise:
+        target_dir += '.denoise'
 
     if smoothed:
         target_dir += '.smoothed'
@@ -39,6 +42,7 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
         target_dir += '.pca_confounds'
 
     target_dir = op.join(target_dir, f'sub-{subject}', 'func')
+    print(denoise, target_dir)
 
     if not op.exists(target_dir):
         os.makedirs(target_dir)
@@ -51,7 +55,7 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
 
     print(2)
 
-    data = sub.get_single_trial_volume(session=session, roi=mask, smoothed=smoothed, pca_confounds=pca_confounds).astype(np.float32)
+    data = sub.get_single_trial_volume(session=session, denoise=denoise, roi=mask, smoothed=smoothed, pca_confounds=pca_confounds).astype(np.float32)
     data.index = paradigm.index
     print(3)
     print(data)
@@ -67,6 +71,7 @@ def main(subject, session, smoothed, pca_confounds, n_voxels=1000, bids_folder='
 
         pars = sub.get_prf_parameters_volume(session, cross_validated=True,
                 smoothed=smoothed, pca_confounds=pca_confounds,
+                denoise=denoise,
                 roi=mask,
                 run=test_run)
         
@@ -127,10 +132,11 @@ if __name__ == '__main__':
     parser.add_argument('--bids_folder', default='/data')
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
+    parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--mask', default='wang15_ips')
     parser.add_argument('--n_voxels', default=100, type=int)
     args = parser.parse_args()
 
-    main(args.subject, args.session, args.smoothed, args.pca_confounds,
-            args.n_voxels,
+    main(subject=args.subject, session=args.session, smoothed=args.smoothed, pca_confounds=args.pca_confounds, denoise=args.denoise,
+            n_voxels=args.n_voxels,
             bids_folder=args.bids_folder, mask=args.mask)

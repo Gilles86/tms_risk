@@ -3,16 +3,23 @@ import pandas as pd
 from braincoder.models import GaussianPRF
 from braincoder.optimize import ParameterFitter
 from nilearn.input_data import NiftiMasker
+from tms_risk.utils import get_target_dir
 
+import os
 import os.path as op
 import numpy as np
 
 
 def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
+        denoise=False,
         pca_confounds=False):
 
     key = 'glm_stim1'
     target_dir = 'encoding_model'
+
+    if denoise:
+        key += '.denoise'
+        target_dir += '.denoise'
 
     if smoothed:
         key += '.smoothed'
@@ -22,7 +29,11 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
         target_dir += '.pca_confounds'
         key += '.pca_confounds'
 
-    target_dir = get_target_dir(subject, session, bids_folder, target_dir)
+    target_dir = op.join(bids_folder, 'derivatives', target_dir, f'sub-{subject}', f'ses-{session}', 'func' )
+    if not op.exists(target_dir):
+        os.makedirs(target_dir)
+
+    print("TARGET DIR", target_dir)
 
     runs = range(1, 7)
     if (str(subject) == '10') & (str(session) == '1'):
@@ -82,7 +93,8 @@ if __name__ == '__main__':
     parser.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
+    parser.add_argument('--denoise', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
-            pca_confounds=args.pca_confounds)
+            pca_confounds=args.pca_confounds, denoise=args.denoise)
