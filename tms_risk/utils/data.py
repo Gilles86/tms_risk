@@ -378,9 +378,9 @@ class Subject(object):
         stimulus1['trial_type'] = stimulus1.trial_nr.map(lambda trial: f'trial_{trial:03d}_n1')
 
         
-        stimulus2 = behavior.xs('stimulus 2', 0, 'trial_type', drop_level=False).reset_index('trial_type')[['onset', 'trial_nr', 'trial_type']]
+        stimulus2 = behavior.xs('stimulus 2', 0, 'trial_type', drop_level=False).reset_index('trial_type')[['onset', 'trial_nr', 'trial_type', 'n2']]
         stimulus2['duration'] = 0.6
-        stimulus2['trial_type'] = stimulus1.trial_nr.map(lambda trial: f'trial_{trial:03d}_n2')
+        stimulus2['trial_type'] = stimulus2.n2.map(lambda n2: f'n2_{int(n2)}')
 
         events = pd.concat((stimulus1, stimulus2)).sort_index()
 
