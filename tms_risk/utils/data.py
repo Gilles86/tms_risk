@@ -316,6 +316,7 @@ class Subject(object):
             run=None,
             smoothed=False,
             pca_confounds=False,
+            denoise=False,
             cross_validated=True,
             hemi=None,
             roi=None,
@@ -328,6 +329,9 @@ class Subject(object):
 
             dir += '.cv'
 
+        if denoise:
+            dir += '.denoise'
+            
         if smoothed:
             dir += '.smoothed'
 
