@@ -28,12 +28,19 @@ mask = 'NPC_R'
 space = 'T1w'
 
 def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids_folder='/data',
+        retroicor=False,
         mask='wang15_ips'):
 
     target_dir = op.join(bids_folder, 'derivatives', 'decoded_pdfs.volume')
 
     if denoise:
         target_dir += '.denoise'
+
+    if (retroicor) and (not denoise):
+        raise Exception("When not using GLMSingle RETROICOR is *always* used!")
+
+    if retroicor:
+        target_dir += '.retroicor'
 
     if smoothed:
         target_dir += '.smoothed'
@@ -55,7 +62,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
     print(2)
 
-    data = sub.get_single_trial_volume(session=session, denoise=denoise, roi=mask, smoothed=smoothed, pca_confounds=pca_confounds).astype(np.float32)
+    data = sub.get_single_trial_volume(session=session, denoise=denoise, retroicor=retroicor, roi=mask, smoothed=smoothed, pca_confounds=pca_confounds).astype(np.float32)
     data.index = paradigm.index
     print(3)
     print(data)
@@ -72,6 +79,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         pars = sub.get_prf_parameters_volume(session, cross_validated=True,
                 smoothed=smoothed, pca_confounds=pca_confounds,
                 denoise=denoise,
+                retroicor=retroicor,
                 roi=mask,
                 run=test_run)
         
@@ -132,6 +140,7 @@ if __name__ == '__main__':
     parser.add_argument('--bids_folder', default='/data')
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
+    parser.add_argument('--retroicor', action='store_true')
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--mask', default='wang15_ips')
     parser.add_argument('--n_voxels', default=100, type=int)

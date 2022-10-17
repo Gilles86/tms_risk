@@ -266,12 +266,19 @@ class Subject(object):
     def get_single_trial_volume(self, session, roi=None, 
             denoise=False,
             smoothed=False,
-            pca_confounds=False):
+            pca_confounds=False,
+            retroicor=False):
 
         key= 'glm_stim1'
 
         if denoise:
             key += '.denoise'
+
+        if (retroicor) and (not denoise):
+            raise Exception("When not using GLMSingle RETROICOR is *always* used!")
+
+        if retroicor:
+            key += '.retroicor'
 
         if smoothed:
             key += '.smoothed'
@@ -321,10 +328,9 @@ class Subject(object):
             smoothed=False,
             pca_confounds=False,
             denoise=False,
+            retroicor=False,
             cross_validated=True,
-            hemi=None,
-            roi=None,
-            space='fsnative'):
+            roi=None):
 
         dir = 'encoding_model'
         if cross_validated:
@@ -336,6 +342,12 @@ class Subject(object):
         if denoise:
             dir += '.denoise'
             
+        if (retroicor) and (not denoise):
+            raise Exception("When not using GLMSingle RETROICOR is *always* used!")
+
+        if retroicor:
+            key += '.retroicor'
+
         if smoothed:
             dir += '.smoothed'
 

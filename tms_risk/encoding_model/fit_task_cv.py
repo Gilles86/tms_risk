@@ -10,7 +10,7 @@ import os.path as op
 import numpy as np
 
 
-def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False):
+def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False, retroicor=False):
          
 
     key = 'glm_stim1'
@@ -19,6 +19,13 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
     if denoise:
         key += '.denoise'
         target_dir += '.denoise'
+
+    if (retroicor) and (not denoise):
+        raise Exception("When not using GLMSingle RETROICOR is *always* used!")
+
+    if retroicor:
+        key += '.retroicor'
+        target_dir += '.retroicor'
 
     if smoothed:
         key += '.smoothed'
@@ -117,7 +124,8 @@ if __name__ == '__main__':
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
     parser.add_argument('--denoise', action='store_true')
+    parser.add_argument('--retroicor', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
-            pca_confounds=args.pca_confounds, denoise=args.denoise)
+            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=True)
