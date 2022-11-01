@@ -81,13 +81,22 @@
   3: ips
 '50':
   2: ips
+  3: vertex
 '53':
   2: vertex
   3: ips
 '56':
   2: ips
   3: vertex
+'59':
+  2: vertex
+  3: ips
 '62':
   2: vertex
+  3: ips
 '63':
   2: vertex
+  3: ips
+'69':
+  2: ips
+  3: vertex
