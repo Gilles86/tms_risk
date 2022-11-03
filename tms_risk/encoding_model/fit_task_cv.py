@@ -128,4 +128,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
-            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=True)
+            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor)
