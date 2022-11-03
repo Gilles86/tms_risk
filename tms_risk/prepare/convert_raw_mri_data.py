@@ -21,7 +21,8 @@ def main(subject, session, bids_folder='/data'):
         assert(len(t1w) != 0), "No T1w {t1w}"
 
         flair = glob.glob(op.join(sourcedata_root, '*flair*.nii'))
-        assert(len(flair) == 1), f"More than 1/no FLAIR {flair}"
+        if len(flair) != 1:
+            print(f"More than 1/no FLAIR {flair}!")
 
         target_dir = op.join(bids_folder, f'sub-{subject:02d}', f'ses-{session}', 'anat')
         if not op.exists(target_dir):
@@ -35,7 +36,8 @@ def main(subject, session, bids_folder='/data'):
                 shutil.copy(t1w[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_run-{run0+1}_T1w.nii'))
 
 
-        shutil.copy(flair[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_FLAIR.nii'))
+        if len(flair) == 1:
+            shutil.copy(flair[0], op.join(target_dir, f'sub-{subject:02d}_ses-{session}_FLAIR.nii'))
 
     # # *** FUNCTIONAL DATA ***
     with open(op.abspath('./bold_template.json'), 'r') as f:
