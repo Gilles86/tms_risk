@@ -231,6 +231,8 @@ class Subject(object):
                                                 slice(n_respiratory))],
                             retroicor_confounds .loc[:, ('interaction', slice(n_interaction))]), axis=1)
 
+        ix = ~retroicor_confounds.groupby(['run']).apply(lambda d: (d == 0.0).all(0)).any(0)
+        retroicor_confounds = retroicor_confounds.loc[:, ix]
         retroicor_confounds = [cf.droplevel('run') for _, cf in retroicor_confounds.groupby(['run'])]
 
 
