@@ -12,7 +12,7 @@ from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
 
 def get_subjects(bids_folder='/data/ds-tmsrisk', correct_behavior=True, correct_npc=False):
-    subjects = list(range(1, 100))
+    subjects = list(range(1, 200))
 
     # Does not exist
     subjects.pop(subjects.index(14))
