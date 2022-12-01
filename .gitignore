@@ -58,3 +58,4 @@ experiment/settings/*
 batch.m
 .ipynb_checkpoints
 *.job
+.DS_Store
