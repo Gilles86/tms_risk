@@ -1,48 +1,62 @@
-import os
-import os.path as op
-import arviz as az
-from tms_risk.utils.data import get_all_behavior
 import argparse
+from tms_risk.utils.data import get_all_behavior
+import os.path as op
+import os
+import arviz as az
 import bambi
 
+def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk'):
 
-def main(model_label=1, bids_folder='/data/ds-tmsrisk'):
-
-    model = build_model(model_label, bids_folder)
-
-    idata = model.fit(init='adapt_diag',
-    target_accept=0.9, draws=500, tune=500)
-
+    df = get_data(model_label, bids_folder)
     target_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
 
     if not op.exists(target_folder):
         os.makedirs(target_folder)
 
-    az.to_netcdf(idata,
-                 op.join(target_folder, f'model-probit{model_label}_trace.netcdf'))
+    target_accept = 0.9
 
-def build_model(model_label, df, bids_folder='/data/ds-tmsrisk'):
+    model = build_model(model_label, df)
+    trace = model.fit(burnin, samples, init='adapt_diag', target_accept=target_accept)
+    az.to_netcdf(trace,
+                 op.join(target_folder, f'model-{model_label}_trace.netcdf'))
 
-    model_label = int(model_label)
+def build_model(model_label, df):
+    if model_label == 'probit_simple':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_simple_fixed':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition + (x|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_simple_fixed0':
+        model = bambi.Model('chose_risky ~ 0+x*stimulation_condition + (x|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_simple_session':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition*session3 + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_order':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_order_fixed0':
+        model = bambi.Model('chose_risky ~ 0+x*risky_first*stimulation_condition + (x*risky_first|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_order_session':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(session) + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*stimulation_condition+C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full_fixed':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full_fixed2':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x|subject)', df.reset_index(), link='probit', family='bernoulli')
+    else:
+        raise Exception(f'Do not know model label {model_label}')
 
-    df = get_all_behavior(bids_folder=bids_folder)
-    df = df.xs(1, 0, 'session')
+    return model
 
+def get_data(model_label=None, bids_folder='/data/ds-tmsrisk'):
+    df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=True)
     df['x'] = df['log(risky/safe)']
-    df['chose_risky'] = df['chose_risky'].astype(bool)
+    df['session3'] = (df.index.get_level_values('session') == 3).astype(int)
 
-    df = df.reset_index()
+    df = df.drop('baseline', level='stimulation_condition')
+    print('Dropping the baseline condition')
 
+    df = df.reset_index('stimulation_condition')
 
-    if model_label == 1:
-        formula = 'chose_risky ~ x*C(risky_first)*C(n_safe) + (x*C(risky_first)*C(n_safe)|subject)'
-    elif model_label == 2:
-        formula = 'chose_risky ~ x + (x|subject)'
-    elif model_label == 3:
-        formula = 'chose_risky ~ x*C(risky_first) + (x*C(risky_first)|subject)'
-
-    return bambi.Model(formula, data=df, link='probit', family='bernoulli')
-
+    return df
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -51,3 +65,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args.model_label, bids_folder=args.bids_folder)
+
+
+
