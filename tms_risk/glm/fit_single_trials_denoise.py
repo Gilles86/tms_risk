@@ -44,7 +44,7 @@ def main(subject, session, bids_folder, smoothed=False, retroicor=False):
         os.makedirs(base_dir)
 
 
-    onsets = sub.get_fmri_events(1)
+    onsets = sub.get_fmri_events(session)
     tr = 2.3
     n = 135
     frametimes = np.linspace(tr/2., (n - .5)*tr, n)
