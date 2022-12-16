@@ -1,3 +1,4 @@
+import numpy as np
 import argparse
 from tms_risk.utils.data import get_all_behavior
 import os.path as op
@@ -37,6 +38,12 @@ def build_model(model_label, df):
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(session) + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*stimulation_condition+C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full2':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition + x*risky_first*C(n_safe) + (x*stimulation_condition + x*risky_first*C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full3':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition + x*risky_first*C(n_safe) + (x*stimulation_condition + x*risky_first*C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full_linear_safe_n':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition + x*risky_first*log_n_safe + (x*stimulation_condition + x*risky_first*log_n_safe|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full_fixed':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full_fixed2':
@@ -50,6 +57,8 @@ def get_data(model_label=None, bids_folder='/data/ds-tmsrisk'):
     df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=True)
     df['x'] = df['log(risky/safe)']
     df['session3'] = (df.index.get_level_values('session') == 3).astype(int)
+
+    df['log_n_safe'] = np.log(df['n_safe'])
 
     df = df.drop('baseline', level='stimulation_condition')
     print('Dropping the baseline condition')
