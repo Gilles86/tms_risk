@@ -15,12 +15,8 @@ def main(subject, session, bids_folder, smoothed=False, retroicor=False):
 
     derivatives = op.join(bids_folder, 'derivatives')
 
-    runs = range(1, 7)
-
-    if (str(subject) == '10') & (str(session) == '1'):
-        runs = range(1, 6)
-
     sub = Subject(subject, bids_folder=bids_folder)
+    runs = sub.get_runs(session)
 
     ims = sub.get_preprocessed_bold(session=session)
 
@@ -52,9 +48,9 @@ def main(subject, session, bids_folder, smoothed=False, retroicor=False):
 
     dm = [make_first_level_design_matrix(frametimes, onsets.loc[run], hrf_model='fir', oversampling=100.,
                                          drift_order=0,
-                                         drift_model=None).drop('constant', axis=1) for run in range(1, 7)]
+                                         drift_model=None).drop('constant', axis=1) for run in runs]
 
-    dm = pd.concat(dm, keys=range(1, 7), names=['run']).fillna(0)
+    dm = pd.concat(dm, keys=runs, names=['run']).fillna(0)
     dm.columns = [c.replace('_delay_0', '') for c in dm.columns]
     dm /= dm.max()
     print(dm)
