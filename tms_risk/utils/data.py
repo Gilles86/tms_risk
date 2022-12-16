@@ -13,17 +13,21 @@ from collections.abc import Iterable
 import warnings
 
 
-def get_subjects(bids_folder='/data/ds-tmsrisk', all_tms_conditions=False, exclude_outliers=True):
-    subjects = list(range(1, 200))
-
-    if all_tms_conditions:
-        subjects = [int(e) for e in get_tms_conditions().keys()]
+def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
+    subjects = [int(e) for e in get_tms_conditions().keys()]
 
     outliers = [22, 49] # see tms_risk/behavior/outliers.ipynb
     if exclude_outliers:
         for outlier in outliers:
             if outlier in subjects:
                 subjects.pop(subjects.index(outlier))
+    return subjects
+
+def get_subjects(bids_folder='/data/ds-tmsrisk', all_tms_conditions=False, exclude_outliers=True):
+    subjects = list(range(1, 200))
+
+    if all_tms_conditions:
+        subjects = get_tms_subjects(bids_folder, exclude_outliers)
 
     subjects = [Subject(subject, bids_folder) for subject in subjects]
 
@@ -74,19 +78,6 @@ class Subject(object):
                 if session in tms_conditions[self.subject]:
                     return tms_conditions[self.subject][session]
             return None
-
-    def get_volume_mask(self, roi='NPC12r'):
-
-        if roi.startswith('NPC'):
-            return op.join(self.derivatives_dir
-            ,'ips_masks',
-            f'sub-{self.subject}',
-            'anat',
-            f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
-            )
-
-        else:
-            raise NotImplementedError
 
     @property
     def derivatives_dir(self):
@@ -348,6 +339,7 @@ class Subject(object):
             roi=None):
 
         dir = 'encoding_model'
+
         if cross_validated:
             if run is None:
                 raise Exception('Give run')
@@ -361,7 +353,7 @@ class Subject(object):
             raise Exception("When not using GLMSingle RETROICOR is *always* used!")
 
         if retroicor:
-            key += '.retroicor'
+            dir += '.retroicor'
 
         if smoothed:
             dir += '.smoothed'
@@ -371,7 +363,7 @@ class Subject(object):
 
         parameters = []
 
-        keys = ['mu', 'sd', 'amplitude', 'baseline']
+        keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
 
         mask = self.get_volume_mask(session=session, roi=roi, epi_space=True)
         masker = NiftiMasker(mask)
@@ -381,8 +373,12 @@ class Subject(object):
                 fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
                         'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
             else:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+                if parameter_key == 'cvr2':
+                    fn = op.join(self.bids_folder, 'derivatives', dir.replace('encoding_model', 'encoding_model.cv'), f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-t1w_pars.nii.gz')
+                else:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-t1w_pars.nii.gz')
             
             pars = pd.Series(masker.fit_transform(fn).ravel())
             parameters.append(pars)
