@@ -10,18 +10,24 @@ from sklearn.decomposition import PCA
 from nilearn import image
 from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
+import warnings
 
-def get_subjects(bids_folder='/data/ds-tmsrisk', all_tms_conditions=False, exclude_outliers=True):
-    subjects = list(range(1, 200))
 
-    if all_tms_conditions:
-        subjects = [int(e) for e in get_tms_conditions().keys()]
+def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
+    subjects = [int(e) for e in get_tms_conditions().keys()]
 
     outliers = [22, 49] # see tms_risk/behavior/outliers.ipynb
     if exclude_outliers:
         for outlier in outliers:
             if outlier in subjects:
                 subjects.pop(subjects.index(outlier))
+    return subjects
+
+def get_subjects(bids_folder='/data/ds-tmsrisk', all_tms_conditions=False, exclude_outliers=True):
+    subjects = list(range(1, 200))
+
+    if all_tms_conditions:
+        subjects = get_tms_subjects(bids_folder, exclude_outliers)
 
     subjects = [Subject(subject, bids_folder) for subject in subjects]
 
@@ -55,6 +61,14 @@ class Subject(object):
                 if session in tc:
                     self.tms_conditions[session] = tc[session]
 
+    def get_runs(self, session):
+        if (self.subject == '10') & (int(session) == 1):
+            warnings.warn('Subject 10/session 1 has only 5 runs!!')
+            return range(1, 6)
+        else:
+            return range(1, 7)
+
+
     def get_stimulation_condition(self, session):
         if session == 1:
             return 'baseline'
@@ -64,19 +78,6 @@ class Subject(object):
                 if session in tms_conditions[self.subject]:
                     return tms_conditions[self.subject][session]
             return None
-
-    def get_volume_mask(self, roi='NPC12r'):
-
-        if roi.startswith('NPC'):
-            return op.join(self.derivatives_dir
-            ,'ips_masks',
-            f'sub-{self.subject}',
-            'anat',
-            f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
-            )
-
-        else:
-            raise NotImplementedError
 
     @property
     def derivatives_dir(self):
@@ -104,7 +105,7 @@ class Subject(object):
 
     def get_preprocessed_bold(self, session=1, runs=None, space='T1w'):
         if runs is None:
-            runs = range(1, 7)
+            runs = self.get_runs(session)
 
         images = [op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}',
          f'ses-{session}', 'func', f'sub-{self.subject}_ses-{session}_task-task_run-{run}_space-{space}_desc-preproc_bold.nii.gz') for run in runs]
@@ -130,19 +131,19 @@ class Subject(object):
         if not isinstance(sessions, Iterable):
             sessions = [sessions]
 
-        runs = range(1, 7)
         df = []
-        for session, run in product(sessions, runs):
-
+        for session in sessions:
+            runs = self.get_runs(session)
             tms_condition = self.tms_conditions[session]
+            for run in runs:
 
-            fn = op.join(self.bids_folder, f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv')
+                fn = op.join(self.bids_folder, f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv')
 
-            if op.exists(fn):
-                d = pd.read_csv(fn, sep='\t',
-                            index_col=['trial_nr', 'trial_type'])
-                d['subject'], d['session'], d['run'], d['stimulation_condition'] = int(self.subject), session, run, tms_condition
-                df.append(d)
+                if op.exists(fn):
+                    d = pd.read_csv(fn, sep='\t',
+                                index_col=['trial_nr', 'trial_type'])
+                    d['subject'], d['session'], d['run'], d['stimulation_condition'] = int(self.subject), session, run, tms_condition
+                    df.append(d)
 
         if len(df) > 0:
             df = pd.concat(df)
@@ -201,7 +202,7 @@ class Subject(object):
                                         'non_steady_state_outlier00', 'non_steady_state_outlier01', 'non_steady_state_outlier02']
 
 
-        runs = range(1, 7)
+        runs = self.get_runs(session)
 
         fmriprep_confounds = [
             op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_desc-confounds_timeseries.tsv') for run in runs]
@@ -212,7 +213,7 @@ class Subject(object):
 
     def get_retroicor_confounds(self, session, n_cardiac=3, n_respiratory=4, n_interaction=2):
 
-        runs = range(1, 7)
+        runs = self.get_runs(session)
 
         columns = []
         for n, modality in zip([3, 4, 2], ['cardiac', 'respiratory', 'interaction']):
@@ -338,6 +339,7 @@ class Subject(object):
             roi=None):
 
         dir = 'encoding_model'
+
         if cross_validated:
             if run is None:
                 raise Exception('Give run')
@@ -351,7 +353,7 @@ class Subject(object):
             raise Exception("When not using GLMSingle RETROICOR is *always* used!")
 
         if retroicor:
-            key += '.retroicor'
+            dir += '.retroicor'
 
         if smoothed:
             dir += '.smoothed'
@@ -361,7 +363,7 @@ class Subject(object):
 
         parameters = []
 
-        keys = ['mu', 'sd', 'amplitude', 'baseline']
+        keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
 
         mask = self.get_volume_mask(session=session, roi=roi, epi_space=True)
         masker = NiftiMasker(mask)
@@ -371,8 +373,12 @@ class Subject(object):
                 fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
                         'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
             else:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+                if parameter_key == 'cvr2':
+                    fn = op.join(self.bids_folder, 'derivatives', dir.replace('encoding_model', 'encoding_model.cv'), f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-t1w_pars.nii.gz')
+                else:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-t1w_pars.nii.gz')
             
             pars = pd.Series(masker.fit_transform(fn).ravel())
             parameters.append(pars)
@@ -382,7 +388,7 @@ class Subject(object):
     def get_fmri_events(self, session, runs=None):
 
         if runs is None:
-            runs = range(1,7)
+            runs = self.get_runs(session)
 
         behavior = []
         for run in runs:

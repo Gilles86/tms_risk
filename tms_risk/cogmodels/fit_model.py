@@ -32,12 +32,19 @@ def build_model(model_label, df):
          'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition',
           'safe_prior_mu':'stimulation_condition', 'safe_prior_std':'stimulation_condition'},
          prior_estimate='full')
-    if model_label == '1_null':
+    elif model_label == '1_null':
         model = RiskRegressionModel(df, regressors={},
+         prior_estimate='full')
+    elif model_label == '1a':
+        model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition',
+        'risky_prior_mu':'stimulation_condition'},
          prior_estimate='full')
     elif model_label == '2':
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
          'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition'},
+         prior_estimate='different')
+    elif model_label == '2a':
+        model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition'},
          prior_estimate='different')
     elif model_label == '2_null':
         model = RiskRegressionModel(df, regressors={},
@@ -46,45 +53,9 @@ def build_model(model_label, df):
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
          'n2_evidence_sd':'stimulation_condition', 'prior_mu':'stimulation_condition', 'prior_std':'stimulation_condition'},
          prior_estimate='shared')
-    elif model_label == '3':
-        model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
-         'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition'},
-         prior_estimate='shared')
-    # if model_label == '1a':
-    #     model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
-    #      'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition'},
-    #      prior_estimate='different')
-    # elif model_label == '2a':
-    #     model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
-    #                                                 'n2_evidence_sd':'stimulation_condition', },
-    #      prior_estimate='different', fit_seperate_evidence_sd=True)
-    elif model_label == '3a':
-        model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition', 
-        'risky_prior_mu':'stimulation_condition'},
-         prior_estimate='different', fit_seperate_evidence_sd=True)
-    # elif model_label == '3b':
-    #     model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition', 
-    #     'risky_prior_mu':'stimulation_condition'},
-    #      prior_estimate='different', fit_seperate_evidence_sd=True)
-    # elif model_label == '3c':
-    #     model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition', 
-    #     'risky_prior_mu':'stimulation_condition'},
-    #      prior_estimate='different', fit_seperate_evidence_sd=True)
-    # elif model_label == '4':
-    #     model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition'},
-    #      prior_estimate='different', fit_seperate_evidence_sd=True)
-    # elif model_label == '5':
-    #     model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition',
-    #     'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition',
-    #     'safe_prior_mu':'stimulation_condition', 'safe_prior_std':'stimulation_condition'},
-    #      prior_estimate='full', fit_seperate_evidence_sd=True)
-    # elif model_label == '6':
-    #     model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition',
-    #     'risky_prior_mu':'stimulation_condition'},
-    #     prior_estimate='full', fit_seperate_evidence_sd=True)
-    # elif model_label == '0':
-    #     model = RiskRegressionModel(df, regressors={'evidence_sd':'stimulation_condition'},
-    #      prior_estimate='shared', fit_seperate_evidence_sd=False)
+    elif model_label == '3_null':
+        model = RiskRegressionModel(df, regressors={},
+         prior_estimate='different')
     else:
         raise Exception(f'Do not know model label {model_label}')
 
