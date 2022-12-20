@@ -3,8 +3,9 @@ import pandas as pd
 from braincoder.models import GaussianPRF
 from braincoder.optimize import ParameterFitter
 from braincoder.utils import get_rsq
-from tms_risk.utils import get_target_dir
+from tms_risk.utils import get_target_dir, Subject
 from nilearn.input_data import NiftiMasker
+from nilearn import image
 
 import os.path as op
 import numpy as np
@@ -12,6 +13,8 @@ import numpy as np
 
 def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False, retroicor=False):
          
+
+    sub = Subject(subject, bids_folder=bids_folder)
 
     key = 'glm_stim1'
     target_dir = 'encoding_model.cv'
@@ -54,9 +57,7 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
     amplitudes = np.array([1.], dtype=np.float32)
     baselines = np.array([0], dtype=np.float32)
 
-    mask = op.join(bids_folder, 'derivatives',
-                   f'fmriprep/sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
-
+    mask = sub.get_volume_mask(session=session, roi=None, epi_space=True)
     masker = NiftiMasker(mask_img=mask)
 
     data = op.join(bids_folder, 'derivatives', key,

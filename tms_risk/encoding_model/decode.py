@@ -9,17 +9,16 @@ print(4)
 import os.path as op
 print(5)
 import pandas as pd
+print(9)
+from tms_risk.utils import Subject
+print(10)
+import numpy as np
 print(6)
 from braincoder.optimize import ResidualFitter
 print(7)
 from braincoder.models import GaussianPRF
 print(8)
 from braincoder.utils import get_rsq
-# from tms_risk.utils import get_single_trial_volume, get_surf_mask, get_prf_parameters_volume, Subject
-print(9)
-from tms_risk.utils import Subject
-print(10)
-import numpy as np
 
 
 stimulus_range = np.linspace(0, 6, 1000)
