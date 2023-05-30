@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-from braincoder.models import GaussianPRF
+from braincoder.models import GaussianPRF, LogGaussianPRF
 from braincoder.optimize import ParameterFitter
 from nilearn.input_data import NiftiMasker
 from tms_risk.utils import get_target_dir, Subject
@@ -12,7 +12,7 @@ import numpy as np
 
 def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
         denoise=False,
-        pca_confounds=False, retroicor=False):
+        pca_confounds=False, retroicor=False, natural_space=False):
 
     sub = Subject(subject, bids_folder=bids_folder)
 
@@ -38,6 +38,9 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
         target_dir += '.pca_confounds'
         key += '.pca_confounds'
 
+    if natural_space:
+        target_dir += '.natural_space'
+
     target_dir = op.join(bids_folder, 'derivatives', target_dir, f'sub-{subject}', f'ses-{session}', 'func' )
     if not op.exists(target_dir):
         os.makedirs(target_dir)
@@ -54,16 +57,25 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
                 for run in runs]
     paradigm = pd.concat(paradigm, keys=runs, names=['run'])
     paradigm = paradigm[paradigm.trial_type == 'stimulus 1'].set_index('trial_nr')
-
     paradigm['log(n1)'] = np.log(paradigm['n1'])
-    paradigm = paradigm['log(n1)']
 
-    model = GaussianPRF()
-    # SET UP GRID
-    mus = np.log(np.linspace(5, 80, 60, dtype=np.float32))
-    sds = np.log(np.linspace(2, 30, 60, dtype=np.float32))
-    amplitudes = np.array([1.], dtype=np.float32)
-    baselines = np.array([0], dtype=np.float32)
+
+    if natural_space:
+        paradigm = paradigm['n1']
+        model = LogGaussianPRF()
+        # SET UP GRID
+        mus = np.linspace(5, 80, 60, dtype=np.float32)
+        sds = np.linspace(5, 40, 60, dtype=np.float32)
+        amplitudes = np.array([1.], dtype=np.float32)
+        baselines = np.array([0], dtype=np.float32)
+    else:
+        paradigm = paradigm['log(n1)']
+        model = GaussianPRF()
+        # SET UP GRID
+        mus = np.log(np.linspace(5, 80, 60, dtype=np.float32))
+        sds = np.log(np.linspace(2, 30, 60, dtype=np.float32))
+        amplitudes = np.array([1.], dtype=np.float32)
+        baselines = np.array([0], dtype=np.float32)
 
     # mask = op.join(bids_folder, 'derivatives', 'fmriprep', f'sub-{subject}/ses-{session}/func/sub-{subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
     mask = sub.get_volume_mask(session=session, roi=None, epi_space=True)
@@ -104,7 +116,9 @@ if __name__ == '__main__':
     parser.add_argument('--pca_confounds', action='store_true')
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--retroicor', action='store_true')
+    parser.add_argument('--natural_space', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
-            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor)
+            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor,
+            natural_space=args.natural_space)

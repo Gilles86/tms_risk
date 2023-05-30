@@ -1,0 +1,5 @@
+# Subject 45 had a run 1 that had only 1 volumes. Fmriprep is currently running
+
+# Subject 62 crashed when optimizing because of a bug in braincoder (now fixed).
+
+# Subject 72 had a problem with the 6th run of the 2nd session. Fmriprep is running again.

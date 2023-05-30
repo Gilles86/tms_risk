@@ -1,6 +1,6 @@
 import argparse
 import pandas as pd
-from braincoder.models import GaussianPRF
+from braincoder.models import GaussianPRF, LogGaussianPRF
 from braincoder.optimize import ParameterFitter
 from braincoder.utils import get_rsq
 from tms_risk.utils import get_target_dir, Subject
@@ -11,7 +11,7 @@ import os.path as op
 import numpy as np
 
 
-def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False, retroicor=False):
+def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False, retroicor=False, natural_space=True):
          
 
     sub = Subject(subject, bids_folder=bids_folder)
@@ -38,6 +38,9 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
         key += '.pca_confounds'
         target_dir += '.pca_confounds'
 
+    if natural_space:
+        target_dir += '.natural_space'
+
     target_dir = get_target_dir(subject, session, bids_folder, target_dir)
 
     paradigm = [pd.read_csv(op.join(bids_folder, f'sub-{subject}', f'ses-{session}',
@@ -48,14 +51,23 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
                         'stimulus 1'].set_index('trial_nr', append=True)
 
     paradigm['log(n1)'] = np.log(paradigm['n1'])
-    paradigm = paradigm['log(n1)']
 
-    model = GaussianPRF()
-    # SET UP GRID
-    mus = np.log(np.linspace(5, 80, 60, dtype=np.float32))
-    sds = np.log(np.linspace(2, 30, 60, dtype=np.float32))
-    amplitudes = np.array([1.], dtype=np.float32)
-    baselines = np.array([0], dtype=np.float32)
+    if natural_space:
+        paradigm = paradigm['n1']
+        model = LogGaussianPRF()
+        # SET UP GRID
+        mus = np.linspace(5, 80, 60, dtype=np.float32)
+        sds = np.linspace(5, 40, 60, dtype=np.float32)
+        amplitudes = np.array([1.], dtype=np.float32)
+        baselines = np.array([0], dtype=np.float32)
+    else:
+        paradigm = paradigm['log(n1)']
+        model = GaussianPRF()
+        # SET UP GRID
+        mus = np.log(np.linspace(5, 80, 60, dtype=np.float32))
+        sds = np.log(np.linspace(2, 30, 60, dtype=np.float32))
+        amplitudes = np.array([1.], dtype=np.float32)
+        baselines = np.array([0], dtype=np.float32)
 
     mask = sub.get_volume_mask(session=session, roi=None, epi_space=True)
     masker = NiftiMasker(mask_img=mask)
@@ -85,6 +97,8 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
         grid_parameters = optimizer.refine_baseline_and_amplitude(
             grid_parameters, n_iterations=2)
 
+        print(grid_parameters.describe())
+
         optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
                       r2_atol=0.00001)
 
@@ -108,6 +122,8 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
             masker.inverse_transform(values).to_filename(target_fn)
 
+        print(optimizer.estimated_parameters.describe())
+
         cv_r2s.append(cv_r2)
     
     cv_r2 = pd.concat(cv_r2s, keys=range(1, 7), names=['run']).groupby(level=1, axis=0).mean()
@@ -126,7 +142,9 @@ if __name__ == '__main__':
     parser.add_argument('--pca_confounds', action='store_true')
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--retroicor', action='store_true')
+    parser.add_argument('--natural_space', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
-            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor)
+            pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor,
+            natural_space=args.natural_space)
