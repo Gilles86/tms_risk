@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=fit_st_denoise2
-#SBATCH --output=/home/cluster/gdehol/logs/fit_st_denoise2_%A-%a.txt
-#SBATCH --partition=generic
+#SBATCH --output=/home/gdehol/logs/fit_st_denoise2_%A-%a.txt
 #SBATCH --ntasks=1
 #SBATCH -c 16
 #SBATCH --time=45:00

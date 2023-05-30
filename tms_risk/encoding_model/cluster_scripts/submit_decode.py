@@ -18,20 +18,20 @@ if not op.exists(job_directory):
 
 
 bids_folder = '/scratch/gdehol/ds-tmsrisk'
-n_voxels = 250
 
 subjects = [subject.subject for subject in get_subjects(bids_folder=bids_folder, all_tms_conditions=True)][:1]
 sessions = ['1', '2', '3']
 masks = ['NPCr', 'NPC12r']
 
-n_voxels = [50, 100, 250]
+n_voxels = [100]
 
 smoothed = [False]
 pca_confounds = [False]
+retroicors = [False]
 
 denoises = [True]
 
-for ix, (subject, session, mask, nv, smooth, pcc, denoise) in enumerate(product(subjects, sessions, masks, n_voxels, smoothed, pca_confounds, denoises)):
+for ix, (subject, session, mask, nv, smooth, pcc, denoise, retroicor) in enumerate(product(subjects, sessions, masks, n_voxels, smoothed, pca_confounds, denoises, retroicors)):
 # for ix, (nv, subject, session, mask) in enumerate(missing):
     print(f'*** RUNNING {subject}, {mask}, {nv}')
 
@@ -42,7 +42,7 @@ for ix, (subject, session, mask, nv, smooth, pcc, denoise) in enumerate(product(
 
     with open(job_file, 'w') as fh:
         fh.writelines("#!/bin/bash\n")
-        id = f'{subject}.{session}.{mask}.{nv}.{time_str}'
+        id = f'{subject}.{session}.{mask}.{nv}.{smooth}.{pcc}.{retroicor}.{denoise}{time_str}'
 
         if denoise:
             id += '.denoise'
@@ -53,21 +53,17 @@ for ix, (subject, session, mask, nv, smooth, pcc, denoise) in enumerate(product(
         if pcc:
             id += '.pca_confounds'
 
+        if retroicor:
+            id += '.retroicor'
+
         fh.writelines(f"#SBATCH --job-name=decode_volume.{id}.job\n")
         fh.writelines(f"#SBATCH --output={os.environ['HOME']}/.out/decode_volume.{id}.txt\n")
-        fh.writelines("#SBATCH --partition=volta\n")
-        # fh.writelines("#SBATCH --partition=generic\n")
         fh.writelines("#SBATCH --time=30:00\n")
         fh.writelines("#SBATCH --ntasks=1\n")
         fh.writelines("#SBATCH --mem=96G\n")
-        # fh.writelines("#SBATCH -c8\n")
         fh.writelines("#SBATCH --gres gpu:1\n")
-        fh.writelines("module load volta\n")
-        fh.writelines("module load nvidia/cuda11.2-cudnn8.1.0\n")
         fh.writelines(". $HOME/init_conda.sh\n")
-        fh.writelines(". $HOME/init_freesurfer.sh\n")
         fh.writelines("conda activate tf2-gpu\n")
-        # cmd = f"python $HOME/git/risk_experiment/risk_experiment/encoding_model/decode.py {subject} {session} --bids_folder /scratch/gdehol/ds-risk --n_voxels {nv} --mask {mask}"
         cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode.py {subject} {session} --bids_folder /scratch/gdehol/ds-tmsrisk --n_voxels {nv} --mask {mask}"
 
         if denoise:
@@ -78,6 +74,9 @@ for ix, (subject, session, mask, nv, smooth, pcc, denoise) in enumerate(product(
 
         if pcc:
             cmd += ' --pca_confounds'
+
+        if retroicor:
+            cmd += ' --retroicor'
 
         fh.writelines(cmd)
         print(cmd)
