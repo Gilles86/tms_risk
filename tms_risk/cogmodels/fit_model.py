@@ -43,7 +43,7 @@ def build_model(model_label, df):
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition'},
          prior_estimate='full')
     elif model_label == '1c':
-        model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition'},
+        model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition'},
          prior_estimate='full')
     elif model_label == '2':
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
