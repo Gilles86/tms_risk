@@ -70,6 +70,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     pdfs = []
     runs = range(1, 7)
 
+        print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
     for test_run in runs:
 
         test_data, test_paradigm = data.xs(test_run, 0, 'run').copy(), paradigm.xs(test_run, 0, 'run').copy()
@@ -87,9 +88,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         model = GaussianPRF(parameters=pars)
         pred = model.predict(paradigm=train_paradigm['log(n1)'].astype(np.float32))
 
-        r2 = get_rsq(train_data, pred)
-        print(r2.describe())
-        r2_mask = r2.sort_values(ascending=False).index[:n_voxels]
+            print(r2.describe())
 
         train_data = train_data[r2_mask]
         test_data = test_data[r2_mask]
