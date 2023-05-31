@@ -16,6 +16,8 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
     sub = Subject(subject, bids_folder=bids_folder)
 
+    runs = sub.get_runs(session)
+
     key = 'glm_stim1'
     target_dir = 'encoding_model.cv'
 
@@ -45,8 +47,8 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
     paradigm = [pd.read_csv(op.join(bids_folder, f'sub-{subject}', f'ses-{session}',
                                     'func', f'sub-{subject}_ses-{session}_task-task_run-{run}_events.tsv'), sep='\t')
-                for run in range(1, 7)]
-    paradigm = pd.concat(paradigm, keys=range(1, 7), names=['run'])
+                for run in runs]
+    paradigm = pd.concat(paradigm, keys=runs, names=['run'])
     paradigm = paradigm[paradigm.trial_type ==
                         'stimulus 1'].set_index('trial_nr', append=True)
 
@@ -82,7 +84,6 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
     cv_r2s = []
 
-    runs = sub.get_runs(session)
     for test_run in runs:
         test_data, test_paradigm = data.loc[test_run].copy(
         ), paradigm.loc[test_run].copy()

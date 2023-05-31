@@ -69,7 +69,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     print(paradigm)
 
     pdfs = []
-    runs = range(1, 7)
+    runs = sub.get_runs(session)
 
     if n_voxels == 0:
         assert(session != 1), 'Cannot use 0 voxels on session 1, because it is used for voxel selection'
