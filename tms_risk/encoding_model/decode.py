@@ -71,7 +71,16 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     pdfs = []
     runs = range(1, 7)
 
+    if n_voxels == 0:
+        assert(session != 1), 'Cannot use 0 voxels on session 1, because it is used for voxel selection'
+
+        session1_pars = sub.get_prf_parameters_volume(1, run=None, smoothed=smoothed, pca_confounds=pca_confounds, denoise=denoise, retroicor=retroicor, cross_validated=False, natural_space=natural_space, roi=mask)
+
+        r2_mask = session1_pars['cvr2'] > 0.0
         print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
+
+        r2_mask = r2_mask[r2_mask].index
+
     for test_run in runs:
 
         test_data, test_paradigm = data.xs(test_run, 0, 'run').copy(), paradigm.xs(test_run, 0, 'run').copy()
@@ -89,12 +98,14 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         model = GaussianPRF(parameters=pars)
         pred = model.predict(paradigm=train_paradigm['log(n1)'].astype(np.float32))
 
+        if n_voxels != 0:
+            r2 = get_rsq(train_data, pred)
             print(r2.describe())
+            r2_mask = r2.sort_values(ascending=False).index[:n_voxels]
 
         train_data = train_data[r2_mask]
         test_data = test_data[r2_mask]
 
-        print(r2.loc[r2_mask])
         model.apply_mask(r2_mask)
 
         model.init_pseudoWWT(stimulus_range, model.parameters)
