@@ -381,10 +381,10 @@ class Subject(object):
             else:
                 if parameter_key == 'cvr2':
                     fn = op.join(self.bids_folder, 'derivatives', dir.replace('encoding_model', 'encoding_model.cv'), f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-t1w_pars.nii.gz')
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
                 else:
                     fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-t1w_pars.nii.gz')
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
             
             pars = pd.Series(masker.fit_transform(fn).ravel())
             parameters.append(pars)
