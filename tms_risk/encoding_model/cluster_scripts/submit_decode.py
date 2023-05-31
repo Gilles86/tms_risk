@@ -19,17 +19,29 @@ if not op.exists(job_directory):
 
 bids_folder = '/scratch/gdehol/ds-tmsrisk'
 
-subjects = [subject.subject for subject in get_subjects(bids_folder=bids_folder, all_tms_conditions=True)][:1]
-sessions = ['1', '2', '3']
-masks = ['NPCr', 'NPC12r']
+subjects = [subject.subject for subject in get_subjects(bids_folder=bids_folder, all_tms_conditions=True)]
+sessions = ['1', '2', '3']#[1:]
+masks = ['NPCr']
 
-n_voxels = [100]
+n_voxels = [0, 100]
 
 smoothed = [False]
 pca_confounds = [False]
 retroicors = [False]
 
 denoises = [True]
+
+subjects = ['04', '05', '06', '07', '09']
+
+sessions = ['1', '2', '3']
+
+# subjects = ['45', '72']
+# sessions = ['2']
+subjects = ['10']
+sessions = ['1']
+
+subjects = ['45']
+sessions = ['2']
 
 for ix, (subject, session, mask, nv, smooth, pcc, denoise, retroicor) in enumerate(product(subjects, sessions, masks, n_voxels, smoothed, pca_confounds, denoises, retroicors)):
 # for ix, (nv, subject, session, mask) in enumerate(missing):
@@ -64,7 +76,7 @@ for ix, (subject, session, mask, nv, smooth, pcc, denoise, retroicor) in enumera
         fh.writelines("#SBATCH --gres gpu:1\n")
         fh.writelines(". $HOME/init_conda.sh\n")
         fh.writelines("conda activate tf2-gpu\n")
-        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode.py {subject} {session} --bids_folder /scratch/gdehol/ds-tmsrisk --n_voxels {nv} --mask {mask}"
+        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode.py {subject} {session} --bids_folder /home/gdehol/share/ds-tmsrisk --n_voxels {nv} --mask {mask}"
 
         if denoise:
             cmd += ' --denoise'
