@@ -28,6 +28,7 @@ space = 'T1w'
 
 def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids_folder='/data',
         retroicor=False,
+        natural_space=False,
         mask='wang15_ips'):
 
     target_dir = op.join(bids_folder, 'derivatives', 'decoded_pdfs.volume')
@@ -139,6 +140,7 @@ if __name__ == '__main__':
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
     parser.add_argument('--retroicor', action='store_true')
+    parser.add_argument('--natural_space', action='store_true')
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--mask', default='wang15_ips')
     parser.add_argument('--n_voxels', default=100, type=int)
@@ -146,4 +148,5 @@ if __name__ == '__main__':
 
     main(subject=args.subject, session=args.session, smoothed=args.smoothed, pca_confounds=args.pca_confounds, denoise=args.denoise,
             n_voxels=args.n_voxels,
+            natural_space=args.natural_space,
             bids_folder=args.bids_folder, mask=args.mask)
