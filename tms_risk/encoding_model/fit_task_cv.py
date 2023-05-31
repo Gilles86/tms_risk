@@ -82,8 +82,8 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
     cv_r2s = []
 
-    for test_run in range(1, 7):
-
+    runs = sub.get_runs(session)
+    for test_run in runs:
         test_data, test_paradigm = data.loc[test_run].copy(
         ), paradigm.loc[test_run].copy()
         print(test_data, test_paradigm)
@@ -126,7 +126,7 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
         cv_r2s.append(cv_r2)
     
-    cv_r2 = pd.concat(cv_r2s, keys=range(1, 7), names=['run']).groupby(level=1, axis=0).mean()
+    cv_r2 = pd.concat(cv_r2s, keys=runs, names=['run']).groupby(level=1, axis=0).mean()
 
     target_fn = op.join(
         target_dir, f'sub-{subject}_ses-{session}_desc-cvr2.optim_space-T1w_pars.nii.gz')
