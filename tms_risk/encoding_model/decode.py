@@ -68,7 +68,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     print(paradigm)
 
     pdfs = []
-    runs = range(1, 7)
+    runs = sub.get_runs(session)
 
     for test_run in runs:
 
