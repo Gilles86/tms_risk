@@ -5,6 +5,7 @@ import os.path as op
 import os
 import arviz as az
 import bambi
+import pandas as pd
 
 def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk'):
 
@@ -14,7 +15,7 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
     if not op.exists(target_folder):
         os.makedirs(target_folder)
 
-    target_accept = 0.9
+    target_accept = 0.8
 
     model = build_model(model_label, df)
     trace = model.fit(burnin, samples, init='adapt_diag', target_accept=target_accept)
@@ -24,6 +25,12 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
 def build_model(model_label, df):
     if model_label == 'probit_simple':
         model = bambi.Model('chose_risky ~ x*stimulation_condition + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    if model_label == 'probit_simple_half':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition*half + (x*stimulation_condition*half|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_simple_model_session':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition + x*C(session) + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_simple_all_sessions':
+        model = bambi.Model('chose_risky ~ x*stimulation_condition + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_simple_fixed':
         model = bambi.Model('chose_risky ~ x*stimulation_condition + (x|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_simple_fixed0':
@@ -32,12 +39,16 @@ def build_model(model_label, df):
         model = bambi.Model('chose_risky ~ x*stimulation_condition*session3 + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_order':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_order_model_session':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition + x*session + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_order_fixed0':
         model = bambi.Model('chose_risky ~ 0+x*risky_first*stimulation_condition + (x*risky_first|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_order_session':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(session) + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*stimulation_condition+C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_full_model_session':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + x*session + (x*risky_first*stimulation_condition+C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full2':
         model = bambi.Model('chose_risky ~ x*stimulation_condition + x*risky_first*C(n_safe) + (x*stimulation_condition + x*risky_first*C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full3':
@@ -60,9 +71,12 @@ def get_data(model_label=None, bids_folder='/data/ds-tmsrisk'):
 
     df['log_n_safe'] = np.log(df['n_safe'])
 
-    df = df.drop('baseline', level='stimulation_condition')
-    print('Dropping the baseline condition')
+    if model_label not in ['probit_simple_all_sessions']:
+        df = df.drop('baseline', level='stimulation_condition')
+        print('Dropping the baseline condition')
 
+    if model_label in ['probit_simple_half', 'probit_order_half']:
+        df['half'] = pd.Series(df.index.get_level_values('trial_nr') < 65, index=df.index).map({True:'First', False:'Second'})
     df = df.reset_index('stimulation_condition')
 
     return df

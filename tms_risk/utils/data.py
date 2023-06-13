@@ -177,14 +177,14 @@ class Subject(object):
             df = df[~df.chose_risky.isnull()]
             df['chose_risky'] = df['chose_risky'].astype(bool)
 
-        def get_risk_bin(d):
-            labels = [f'{int(e)}%' for e in np.linspace(20, 80, 6)]
+        def get_risk_bin(d, n_bins=8):
+            labels = [f'{int(e)}%' for e in np.linspace(20, 80, n_bins)]
             try: 
                 # return pd.qcut(d, 6, range(1, 7))
-                return pd.qcut(d, 6, labels=labels)
+                return pd.qcut(d, n_bins, labels=labels)
             except Exception as e:
                 n = len(d)
-                ix = np.linspace(0, 6, n, False)
+                ix = np.linspace(0, n_bins, n, False)
 
                 d[d.sort_values().index] = [labels[e] for e in np.floor(ix).astype(int)]
                 
