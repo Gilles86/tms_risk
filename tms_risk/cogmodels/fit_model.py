@@ -15,7 +15,7 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
     if not op.exists(target_folder):
         os.makedirs(target_folder)
 
-    if model_label in ['0', '5']:
+    if model_label in ['0', '5', '1_session']:
         target_accept = 0.9
     else:
         target_accept = 0.8
@@ -45,6 +45,11 @@ def build_model(model_label, df):
     elif model_label == '1c':
         model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition'},
          prior_estimate='full')
+    elif model_label == '1_session':
+        model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition+session',
+         'n2_evidence_sd':'stimulation_condition+session', 'risky_prior_mu':'stimulation_condition+session', 'risky_prior_std':'stimulation_condition+session',
+          'safe_prior_mu':'stimulation_condition+session', 'safe_prior_std':'stimulation_condition+session'},
+         prior_estimate='full')
     elif model_label == '2':
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
          'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition'},
@@ -73,6 +78,7 @@ def get_data(bids_folder='/data/ds-tmsrisk'):
     df = df.drop('baseline', level='stimulation_condition')
     print('Dropping the baseline condition')
     df = df.reset_index('stimulation_condition')
+    df = df.reset_index('session')
     df['choice'] = df['choice'] == 2.0
     return df
 

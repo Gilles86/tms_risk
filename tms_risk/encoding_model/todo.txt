@@ -1,4 +1,12 @@
+Still todo:
+10, ses-1: glm ran again, now encode/decode
+45, ses-2: fmriprep running again, then glm, then encode/decode
+72, ses-2: fmriprep running again, then glm, then encode/decode
+
+
+
 # Subject 45 had a run 1 that had only 1 volumes. Fmriprep is currently running
+
 
 # Subject 62 crashed when optimizing because of a bug in braincoder (now fixed).
 

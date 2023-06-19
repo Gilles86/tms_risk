@@ -91,14 +91,17 @@ plot_traces=False):
     for plot_type in [1,2,3, 5, 6, 7, 8, 9]:
         for var_name in ['p', 'll_bernoulli']:
             for level in ['group']:
-                target_folder = op.join(bids_folder, 'derivatives', 'cogmodels', 'figures', model_label, var_name)
+                try:
+                    target_folder = op.join(bids_folder, 'derivatives', 'cogmodels', 'figures', model_label, var_name)
 
-                if not op.exists(target_folder):
-                    os.makedirs(target_folder)
+                    if not op.exists(target_folder):
+                        os.makedirs(target_folder)
 
-                fn = f'{level}_plot-{plot_type}_model-{model_label}_pred.pdf'
-                plot_ppc(df, ppc, level=level, plot_type=plot_type, var_name=var_name, col_wrap=col_wrap).savefig(
-                    op.join(target_folder, fn))
+                    fn = f'{level}_plot-{plot_type}_model-{model_label}_pred.pdf'
+                    plot_ppc(df, ppc, level=level, plot_type=plot_type, var_name=var_name, col_wrap=col_wrap).savefig(
+                        op.join(target_folder, fn))
+                except Exception as e:
+                    print(f'Could not plot {level} {plot_type} {var_name}: {e}')
 
 
 if __name__ == '__main__':

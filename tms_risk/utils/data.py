@@ -11,7 +11,7 @@ from nilearn import image
 from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
 import warnings
-
+from nilearn import surface
 
 def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
     subjects = [int(e) for e in get_tms_conditions().keys()]
@@ -23,11 +23,26 @@ def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
                 subjects.pop(subjects.index(outlier))
     return subjects
 
+def get_all_subject_ids(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
+
+    with pkg_resources.resource_stream('tms_risk', '/data/all_subjects.yml') as stream:
+        subjects = yaml.safe_load(stream)
+
+    outliers = [22, 49] # see tms_risk/behavior/outliers.ipynb
+    if exclude_outliers:
+        for outlier in outliers:
+            if outlier in subjects:
+                subjects.pop(subjects.index(outlier))
+
+    return subjects
+
 def get_subjects(bids_folder='/data/ds-tmsrisk', all_tms_conditions=False, exclude_outliers=True):
-    subjects = list(range(1, 200))
+
 
     if all_tms_conditions:
         subjects = get_tms_subjects(bids_folder, exclude_outliers)
+    else:
+        subjects = get_all_subject_ids(bids_folder=bids_folder, exclude_outliers=exclude_outliers)
 
     subjects = [Subject(subject, bids_folder) for subject in subjects]
 
@@ -177,14 +192,14 @@ class Subject(object):
             df = df[~df.chose_risky.isnull()]
             df['chose_risky'] = df['chose_risky'].astype(bool)
 
-        def get_risk_bin(d):
-            labels = [f'{int(e)}%' for e in np.linspace(20, 80, 6)]
+        def get_risk_bin(d, n_bins=8):
+            labels = [f'{int(e)}%' for e in np.linspace(20, 80, n_bins)]
             try: 
                 # return pd.qcut(d, 6, range(1, 7))
-                return pd.qcut(d, 6, labels=labels)
+                return pd.qcut(d, n_bins, labels=labels)
             except Exception as e:
                 n = len(d)
-                ix = np.linspace(0, 6, n, False)
+                ix = np.linspace(0, n_bins, n, False)
 
                 d[d.sort_values().index] = [labels[e] for e in np.floor(ix).astype(int)]
                 
@@ -307,6 +322,7 @@ class Subject(object):
     def get_volume_mask(self, roi=None, session=None, epi_space=False):
 
         base_mask = op.join(self.bids_folder, 'derivatives', f'fmriprep/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
+        base_mask = image.load_img(base_mask, dtype='int32') # To prevent weird nilearn warning
 
         first_run = self.get_preprocessed_bold(session=session, runs=[1])[0]
         base_mask = image.resample_to_img(base_mask, first_run, interpolation='nearest')
@@ -323,6 +339,7 @@ class Subject(object):
             'anat',
             f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
             )
+            mask = image.load_img(mask, dtype='int32')
         else:
             raise NotImplementedError
 
@@ -390,6 +407,60 @@ class Subject(object):
             parameters.append(pars)
 
         return pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
+
+    def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative',
+    parameters=None, key=None):
+
+        if mask is not None:
+            raise NotImplementedError
+
+        if parameters is None:
+            parameter_keys = ['mu', 'sd', 'cvr2', 'r2']
+        else:
+            parameter_keys = parameters
+
+        if hemi is None:
+            prf_l = self.get_prf_parameters_surf(session, 
+                    run, smoothed, cross_validated, hemi='L',
+                    mask=mask, space=space, key=key, parameters=parameters)
+            prf_r = self.get_prf_parameters_surf(session, 
+                    run, smoothed, cross_validated, hemi='R',
+                    mask=mask, space=space, key=key, parameters=parameters)
+            
+            return pd.concat((prf_l, prf_r), axis=0, 
+                    keys=pd.Index(['L', 'R'], name='hemi'))
+
+
+        if key is None:
+            if cross_validated:
+                dir = 'encoding_model.cv.denoise'
+            else:
+                dir = 'encoding_model.denoise'
+
+            if smoothed:
+                dir += '.smoothed'
+
+            dir += '.natural_space'
+        else:
+            dir = key
+            print(dir)
+
+        parameters = []
+
+        for parameter_key in parameter_keys:
+            if cross_validated:
+                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                        'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+            else:
+                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+
+            pars = pd.Series(surface.load_surf_data(fn))
+            pars.index.name = 'vertex'
+
+            parameters.append(pars)
+
+        return pd.concat(parameters, axis=1, keys=parameter_keys, names=['parameter'])
 
     def get_fmri_events(self, session, runs=None):
 
