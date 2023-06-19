@@ -23,11 +23,26 @@ def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
                 subjects.pop(subjects.index(outlier))
     return subjects
 
+def get_all_subject_ids(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
+
+    with pkg_resources.resource_stream('tms_risk', '/data/all_subjects.yml') as stream:
+        subjects = yaml.safe_load(stream)
+
+    outliers = [22, 49] # see tms_risk/behavior/outliers.ipynb
+    if exclude_outliers:
+        for outlier in outliers:
+            if outlier in subjects:
+                subjects.pop(subjects.index(outlier))
+
+    return subjects
+
 def get_subjects(bids_folder='/data/ds-tmsrisk', all_tms_conditions=False, exclude_outliers=True):
-    subjects = list(range(1, 200))
+
 
     if all_tms_conditions:
         subjects = get_tms_subjects(bids_folder, exclude_outliers)
+    else:
+        subjects = get_all_subject_ids(bids_folder=bids_folder, exclude_outliers=exclude_outliers)
 
     subjects = [Subject(subject, bids_folder) for subject in subjects]
 
