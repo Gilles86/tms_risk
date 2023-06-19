@@ -307,6 +307,7 @@ class Subject(object):
     def get_volume_mask(self, roi=None, session=None, epi_space=False):
 
         base_mask = op.join(self.bids_folder, 'derivatives', f'fmriprep/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
+        base_mask = image.load_img(base_mask, dtype='int32') # To prevent weird nilearn warning
 
         first_run = self.get_preprocessed_bold(session=session, runs=[1])[0]
         base_mask = image.resample_to_img(base_mask, first_run, interpolation='nearest')
@@ -323,6 +324,7 @@ class Subject(object):
             'anat',
             f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
             )
+            mask = image.load_img(mask, dtype='int32')
         else:
             raise NotImplementedError
 
