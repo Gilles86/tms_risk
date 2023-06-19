@@ -393,6 +393,60 @@ class Subject(object):
 
         return pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
 
+    def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative',
+    parameters=None, key=None):
+
+        if mask is not None:
+            raise NotImplementedError
+
+        if parameters is None:
+            parameter_keys = ['mu', 'sd', 'cvr2', 'r2']
+        else:
+            parameter_keys = parameters
+
+        if hemi is None:
+            prf_l = self.get_prf_parameters_surf(session, 
+                    run, smoothed, cross_validated, hemi='L',
+                    mask=mask, space=space, key=key, parameters=parameters)
+            prf_r = self.get_prf_parameters_surf(session, 
+                    run, smoothed, cross_validated, hemi='R',
+                    mask=mask, space=space, key=key, parameters=parameters)
+            
+            return pd.concat((prf_l, prf_r), axis=0, 
+                    keys=pd.Index(['L', 'R'], name='hemi'))
+
+
+        if key is None:
+            if cross_validated:
+                dir = 'encoding_model.cv.denoise'
+            else:
+                dir = 'encoding_model.denoise'
+
+            if smoothed:
+                dir += '.smoothed'
+
+            dir += '.natural_space'
+        else:
+            dir = key
+            print(dir)
+
+        parameters = []
+
+        for parameter_key in parameter_keys:
+            if cross_validated:
+                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                        'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+            else:
+                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+
+            pars = pd.Series(surface.load_surf_data(fn))
+            pars.index.name = 'vertex'
+
+            parameters.append(pars)
+
+        return pd.concat(parameters, axis=1, keys=parameter_keys, names=['parameter'])
+
     def get_fmri_events(self, session, runs=None):
 
         if runs is None:
