@@ -11,7 +11,7 @@ from nilearn import image
 from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
 import warnings
-
+from nilearn import surface
 
 def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
     subjects = [int(e) for e in get_tms_conditions().keys()]
