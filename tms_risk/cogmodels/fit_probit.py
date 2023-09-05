@@ -27,6 +27,8 @@ def build_model(model_label, df):
         model = bambi.Model('chose_risky ~ x*stimulation_condition + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     if model_label == 'probit_simple_half':
         model = bambi.Model('chose_risky ~ x*stimulation_condition*half + (x*stimulation_condition*half|subject)', df.reset_index(), link='probit', family='bernoulli')
+    if model_label == 'probit_order_half':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*half + (x*risky_first*stimulation_condition*half|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_simple_model_session':
         model = bambi.Model('chose_risky ~ x*stimulation_condition + x*C(session) + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_simple_all_sessions':
