@@ -89,6 +89,8 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
         r2 = get_rsq(train_data, pred)
         print(r2.describe())
+
+        r2 = r2[r2 < 1.0]
         r2_mask = r2.sort_values(ascending=False).index[:n_voxels]
 
         train_data = train_data[r2_mask]
