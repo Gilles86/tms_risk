@@ -149,6 +149,7 @@ class Subject(object):
         df = []
         for session in sessions:
             runs = self.get_runs(session)
+            print(self.tms_conditions)
             tms_condition = self.tms_conditions[session]
             for run in runs:
 
@@ -332,8 +333,9 @@ class Subject(object):
                 return base_mask
             else:
                 raise NotImplementedError
-        elif roi.startswith('NPC'):
 
+        elif roi.startswith('NPC') or roi.startswith('NF') or roi.startswith('NTO'):
+            
             anat_mask = op.join(self.derivatives_dir
             ,'ips_masks',
             f'sub-{self.subject}',
