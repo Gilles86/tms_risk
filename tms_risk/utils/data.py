@@ -383,6 +383,7 @@ class Subject(object):
             retroicor=False,
             cross_validated=True,
             natural_space=False,
+            keys=None,
             roi=None):
 
         dir = 'encoding_model'
@@ -413,7 +414,8 @@ class Subject(object):
 
         parameters = []
 
-        keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
+        if keys is None:
+            keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
 
         mask = self.get_volume_mask(session=session, roi=roi, epi_space=True)
         masker = NiftiMasker(mask)
