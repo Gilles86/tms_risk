@@ -149,6 +149,7 @@ class Subject(object):
         df = []
         for session in sessions:
             runs = self.get_runs(session)
+            print(self.tms_conditions)
             tms_condition = self.tms_conditions[session]
             for run in runs:
 
@@ -192,7 +193,7 @@ class Subject(object):
             df = df[~df.chose_risky.isnull()]
             df['chose_risky'] = df['chose_risky'].astype(bool)
 
-        def get_risk_bin(d, n_bins=8):
+        def get_risk_bin(d, n_bins=6):
             labels = [f'{int(e)}%' for e in np.linspace(20, 80, n_bins)]
             try: 
                 # return pd.qcut(d, 6, range(1, 7))
@@ -332,21 +333,41 @@ class Subject(object):
                 return base_mask
             else:
                 raise NotImplementedError
-        elif roi.startswith('NPC'):
-            mask = op.join(self.derivatives_dir
+
+        elif roi.startswith('NPC') or roi.startswith('NF') or roi.startswith('NTO'):
+            
+            anat_mask = op.join(self.derivatives_dir
             ,'ips_masks',
             f'sub-{self.subject}',
             'anat',
             f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
             )
-            mask = image.load_img(mask, dtype='int32')
+
+            if epi_space:
+                epi_mask = op.join(self.derivatives_dir
+                                    ,'ips_masks',
+                                    f'sub-{self.subject}',
+                                    'func',
+                                    f'ses-{session}',
+                                    f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz')
+
+                if not op.exists(epi_mask):
+                    if not op.exists(op.dirname(epi_mask)):
+                        os.makedirs(op.dirname(epi_mask))
+
+
+                    im = image.resample_to_img(image.load_img(anat_mask, dtype='int32'), image.load_img(base_mask, dtype='int32'), interpolation='nearest')
+                    im.to_filename(epi_mask)
+
+                mask = epi_mask
+
+            else: 
+                mask = anat_mask
+
         else:
             raise NotImplementedError
 
-        if epi_space:
-            mask = image.resample_to_img(mask, base_mask, interpolation='nearest')
-
-        return mask
+        return image.load_img(mask, dtype='int32')
     
     def get_prf_parameters_volume(self, session, 
             run=None,

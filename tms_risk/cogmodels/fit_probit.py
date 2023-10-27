@@ -7,7 +7,7 @@ import arviz as az
 import bambi
 import pandas as pd
 
-def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk'):
+def main(model_label, n_cores=4, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk'):
 
     df = get_data(model_label, bids_folder)
     target_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
@@ -18,15 +18,19 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
     target_accept = 0.8
 
     model = build_model(model_label, df)
-    trace = model.fit(burnin, samples, init='adapt_diag', target_accept=target_accept)
+    trace = model.fit(burnin, samples, init='adapt_diag', target_accept=target_accept, cores=n_cores)
     az.to_netcdf(trace,
                  op.join(target_folder, f'model-{model_label}_trace.netcdf'))
 
 def build_model(model_label, df):
     if model_label == 'probit_simple':
         model = bambi.Model('chose_risky ~ x*stimulation_condition + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
-    if model_label == 'probit_simple_half':
+    elif model_label == 'probit_simple_half':
         model = bambi.Model('chose_risky ~ x*stimulation_condition*half + (x*stimulation_condition*half|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_order_half':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*half + (x*risky_first*stimulation_condition*half|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_order_run':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(run) + (x*risky_first*stimulation_condition*C(run)|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_simple_model_session':
         model = bambi.Model('chose_risky ~ x*stimulation_condition + x*C(session) + (x*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_simple_all_sessions':
@@ -71,6 +75,9 @@ def get_data(model_label=None, bids_folder='/data/ds-tmsrisk'):
 
     df['log_n_safe'] = np.log(df['n_safe'])
 
+    # if model_label in ['probit_order_run']:
+    #     df['run'] = df.index.get_level_values('run')
+
     if model_label not in ['probit_simple_all_sessions']:
         df = df.drop('baseline', level='stimulation_condition')
         print('Dropping the baseline condition')
@@ -85,9 +92,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('model_label', default=None)
     parser.add_argument('--bids_folder', default='/data/ds-tmsrisk')
+    parser.add_argument('--n_cores', default=4, type=int)
     args = parser.parse_args()
 
-    main(args.model_label, bids_folder=args.bids_folder)
+    main(args.model_label, bids_folder=args.bids_folder, n_cores=args.n_cores)
 
 
 

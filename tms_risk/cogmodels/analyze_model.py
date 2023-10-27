@@ -16,7 +16,7 @@ def main(model_label, bids_folder='/data/ds-tmsrisk', col_wrap=5, only_ppc=False
 plot_traces=False):
 
 
-    df = get_data()
+    df = get_data(model_label=model_label, bids_folder=bids_folder)
     model = build_model(model_label, df)
     model.build_estimation_model()
 

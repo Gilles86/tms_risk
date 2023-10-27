@@ -263,7 +263,7 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         if level == 'subject':
             fac.map(lambda *args, **kwargs: plt.axvline(np.log(1./.55), c='k', ls='--'))
         else:
-            fac.map(lambda *args, **kwargs: plt.axvline(3.5, c='k', ls='--'))
+            fac.map(lambda *args, **kwargs: plt.axvline(2.5, c='k', ls='--'))
 
     
     if legend:

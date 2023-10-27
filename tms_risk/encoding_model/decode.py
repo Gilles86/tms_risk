@@ -98,10 +98,11 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         model = GaussianPRF(parameters=pars)
         pred = model.predict(paradigm=train_paradigm['log(n1)'].astype(np.float32))
 
-        if n_voxels != 0:
-            r2 = get_rsq(train_data, pred)
-            print(r2.describe())
-            r2_mask = r2.sort_values(ascending=False).index[:n_voxels]
+        r2 = get_rsq(train_data, pred)
+        print(r2.describe())
+
+        r2 = r2[r2 < 1.0]
+        r2_mask = r2.sort_values(ascending=False).index[:n_voxels]
 
         train_data = train_data[r2_mask]
         test_data = test_data[r2_mask]
