@@ -60,6 +60,9 @@ def get_tms_conditions():
         return yaml.safe_load(stream)
 
 
+def get_participant_info(bids_folder='/data/ds-tmsrisk'):
+    return pd.read_csv(op.join(bids_folder, 'participants.tsv'), sep='\t', index_col='participant_id')
+
 class Subject(object):
 
     def __init__(self, subject, bids_folder='/data/ds-tmsrisk'):
@@ -69,12 +72,15 @@ class Subject(object):
 
         self.tms_conditions = {1:'baseline', 2:None, 3:None}
 
+        for key, value in get_participant_info(bids_folder).loc[f'sub-{self.subject}'].items():
+            setattr(self, key, value)
 
         if self.subject in get_tms_conditions():
             tc = get_tms_conditions()[self.subject]
             for session in [2, 3]:
                 if session in tc:
                     self.tms_conditions[session] = tc[session]
+
 
     def get_runs(self, session):
         if (self.subject == '10') & (int(session) == 1):
