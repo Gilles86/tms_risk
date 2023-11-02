@@ -63,6 +63,69 @@ def get_tms_conditions():
 def get_participant_info(bids_folder='/data/ds-tmsrisk'):
     return pd.read_csv(op.join(bids_folder, 'participants.tsv'), sep='\t', index_col='participant_id')
 
+def get_all_apriori_roi_labels():
+    return ['NPC1l', 'NPC1r', 'NPC2l', 'NPC2r', 'NPC3l', 'NPC3r', 'NTOl', 'NTOr', 'NF1l', 'NF1r', 'NF2l', 'NF2r']
+
+
+
+def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False):
+
+    if n_voxels == 1:
+        key = 'decoded_pdfs.volume.cv_voxel_selection'
+    else:
+        key = 'decoded_pdfs.volume'
+
+    subject = f'{subject:02d}'
+
+    if denoise:
+        key += '.denoise'
+
+    if smoothed:
+        key += '.smoothed'
+
+    if pca_confounds and not denoise:
+        key += '.pca_confounds'
+
+    if natural_space:
+        key += '.natural_space'
+
+    if n_voxels == 1:
+        pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_space-T1w_pars.tsv')
+    else:
+        pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_nvoxels-{n_voxels}_space-T1w_pars.tsv')
+
+    if op.exists(pdf):
+        pdf = pd.read_csv(pdf, sep='\t', index_col=[0,1])
+        pdf.columns = pdf.columns.astype(float)
+
+        if natural_space:
+            pdf = pdf.loc[:, 5:112]
+        else:
+            pdf = pdf.loc[:, np.log(5):np.log(112)]
+    else:
+        print(pdf)
+        pdf = pd.DataFrame(np.zeros((0, 0)))
+    
+    pdf /= np.trapz(pdf, pdf.columns, axis=1)[:, np.newaxis]
+
+    return pdf
+
+def get_decoding_info(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False):
+
+    pdf = get_pdf(subject, session, pca_confounds=pca_confounds, denoise=denoise, smoothed=smoothed, bids_folder=bids_folder, mask=mask, n_voxels=n_voxels, natural_space=natural_space)
+
+    E = pd.Series(np.trapz(pdf*pdf.columns.values[np.newaxis,:], pdf.columns, axis=1), index=pdf.index)
+
+    E = pd.concat((E,), keys=[(int(subject), int(session), 'pca_confounds' if pca_confounds else 'no pca', 'GLMstim' if denoise else "glm", 'smoothed' if smoothed else 'not smoothed', mask, n_voxels,
+                                'natural' if natural_space else 'log')],
+    names=['subject', 'session', 'pca', 'glm', 'smoothed', 'mask', 'n_voxels', 'space']).to_frame('E')
+
+    
+    E['sd'] = np.trapz(np.abs(E.values - pdf.columns.astype(float).values[np.newaxis, :]) * pdf, pdf.columns, axis=1)
+
+    return E
+
+
 class Subject(object):
 
     def __init__(self, subject, bids_folder='/data/ds-tmsrisk'):
@@ -155,7 +218,6 @@ class Subject(object):
         df = []
         for session in sessions:
             runs = self.get_runs(session)
-            print(self.tms_conditions)
             tms_condition = self.tms_conditions[session]
             for run in runs:
 
@@ -271,7 +333,7 @@ class Subject(object):
         
         fmriprep_confounds = self.get_fmriprep_confounds(session, include=include_fmriprep)
         retroicor_confounds = self.get_retroicor_confounds(session)
-        print(retroicor_confounds)
+
         confounds = [pd.concat((rcf, fcf), axis=1) for rcf, fcf in zip(retroicor_confounds, fmriprep_confounds)]
         confounds = [c.fillna(method='bfill') for c in confounds]
 
