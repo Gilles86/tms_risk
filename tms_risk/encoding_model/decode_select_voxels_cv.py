@@ -13,7 +13,6 @@ from tms_risk.utils import Subject
 from braincoder.models import GaussianPRF
 from braincoder.optimize import ParameterFitter
 
-stimulus_range = np.linspace(0, 6, 1000)
 # stimulus_range = np.log(np.arange(400))
 mask = 'wang15_ips'
 space = 'T1w'
@@ -64,7 +63,7 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
     print(data)
 
     pdfs = []
-    runs = range(1, 9)
+    runs = sub.get_runs(session)
 
     # SET UP GRID
     if natural_space:
@@ -82,13 +81,13 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
 
     for test_run in runs:
 
-        test_data, test_paradigm = data.loc[test_run].copy(), paradigm.loc[test_run].copy()
+        test_data, test_paradigm = data.xs(test_run, 0, 'run').copy(), paradigm.xs(test_run, 0, 'run').copy()
         train_data, train_paradigm = data.drop(test_run, level='run').copy(), paradigm.drop(test_run, level='run').copy()
 
         for test_run2 in train_data.index.unique(level='run'):
-            test_data2 = train_data.loc[test_run2].copy()
-            test_paradigm2 = train_paradigm.loc[test_run2].copy()
-            train_data2 = train_data.drop(test_run2).copy()
+            test_data2 = train_data.xs(test_run2, 0, 'run').copy()
+            test_paradigm2 = train_paradigm.xs(test_run2, 0, 'run').copy()
+            train_data2 = train_data.drop(test_run2, level='run').copy()
             train_paradigm2 = train_paradigm.drop(test_run2, level='run').copy()
             print(test_data2.shape, train_data2.shape, train_paradigm2.shape, test_paradigm2.shape)
 
@@ -117,6 +116,7 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
             cv_r2 = get_rsq(test_data2, model.predict(parameters=optimizer.estimated_parameters,
                                                     paradigm=test_paradigm2.astype(np.float32))).to_frame('r2').T
 
+            print(cv_r2.T.sort_values('r2'), (cv_r2.T['r2']>0.0).sum())
             cv_r2s.append(cv_r2)
             cv_keys.append({'subject':subject, 'session':session, 
             'test_run1':test_run, 'test_run2':test_run2})
@@ -133,7 +133,7 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
 
     for test_run in runs:
 
-        test_data, test_paradigm = data.loc[test_run].copy(), paradigm.loc[test_run].copy()
+        test_data, test_paradigm = data.xs(test_run, 0, 'run').copy(), paradigm.xs(test_run, 0, 'run').copy()
         train_data, train_paradigm = data.drop(test_run, level='run').copy(), paradigm.drop(test_run, level='run').copy()
 
         pars = sub.get_prf_parameters_volume(session, cross_validated=True,
@@ -198,13 +198,13 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('subject', default=None)
-    parser.add_argument('session', default=None)
+    parser.add_argument('session', default=None, type=int)
     parser.add_argument('--bids_folder', default='/data')
     parser.add_argument('--smoothed', action='store_true')
     parser.add_argument('--pca_confounds', action='store_true')
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--retroicor', action='store_true')
-    parser.add_argument('--mask', default='npcr')
+    parser.add_argument('--mask', default='NPCr')
     parser.add_argument('--natural_space', action='store_true')
     args = parser.parse_args()
 
