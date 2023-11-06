@@ -15,10 +15,15 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
     if not op.exists(target_folder):
         os.makedirs(target_folder)
 
-    if (model_label in ['0', '5', '1_session']) or model_label.startswith("flexible"):
+    if (model_label in ['0', '5', '1_session']):
         target_accept = 0.9
     else:
         target_accept = 0.8
+
+    if model_label.startswith('flexible'):
+        target_accept = 0.9
+        burnin = 2500
+        samples = 2500
 
     model = build_model(model_label, df)
     model.build_estimation_model()
@@ -114,8 +119,25 @@ def build_model(model_label, df):
                                         'n2_evidence_sd_poly3':'stimulation_condition',
                                         'n2_evidence_sd_poly4':'stimulation_condition',}, bspline=True,
                                         prior_estimate='full')
+    elif model_label == 'flexible1.4':
+        model = FlexibleSDRiskRegressionModel(df, regressors={'n1_evidence_sd_poly0':'stimulation_condition',
+                                        'n1_evidence_sd_poly1':'stimulation_condition',
+                                        'n1_evidence_sd_poly2':'stimulation_condition',
+                                        'n1_evidence_sd_poly3':'stimulation_condition',
+                                        'n1_evidence_sd_poly4':'stimulation_condition',
+                                        'n2_evidence_sd_poly0':'stimulation_condition',
+                                        'n2_evidence_sd_poly1':'stimulation_condition',
+                                        'n2_evidence_sd_poly2':'stimulation_condition',
+                                        'n2_evidence_sd_poly3':'stimulation_condition',
+                                        'n2_evidence_sd_poly4':'stimulation_condition',}, bspline=True,
+                                        polynomial_order=4,
+                                        prior_estimate='full')
     elif model_label == 'flexible1_null':
         model = FlexibleSDRiskRegressionModel(df, bspline=True,regressors={},
+                                        prior_estimate='full')
+    elif model_label == 'flexible1_null.4':
+        model = FlexibleSDRiskRegressionModel(df, bspline=True,regressors={},
+                                        polynomial_order=4,
                                         prior_estimate='full')
     elif model_label == 'flexible1b':
         model = FlexibleSDRiskRegressionModel(df, regressors={'n2_evidence_sd_poly0':'stimulation_condition',
@@ -123,6 +145,14 @@ def build_model(model_label, df):
                                         'n2_evidence_sd_poly2':'stimulation_condition',
                                         'n2_evidence_sd_poly3':'stimulation_condition',
                                         'n2_evidence_sd_poly4':'stimulation_condition',}, bspline=True,
+                                        prior_estimate='full')
+    elif model_label == 'flexible1b.4':
+        model = FlexibleSDRiskRegressionModel(df, regressors={'n2_evidence_sd_poly0':'stimulation_condition',
+                                        'n2_evidence_sd_poly1':'stimulation_condition',
+                                        'n2_evidence_sd_poly2':'stimulation_condition',
+                                        'n2_evidence_sd_poly3':'stimulation_condition',
+                                        'n2_evidence_sd_poly4':'stimulation_condition',}, bspline=True,
+                                        polynomial_order=4,
                                         prior_estimate='full')
     elif model_label == 'flexible2':
         model = FlexibleSDRiskRegressionModel(df, regressors={'memory_noise_sd_poly0': 'stimulation_condition',
@@ -136,6 +166,20 @@ def build_model(model_label, df):
                                                             'perceptual_noise_sd_poly3': 'stimulation_condition',
                                                             'perceptual_noise_sd_poly4': 'stimulation_condition', }, bspline=True,
                                             memory_model='shared_perceptual_noise',
+                                            prior_estimate='full')
+    elif model_label == 'flexible2.4':
+        model = FlexibleSDRiskRegressionModel(df, regressors={'memory_noise_sd_poly0': 'stimulation_condition',
+                                                            'memory_noise_sd_poly1': 'stimulation_condition',
+                                                            'memory_noise_sd_poly2': 'stimulation_condition',
+                                                            'memory_noise_sd_poly3': 'stimulation_condition',
+                                                            'memory_noise_sd_poly4': 'stimulation_condition',
+                                                            'perceptual_noise_sd_poly0': 'stimulation_condition',
+                                                            'perceptual_noise_sd_poly1': 'stimulation_condition',
+                                                            'perceptual_noise_sd_poly2': 'stimulation_condition',
+                                                            'perceptual_noise_sd_poly3': 'stimulation_condition',
+                                                            'perceptual_noise_sd_poly4': 'stimulation_condition', }, bspline=True,
+                                            memory_model='shared_perceptual_noise',
+                                            polynomial_order=4,
                                             prior_estimate='full')
     else:
         raise Exception(f'Do not know model label {model_label}')
