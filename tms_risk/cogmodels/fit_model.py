@@ -15,7 +15,7 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
     if not op.exists(target_folder):
         os.makedirs(target_folder)
 
-    if (model_label in ['0', '5', '1_session']):
+    if (model_label in ['0', '5', '1_session']) or model_label.startswith("flexible") or model_label.startswith('session1'):
         target_accept = 0.9
     else:
         target_accept = 0.8
@@ -196,6 +196,14 @@ def build_model(model_label, df):
                                             memory_model='shared_perceptual_noise',
                                             polynomial_order=4,
                                             prior_estimate='full')
+    elif model_label == 'session1_full':
+        model = RiskModel(df, prior_estimate='full', fit_seperate_evidence_sd=True)
+    elif model_label == 'session1_different_evidence':
+        model = RiskModel(df, prior_estimate='shared', fit_seperate_evidence_sd=True)
+    elif model_label == 'session1_different_priors':
+        model = RiskModel(df, prior_estimate='full', fit_seperate_evidence_sd=False)
+    elif model_label == 'session1_simple':
+        model = RiskModel(df, prior_estimate='shared', fit_seperate_evidence_sd=False)
     else:
         raise Exception(f'Do not know model label {model_label}')
 
@@ -206,7 +214,7 @@ def get_data(bids_folder='/data/ds-tmsrisk', model_label=None):
     if (model_label is not None) and model_label.endswith('everyone'):
         df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=False, exclude_outliers=True)
         df = df.xs(1, 0, 'session', drop_level=False)
-    elif (model_label is not None) and (model_label == 'session1_tms'):
+    elif (model_label is not None) and model_label.startswith('session1'):
         df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=True, exclude_outliers=True)
         df = df.xs(1, 0, 'session', drop_level=False)
     else:

@@ -11,12 +11,12 @@ def main(subject, bids_folder, thr=.1):
 
     subject = int(subject)
 
-    r2 = op.join(bids_folder, 'derivatives', 'encoding_model.smoothed.natural_space',
+    r2 = op.join(bids_folder, 'derivatives', 'encoding_model.denoise.smoothed.natural_space',
             f'sub-{subject:02d}', f'ses-1', 'func', f'sub-{subject:02d}_ses-1_desc-r2.optim_space-T1w_pars.nii.gz')
 
     r2 = image.load_img(r2)
 
-    mu = op.join(bids_folder, 'derivatives', 'encoding_model.smoothed',
+    mu = op.join(bids_folder, 'derivatives', 'encoding_model.denoise.smoothed.natural_space',
             f'sub-{subject:02d}', f'ses-1', 'func', f'sub-{subject:02d}_ses-1_desc-mu.optim_space-T1w_pars.nii.gz')
 
     mu = image.load_img(mu).get_data()
