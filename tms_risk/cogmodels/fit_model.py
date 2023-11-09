@@ -154,6 +154,21 @@ def build_model(model_label, df):
                                         'n2_evidence_sd_poly4':'stimulation_condition',}, bspline=True,
                                         polynomial_order=4,
                                         prior_estimate='full')
+    elif model_label == 'flexible1c':
+        model = FlexibleSDRiskRegressionModel(df, regressors={'n1_evidence_sd_poly0':'stimulation_condition',
+                                        'n1_evidence_sd_poly1':'stimulation_condition',
+                                        'n1_evidence_sd_poly2':'stimulation_condition',
+                                        'n1_evidence_sd_poly3':'stimulation_condition',
+                                        'n1_evidence_sd_poly4':'stimulation_condition',}, bspline=True,
+                                        polynomial_order=5,
+                                        prior_estimate='full')
+    elif model_label == 'flexible1c.4':
+        model = FlexibleSDRiskRegressionModel(df, regressors={'n1_evidence_sd_poly0':'stimulation_condition',
+                                        'n1_evidence_sd_poly1':'stimulation_condition',
+                                        'n1_evidence_sd_poly2':'stimulation_condition',
+                                        'n1_evidence_sd_poly3':'stimulation_condition',}, bspline=True,
+                                        polynomial_order=4,
+                                        prior_estimate='full')
     elif model_label == 'flexible2':
         model = FlexibleSDRiskRegressionModel(df, regressors={'memory_noise_sd_poly0': 'stimulation_condition',
                                                             'memory_noise_sd_poly1': 'stimulation_condition',
