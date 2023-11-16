@@ -446,7 +446,8 @@ class Subject(object):
             cross_validated=True,
             natural_space=False,
             keys=None,
-            roi=None):
+            roi=None,
+            return_image=False):
 
         dir = 'encoding_model'
 
@@ -497,10 +498,15 @@ class Subject(object):
             pars = pd.Series(masker.fit_transform(fn).ravel())
             parameters.append(pars)
 
-        return pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
+        parameters =  pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
+
+        if return_image:
+            return masker.inverse_transform(parameters.T)
+
+        return parameters
 
     def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative',
-    parameters=None, key=None):
+    parameters=None, key=None, nilearn=False):
 
         if mask is not None:
             raise NotImplementedError
@@ -540,11 +546,19 @@ class Subject(object):
 
         for parameter_key in parameter_keys:
             if cross_validated:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+                if nilearn:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                else:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
             else:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+                if nilearn:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                else:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
 
             pars = pd.Series(surface.load_surf_data(fn))
             pars.index.name = 'vertex'
@@ -552,6 +566,24 @@ class Subject(object):
             parameters.append(pars)
 
         return pd.concat(parameters, axis=1, keys=parameter_keys, names=['parameter'])
+
+    def get_surf_info(self):
+        info = {'L':{}, 'R':{}}
+
+        for hemi in ['L', 'R']:
+
+            fs_hemi = {'L':'lh', 'R':'rh'}[hemi]
+
+            info[hemi]['inner'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_smoothwm.surf.gii')
+            info[hemi]['mid'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_midthickness.surf.gii')
+            info[hemi]['outer'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_pial.surf.gii')
+            info[hemi]['inflated'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_inflated.surf.gii')
+            info[hemi]['curvature'] = op.join(self.bids_folder, 'derivatives', 'freesurfer', f'sub-{self.subject}', 'surf', f'{fs_hemi}.curv')
+
+            for key in info[hemi]:
+                assert(os.path.exists(info[hemi][key])), f'{info[hemi][key]} does not exist'
+
+        return info
 
     def get_fmri_events(self, session, runs=None):
 
