@@ -155,7 +155,6 @@ class Subject(object):
         df = []
         for session in sessions:
             runs = self.get_runs(session)
-            print(self.tms_conditions)
             tms_condition = self.tms_conditions[session]
             for run in runs:
 
@@ -271,7 +270,6 @@ class Subject(object):
         
         fmriprep_confounds = self.get_fmriprep_confounds(session, include=include_fmriprep)
         retroicor_confounds = self.get_retroicor_confounds(session)
-        print(retroicor_confounds)
         confounds = [pd.concat((rcf, fcf), axis=1) for rcf, fcf in zip(retroicor_confounds, fmriprep_confounds)]
         confounds = [c.fillna(method='bfill') for c in confounds]
 
