@@ -12,7 +12,7 @@ def main(subject, bids_folder):
 
     freesurfer.import_subj(f'sub-{subject:02d}', 
             cx_subject=f'tms.sub-{subject:02d}',
-            freesurfer_subject_dir=op.join(bids_folder, 'derivatives', 'fmriprep', 'sourcedata', 'freesurfer'))
+            freesurfer_subject_dir=op.join(bids_folder, 'derivatives', 'freesurfer'))
 
     t1w = op.join(bids_folder, 'derivatives', 'fmriprep', f'sub-{subject:02d}', f'ses-1', 'anat',
             f'sub-{subject:02d}_ses-1_desc-preproc_T1w.nii.gz')

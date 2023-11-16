@@ -9,12 +9,7 @@ import os
 import os.path as op
 import numpy as np
 
-
-def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
-        denoise=False,
-        pca_confounds=False, retroicor=False, natural_space=False):
-
-    sub = Subject(subject, bids_folder=bids_folder)
+def get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_confounds, retroicor, natural_space):
 
     key = 'glm_stim1'
     target_dir = 'encoding_model'
@@ -42,8 +37,19 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
         target_dir += '.natural_space'
 
     target_dir = op.join(bids_folder, 'derivatives', target_dir, f'sub-{subject}', f'ses-{session}', 'func' )
+
     if not op.exists(target_dir):
         os.makedirs(target_dir)
+
+    return key, target_dir
+
+def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
+        denoise=False,
+        pca_confounds=False, retroicor=False, natural_space=False):
+
+    sub = Subject(subject, bids_folder=bids_folder)
+
+    key, target_dir = get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_confounds, retroicor, natural_space)
 
     print("TARGET DIR", target_dir)
 

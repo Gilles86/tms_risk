@@ -63,6 +63,69 @@ def get_tms_conditions():
 def get_participant_info(bids_folder='/data/ds-tmsrisk'):
     return pd.read_csv(op.join(bids_folder, 'participants.tsv'), sep='\t', index_col='participant_id')
 
+def get_all_apriori_roi_labels():
+    return ['NPC1l', 'NPC1r', 'NPC2l', 'NPC2r', 'NPC3l', 'NPC3r', 'NTOl', 'NTOr', 'NF1l', 'NF1r', 'NF2l', 'NF2r']
+
+
+
+def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False):
+
+    if n_voxels == 1:
+        key = 'decoded_pdfs.volume.cv_voxel_selection'
+    else:
+        key = 'decoded_pdfs.volume'
+
+    subject = f'{subject:02d}'
+
+    if denoise:
+        key += '.denoise'
+
+    if smoothed:
+        key += '.smoothed'
+
+    if pca_confounds and not denoise:
+        key += '.pca_confounds'
+
+    if natural_space:
+        key += '.natural_space'
+
+    if n_voxels == 1:
+        pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_space-T1w_pars.tsv')
+    else:
+        pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_nvoxels-{n_voxels}_space-T1w_pars.tsv')
+
+    if op.exists(pdf):
+        pdf = pd.read_csv(pdf, sep='\t', index_col=[0,1])
+        pdf.columns = pdf.columns.astype(float)
+
+        if natural_space:
+            pdf = pdf.loc[:, 5:112]
+        else:
+            pdf = pdf.loc[:, np.log(5):np.log(112)]
+    else:
+        print(pdf)
+        pdf = pd.DataFrame(np.zeros((0, 0)))
+    
+    pdf /= np.trapz(pdf, pdf.columns, axis=1)[:, np.newaxis]
+
+    return pdf
+
+def get_decoding_info(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False):
+
+    pdf = get_pdf(subject, session, pca_confounds=pca_confounds, denoise=denoise, smoothed=smoothed, bids_folder=bids_folder, mask=mask, n_voxels=n_voxels, natural_space=natural_space)
+
+    E = pd.Series(np.trapz(pdf*pdf.columns.values[np.newaxis,:], pdf.columns, axis=1), index=pdf.index)
+
+    E = pd.concat((E,), keys=[(int(subject), int(session), 'pca_confounds' if pca_confounds else 'no pca', 'GLMstim' if denoise else "glm", 'smoothed' if smoothed else 'not smoothed', mask, n_voxels,
+                                'natural' if natural_space else 'log')],
+    names=['subject', 'session', 'pca', 'glm', 'smoothed', 'mask', 'n_voxels', 'space']).to_frame('E')
+
+    
+    E['sd'] = np.trapz(np.abs(E.values - pdf.columns.astype(float).values[np.newaxis, :]) * pdf, pdf.columns, axis=1)
+
+    return E
+
+
 class Subject(object):
 
     def __init__(self, subject, bids_folder='/data/ds-tmsrisk'):
@@ -382,7 +445,8 @@ class Subject(object):
             cross_validated=True,
             natural_space=False,
             keys=None,
-            roi=None):
+            roi=None,
+            return_image=False):
 
         dir = 'encoding_model'
 
@@ -433,10 +497,15 @@ class Subject(object):
             pars = pd.Series(masker.fit_transform(fn).ravel())
             parameters.append(pars)
 
-        return pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
+        parameters =  pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
+
+        if return_image:
+            return masker.inverse_transform(parameters.T)
+
+        return parameters
 
     def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative',
-    parameters=None, key=None):
+    parameters=None, key=None, nilearn=False):
 
         if mask is not None:
             raise NotImplementedError
@@ -476,11 +545,19 @@ class Subject(object):
 
         for parameter_key in parameter_keys:
             if cross_validated:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+                if nilearn:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                else:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
             else:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+                if nilearn:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                else:
+                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
 
             pars = pd.Series(surface.load_surf_data(fn))
             pars.index.name = 'vertex'
@@ -488,6 +565,24 @@ class Subject(object):
             parameters.append(pars)
 
         return pd.concat(parameters, axis=1, keys=parameter_keys, names=['parameter'])
+
+    def get_surf_info(self):
+        info = {'L':{}, 'R':{}}
+
+        for hemi in ['L', 'R']:
+
+            fs_hemi = {'L':'lh', 'R':'rh'}[hemi]
+
+            info[hemi]['inner'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_smoothwm.surf.gii')
+            info[hemi]['mid'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_midthickness.surf.gii')
+            info[hemi]['outer'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_pial.surf.gii')
+            info[hemi]['inflated'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_inflated.surf.gii')
+            info[hemi]['curvature'] = op.join(self.bids_folder, 'derivatives', 'freesurfer', f'sub-{self.subject}', 'surf', f'{fs_hemi}.curv')
+
+            for key in info[hemi]:
+                assert(os.path.exists(info[hemi][key])), f'{info[hemi][key]} does not exist'
+
+        return info
 
     def get_fmri_events(self, session, runs=None):
 
