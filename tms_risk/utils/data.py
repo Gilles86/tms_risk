@@ -247,7 +247,7 @@ class Subject(object):
         df['choice'] = df_[('choice', 'choice')]
         df['risky_first'] = df['p1'] == 0.55
         df['chose_risky'] = (df['risky_first'] & (df['choice'] == 1.0)) | (~df['risky_first'] & (df['choice'] == 2.0))
-        df.loc[df.choice.isnull(), 'chose_risky'] = np.nan
+        df['chose_risky'] = df['chose_risky'].where(df['choice'].notnull(), np.nan)
 
 
         df['n_risky'] = df['n1'].where(df['risky_first'], df['n2'])
@@ -519,10 +519,10 @@ class Subject(object):
         if hemi is None:
             prf_l = self.get_prf_parameters_surf(session, 
                     run, smoothed, cross_validated, hemi='L',
-                    mask=mask, space=space, key=key, parameters=parameters)
+                    mask=mask, space=space, key=key, parameters=parameters, nilearn=nilearn)
             prf_r = self.get_prf_parameters_surf(session, 
                     run, smoothed, cross_validated, hemi='R',
-                    mask=mask, space=space, key=key, parameters=parameters)
+                    mask=mask, space=space, key=key, parameters=parameters, nilearn=nilearn)
             
             return pd.concat((prf_l, prf_r), axis=0, 
                     keys=pd.Index(['L', 'R'], name='hemi'))
@@ -540,7 +540,6 @@ class Subject(object):
             dir += '.natural_space'
         else:
             dir = key
-            print(dir)
 
         parameters = []
 
@@ -548,14 +547,14 @@ class Subject(object):
             if cross_validated:
                 if nilearn:
                     fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
                 else:
                     fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
                             'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
             else:
                 if nilearn:
                     fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
                 else:
                     fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
                             'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
