@@ -447,6 +447,7 @@ class Subject(object):
             natural_space=False,
             keys=None,
             roi=None,
+            new_parameterisation=False,
             return_image=False):
 
         dir = 'encoding_model'
@@ -475,10 +476,17 @@ class Subject(object):
         if natural_space:
             dir += '.natural_space'
 
+        if new_parameterisation:
+            dir += '.new_parameterisation'
+
         parameters = []
 
         if keys is None:
-            keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
+
+            if new_parameterisation:
+                keys = ['mode', 'fwhm', 'amplitude', 'baseline', 'r2', 'cvr2']
+            else:
+                keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
 
         mask = self.get_volume_mask(session=session, roi=roi, epi_space=True)
         masker = NiftiMasker(mask)
