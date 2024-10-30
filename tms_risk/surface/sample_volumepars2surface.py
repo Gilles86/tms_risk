@@ -6,7 +6,7 @@ import nipype.interfaces.utility as niu
 from nipype.interfaces.io import ExportFile
 from itertools import product
 from nipype.utils.misc import flatten
-
+from tms_risk.encoding_model.fit_nprf import get_key_target_dir
 
 
 def main(subject, session, bids_folder='/data', smoothed=False):
@@ -14,17 +14,11 @@ def main(subject, session, bids_folder='/data', smoothed=False):
 
 
     parameters = ['r2', 'mu', 'sd', 'cvr2', 'amplitude', 'baseline']
-    key = 'encoding_model.denoise'
-    key_cv = 'encoding_model.cv.denoise'
 
-    if smoothed:
-        key += '.smoothed'
-        key_cv += '.smoothed'
+    key = get_key_target_dir(f'{int(subject):02d}', session, bids_folder, smoothed, denoise=True, pca_confounds=False, retroicor=False, natural_space=True, only_target_key=True)    
+    key_cv = key.replace('encoding_model', 'encoding_model.cv')
 
-    key += '.natural_space'
-    key_cv += '.natural_space'
 
-    print(key)
     wf = pe.Workflow(name=f'resample_{subject}_{session}_{key.replace(".", "_")}', base_dir='/tmp')
 
 
