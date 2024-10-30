@@ -63,7 +63,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
     else:
         r2_mask = pars['r2'].sort_values(ascending=False).index[:n_voxels]
-        print(f"Using {r2_mask.sum()} best voxels")
+        print(f"Using {len(r2_mask)} best voxels")
 
     data = data.loc[:, r2_mask]
     pars = pars.loc[r2_mask]

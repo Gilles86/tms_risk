@@ -9,7 +9,8 @@ import os
 import os.path as op
 import numpy as np
 
-def get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_confounds, retroicor, natural_space):
+def get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_confounds, retroicor, natural_space, only_target_key=False,
+                       new_parameterisation=False):
 
     key = 'glm_stim1'
     target_dir = 'encoding_model'
@@ -36,6 +37,12 @@ def get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_con
     if natural_space:
         target_dir += '.natural_space'
 
+    if new_parameterisation:
+        target_dir += '.new_parameterisation'
+
+    if only_target_key:
+        return target_dir
+
     target_dir = op.join(bids_folder, 'derivatives', target_dir, f'sub-{subject}', f'ses-{session}', 'func' )
 
     if not op.exists(target_dir):
@@ -45,7 +52,11 @@ def get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_con
 
 def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
         denoise=False,
-        pca_confounds=False, retroicor=False, natural_space=False):
+        pca_confounds=False, retroicor=False, natural_space=False,
+        new_parameterisation=False):
+
+    if new_parameterisation and (not natural_space):
+        raise ValueError("New parameterisation only makes sense in natural space")
 
     sub = Subject(subject, bids_folder=bids_folder)
 
@@ -68,12 +79,21 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
 
     if natural_space:
         paradigm = paradigm['n1']
-        model = LogGaussianPRF()
-        # SET UP GRID
-        mus = np.linspace(5, 80, 60, dtype=np.float32)
-        sds = np.linspace(5, 40, 60, dtype=np.float32)
-        amplitudes = np.array([1.], dtype=np.float32)
-        baselines = np.array([0], dtype=np.float32)
+        
+        if new_parameterisation:
+            model = LogGaussianPRF(parameterisation='mode_fwhm_natural')
+            # SET UP GRID
+            modes = np.linspace(5, 80, 60, dtype=np.float32)
+            fwhms = np.linspace(5, 40, 60, dtype=np.float32)
+            amplitudes = np.array([1.], dtype=np.float32)
+            baselines = np.array([0], dtype=np.float32)
+        else:
+            model = LogGaussianPRF()
+            # SET UP GRID
+            mus = np.linspace(5, 80, 60, dtype=np.float32)
+            sds = np.linspace(5, 40, 60, dtype=np.float32)
+            amplitudes = np.array([1.], dtype=np.float32)
+            baselines = np.array([0], dtype=np.float32)
     else:
         paradigm = paradigm['log(n1)']
         model = GaussianPRF()
@@ -97,8 +117,18 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
 
     optimizer = ParameterFitter(model, data, paradigm)
 
-    grid_parameters = optimizer.fit_grid(mus, sds, amplitudes, baselines, use_correlation_cost=True)
-    grid_parameters = optimizer.refine_baseline_and_amplitude(grid_parameters, n_iterations=2)
+    if new_parameterisation:
+        grid_parameters = optimizer.fit_grid(mus, sds, amplitudes, baselines, use_correlation_cost=True)
+        grid_parameters = optimizer.refine_baseline_and_amplitude(grid_parameters, n_iterations=2)
+        optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
+                      fixed_parameters=['mode', 'fwhm'],
+                        r2_atol=0.00001)
+    else:
+        grid_parameters = optimizer.fit_grid(mus, sds, amplitudes, baselines, use_correlation_cost=True)
+        grid_parameters = optimizer.refine_baseline_and_amplitude(grid_parameters, n_iterations=2)
+        optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
+                      fixed_parameters=['mu', 'sd'],
+                        r2_atol=0.00001)
 
 
     optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
@@ -123,8 +153,9 @@ if __name__ == '__main__':
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--retroicor', action='store_true')
     parser.add_argument('--natural_space', action='store_true')
+    parser.add_argument('--new_parameterisation', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
             pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor,
-            natural_space=args.natural_space)
+            natural_space=args.natural_space, new_parameterisation=args.new_parameterisation)
