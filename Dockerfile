@@ -148,6 +148,7 @@ RUN apt-get update -qq \
            "ipython" \
            "pytables" \
            "tensorflow" \
+           "netcdf4" \
            "tensorflow-probability" \
            "pingouin" \
            "mkl-service" \
@@ -155,6 +156,7 @@ RUN apt-get update -qq \
     && bash -c "source activate neuro \
     &&   python -m pip install --no-cache-dir  \
              "nilearn" \
+             "fmriprep" \
              "nipype" \
              "pybids" \
              "nistats" \
@@ -286,7 +288,7 @@ RUN printf '{ \
     { \
       "name": "run", \
       "kwds": { \
-        "command": "apt-get update -qq\\napt-get install -y -q --no-install-recommends \\\\\\n    bzip2 \\\\\\n    ca-certificates \\\\\\n    curl\\nrm -rf /var/lib/apt/lists/*\\n# Install dependencies.\\nexport PATH=\\"/opt/miniconda-latest/bin:$PATH\\"\\necho \\"Downloading Miniconda installer ...\\"\\nconda_installer=\\"/tmp/miniconda.sh\\"\\ncurl -fsSL -o \\"$conda_installer\\" https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh\\nbash \\"$conda_installer\\" -b -p /opt/miniconda-latest\\nrm -f \\"$conda_installer\\"\\nconda update -yq -nbase conda\\n# Prefer packages in conda-forge\\nconda config --system --prepend channels conda-forge\\n# Packages in lower-priority channels not considered if a package with the same\\n# name exists in a higher priority channel. Can dramatically speed up installations.\\n# Conda recommends this as a default\\n# https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html\\nconda config --set channel_priority strict\\nconda config --system --set auto_update_conda false\\nconda config --system --set show_channel_urls true\\n# Enable `conda activate`\\nconda init bash\\nconda create -y  --name neuro\\nconda install -y  --name neuro \\\\\\n    \\"python=3.7\\" \\\\\\n    \\"pandas\\" \\\\\\n    \\"matplotlib\\" \\\\\\n    \\"scikit-learn\\" \\\\\\n    \\"seaborn\\" \\\\\\n    \\"ipython\\" \\\\\\n    \\"pytables\\" \\\\\\n    \\"tensorflow\\" \\\\\\n    \\"tensorflow-probability\\" \\\\\\n    \\"pingouin\\" \\\\\\n    \\"mkl-service\\" \\\\\\n    \\"tqdm\\"\\nbash -c \\"source activate neuro\\n  python -m pip install --no-cache-dir  \\\\\\n      \\"nilearn\\" \\\\\\n      \\"nipype\\" \\\\\\n      \\"pybids\\" \\\\\\n      \\"nistats\\" \\\\\\n      \\"https://github.com/Gilles86/hedfpy/archive/refactor_gilles.zip\\" \\\\\\n      \\"pytest\\" \\\\\\n      \\"neuropythy\\" \\\\\\n      \\"bambi\\" \\\\\\n      \\"pymc3\\" \\\\\\n      \\"pyyaml\\" \\\\\\n      \\"fmriprep\\" \\\\\\n      \\"svgutils==0.3.1\\"\\"\\n# Clean up\\nsync && conda clean --all --yes && sync\\nrm -rf ~/.cache/pip/*" \
+        "command": "apt-get update -qq\\napt-get install -y -q --no-install-recommends \\\\\\n    bzip2 \\\\\\n    ca-certificates \\\\\\n    curl\\nrm -rf /var/lib/apt/lists/*\\n# Install dependencies.\\nexport PATH=\\"/opt/miniconda-latest/bin:$PATH\\"\\necho \\"Downloading Miniconda installer ...\\"\\nconda_installer=\\"/tmp/miniconda.sh\\"\\ncurl -fsSL -o \\"$conda_installer\\" https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh\\nbash \\"$conda_installer\\" -b -p /opt/miniconda-latest\\nrm -f \\"$conda_installer\\"\\nconda update -yq -nbase conda\\n# Prefer packages in conda-forge\\nconda config --system --prepend channels conda-forge\\n# Packages in lower-priority channels not considered if a package with the same\\n# name exists in a higher priority channel. Can dramatically speed up installations.\\n# Conda recommends this as a default\\n# https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html\\nconda config --set channel_priority strict\\nconda config --system --set auto_update_conda false\\nconda config --system --set show_channel_urls true\\n# Enable `conda activate`\\nconda init bash\\nconda create -y  --name neuro\\nconda install -y  --name neuro \\\\\\n    \\"python=3.7\\" \\\\\\n    \\"pandas\\" \\\\\\n    \\"matplotlib\\" \\\\\\n    \\"scikit-learn\\" \\\\\\n    \\"seaborn\\" \\\\\\n    \\"ipython\\" \\\\\\n    \\"pytables\\" \\\\\\n    \\"tensorflow\\" \\\\\\n    \\"netcdf4\\" \\\\\\n    \\"tensorflow-probability\\" \\\\\\n    \\"pingouin\\" \\\\\\n    \\"mkl-service\\" \\\\\\n    \\"tqdm\\"\\nbash -c \\"source activate neuro\\n  python -m pip install --no-cache-dir  \\\\\\n      \\"nilearn\\" \\\\\\n      \\"fmriprep\\" \\\\\\n      \\"nipype\\" \\\\\\n      \\"pybids\\" \\\\\\n      \\"nistats\\" \\\\\\n      \\"https://github.com/Gilles86/hedfpy/archive/refactor_gilles.zip\\" \\\\\\n      \\"pytest\\" \\\\\\n      \\"neuropythy\\" \\\\\\n      \\"bambi\\" \\\\\\n      \\"pymc3\\" \\\\\\n      \\"pyyaml\\" \\\\\\n      \\"fmriprep\\" \\\\\\n      \\"svgutils==0.3.1\\"\\"\\n# Clean up\\nsync && conda clean --all --yes && sync\\nrm -rf ~/.cache/pip/*" \
       } \
     }, \
     { \
