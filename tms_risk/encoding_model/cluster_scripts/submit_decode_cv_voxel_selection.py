@@ -17,14 +17,13 @@ if not op.exists(job_directory):
     os.makedirs(job_directory)
 
 
-bids_folder = '/scratch/gdehol/ds-tmsrisk'
+bids_folder = '/home/gdehol/ds-tmsrisk'
 
 subjects = [subject.subject for subject in get_subjects(bids_folder=bids_folder, all_tms_conditions=True)]
 
-subjects = [3, 4, 21, 31, 35]
-
 sessions = ['1', '2', '3']
 masks = ['NPC1l', 'NPC1r', 'NPC2l', 'NPC2r', 'NPC3l', 'NPC3r', 'NTOl', 'NTOr', 'NF1l', 'NF1r', 'NF2l', 'NF2r']
+masks = ['NPC12r', 'NPCr2cm-cluster']
 
 smoothed = [False]
 pca_confounds = [False]
@@ -32,7 +31,9 @@ retroicors = [False]
 denoises = [True]
 natural_space = [True]
 
-for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns) in enumerate(product(subjects, sessions, masks, smoothed, pca_confounds, denoises, retroicors, natural_space)):
+new_parameterisation = [True]
+
+for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns, np) in enumerate(product(subjects, sessions, masks, smoothed, pca_confounds, denoises, retroicors, natural_space, new_parameterisation)):
 # for ix, (nv, subject, session, mask) in enumerate(missing):
     print(f'*** RUNNING {subject}, {mask}')
 
@@ -60,6 +61,9 @@ for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns) in enumera
         if natural_space:
             id += '.natural_space'
 
+        if np:
+            id += '.new_parameterisation'
+
         fh.writelines(f"#SBATCH --job-name=decode_cv_voxels_volume.{id}.job\n")
         fh.writelines(f"#SBATCH --output=/data/{os.environ['USER']}/.out/decode_cv_voxels_volume.{id}.txt\n")
         fh.writelines("#SBATCH --time=45:00\n")
@@ -68,7 +72,7 @@ for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns) in enumera
         # fh.writelines("#SBATCH --gres gpu:1\n")
         fh.writelines(". $HOME/init_conda.sh\n")
         fh.writelines("conda activate tf2-gpu\n")
-        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode_select_voxels_cv.py {subject} {session} --bids_folder /shares/hare.econ.uzh/ds-tmsrisk --mask {mask} --keep_cached"
+        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode_select_voxels_cv.py {subject} {session} --bids_folder ~/ds-tmsrisk --mask {mask} --keep_cached"
 
         if denoise:
             cmd += ' --denoise'
@@ -84,6 +88,9 @@ for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns) in enumera
 
         if ns:
             cmd += ' --natural_space'
+
+        if np:
+            cmd += ' --new_parameterisation'
 
         fh.writelines(cmd)
         print(cmd)

@@ -62,16 +62,6 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
 
     key, target_dir = get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_confounds, retroicor, natural_space, new_parameterisation=new_parameterisation)
 
-    return key, target_dir
-
-def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False,
-        denoise=False,
-        pca_confounds=False, retroicor=False, natural_space=False):
-
-    sub = Subject(subject, bids_folder=bids_folder)
-
-    key, target_dir = get_key_target_dir(subject, session, bids_folder, smoothed, denoise, pca_confounds, retroicor, natural_space)
-
     print("TARGET DIR", target_dir)
 
     runs = range(1, 7)
