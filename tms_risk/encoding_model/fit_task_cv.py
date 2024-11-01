@@ -11,8 +11,11 @@ import os.path as op
 import numpy as np
 
 
-def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False, retroicor=False, natural_space=True):
+def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_confounds=False, denoise=False, retroicor=False, natural_space=True,
+         new_parameterisation=False):
          
+    if new_parameterisation and (not natural_space):
+        raise ValueError("New parameterisation only makes sense in natural space")
 
     sub = Subject(subject, bids_folder=bids_folder)
 
@@ -43,6 +46,9 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
     if natural_space:
         target_dir += '.natural_space'
 
+    if new_parameterisation:
+        target_dir += '.new_parameterisation'
+
     target_dir = get_target_dir(subject, session, bids_folder, target_dir)
 
     paradigm = [pd.read_csv(op.join(bids_folder, f'sub-{subject}', f'ses-{session}',
@@ -56,12 +62,21 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
     if natural_space:
         paradigm = paradigm['n1']
-        model = LogGaussianPRF()
-        # SET UP GRID
-        mus = np.linspace(5, 80, 60, dtype=np.float32)
-        sds = np.linspace(5, 40, 60, dtype=np.float32)
-        amplitudes = np.array([1.], dtype=np.float32)
-        baselines = np.array([0], dtype=np.float32)
+        
+        if new_parameterisation:
+            model = LogGaussianPRF(parameterisation='mode_fwhm_natural')
+            # SET UP GRID
+            modes = np.linspace(5, 80, 60, dtype=np.float32)
+            fwhms = np.linspace(5, 40, 60, dtype=np.float32)
+            amplitudes = np.array([1.], dtype=np.float32)
+            baselines = np.array([0], dtype=np.float32)
+        else:
+            model = LogGaussianPRF()
+            # SET UP GRID
+            mus = np.linspace(5, 80, 60, dtype=np.float32)
+            sds = np.linspace(5, 40, 60, dtype=np.float32)
+            amplitudes = np.array([1.], dtype=np.float32)
+            baselines = np.array([0], dtype=np.float32)
     else:
         paradigm = paradigm['log(n1)']
         model = GaussianPRF()
@@ -93,10 +108,18 @@ def main(subject, session, bids_folder='/data/ds-tmsrisk', smoothed=False, pca_c
 
         optimizer = ParameterFitter(model, train_data, train_paradigm)
 
-        grid_parameters = optimizer.fit_grid(
-            mus, sds, amplitudes, baselines, use_correlation_cost=True)
-        grid_parameters = optimizer.refine_baseline_and_amplitude(
-            grid_parameters, n_iterations=2)
+        if new_parameterisation:
+            grid_parameters = optimizer.fit_grid(modes, fwhms, amplitudes, baselines, use_correlation_cost=True)
+            grid_parameters = optimizer.refine_baseline_and_amplitude(grid_parameters, n_iterations=2)
+            optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
+                        fixed_pars=['mode', 'fwhm'],
+                            r2_atol=0.00001)
+        else:
+            grid_parameters = optimizer.fit_grid(mus, sds, amplitudes, baselines, use_correlation_cost=True)
+            grid_parameters = optimizer.refine_baseline_and_amplitude(grid_parameters, n_iterations=2)
+            optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
+                        fixed_pars=['mu', 'sd'],
+                            r2_atol=0.00001)
 
         print(grid_parameters.describe())
 
@@ -144,8 +167,9 @@ if __name__ == '__main__':
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--retroicor', action='store_true')
     parser.add_argument('--natural_space', action='store_true')
+    parser.add_argument('--new_parameterisation', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, bids_folder=args.bids_folder, smoothed=args.smoothed,
             pca_confounds=args.pca_confounds, denoise=args.denoise, retroicor=args.retroicor,
-            natural_space=args.natural_space)
+            natural_space=args.natural_space, new_parameterisation=args.new_parameterisation)

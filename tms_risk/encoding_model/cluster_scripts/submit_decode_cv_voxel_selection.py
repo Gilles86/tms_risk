@@ -21,6 +21,8 @@ bids_folder = '/scratch/gdehol/ds-tmsrisk'
 
 subjects = [subject.subject for subject in get_subjects(bids_folder=bids_folder, all_tms_conditions=True)]
 
+subjects = [3, 4, 21, 31, 35]
+
 sessions = ['1', '2', '3']
 masks = ['NPC1l', 'NPC1r', 'NPC2l', 'NPC2r', 'NPC3l', 'NPC3r', 'NTOl', 'NTOr', 'NF1l', 'NF1r', 'NF2l', 'NF2r']
 
@@ -66,7 +68,7 @@ for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns) in enumera
         # fh.writelines("#SBATCH --gres gpu:1\n")
         fh.writelines(". $HOME/init_conda.sh\n")
         fh.writelines("conda activate tf2-gpu\n")
-        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode_select_voxels_cv.py {subject} {session} --bids_folder /home/gdehol/share/ds-tmsrisk --mask {mask}"
+        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode_select_voxels_cv.py {subject} {session} --bids_folder /shares/hare.econ.uzh/ds-tmsrisk --mask {mask} --keep_cached"
 
         if denoise:
             cmd += ' --denoise'

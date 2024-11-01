@@ -9,5 +9,5 @@
 
 export PARTICIPANT_LABEL=$(printf "%02d" $SLURM_ARRAY_TASK_ID)
 
-python $HOME/git/tms_risk/tms_risk/glm/fit_single_trials_denoise.py $PARTICIPANT_LABEL 2 --bids_folder /scratch/gdehol/ds-tmsrisk --smoothed
-python $HOME/git/tms_risk/tms_risk/glm/fit_single_trials_denoise.py $PARTICIPANT_LABEL 2 --bids_folder /scratch/gdehol/ds-tmsrisk
+python $HOME/git/tms_risk/tms_risk/glm/fit_single_trials_denoise.py $PARTICIPANT_LABEL 2 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk  --smoothed
+python $HOME/git/tms_risk/tms_risk/glm/fit_single_trials_denoise.py $PARTICIPANT_LABEL 2 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk 

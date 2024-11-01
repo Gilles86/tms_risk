@@ -18,7 +18,8 @@ mask = 'wang15_ips'
 space = 'T1w'
 
 def main(subject, session, smoothed, pca_confounds, bids_folder='/data',
-denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
+denoise=False, retroicor=False,  mask='NPCr', natural_space=False, keep_cached=False,
+new_parameterisation=False):
 
     target_dir = op.join(bids_folder, 'derivatives', 'decoded_pdfs.volume.cv_voxel_selection')
 
@@ -40,10 +41,24 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
     if natural_space:
         target_dir += '.natural_space'
 
+    if new_parameterisation:
+        target_dir += '.new_parameterisation'
+
     target_dir = op.join(target_dir, f'sub-{subject}', 'func')
 
-    if not op.exists(target_dir):
-        os.makedirs(target_dir)
+    target_fn = op.join(target_dir, f'sub-{subject}_ses-{session}_mask-{mask}_space-{space}_pars.tsv')
+    print(target_fn)
+
+    if keep_cached and op.exists(target_fn):
+        print('Already done!!')
+        return None
+
+    try:
+        if not op.exists(target_dir):
+            os.makedirs(target_dir, exist_ok=True)
+    except Exception:
+        'Could not create folder, but let\'s keep going...'
+
 
     sub = Subject(subject, bids_folder)
     paradigm = sub.get_behavior(sessions=session, drop_no_responses=False)
@@ -95,7 +110,10 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
             print(train_paradigm2)
 
             if natural_space:
-                model = LogGaussianPRF()
+                if new_parameterisation:
+                    model = LogGaussianPRF(parameterisation='mode_fwhm_natural')
+                else:
+                    model = LogGaussianPRF()
             else:
                 model = GaussianPRF()
 
@@ -139,10 +157,14 @@ denoise=False, retroicor=False,  mask='NPCr', natural_space=False):
         pars = sub.get_prf_parameters_volume(session, cross_validated=True,
         denoise=denoise, retroicor=retroicor,
                 smoothed=smoothed, pca_confounds=pca_confounds,
-                run=test_run, roi=mask, natural_space=natural_space)
+                run=test_run, roi=mask, natural_space=natural_space,
+                new_parameterisation=new_parameterisation)
 
         if natural_space:
-            model = LogGaussianPRF(parameters=pars)
+            if new_parameterisation:
+                model = LogGaussianPRF(parameters=pars, parameterisation='mode_fwhm_natural')
+            else:
+                model = LogGaussianPRF(parameters=pars)
         else:
             model = GaussianPRF(parameters=pars)
 
@@ -206,10 +228,14 @@ if __name__ == '__main__':
     parser.add_argument('--retroicor', action='store_true')
     parser.add_argument('--mask', default='NPCr')
     parser.add_argument('--natural_space', action='store_true')
+    parser.add_argument('--keep_cached', action='store_true')
+    parser.add_argument('--new_parameterisation', action='store_true')
     args = parser.parse_args()
 
     main(args.subject, args.session, args.smoothed, args.pca_confounds,
             denoise=args.denoise,
             retroicor=args.retroicor,
             bids_folder=args.bids_folder, mask=args.mask,
-            natural_space=args.natural_space)
+            natural_space=args.natural_space,
+            keep_cached=args.keep_cached,
+            new_parameterisation=args.new_parameterisation)
