@@ -5,6 +5,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+stimulation_palette = sns.color_palette()[2:4]
+stimulation_order = ['Vertex', 'IPS']
+
 def invprobit(x):
     return ss.norm.ppf(x)
 
@@ -104,11 +107,16 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
     if not (df.groupby(['subject', 'log(risky/safe)']).size().groupby('subject').size() < 7).all():
         df['log(risky/safe)'] = df.groupby(['subject'],
                                         group_keys=False).apply(cluster_offers)
+        # df = df.set_index('log(risky/safe)', append=True)
+
+    print(df)
 
     if level == 'group':
         df['log(risky/safe)'] = df['bin(risky/safe)']
-        ppc = ppc.reset_index('log(risky/safe)')
+        ppc.reset_index('log(risky/safe)', drop=True, inplace=True)
+        # ppc.set_index(df['log(risky/safe)'], append=True, inplace=True)
         ppc['log(risky/safe)'] = ppc.index.get_level_values('bin(risky/safe)')
+        ppc.set_index('log(risky/safe)', append=True, inplace=True)
 
     if plot_type == 0:
         groupby = ['log(risky/safe)', 'stimulation_condition']
@@ -128,7 +136,9 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         raise NotImplementedError
 
     if level == 'group':
+        print(ppc.columns)
         ppc = ppc.groupby(['subject']+groupby).mean()
+        print(ppc.iloc[:, :2])
 
     if level == 'subject':
         groupby = ['subject'] + groupby
@@ -276,4 +286,4 @@ def plot_prediction(data, x, color, y='p_predicted', alpha=.5, **kwargs):
 
     plt.fill_between(data[x], data['hdi025'],
                      data['hdi975'], color=color, alpha=alpha)
-    plt.plot(data[x], data[y], color=color)
+    return plt.plot(data[x], data[y], color=color)

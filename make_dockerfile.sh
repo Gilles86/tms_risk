@@ -8,18 +8,20 @@ neurodocker generate docker --base-image ubuntu --pkg-manager apt\
   --install zsh wget git build-essential \
     --miniconda \
       version=latest \
-      conda_install="python=3.7 pandas matplotlib scikit-learn seaborn ipython pytables tensorflow tensorflow-probability pingouin mkl-service" \
+      conda_install="python=3.7 pandas matplotlib scikit-learn seaborn ipython pytables tensorflow \
+      netcdf4 tensorflow-probability pingouin mkl-service tqdm" \
       pip_install="nilearn
-		nipype
-                  pybids
+      fmriprep
+      nipype
+      pybids
 		  nistats
-		  tensorflow_probability
 		  https://github.com/Gilles86/hedfpy/archive/refactor_gilles.zip
 		  pytest
 		  neuropythy
 		  bambi
 		  pymc3
 		  pyyaml
+      fmriprep
 		  svgutils==0.3.1" \
       env_exists=false \
       env_name="neuro" \

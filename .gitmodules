@@ -1,3 +1,6 @@
-[submodule "braincoder"]
-	path = braincoder
-	url = git@github.com:Gilles86/braincoder.git
+[submodule "libs/bauer"]
+	path = libs/bauer
+	url = https://github.com/ruffgroup/bauer.git
+[submodule "libs/braincoder"]
+	path = libs/braincoder
+	url = https://github.com/Gilles86/braincoder

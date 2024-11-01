@@ -68,7 +68,8 @@ def get_all_apriori_roi_labels():
 
 
 
-def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False):
+def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False,
+            new_parameterisation=False):
 
     if n_voxels == 1:
         key = 'decoded_pdfs.volume.cv_voxel_selection'
@@ -88,6 +89,9 @@ def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False
 
     if natural_space:
         key += '.natural_space'
+
+    if new_parameterisation:
+        key += '.new_parameterisation'
 
     if n_voxels == 1:
         pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_space-T1w_pars.tsv')
@@ -110,9 +114,11 @@ def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False
 
     return pdf
 
-def get_decoding_info(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False):
+def get_decoding_info(subject, session, pca_confounds=False, denoise=False, smoothed=False, bids_folder='/data/ds-tmsrisk', mask='NPC12r', n_voxels=100, natural_space=False,
+                      new_parameterisation=False):
 
-    pdf = get_pdf(subject, session, pca_confounds=pca_confounds, denoise=denoise, smoothed=smoothed, bids_folder=bids_folder, mask=mask, n_voxels=n_voxels, natural_space=natural_space)
+    pdf = get_pdf(subject, session, pca_confounds=pca_confounds, denoise=denoise, smoothed=smoothed, bids_folder=bids_folder, mask=mask, n_voxels=n_voxels, natural_space=natural_space,
+                  new_parameterisation=new_parameterisation)
 
     E = pd.Series(np.trapz(pdf*pdf.columns.values[np.newaxis,:], pdf.columns, axis=1), index=pdf.index)
 
@@ -333,7 +339,6 @@ class Subject(object):
         
         fmriprep_confounds = self.get_fmriprep_confounds(session, include=include_fmriprep)
         retroicor_confounds = self.get_retroicor_confounds(session)
-
         confounds = [pd.concat((rcf, fcf), axis=1) for rcf, fcf in zip(retroicor_confounds, fmriprep_confounds)]
         confounds = [c.fillna(method='bfill') for c in confounds]
 
@@ -567,7 +572,7 @@ class Subject(object):
                     fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
                             'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
 
-            pars = pd.Series(surface.load_surf_data(fn))
+            pars = pd.series(surface.load_surf_data(fn))
             pars.index.name = 'vertex'
 
             parameters.append(pars)

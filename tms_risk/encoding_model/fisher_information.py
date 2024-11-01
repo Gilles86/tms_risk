@@ -34,7 +34,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     if pca_confounds:
         target_dir += '.pca_confounds'
 
-    target_dir = op.join(target_dir, f'sub-{subject}', 'func')
+    target_dir = op.join(target_dir, f'sub-{subject}', f'ses-{session}', 'func')
     print(denoise, target_dir)
 
     if not op.exists(target_dir):
@@ -42,8 +42,8 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
     sub = Subject(subject, bids_folder)
 
-    pars = sub.get_prf_parameters_volume(session, smoothed=False, retroicor=False, denoise=True, cross_validated=False, natural_space=True, roi=roi)
-    data = sub.get_single_trial_volume(session, roi, smoothed=False, retroicor=False, denoise=True)
+    pars = sub.get_prf_parameters_volume(session, smoothed=smoothed, retroicor=False, denoise=True, cross_validated=False, natural_space=True, roi=roi)
+    data = sub.get_single_trial_volume(session, roi, smoothed=smoothed, retroicor=False, denoise=True)
     paradigm = sub.get_behavior(sessions=session, drop_no_responses=False)
     paradigm = paradigm.droplevel(['subject', 'session'])
 
@@ -54,16 +54,16 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         session1_pars = sub.get_prf_parameters_volume(1, run=None, smoothed=smoothed, pca_confounds=pca_confounds, denoise=denoise, retroicor=retroicor, cross_validated=False, natural_space=natural_space, roi=roi)
         r2_mask = session1_pars['cvr2'] > 0.0
         print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
-        r2_mask = r2_mask.index
+        r2_mask = r2_mask[r2_mask].index
 
     elif n_voxels == 1:
         r2_mask = pars['cvr2'] > 0.0
-        r2_mask = r2_mask.index
-        print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
+        print(f"Using current sessions to select voxels. Mask {r2_mask.sum()} voxels big")
+        r2_mask = r2_mask[r2_mask].index
 
     else:
         r2_mask = pars['r2'].sort_values(ascending=False).index[:n_voxels]
-        print(f"Using {r2_mask.sum()} best voxels")
+        print(f"Using {len(r2_mask)} best voxels")
 
     data = data.loc[:, r2_mask]
     pars = pars.loc[r2_mask]
@@ -81,7 +81,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     residfit = ResidualFitter(model, data,
                                 paradigm['n1'].astype(np.float32))
 
-    omega, dof = residfit.fit(init_sigma2=10.0,
+    omega, dof = residfit.fit(init_sigma2=1.0,
             init_dof=10.0,
             method='t',
             learning_rate=0.005,
@@ -89,8 +89,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
 
     fi = model.get_fisher_information(stimulus_range.astype(np.float32), omega, dof)
-
-    fi.to_csv(op.join(target_dir, f'sub-{subject}_session-{session}_fisher_information.tsv', sep='\t'))
+    fi.to_csv(op.join(target_dir, f'sub-{subject}_ses-{session}_roi-{roi}_nvoxels-{n_voxels}_fisher_information.tsv'), sep='\t')
 
 
 if __name__ == '__main__':

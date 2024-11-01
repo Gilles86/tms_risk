@@ -7,6 +7,7 @@ services:
             - SUBJECTS_DIR=/data/derivatives/fmriprep/sourcedata/freesurfer
     volumes:
       - ./tms_risk:/tms_risk
+      - ./braincoder:/braincoder
       - $DATA_DIR/ds-tmsrisk:/data
       - $HOME/freesurfer/license.txt:/opt/freesurfer-6.0.1/license.txt
       - /data/tmp:/tmp
