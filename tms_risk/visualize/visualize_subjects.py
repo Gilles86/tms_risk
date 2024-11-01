@@ -21,15 +21,20 @@ def main(bids_folder, thr=.1):
     
     fs_subject = space = 'fsaverage'
 
-    for sub, session in product(subjects, [1,2,3]):
-        prf_pars = sub.get_prf_parameters_surf(session, None,  smoothed=True, nilearn=True, space=space)
-        mask = (prf_pars['cvr2'] > -0.025).values
-        mu_vertex = get_alpha_vertex(prf_pars['mu'].values, mask, vmin=5, vmax=28, subject=fs_subject) 
+    for sub, session in product(subjects, [1,2,3][:1]):
+        prf_pars = sub.get_prf_parameters_surf(session, ['r2'],  smoothed=True, nilearn=True, space=space)
+        mask = (prf_pars['r2'] > 0.1).values
+        # mu_vertex = get_alpha_vertex(prf_pars['mu'].values, mask, vmin=5, vmax=28, subject=fs_subject) 
         r2_vertex = get_alpha_vertex(prf_pars['r2'].values, mask, cmap='hot', vmin=0.0, vmax=0.25, subject=fs_subject)
-        cvr2_vertex = get_alpha_vertex(prf_pars['cvr2'].values, mask, cmap='hot', vmin=0.0, vmax=0.25, subject=fs_subject)
+        # cvr2_vertex = get_alpha_vertex(prf_pars['cvr2'].values, mask, cmap='hot', vmin=0.0, vmax=0.25, subject=fs_subject)
 
-        vertices[f"{sub.subject}_mu_{session}"] = mu_vertex
-        # vertices[f"{sub.subject_id}_r2_{session}"] = r2_vertex
+        if sub.subject != '45':
+            target = surface.load_surf_data(op.join(bids_folder, 'derivatives', 'ips_masks', f'sub-{sub.subject}', 'anat', f'sub-{sub.subject}_space-fsaverage_desc-NPCr5mm_geodesic_hemi-R.anat.gii'))
+            target = np.concatenate((np.zeros_like(target), target))
+            vertices[f'{sub.subject}_target'] = cortex.Vertex(target, 'fsaverage', vmin=0.0, vmax=1.0, cmap='viridis')
+
+        # vertices[f"{sub.subject}_mu_{session}"] = mu_vertex
+        vertices[f"{sub.subject}_r2_{session}"] = r2_vertex
         # vertices[f"{sub.subject_id}_cvr2_{session}"] = cvr2_vertex
 
     vertices = {k: v for k, v in sorted(vertices.items(), key=lambda item: item[0])}

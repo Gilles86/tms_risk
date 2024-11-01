@@ -11,5 +11,5 @@
 export PARTICIPANT_LABEL=$(printf "%02d" $SLURM_ARRAY_TASK_ID)
 
 conda activate tf2-gpu
-python $HOME/git/tms_risk/tms_risk/encoding_model/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /home/gdehol/share/ds-tmsrisk --denoise # --natural_space
-python $HOME/git/tms_risk/tms_risk/encoding_model/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /home/gdehol/share/ds-tmsrisk --denoise --smoothed # --natural_space
+python $HOME/git/tms_risk/tms_risk/encoding_model/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk --denoise # --natural_space
+python $HOME/git/tms_risk/tms_risk/encoding_model/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk --denoise --smoothed # --natural_space

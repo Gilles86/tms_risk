@@ -89,7 +89,6 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
 
     fi = model.get_fisher_information(stimulus_range.astype(np.float32), omega, dof)
-
     fi.to_csv(op.join(target_dir, f'sub-{subject}_ses-{session}_roi-{roi}_nvoxels-{n_voxels}_fisher_information.tsv'), sep='\t')
 
 

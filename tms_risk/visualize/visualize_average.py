@@ -9,7 +9,7 @@ from utils import get_alpha_vertex
 from scipy import stats as ss
 from tms_risk.utils.data import get_tms_conditions
 
-vranges = {'mu':(5, 80), 'cvr2':(0.0, 0.05), 'r2':(0.0, 0.09), 'mu_natural':(5, 80), 'sd':(2, 12), 'amplitude':(0, 2)}
+vranges = {'mu':(5, 28), 'cvr2':(0.0, 0.05), 'r2':(0.0, 0.09), 'mu_natural':(5, 28), 'sd':(2, 12), 'amplitude':(0, 2)}
 cmaps = {'mu':'nipy_spectral', 'cvr2':'afmhot', 'r2':'afmhot', 'mu_natural':'nipy_spectral', 
 'sd':'hot', 'amplitude':'viridis'}
 
@@ -30,7 +30,7 @@ threshold_on='r2'):
             else:
                 session_ = session
 
-            pars.append(sub.get_prf_parameters_surf(session_, space='fsaverage', smoothed=smoothed, parameters=['mu', 'sd', 'cvr2', 'r2', 'amplitude']))
+            pars.append(sub.get_prf_parameters_surf(session_, space='fsaverage', smoothed=smoothed, parameters=['mu', 'sd', 'cvr2', 'r2', 'amplitude'], nilearn=True))
         except Exception as e:
             print(f'Problem with subject {sub.subject}: {e} ')
     
@@ -48,6 +48,16 @@ threshold_on='r2'):
 
     alpha = np.round(ss.norm(thr, 0.005).cdf(mean_pars[threshold_on].values), 2)
     alpha_cvr2 = np.round(ss.norm(0.0, 0.005).cdf(mean_pars['cvr2'].values), 2)
+
+    pars_filtered = pars.copy()
+    pars_filtered.loc[(pars_filtered['cvr2'] < 0.0) | (pars_filtered['mu'] < 5.0) | (pars_filtered['mu'] > 28.)] = np.nan
+    mean_pars_filtered = pars_filtered.groupby(['hemi', 'vertex']).mean()
+
+    tmp = pars['cvr2'] > 0.0
+    alpha_filtered = tmp.groupby(['hemi', 'vertex']).sum()
+    print(alpha_filtered.describe())
+
+    alpha_filtered = np.clip(alpha_filtered / 10., 0, 1)
 
 
     ds = {}
@@ -69,8 +79,12 @@ threshold_on='r2'):
             if key == 'cvr2':
                 ds[f'{session}.{key}_thr'] = get_alpha_vertex(mean_pars['cvr2'].values, alpha_cvr2, standard_space=True, subject='fsaverage',
                 vmin=vmin, vmax=vmax, cmap=cmap)
+                ds[f'{session}.{key}_thr_filtered'] = get_alpha_vertex(mean_pars_filtered['cvr2'].values, alpha_filtered.values, standard_space=True, subject='fsaverage',
+                vmin=vmin, vmax=vmax, cmap=cmap)
             else:
                 ds[f'{session}.{key}_thr'] = get_alpha_vertex(mean_pars[key].values, alpha, standard_space=True, subject='fsaverage',
+                vmin=vmin, vmax=vmax, cmap=cmap)
+                ds[f'{session}.{key}_thr_filtered'] = get_alpha_vertex(mean_pars_filtered[key].values, alpha_filtered.values, standard_space=True, subject='fsaverage',
                 vmin=vmin, vmax=vmax, cmap=cmap)
     
     return ds

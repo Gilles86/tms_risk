@@ -29,9 +29,9 @@ def main(subject, bids_folder, use_cvr2=True, threshold=None, filter_extreme_prf
     if use_cvr2 and (threshold is None):
         threshold = 0.0
     elif not use_cvr2 and (threshold is None):
-        threshold = 0.05
+        threshold = 0.075
     
-    for session in [1,2,3]:
+    for session in [1,2,3][:1]:
         prf_pars = sub.get_prf_parameters_surf(session, None,  smoothed=smoothed, nilearn=True, space=space)
         print(prf_pars.head())
 
@@ -45,8 +45,8 @@ def main(subject, bids_folder, use_cvr2=True, threshold=None, filter_extreme_prf
             mask = mask & (prf_pars['mu'] > 5).values & (prf_pars['mu'] < 28).values
 
         mu_vertex = get_alpha_vertex(prf_pars['mu'].values, mask, vmin=5, vmax=28, subject=fs_subject) 
-        r2_vertex = get_alpha_vertex(prf_pars['r2'].values, mask, cmap='hot', vmin=threshold, vmax=0.25, subject=fs_subject)
-        cvr2_vertex = get_alpha_vertex(prf_pars['cvr2'].values, mask, cmap='hot', vmin=0.0, vmax=0.25, subject=fs_subject)
+        r2_vertex = get_alpha_vertex(prf_pars['r2'].values, mask, cmap='hot', vmin=threshold, vmax=0.20, subject=fs_subject)
+        cvr2_vertex = get_alpha_vertex(prf_pars['cvr2'].values, mask, cmap='hot', vmin=0.0, vmax=0.05, subject=fs_subject)
 
         vertices[f"mu_vertex_session_{session}"] = mu_vertex
         vertices[f"r2_vertex_session_{session}"] = r2_vertex
