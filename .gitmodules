@@ -1,6 +1,8 @@
 [submodule "libs/bauer"]
 	path = libs/bauer
 	url = https://github.com/ruffgroup/bauer.git
+	branch = refactor
 [submodule "libs/braincoder"]
 	path = libs/braincoder
 	url = https://github.com/Gilles86/braincoder
+	branch = main
