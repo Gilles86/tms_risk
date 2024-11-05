@@ -22,8 +22,8 @@ def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk')
 
     if model_label.startswith('flexible'):
         target_accept = 0.9
-        burnin = 3000
-        samples = 3000
+        burnin = 5000
+        samples = 5000
 
     model = build_model(model_label, df)
     model.build_estimation_model()
