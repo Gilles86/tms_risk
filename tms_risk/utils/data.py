@@ -269,18 +269,22 @@ class Subject(object):
 
         def get_risk_bin(d, n_bins=6):
             labels = [f'{int(e)}%' for e in np.linspace(20, 80, n_bins)]
-            try: 
-                # return pd.qcut(d, 6, range(1, 7))
+            try:
+                # Use qcut to assign bins with the specified labels
                 return pd.qcut(d, n_bins, labels=labels)
             except Exception as e:
+                # Explicitly cast to object to avoid dtype issues
+                d = d.astype('object')
                 n = len(d)
                 ix = np.linspace(0, n_bins, n, False)
-
+                
+                # Assign the labels to sorted values, avoiding dtype issues
                 d[d.sort_values().index] = [labels[e] for e in np.floor(ix).astype(int)]
                 
                 return d
-        df['bin(risky/safe)'] = df.groupby(['subject'], group_keys=False)['frac'].apply(get_risk_bin)
 
+        # Apply the function
+        df['bin(risky/safe)'] = df.groupby(['subject'], group_keys=False)['frac'].apply(get_risk_bin)
         return df.droplevel(-1, 1)
 
     def get_fmriprep_confounds(self, session, include=None):
