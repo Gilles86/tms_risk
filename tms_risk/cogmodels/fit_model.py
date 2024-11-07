@@ -252,6 +252,9 @@ def build_model(model_label, df):
         model = RiskModel(df, prior_estimate='full', fit_seperate_evidence_sd=False)
     elif model_label == 'session1_simple':
         model = RiskModel(df, prior_estimate='shared', fit_seperate_evidence_sd=False)
+    elif model_label == '10_null':
+        model = RiskRegressionModel(df, regressors={},
+                                    prior_estimate='full')
     elif model_label == '10a':
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition', },
                                     prior_estimate='full')
@@ -260,6 +263,10 @@ def build_model(model_label, df):
                                     prior_estimate='full')
     elif model_label == '10c':
         model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition'},
+                                    prior_estimate='full')
+    elif model_label == '11_null':
+        model = RiskRegressionModel(df, regressors={},
+                                    memory_model='shared_perceptual_noise',
                                     prior_estimate='full')
     elif model_label == '11a':
         model = RiskRegressionModel(df, regressors={'memory_noise_sd':'stimulation_condition',
