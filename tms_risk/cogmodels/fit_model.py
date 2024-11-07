@@ -20,11 +20,6 @@ def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk')
     else:
         target_accept = 0.8
 
-    if model_label.startswith('flexible'):
-        target_accept = 0.9
-        burnin = 5000
-        samples = 5000
-
     model = build_model(model_label, df)
     model.build_estimation_model()
     trace = model.sample(burnin, samples, target_accept=target_accept)
