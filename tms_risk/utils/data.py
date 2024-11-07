@@ -12,6 +12,9 @@ from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
 import warnings
 from nilearn import surface
+import logging
+logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
+
 
 def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
     subjects = [int(e) for e in get_tms_conditions().keys()]
@@ -153,7 +156,7 @@ class Subject(object):
 
     def get_runs(self, session):
         if (self.subject == '10') & (int(session) == 1):
-            warnings.warn('Subject 10/session 1 has only 5 runs!!')
+            logging.info('Subject 10/session 1 has only 5 runs!!')
             return range(1, 6)
         else:
             return range(1, 7)
