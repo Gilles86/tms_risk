@@ -81,16 +81,17 @@ def format_bambi_ppc(trace, model, df):
     return pred
 
 def summarize_ppc(ppc, groupby=None):
-
     if groupby is not None:
         ppc = ppc.groupby(groupby).mean()
 
     e = ppc.mean(1).to_frame('p_predicted')
-    hdi = pd.DataFrame(az.hdi(ppc.T.values), index=ppc.index,
-                       columns=['hdi025', 'hdi975'])
+    
+    # Reshape to add a chain dimension (1, draw, shape)
+    hdi_values = az.hdi(ppc.T.values[None, ...])  # Adding a new dimension for chain
+    
+    hdi = pd.DataFrame(hdi_values, index=ppc.index, columns=['hdi025', 'hdi975'])
 
     return pd.concat((e, hdi), axis=1)
-
 
 def cluster_offers(d, n=6, key='log(risky/safe)'):
     return pd.qcut(d[key], n, duplicates='drop').apply(lambda x: x.mid)
