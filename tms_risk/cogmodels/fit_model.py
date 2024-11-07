@@ -199,6 +199,56 @@ def build_model(model_label, df):
                                         memory_model='shared_perceptual_noise',
                                         polynomial_order=4,
                                         prior_estimate='full')
+
+    elif model_label == 'flexible1.6':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={
+                                        'n1_evidence_sd': 'stimulation_condition',
+                                        'n2_evidence_sd': 'stimulation_condition'}, 
+                                        polynomial_order=6,
+                                        prior_estimate='full')
+
+    elif model_label == 'flexible1.6_null':
+        model = FlexibleNoiseRiskRegressionModel(df, polynomial_order=6, regressors={}, prior_estimate='full')
+
+    elif model_label == 'flexible1.6a':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={
+                                        'n1_evidence_sd': 'stimulation_condition'}, 
+                                        polynomial_order=6,
+                                        prior_estimate='full')
+
+    elif model_label == 'flexible1.6b':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={
+                                        'n2_evidence_sd': 'stimulation_condition'}, 
+                                        polynomial_order=6,
+                                        prior_estimate='full')
+
+    elif model_label == 'flexible2.6':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={
+                                        'memory_noise_sd': 'stimulation_condition',
+                                        'perceptual_noise_sd': 'stimulation_condition'},  
+                                        memory_model='shared_perceptual_noise',
+                                        polynomial_order=6,
+                                        prior_estimate='full')
+
+    elif model_label == 'flexible2.6_null':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={},  
+                                        memory_model='shared_perceptual_noise',
+                                        polynomial_order=6,
+                                        prior_estimate='full')
+
+    elif model_label == 'flexible2.6a':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={
+                                        'memory_noise_sd': 'stimulation_condition'}, 
+                                        memory_model='shared_perceptual_noise',
+                                        polynomial_order=6,
+                                        prior_estimate='full')
+
+    elif model_label == 'flexible2.6b':
+        model = FlexibleNoiseRiskRegressionModel(df, regressors={
+                                        'perceptual_noise_sd': 'stimulation_condition'}, 
+                                        memory_model='shared_perceptual_noise',
+                                        polynomial_order=6,
+                                        prior_estimate='full')
     elif model_label == 'session1_full':
         model = RiskModel(df, prior_estimate='full', fit_seperate_evidence_sd=True)
     elif model_label == 'session1_different_evidence':
