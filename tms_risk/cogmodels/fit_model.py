@@ -6,7 +6,7 @@ import os
 import arviz as az
 import numpy as np
 
-def main(model_label, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk'):
+def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk'):
 
     df = get_data(bids_folder, model_label=model_label)
 
