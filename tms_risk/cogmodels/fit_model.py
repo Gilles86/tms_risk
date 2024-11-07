@@ -281,6 +281,11 @@ def build_model(model_label, df):
         model = RiskRegressionModel(df, regressors={'perceptual_noise_sd':'stimulation_condition'},
                                     memory_model='shared_perceptual_noise',
                                     prior_estimate='full')
+
+    elif model_label == '20':
+        model = PsychometricRegressionModel(df, regressors={'bias':'stimulation_condition', 'nu':'stimulation_condition'},)
+    elif model_label == '21':
+        model = PsychometricRegressionModel(df, regressors={'bias':'stimulation_condition*risky_first', 'nu':'stimulation_condition*risky_first'},)
     else:
         raise Exception(f'Do not know model label {model_label}')
 
