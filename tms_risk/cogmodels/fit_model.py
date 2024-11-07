@@ -1,5 +1,5 @@
 import argparse
-from bauer.models import RiskRegressionModel, RiskModel, FlexibleNoiseRiskRegressionModel #FlexibleSDRiskRegressionModel
+from bauer.models import RiskRegressionModel, RiskModel, FlexibleNoiseRiskRegressionModel, PsychometricRegressionModel #FlexibleSDRiskRegressionModel, 
 from tms_risk.utils.data import get_all_behavior
 import os.path as op
 import os
@@ -312,7 +312,13 @@ def get_data(bids_folder='/data/ds-tmsrisk', model_label=None):
         df['stimulation_condition01'] = df['stimulation_condition'].map({'vertex':0, 'ips':1}).astype(float)
         print('yo')
 
-    df['choice'] = df['choice'] == 2.0
+    if model_label.startswith('2'):
+        df['x1'] = np.log(df['n_safe'])
+        df['x2'] = np.log(df['n_risky'])
+        df['choice'] = df['chose_risky']
+    else:
+        df['choice'] = df['choice'] == 2.0
+
     return df
 
 if __name__ == '__main__':
