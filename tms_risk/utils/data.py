@@ -12,6 +12,9 @@ from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
 import warnings
 from nilearn import surface
+import logging
+logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
+
 
 def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
     subjects = [int(e) for e in get_tms_conditions().keys()]
@@ -153,7 +156,7 @@ class Subject(object):
 
     def get_runs(self, session):
         if (self.subject == '10') & (int(session) == 1):
-            warnings.warn('Subject 10/session 1 has only 5 runs!!')
+            logging.info('Subject 10/session 1 has only 5 runs!!')
             return range(1, 6)
         else:
             return range(1, 7)
@@ -270,19 +273,21 @@ class Subject(object):
         def get_risk_bin(d, n_bins=6):
             labels = [f'{int(e)}%' for e in np.linspace(20, 80, n_bins)]
             try:
+                # Use qcut to assign bins with the specified labels
                 return pd.qcut(d, n_bins, labels=labels)
             except Exception as e:
+                # Explicitly cast to object to avoid dtype issues
+                d = d.astype('object')
                 n = len(d)
                 ix = np.linspace(0, n_bins, n, False)
                 
-                # Convert 'd' to an object type before assigning string labels
-                d = d.astype(object)
+                # Assign the labels to sorted values, avoiding dtype issues
                 d[d.sort_values().index] = [labels[e] for e in np.floor(ix).astype(int)]
                 
                 return d
 
+        # Apply the function
         df['bin(risky/safe)'] = df.groupby(['subject'], group_keys=False)['frac'].apply(get_risk_bin)
-
         return df.droplevel(-1, 1)
 
     def get_fmriprep_confounds(self, session, include=None):

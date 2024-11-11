@@ -1,5 +1,5 @@
 import argparse
-from bauer.models import RiskRegressionModel, RiskModel, FlexibleNoiseRiskRegressionModel #FlexibleSDRiskRegressionModel
+from bauer.models import RiskRegressionModel, RiskModel, FlexibleNoiseRiskRegressionModel, PsychometricRegressionModel #FlexibleSDRiskRegressionModel, 
 from tms_risk.utils.data import get_all_behavior
 import os.path as op
 import os
@@ -19,11 +19,6 @@ def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk')
         target_accept = 0.9
     else:
         target_accept = 0.8
-
-    if model_label.startswith('flexible'):
-        target_accept = 0.9
-        burnin = 5000
-        samples = 5000
 
     model = build_model(model_label, df)
     model.build_estimation_model()
@@ -257,6 +252,9 @@ def build_model(model_label, df):
         model = RiskModel(df, prior_estimate='full', fit_seperate_evidence_sd=False)
     elif model_label == 'session1_simple':
         model = RiskModel(df, prior_estimate='shared', fit_seperate_evidence_sd=False)
+    elif model_label == '10_null':
+        model = RiskRegressionModel(df, regressors={},
+                                    prior_estimate='full')
     elif model_label == '10a':
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition', 'n2_evidence_sd':'stimulation_condition', },
                                     prior_estimate='full')
@@ -265,6 +263,10 @@ def build_model(model_label, df):
                                     prior_estimate='full')
     elif model_label == '10c':
         model = RiskRegressionModel(df, regressors={'n2_evidence_sd':'stimulation_condition'},
+                                    prior_estimate='full')
+    elif model_label == '11_null':
+        model = RiskRegressionModel(df, regressors={},
+                                    memory_model='shared_perceptual_noise',
                                     prior_estimate='full')
     elif model_label == '11a':
         model = RiskRegressionModel(df, regressors={'memory_noise_sd':'stimulation_condition',
@@ -279,6 +281,29 @@ def build_model(model_label, df):
         model = RiskRegressionModel(df, regressors={'perceptual_noise_sd':'stimulation_condition'},
                                     memory_model='shared_perceptual_noise',
                                     prior_estimate='full')
+
+    elif model_label == '12a':
+        model = RiskRegressionModel(df, regressors={'risky_prior_mu':'stimulation_condition', 'safe_prior_mu':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '12b':
+        model = RiskRegressionModel(df, regressors={'risky_prior_mu':'stimulation_condition'},
+                                    prior_estimate='full')
+    elif model_label == '12c':
+        model = RiskRegressionModel(df, regressors={'safe_prior_mu':'stimulation_condition'},
+                                    prior_estimate='full')
+    elif model_label == '12d':
+        model = RiskRegressionModel(df, regressors={'risky_prior_std':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '12e':
+        model = RiskRegressionModel(df, regressors={'safe_prior_std':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '12e':
+        model = RiskRegressionModel(df, regressors={'risky_prior_std':'stimulation_condition', 'safe_prior_std':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '20':
+        model = PsychometricRegressionModel(df, regressors={'bias':'stimulation_condition', 'nu':'stimulation_condition'},)
+    elif model_label == '21':
+        model = PsychometricRegressionModel(df, regressors={'bias':'stimulation_condition*risky_first', 'nu':'stimulation_condition*risky_first'},)
     else:
         raise Exception(f'Do not know model label {model_label}')
 
@@ -295,7 +320,6 @@ def get_data(bids_folder='/data/ds-tmsrisk', model_label=None):
     else:
         df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=True, exclude_outliers=True)
         df = df.drop('baseline', level='stimulation_condition')
-        print('Dropping the baseline condition')
 
     df = df.reset_index('stimulation_condition')
 
@@ -305,7 +329,13 @@ def get_data(bids_folder='/data/ds-tmsrisk', model_label=None):
         df['stimulation_condition01'] = df['stimulation_condition'].map({'vertex':0, 'ips':1}).astype(float)
         print('yo')
 
-    df['choice'] = df['choice'] == 2.0
+    if model_label.startswith('2'):
+        df['x1'] = np.log(df['n_safe'])
+        df['x2'] = np.log(df['n_risky'])
+        df['choice'] = df['chose_risky']
+    else:
+        df['choice'] = df['choice'] == 2.0
+
     return df
 
 if __name__ == '__main__':
