@@ -269,16 +269,18 @@ class Subject(object):
 
         def get_risk_bin(d, n_bins=6):
             labels = [f'{int(e)}%' for e in np.linspace(20, 80, n_bins)]
-            try: 
-                # return pd.qcut(d, 6, range(1, 7))
+            try:
                 return pd.qcut(d, n_bins, labels=labels)
             except Exception as e:
                 n = len(d)
                 ix = np.linspace(0, n_bins, n, False)
-
+                
+                # Convert 'd' to an object type before assigning string labels
+                d = d.astype(object)
                 d[d.sort_values().index] = [labels[e] for e in np.floor(ix).astype(int)]
                 
                 return d
+
         df['bin(risky/safe)'] = df.groupby(['subject'], group_keys=False)['frac'].apply(get_risk_bin)
 
         return df.droplevel(-1, 1)
