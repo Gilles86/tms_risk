@@ -34,8 +34,8 @@ def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk')
 def build_model(model_label, df):
     if model_label == '1':
         model = RiskRegressionModel(df, regressors={'n1_evidence_sd':'stimulation_condition',
-         'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_std':'stimulation_condition',
-          'safe_prior_mu':'stimulation_condition', 'safe_prior_std':'stimulation_condition'},
+         'n2_evidence_sd':'stimulation_condition', 'risky_prior_mu':'stimulation_condition', 'risky_prior_sd':'stimulation_condition',
+          'safe_prior_mu':'stimulation_condition', 'safe_prior_sd':'stimulation_condition'},
          prior_estimate='full')
     elif model_label == '1_null':
         model = RiskRegressionModel(df, regressors={},
