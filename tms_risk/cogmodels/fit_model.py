@@ -292,13 +292,13 @@ def build_model(model_label, df):
         model = RiskRegressionModel(df, regressors={'safe_prior_mu':'stimulation_condition'},
                                     prior_estimate='full')
     elif model_label == '12d':
-        model = RiskRegressionModel(df, regressors={'risky_prior_std':'stimulation_condition', },
+        model = RiskRegressionModel(df, regressors={'risky_prior_sd':'stimulation_condition', },
                                     prior_estimate='full')
     elif model_label == '12e':
-        model = RiskRegressionModel(df, regressors={'safe_prior_std':'stimulation_condition', },
+        model = RiskRegressionModel(df, regressors={'safe_prior_sd':'stimulation_condition', },
                                     prior_estimate='full')
     elif model_label == '12e':
-        model = RiskRegressionModel(df, regressors={'risky_prior_std':'stimulation_condition', 'safe_prior_std':'stimulation_condition', },
+        model = RiskRegressionModel(df, regressors={'risky_prior_sd':'stimulation_condition', 'safe_prior_sd':'stimulation_condition', },
                                     prior_estimate='full')
     elif model_label == '20':
         model = PsychometricRegressionModel(df, regressors={'bias':'stimulation_condition', 'nu':'stimulation_condition'},)
