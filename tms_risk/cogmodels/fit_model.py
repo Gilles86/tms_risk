@@ -282,6 +282,24 @@ def build_model(model_label, df):
                                     memory_model='shared_perceptual_noise',
                                     prior_estimate='full')
 
+    elif model_label == '12a':
+        model = RiskRegressionModel(df, regressors={'risky_prior_mu':'stimulation_condition', 'safe_prior_mu':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '12b':
+        model = RiskRegressionModel(df, regressors={'risky_prior_mu':'stimulation_condition'},
+                                    prior_estimate='full')
+    elif model_label == '12c':
+        model = RiskRegressionModel(df, regressors={'safe_prior_mu':'stimulation_condition'},
+                                    prior_estimate='full')
+    elif model_label == '12d':
+        model = RiskRegressionModel(df, regressors={'risky_prior_std':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '12e':
+        model = RiskRegressionModel(df, regressors={'safe_prior_std':'stimulation_condition', },
+                                    prior_estimate='full')
+    elif model_label == '12e':
+        model = RiskRegressionModel(df, regressors={'risky_prior_std':'stimulation_condition', 'safe_prior_std':'stimulation_condition', },
+                                    prior_estimate='full')
     elif model_label == '20':
         model = PsychometricRegressionModel(df, regressors={'bias':'stimulation_condition', 'nu':'stimulation_condition'},)
     elif model_label == '21':
@@ -302,7 +320,6 @@ def get_data(bids_folder='/data/ds-tmsrisk', model_label=None):
     else:
         df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=True, exclude_outliers=True)
         df = df.drop('baseline', level='stimulation_condition')
-        print('Dropping the baseline condition')
 
     df = df.reset_index('stimulation_condition')
 
