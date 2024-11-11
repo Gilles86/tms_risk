@@ -13,11 +13,13 @@ dependencies:
   - scipy
   - nilearn
   - tqdm
-  - pip  # ensure pip is installed in the environment
+  - mkl           # Ensure MKL is included
+  - mkl-include   # Optional, includes development headers for MKL
+  - pip
   - tensorflow
   - tensorflow-probability
   - pip
   - pip:
       - -e .
-      - ./libs/braincoder  # Path to the braincoder submodule
-      - ./libs/bauer       # Path to the bauer submodule (if added)
+      - ./libs/braincoder
+      - ./libs/bauer

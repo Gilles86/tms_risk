@@ -1,0 +1,24 @@
+name: tms_risk_gpu
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pymc=5.17
+  - arviz=0.20
+  - notebook
+  - seaborn
+  - pandas
+  - numpy=1.25*
+  - scipy
+  - nilearn
+  - tqdm
+  - pip
+  - pip:
+      - numpy==1.25.*  # Reinforces numpy version to prevent upgrades by pip installs
+      - jaxlib  # Base JAX library, modified below to support CUDA
+      - jax[cuda] -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+      - tensorflow
+      - tensorflow-probability
+      - -e .
+      - ./libs/braincoder
+      - ./libs/bauer
