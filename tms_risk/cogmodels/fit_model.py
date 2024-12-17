@@ -1,5 +1,8 @@
 import argparse
 from bauer.models import RiskRegressionModel, RiskModel, FlexibleNoiseRiskRegressionModel, PsychometricRegressionModel #FlexibleSDRiskRegressionModel, 
+
+from bauer.models import FlexibleNoiseRiskRegressionModel
+
 from tms_risk.utils.data import get_all_behavior
 import os.path as op
 import os

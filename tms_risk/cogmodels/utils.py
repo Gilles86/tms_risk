@@ -49,6 +49,14 @@ def get_fake_data(data, group=False):
         permutations += [('First', 'Second')]
         names += ['half']
 
+    if 'n1_bin' in data.columns:
+        permutations += [data['n1_bin'].unique()]
+        names += ['n1_bin']        
+
+    if 'average_n_bin' in data.columns:
+        permutations += [data['average_n_bin'].unique()]
+        names += ['average_n_bin']
+
     fake_data = pd.MultiIndex.from_product(permutations, names=names).to_frame().reset_index(drop=True)
 
     fake_data = fake_data.loc[~(fake_data['session3'] & (fake_data['stimulation_condition'] == 'baseline'))]
@@ -96,7 +104,7 @@ def summarize_ppc(ppc, groupby=None):
 def cluster_offers(d, n=6, key='log(risky/safe)'):
     return pd.qcut(d[key], n, duplicates='drop').apply(lambda x: x.mid)
 
-def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col_wrap=5, legend=True, **kwargs):
+def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col_wrap=5, legend=True, stimulation_palette=stimulation_palette, **kwargs):
 
     assert (var_name in ['p', 'll_bernoulli'])
 
@@ -109,8 +117,6 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         df['log(risky/safe)'] = df.groupby(['subject'],
                                         group_keys=False).apply(cluster_offers)
         # df = df.set_index('log(risky/safe)', append=True)
-
-    print(df)
 
     if level == 'group':
         df['log(risky/safe)'] = df['bin(risky/safe)']
@@ -127,19 +133,20 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         groupby = ['risky_first', 'n_safe']
     elif plot_type in [3, 5]:
         groupby = ['risky_first', 'n_safe', 'log(risky/safe)']
-    elif plot_type in [6]:
+    elif plot_type in [6, 10,]:
         groupby = ['risky_first', 'n_safe', 'stimulation_condition']
-    elif plot_type in [7]:
+    elif plot_type in [7, 11]:
         groupby = ['risky_first', 'log(risky/safe)', 'stimulation_condition']
     elif plot_type in [8, 9]:
         groupby = ['risky_first', 'log(risky/safe)', 'stimulation_condition', 'n_safe']
+    elif plot_type in [12]:
+        groupby = ['risky_first','stimulation_condition']
     else:
         raise NotImplementedError
 
     if level == 'group':
-        print(ppc.columns)
         ppc = ppc.groupby(['subject']+groupby).mean()
-        print(ppc.iloc[:, :2])
+        ppc = ppc.groupby(groupby).mean()
 
     if level == 'subject':
         groupby = ['subject'] + groupby
@@ -149,7 +156,7 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
     ppc_summary = ppc_summary.join(p).reset_index()
 
     if 'risky_first' in ppc_summary.columns:
-        ppc_summary['Order'] = ppc_summary['risky_first'].map({True:'Risky first', False:'Safe first'})
+        ppc_summary['Order'] = ppc_summary['risky_first'].map({True:'Risky first', False:'Risky second'})
 
     if 'n_safe' in groupby:
         ppc_summary['Safe offer'] = ppc_summary['n_safe'].astype(int)
@@ -162,7 +169,7 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
         else:
             ppc_summary['Log-ratio offer'] = ppc_summary['log(risky/safe)']
 
-    if plot_type in [2, 6]:
+    if plot_type in [2, 6, 10]:
         x = 'Safe offer'
     else:
         if level == 'group':
@@ -177,7 +184,7 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
                             hue='stimulation_condition',
                             col_wrap=col_wrap if level == 'subject' else None,
                             hue_order=['vertex', 'ips'],
-                            palette=sns.color_palette()[2:],
+                            palette=stimulation_palette,
                             **kwargs)
 
 
@@ -225,19 +232,21 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
     elif plot_type == 6:
         fac = sns.FacetGrid(ppc_summary,
                             col='Order',
+                            col_order=['Risky first', 'Risky second'],
                             hue='stimulation_condition',
                             hue_order=['vertex', 'ips'],
                             row='subject' if level == 'subject' else None,
-                            palette=sns.color_palette()[2:],
+                            palette=stimulation_palette,
                             **kwargs)
 
     elif plot_type == 7:
         fac = sns.FacetGrid(ppc_summary,
                             col='Order',
+                            col_order=['Risky first', 'Risky second'],
                             hue='stimulation_condition',
                             hue_order=['vertex', 'ips'],
                             row='subject' if level == 'subject' else None,
-                            palette=sns.color_palette()[2:],
+                            palette=stimulation_palette,
                             **kwargs)
 
     elif plot_type == 8:
@@ -246,6 +255,7 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
 
         fac = sns.FacetGrid(ppc_summary,
                             col='Order',
+                            col_order=['Risky first', 'Risky second'],
                             hue='Safe offer',
                             row='stimulation_condition',
                             hue_order=['vertex', 'ips'],
@@ -261,20 +271,45 @@ def plot_ppc(df, ppc, plot_type=1, var_name='ll_bernoulli', level='subject', col
                             hue='stimulation_condition',
                             hue_order=['vertex', 'ips'],
                             row='Safe offer',
-                            palette=sns.color_palette()[2:],
+                            palette=stimulation_palette,
+                            **kwargs)
+
+    elif plot_type == 10:
+        if level == 'subject':
+            raise NotImplementedError
+
+        fac = sns.FacetGrid(ppc_summary,
+                            row='Order',
+                            row_order=['Risky first', 'Risky second'],
+                            hue='stimulation_condition',
+                            hue_order=['vertex', 'ips'],
+                            palette=stimulation_palette,
+                            **kwargs)
+
+    elif plot_type == 11:
+        if level == 'subject':
+            raise NotImplementedError
+
+        fac = sns.FacetGrid(ppc_summary,
+                            row='Order',
+                            row_order=['Risky first', 'Risky second'],
+                            hue='stimulation_condition',
+                            hue_order=['vertex', 'ips'],
+                            palette=stimulation_palette,
                             **kwargs)
 
 
-    if plot_type in [0, 1,2,3, 5, 6, 7, 8, 9]:
+    if plot_type in [0, 1,2,3, 5, 6, 7, 8, 9, 10, 11]:
         fac.map_dataframe(plot_prediction, x=x)
         fac.map(plt.scatter, x, 'Prop. chosen risky')
-        fac.map(lambda *args, **kwargs: plt.axhline(.5, c='k', ls='--'))
 
-    if plot_type in [0, 1, 3, 5, 7, 9]:
+        if plot_type not in [10]:
+            fac.map(lambda *args, **kwargs: plt.axhline(.5, c='k', ls='--'))
+
+    if plot_type in [0, 1, 3, 5, 7, 9, 11]:
         if level == 'subject':
             fac.map(lambda *args, **kwargs: plt.axvline(np.log(1./.55), c='k', ls='--'))
         else:
-
             fac.map(lambda *args, **kwargs: plt.axvline(2.5, c='k', ls='--'))
 
     if plot_type in [6]:

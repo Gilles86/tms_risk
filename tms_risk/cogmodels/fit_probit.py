@@ -1,13 +1,13 @@
 import numpy as np
 import argparse
-from tms_risk.utils.data import get_all_behavior
+from tms_risk.utils.data import get_all_behavior, get_participant_info
 import os.path as op
 import os
 import arviz as az
 import bambi
 import pandas as pd
 
-def main(model_label, n_cores=4, burnin=1000, samples=1000, bids_folder='/data/ds-tmsrisk'):
+def main(model_label, n_cores=4, burnin=2000, samples=4000, bids_folder='/data/ds-tmsrisk'):
 
     df = get_data(model_label, bids_folder)
     target_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
@@ -16,6 +16,9 @@ def main(model_label, n_cores=4, burnin=1000, samples=1000, bids_folder='/data/d
         os.makedirs(target_folder)
 
     target_accept = 0.8
+
+    print(df)
+    print(df['chose_risky'])
 
     model = build_model(model_label, df)
     trace = model.fit(burnin, samples, init='adapt_diag', target_accept=target_accept, cores=n_cores)
@@ -50,7 +53,7 @@ def build_model(model_label, df):
     elif model_label == 'probit_order_session':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(session) + (x*risky_first*stimulation_condition|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full':
-        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*stimulation_condition+C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (1|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full_model_session':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + x*session + (x*risky_first*stimulation_condition+C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full2':
@@ -63,6 +66,15 @@ def build_model(model_label, df):
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x*risky_first*C(n_safe)|subject)', df.reset_index(), link='probit', family='bernoulli')
     elif model_label == 'probit_full_fixed2':
         model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n_safe) + (x|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_n1_full':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(n1_bin) + (1|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_average_n_full':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(average_n_bin) + (1|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_average_n3_full':
+        model = bambi.Model('chose_risky ~ x*risky_first*stimulation_condition*C(average_n_bin) + (1|subject)', df.reset_index(), link='probit', family='bernoulli')
+    elif model_label == 'probit_tms_selection':
+        model = bambi.Model('chose_risky ~ x*tms_subject + (x|subject)', df.reset_index(), link='probit', family='bernoulli')
+        
     else:
         raise Exception(f'Do not know model label {model_label}')
 
@@ -84,7 +96,30 @@ def get_data(model_label=None, bids_folder='/data/ds-tmsrisk'):
 
     if model_label in ['probit_simple_half', 'probit_order_half']:
         df['half'] = pd.Series(df.index.get_level_values('trial_nr') < 65, index=df.index).map({True:'First', False:'Second'})
-    df = df.reset_index('stimulation_condition')
+
+    
+    if model_label in ['probit_n1_full']:
+        df['n1_bin'] = df.groupby('subject')['n1'].transform(lambda x: pd.qcut(x, 2, labels=['low', 'high']))
+
+    if model_label in ['probit_average_n_full']:
+        df['average_n'] = (df['n_safe'] + df['n_risky']) / 2.
+        df['average_n_bin'] = df.groupby('subject')['average_n'].transform(lambda x: pd.qcut(x, 2, labels=['low', 'high']))
+
+    if model_label in ['probit_average_n3_full']:
+        df['average_n'] = (df['n_safe'] + df['n_risky']) / 2.
+        df['average_n_bin'] = df.groupby('subject')['average_n'].transform(lambda x: pd.qcut(x, 3, labels=['low', 'medium', 'high']))
+
+    if model_label in ['probit_tms_selection']:
+        df = get_all_behavior(bids_folder=bids_folder, all_tms_conditions=False)
+        subjects = get_participant_info(bids_folder)
+        subjects = subjects.reset_index()
+        subjects['subject'] = subjects['participant_id'].str.replace('sub-', '').astype(int)
+        subjects = subjects.set_index('subject')
+
+
+        df = df.xs(1, level='session')
+        df['x'] = df['log(risky/safe)']
+        df = df.join(subjects['tms_subject'])
 
     return df
 

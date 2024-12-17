@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python
   - pymc=5.17
+  - bambi=0.13
   - compilers
   - arviz=0.20
   - notebook
