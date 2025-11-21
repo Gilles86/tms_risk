@@ -15,7 +15,7 @@ dependencies:
   - scipy
   - nilearn
   - tqdm
-  - cudatoolkit=11.8  # Match this to your GPU's CUDA version
+  - cudatoolkit=12.6  # Match this to your GPU's CUDA version
   - cudnn=8.6.0
   - pip
   - pip:
