@@ -5,7 +5,6 @@
 #SBATCH --mem=16G
 #SBATCH --gres=gpu:1
 #SBATCH --time=01:00:00
-#SBATCH --partition=gpu  # or your cluster's GPU partition name
 
 # Load conda
 . $HOME/init_conda.sh
