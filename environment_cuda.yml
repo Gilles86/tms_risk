@@ -1,0 +1,27 @@
+name: tms_risk_cuda
+channels:
+  - conda-forge
+  - nvidia
+dependencies:
+  - python
+  - pymc=5.17
+  - bambi=0.13
+  - compilers
+  - arviz=0.20
+  - notebook
+  - seaborn
+  - pandas
+  - numpy=1.25
+  - scipy
+  - nilearn
+  - tqdm
+  - cudatoolkit=11.8  # Match this to your GPU's CUDA version
+  - cudnn=8.6.0
+  - pip
+  - pip:
+      - -e .
+      - ./libs/braincoder
+      - ./libs/bauer
+      - tensorflow==2.18.0
+      - tensorflow-probability
+      - tf-keras  # Only if needed
