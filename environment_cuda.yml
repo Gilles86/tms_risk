@@ -1,27 +1,27 @@
 name: tms_risk_cuda
 channels:
   - conda-forge
-  - nvidia
+  - defaults
 dependencies:
-  - python=3.10  # Explicitly set Python version
-  - pymc=5.17
-  - bambi=0.13
-  - compilers  # This is a meta-package; if not found, remove or replace with specific compilers
-  - arviz=0.20
-  - notebook
-  - seaborn
-  - pandas
-  - numpy=1.25
-  - scipy
-  - nilearn
-  - tqdm
-  - cudatoolkit=12.3  # Use 12.3 for TF 2.18
-  - cudnn=8.9.2
+  - python=3.9  # Use a widely available version
   - pip
+  - numpy=1.22  # Compatible with Python 3.9 and most packages
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - statsmodels
+  - lxml
+  - notebook
   - pip:
+      - pymc==5.8.1  # Older version with fewer dependencies
+      - bambi==0.12.0
+      - arviz==0.15.1
+      - nilearn
+      - tqdm
+      - tensorflow==2.10.0  # Older, but widely compatible
+      - tensorflow-probability==0.18.0
+      - tf-keras
       - -e .
       - ./libs/braincoder
       - ./libs/bauer
-      - tensorflow==2.18.0
-      - tensorflow-probability
-      - tf-keras
