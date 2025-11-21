@@ -3,10 +3,10 @@ channels:
   - conda-forge
   - nvidia
 dependencies:
-  - python
+  - python=3.10  # Explicitly set Python version
   - pymc=5.17
   - bambi=0.13
-  - compilers
+  - compilers  # This is a meta-package; if not found, remove or replace with specific compilers
   - arviz=0.20
   - notebook
   - seaborn
@@ -15,8 +15,8 @@ dependencies:
   - scipy
   - nilearn
   - tqdm
-  - cudatoolkit=12.6  # Match this to your GPU's CUDA version
-  - cudnn=8.6.0
+  - cudatoolkit=12.3  # Use 12.3 for TF 2.18
+  - cudnn=8.9.2
   - pip
   - pip:
       - -e .
@@ -24,4 +24,4 @@ dependencies:
       - ./libs/bauer
       - tensorflow==2.18.0
       - tensorflow-probability
-      - tf-keras  # Only if needed
+      - tf-keras
