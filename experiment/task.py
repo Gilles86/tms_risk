@@ -6,8 +6,7 @@ from psychopy import logging
 from session import PileSession
 import numpy as np
 from trial import InstructionTrial, DummyWaiterTrial, OutroTrial
-import os
-import os.path as op
+from pathlib import Path
 import pandas as pd
 
 class TaskSession(PileSession):
@@ -22,9 +21,8 @@ class TaskSession(PileSession):
         logging.warn(self.settings['run'])
 
     def create_trials(self):
-        task_settings_folder = op.abspath(op.join('settings', 'task'))
-        fn = op.abspath(op.join(task_settings_folder,
-                                f'sub-{self.subject}_ses-task.tsv'))
+        task_settings_folder = Path('settings') / 'task'
+        fn = task_settings_folder / f'sub-{self.subject}_ses-task.tsv'
 
         settings = pd.read_table(fn)
 

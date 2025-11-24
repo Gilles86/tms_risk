@@ -2,8 +2,7 @@ import argparse
 import pandas as pd
 import numpy as np
 from itertools import product
-import os
-import os.path as op
+from pathlib import Path
 from utils import create_design
 
 
@@ -27,12 +26,10 @@ def main(subject, test=False):
 
     n_trials = len(df)
 
-    calibrate_settings_folder = op.abspath(op.join('settings', 'calibration'))
-    if not op.exists(calibrate_settings_folder):
-        os.makedirs(calibrate_settings_folder)
+    calibrate_settings_folder = Path('settings') / 'calibration'
+    calibrate_settings_folder.mkdir(parents=True, exist_ok=True)
 
-    fn = op.abspath(op.join(calibrate_settings_folder,
-                            f'sub-{subject}_ses-calibrate.tsv'))
+    fn = calibrate_settings_folder / f'sub-{subject}_ses-calibrate.tsv'
     df.to_csv(fn, sep='\t')
 
     print(f'Wrote {n_trials} trials to {fn}')

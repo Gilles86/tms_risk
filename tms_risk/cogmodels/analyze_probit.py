@@ -1,8 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
-import os.path as op
+from pathlib import Path
 import argparse
 from fit_probit import build_model, get_data
 import arviz as az
@@ -15,11 +14,10 @@ def main(model_label, bids_folder='/data/ds-tmsrisk', col_wrap=5, only_ppc=False
     df = get_data()
     model = build_model(model_label, df)
 
-    idata = az.from_netcdf(op.join(bids_folder, f'derivatives/cogmodels/model-{model_label}_trace.netcdf'))
+    idata = az.from_netcdf(Path(bids_folder) / 'derivatives' / 'cogmodels' / f'model-{model_label}_trace.netcdf')
 
-    target_folder = op.join(bids_folder, f'derivatives/cogmodels/figures/{model_label}')
-    if not op.exists(target_folder):
-        os.makedirs(target_folder)
+    target_folder = Path(bids_folder) / 'derivatives' / 'cogmodels' / 'figures' / model_label
+    target_folder.mkdir(parents=True, exist_ok=True)
 
     intercept_group, gamma_group = extract_intercept_gamma(idata, model, df, True)
     rnp_group = get_rnp(intercept_group, gamma_group)
@@ -50,7 +48,7 @@ def main(model_label, bids_folder='/data/ds-tmsrisk', col_wrap=5, only_ppc=False
             plt.axvline(0.0, c='k', ls='--')
             plt.title((gamma_diff['ips'] - gamma_diff['vertex'] > 0.0).mean())
             plt.title(np.round((gamma_diff['ips'] - gamma_diff['vertex'] > 0.0).mean(), 3))
-            plt.savefig(op.join(target_folder, 'group_gamma_diff.pdf'))
+            plt.savefig(str(target_folder / 'group_gamma_diff.pdf'))
             plt.close()
 
             rnp_groupfig = sns.catplot(rnp_group.stack().stack().reset_index(), y='rnp', x='stimulation_condition', kind='violin')
@@ -61,7 +59,7 @@ def main(model_label, bids_folder='/data/ds-tmsrisk', col_wrap=5, only_ppc=False
             sns.distplot(rnp_diff[('ips')] - rnp_diff[('vertex')])
             plt.title(np.round((rnp_diff['ips'] - rnp_diff['vertex'] > 0.0).mean(), 3))
             plt.axvline(0.0)
-            plt.savefig(op.join(target_folder, 'group_rnp_diff.pdf'))
+            plt.savefig(str(target_folder / 'group_rnp_diff.pdf'))
             plt.close()
 
             # Subjectwise parameter plots

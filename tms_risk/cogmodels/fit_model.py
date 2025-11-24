@@ -4,8 +4,7 @@ from bauer.models import RiskRegressionModel, RiskModel, FlexibleNoiseRiskRegres
 from bauer.models import FlexibleNoiseRiskRegressionModel
 
 from tms_risk.utils.data import get_all_behavior
-import os.path as op
-import os
+from pathlib import Path
 import arviz as az
 import numpy as np
 
@@ -13,10 +12,9 @@ def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk')
 
     df = get_data(bids_folder, model_label=model_label)
 
-    target_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
+    target_folder = Path(bids_folder) / 'derivatives' / 'cogmodels'
 
-    if not op.exists(target_folder):
-        os.makedirs(target_folder)
+    target_folder.mkdir(parents=True, exist_ok=True)
 
     if (model_label in ['0', '5', '1_session']) or model_label.startswith("flexible") or model_label.startswith('session1'):
         target_accept = 0.9
@@ -27,7 +25,7 @@ def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk')
     model.build_estimation_model()
     trace = model.sample(burnin, samples, target_accept=target_accept)
     az.to_netcdf(trace,
-                 op.join(target_folder, f'model-{model_label}_trace.netcdf'))
+                 str(target_folder / f'model-{model_label}_trace.netcdf'))
 
 def build_model(model_label, df):
     if model_label == '1':

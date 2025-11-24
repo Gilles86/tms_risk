@@ -1,4 +1,4 @@
-import os.path as op
+from pathlib import Path
 import argparse
 import numpy as np
 import scipy.stats as ss
@@ -32,8 +32,7 @@ def run_experiment(session_cls, task, use_runs=False, subject=None, session=None
     elif run == '0':
         run = None
 
-    settings_fn = op.join(op.dirname(__file__), 'settings',
-                       f'{settings}.yml')
+    settings_fn = Path(__file__).parent / 'settings' / f'{settings}.yml'
 
     with open(settings_fn, 'r') as f_in:
         settings_ = yaml.safe_load(f_in)
@@ -56,10 +55,10 @@ def run_experiment(session_cls, task, use_runs=False, subject=None, session=None
     for run in runs:
         output_dir, output_str = get_output_dir_str(subject, session, task, run)
 
-        log_file = op.join(output_dir, output_str + '_log.txt')
+        log_file = output_dir / (output_str + '_log.txt')
         logging.warn(f'Writing results to: {log_file}')
 
-        if (not cmd_args.overwrite) and op.exists(log_file):
+        if (not cmd_args.overwrite) and log_file.exists():
             overwrite = input(
                 f'{log_file} already exists! Are you sure you want to continue? ')
             if overwrite != 'y':
@@ -70,7 +69,7 @@ def run_experiment(session_cls, task, use_runs=False, subject=None, session=None
                               run=run,
                               eyetracker_on=eyetracker_on, *args, **kwargs)
         session_object.create_trials()
-        logging.warn(f'Writing results to: {op.join(session_object.output_dir, session_object.output_str)}')
+        logging.warn(f'Writing results to: {session_object.output_dir / session_object.output_str}')
         session_object.run()
         session_object.close()
 
@@ -210,11 +209,11 @@ def fit_psychometric_curve(log_file, plot=False, thresholds=(1, 4)):
     return x_lower, x_upper
 
 def get_output_dir_str(subject, session, task, run):
-    output_dir = op.join(op.dirname(__file__), 'logs', f'sub-{subject}')
+    output_dir = Path(__file__).parent / 'logs' / f'sub-{subject}'
     logging.warn(f'Writing results to  {output_dir}')
 
     if session:
-        output_dir = op.join(output_dir, f'ses-{session}')
+        output_dir = output_dir / f'ses-{session}'
         output_str = f'sub-{subject}_ses-{session}_task-{task}'
     else:
         output_str = f'sub-{subject}_task-{task}'

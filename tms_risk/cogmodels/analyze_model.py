@@ -3,7 +3,7 @@ import pingouin
 import matplotlib.pyplot as plt
 import seaborn
 import os
-import os.path as op
+from pathlib import Path
 import argparse
 import arviz as az
 from fit_model import get_data, build_model
@@ -20,15 +20,14 @@ plot_traces=False):
     model = build_model(model_label, df)
     model.build_estimation_model()
 
-    idata = az.from_netcdf(op.join(bids_folder, f'derivatives/cogmodels/model-{model_label}_trace.netcdf'))
+    idata = az.from_netcdf(Path(bids_folder) / 'derivatives' / 'cogmodels' / f'model-{model_label}_trace.netcdf')
 
-    target_folder = op.join(bids_folder, f'derivatives/cogmodels/figures/{model_label}')
-    if not op.exists(target_folder):
-        os.makedirs(target_folder)
+    target_folder = Path(bids_folder) / 'derivatives' / 'cogmodels' / 'figures' / model_label
+    target_folder.mkdir(parents=True, exist_ok=True)
 
     if plot_traces:
         az.plot_trace(idata, var_names=['~p'])
-        plt.savefig(op.join(target_folder, 'traces.pdf'))
+        plt.savefig(str(target_folder / 'traces.pdf'))
 
 
     for par in model.free_parameters:
@@ -61,7 +60,7 @@ plot_traces=False):
                 elif par == 'safe_prior_std':
                     plt.axvline(np.log(df['n_safe']).std(), c='k', ls='--')
 
-            plt.savefig(op.join(target_folder, f'group_par-{par}.{regressor}.pdf'))
+            plt.savefig(str(target_folder / f'group_par-{par}.{regressor}.pdf'))
             plt.close()
 
         

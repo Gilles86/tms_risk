@@ -1,6 +1,5 @@
 import argparse
-import os.path as op
-import os
+from pathlib import Path
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -11,12 +10,12 @@ import matplotlib.pyplot as plt
 
 def main(subject, session=None, run=None):
 
-    log_file = op.abspath(op.join('logs', f'sub-{subject}'))
+    log_file = Path('logs') / f'sub-{subject}'
 
     if session:
-    	log_file = op.join(log_file, f'ses-{session}')
+    	log_file = log_file / f'ses-{session}'
 
-    log_file = op.join(log_file, f'sub-{subject}')
+    log_file = log_file / f'sub-{subject}'
 
     if session:
     	log_file += f'_ses-{session}'
@@ -41,12 +40,10 @@ def main(subject, session=None, run=None):
     prob2 = [.55, 1.]
     repetition = (1, 2)
 
-    task_settings_folder = op.abspath(op.join('settings', 'task'))
-    if not op.exists(task_settings_folder):
-        os.makedirs(task_settings_folder)
+    task_settings_folder = Path('settings') / 'task'
+    task_settings_folder.mkdir(parents=True, exist_ok=True)
 
-    fn = op.abspath(op.join(task_settings_folder,
-                            f'sub-{subject}_ses-task.tsv'))
+    fn = task_settings_folder / f'sub-{subject}_ses-task.tsv'
 
     df = create_design(prob1, prob2, fractions, base=base, repetitions=2, n_runs=6)
 

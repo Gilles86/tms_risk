@@ -1,8 +1,7 @@
 import pandas as pd
 import argparse
 from bauer.models import PsychometricModel
-import os
-import os.path as op
+from pathlib import Path
 from tms_risk.utils.data import get_all_behavior
 import numpy as np
 import pingouin as pg
@@ -14,9 +13,9 @@ bids_folder = '/data/ds-tmsrisk'
 
 def main(model_label, bids_folder):
 
-    target_dir = op.join(bids_folder, 'derivatives', 'map_models')
+    target_dir = Path(bids_folder) / 'derivatives' / 'map_models'
 
-    os.makedirs(target_dir, exist_ok=True)
+    target_dir.mkdir(parents=True, exist_ok=True)
 
     assert model_label in ['psychometric_simple', 'psychometric_order'], 'model_label must be one of: psychometric_order'
 
@@ -45,7 +44,7 @@ def main(model_label, bids_folder):
     
     pars = pd.DataFrame(pars, index=pd.MultiIndex.from_tuples(keys, names=groupby))
 
-    pars.to_csv(op.join(target_dir, f'{model_label}.csv'))
+    pars.to_csv(target_dir / f'{model_label}.csv')
 
 
 if __name__ == '__main__':

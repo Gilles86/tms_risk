@@ -1,5 +1,5 @@
 import os
-import os.path as op
+from pathlib import Path
 from re import I
 import pandas as pd
 from itertools import product
@@ -65,7 +65,7 @@ def get_tms_conditions():
 
 
 def get_participant_info(bids_folder='/data/ds-tmsrisk'):
-    return pd.read_csv(op.join(bids_folder, 'participants.tsv'), sep='\t', index_col='participant_id')
+    return pd.read_csv(Path(bids_folder) / 'participants.tsv', sep='\t', index_col='participant_id')
 
 def get_all_apriori_roi_labels():
     return ['NPC1l', 'NPC1r', 'NPC2l', 'NPC2r', 'NPC3l', 'NPC3r', 'NTOl', 'NTOr', 'NF1l', 'NF1r', 'NF2l', 'NF2r']
@@ -98,11 +98,11 @@ def get_pdf(subject, session, pca_confounds=False, denoise=False, smoothed=False
         key += '.new_parameterisation'
 
     if n_voxels == 1:
-        pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_space-T1w_pars.tsv')
+        pdf = Path(bids_folder) / 'derivatives' / key / f'sub-{subject}' / 'func' / f'sub-{subject}_ses-{session}_mask-{mask}_space-T1w_pars.tsv'
     else:
-        pdf = op.join(bids_folder, 'derivatives', key, f'sub-{subject}', 'func', f'sub-{subject}_ses-{session}_mask-{mask}_nvoxels-{n_voxels}_space-T1w_pars.tsv')
+        pdf = Path(bids_folder) / 'derivatives' / key / f'sub-{subject}' / 'func' / f'sub-{subject}_ses-{session}_mask-{mask}_nvoxels-{n_voxels}_space-T1w_pars.tsv'
 
-    if op.exists(pdf):
+    if pdf.exists():
         pdf = pd.read_csv(pdf, sep='\t', index_col=[0,1])
         pdf.columns = pdf.columns.astype(float)
 
@@ -143,6 +143,11 @@ class Subject(object):
         self.subject = '%02d' % int(subject)
         self.bids_folder = bids_folder
 
+<<<<<<< HEAD
+=======
+        self.fmriprep_dir = Path(bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}'
+
+>>>>>>> bf66e1c (refactor: Replace os.path with pathlib.Path for modern path handling)
         self.tms_conditions = {1:'baseline', 2:None, 3:None}
 
         for key, value in get_participant_info(bids_folder).loc[f'sub-{self.subject}'].items():
@@ -175,34 +180,30 @@ class Subject(object):
 
     @property
     def derivatives_dir(self):
-        return op.join(self.bids_folder, 'derivatives')
+        return Path(self.bids_folder) / 'derivatives'
 
     @property
     def fmriprep_dir(self):
-        return op.join(self.derivatives_dir, 'fmriprep', f'sub-{self.subject}')
+        return self.derivatives_dir / 'fmriprep' / f'sub-{self.subject}'
 
     @property
     def t1w(self):
-        t1w = op.join(self.fmriprep_dir,
-        'anat',
-        'sub-{self.subject}_desc-preproc_T1w.nii.gz')
+        t1w = self.fmriprep_dir / 'anat' / 'sub-{self.subject}_desc-preproc_T1w.nii.gz'
 
-        if not op.exists(t1w):
-            t1w = op.join(self.fmriprep_dir,
-            'ses-1', 'anat',
-            f'sub-{self.subject}_ses-1_desc-preproc_T1w.nii.gz')
+        if not t1w.exists():
+            t1w = self.fmriprep_dir / 'ses-1' / 'anat' / f'sub-{self.subject}_ses-1_desc-preproc_T1w.nii.gz'
         
-        if not op.exists(t1w):
+        if not t1w.exists():
             raise Exception(f'T1w can not be found for subject {self.subject}')
 
-        return t1w
+        return str(t1w)
 
     def get_preprocessed_bold(self, session=1, runs=None, space='T1w'):
         if runs is None:
             runs = self.get_runs(session)
 
-        images = [op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}',
-         f'ses-{session}', 'func', f'sub-{self.subject}_ses-{session}_task-task_run-{run}_space-{space}_desc-preproc_bold.nii.gz') for run in runs]
+        images = [str(Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' /
+         f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-{run}_space-{space}_desc-preproc_bold.nii.gz') for run in runs]
 
         return images
 
@@ -212,11 +213,9 @@ class Subject(object):
         if not volume:
             raise NotImplementedError
 
-        im = op.join(self.derivatives_dir, model, f'sub-{self.subject}',
-        f'ses-{session}', 'func', 
-        f'sub-{self.subject}_ses-{session}_desc-{parameter}.optim_space-T1w_pars.nii.gz')
+        im = self.derivatives_dir / model / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter}.optim_space-T1w_pars.nii.gz'
 
-        return im
+        return str(im)
 
     def get_behavior(self, sessions=None, drop_no_responses=True):
         if sessions is None:
@@ -231,9 +230,9 @@ class Subject(object):
             tms_condition = self.tms_conditions[session]
             for run in runs:
 
-                fn = op.join(self.bids_folder, f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv')
+                fn = Path(self.bids_folder) / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv'
 
-                if op.exists(fn):
+                if fn.exists():
                     d = pd.read_csv(fn, sep='\t',
                                 index_col=['trial_nr', 'trial_type'])
                     d['subject'], d['session'], d['run'], d['stimulation_condition'] = int(self.subject), session, run, tms_condition
@@ -303,7 +302,7 @@ class Subject(object):
         runs = self.get_runs(session)
 
         fmriprep_confounds = [
-            op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_desc-confounds_timeseries.tsv') for run in runs]
+            str(Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-{run}_desc-confounds_timeseries.tsv') for run in runs]
         fmriprep_confounds = [pd.read_table(
             cf)[include] for cf in fmriprep_confounds]
 
@@ -321,9 +320,9 @@ class Subject(object):
             columns, names=['modality', 'order', 'type'])                        
 
         retroicor_confounds = [
-            op.join(self.bids_folder, f'derivatives/physiotoolbox/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_desc-retroicor_timeseries.tsv') for run in runs]
+            Path(self.bids_folder) / 'derivatives' / 'physiotoolbox' / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-{run}_desc-retroicor_timeseries.tsv' for run in runs]
         retroicor_confounds = [pd.read_table(
-            cf, header=None, usecols=np.arange(18), names=columns) if op.exists(cf) else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
+            cf, header=None, usecols=np.arange(18), names=columns) if cf.exists() else pd.DataFrame(np.zeros((135, 0))) for cf in retroicor_confounds]
 
         retroicor_confounds = pd.concat(retroicor_confounds, 0, keys=runs,
                             names=['run']).sort_index(axis=1)
@@ -389,8 +388,7 @@ class Subject(object):
         if pca_confounds:
             key += '.pca_confounds'
 
-        fn = op.join(self.bids_folder, 'derivatives', key, f'sub-{self.subject}', f'ses-{session}', 'func', 
-                f'sub-{self.subject}_ses-{session}_task-task_space-T1w_desc-stims1_pe.nii.gz')
+        fn = Path(self.bids_folder) / 'derivatives' / key / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_space-T1w_desc-stims1_pe.nii.gz'
 
         im = image.load_img(fn)
         
@@ -403,8 +401,8 @@ class Subject(object):
 
     def get_volume_mask(self, roi=None, session=None, epi_space=False):
 
-        base_mask = op.join(self.bids_folder, 'derivatives', f'fmriprep/sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz')
-        base_mask = image.load_img(base_mask, dtype='int32') # To prevent weird nilearn warning
+        base_mask = Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-1_space-T1w_desc-brain_mask.nii.gz'
+        base_mask = image.load_img(str(base_mask), dtype='int32') # To prevent weird nilearn warning
 
         first_run = self.get_preprocessed_bold(session=session, runs=[1])[0]
         base_mask = image.resample_to_img(base_mask, first_run, interpolation='nearest')
@@ -417,28 +415,16 @@ class Subject(object):
 
         elif roi.startswith('NPC') or roi.startswith('NF') or roi.startswith('NTO'):
             
-            anat_mask = op.join(self.derivatives_dir
-            ,'ips_masks',
-            f'sub-{self.subject}',
-            'anat',
-            f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
-            )
+            anat_mask = self.derivatives_dir / 'ips_masks' / f'sub-{self.subject}' / 'anat' / f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
 
             if epi_space:
-                epi_mask = op.join(self.derivatives_dir
-                                    ,'ips_masks',
-                                    f'sub-{self.subject}',
-                                    'func',
-                                    f'ses-{session}',
-                                    f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz')
+                epi_mask = self.derivatives_dir / 'ips_masks' / f'sub-{self.subject}' / 'func' / f'ses-{session}' / f'sub-{self.subject}_space-T1w_desc-{roi}_mask.nii.gz'
 
-                if not op.exists(epi_mask):
-                    if not op.exists(op.dirname(epi_mask)):
-                        os.makedirs(op.dirname(epi_mask))
+                if not epi_mask.exists():
+                    epi_mask.parent.mkdir(parents=True, exist_ok=True)
 
-
-                    im = image.resample_to_img(image.load_img(anat_mask, dtype='int32'), image.load_img(base_mask, dtype='int32'), interpolation='nearest')
-                    im.to_filename(epi_mask)
+                    im = image.resample_to_img(image.load_img(str(anat_mask), dtype='int32'), image.load_img(base_mask, dtype='int32'), interpolation='nearest')
+                    im.to_filename(str(epi_mask))
 
                 mask = epi_mask
 
@@ -448,7 +434,7 @@ class Subject(object):
         else:
             raise NotImplementedError
 
-        return image.load_img(mask, dtype='int32')
+        return image.load_img(str(mask), dtype='int32')
     
     def get_prf_parameters_volume(self, session, 
             run=None,
@@ -506,17 +492,14 @@ class Subject(object):
 
         for parameter_key in keys:
             if cross_validated:
-                fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                        'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+                fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz'
             else:
                 if parameter_key == 'cvr2':
-                    fn = op.join(self.bids_folder, 'derivatives', dir.replace('encoding_model', 'encoding_model.cv'), f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+                    fn = Path(self.bids_folder) / 'derivatives' / dir.replace('encoding_model', 'encoding_model.cv') / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz'
                 else:
-                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz')
+                    fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz'
             
-            pars = pd.Series(masker.fit_transform(fn).ravel())
+            pars = pd.Series(masker.fit_transform(str(fn)).ravel())
             parameters.append(pars)
 
         parameters =  pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
@@ -567,20 +550,16 @@ class Subject(object):
         for parameter_key in parameter_keys:
             if cross_validated:
                 if nilearn:
-                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                    fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim.nilearn_space-{space}_hemi-{hemi}.func.gii'
                 else:
-                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+                    fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii'
             else:
                 if nilearn:
-                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim.nilearn_space-{space}_hemi-{hemi}.func.gii')
+                    fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim.nilearn_space-{space}_hemi-{hemi}.func.gii'
                 else:
-                    fn = op.join(self.bids_folder, 'derivatives', dir, f'sub-{self.subject}', f'ses-{session}', 
-                            'func', f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii')
+                    fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.volume.optim_space-{space}_hemi-{hemi}.func.gii'
 
-            pars = pd.series(surface.load_surf_data(fn))
+            pars = pd.series(surface.load_surf_data(str(fn)))
             pars.index.name = 'vertex'
 
             parameters.append(pars)
@@ -594,14 +573,14 @@ class Subject(object):
 
             fs_hemi = {'L':'lh', 'R':'rh'}[hemi]
 
-            info[hemi]['inner'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_smoothwm.surf.gii')
-            info[hemi]['mid'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_midthickness.surf.gii')
-            info[hemi]['outer'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_pial.surf.gii')
-            info[hemi]['inflated'] = op.join(self.bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}', 'ses-1', 'anat', f'sub-{self.subject}_ses-1_hemi-{hemi}_inflated.surf.gii')
-            info[hemi]['curvature'] = op.join(self.bids_folder, 'derivatives', 'freesurfer', f'sub-{self.subject}', 'surf', f'{fs_hemi}.curv')
+            info[hemi]['inner'] = str(Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' / 'ses-1' / 'anat' / f'sub-{self.subject}_ses-1_hemi-{hemi}_smoothwm.surf.gii')
+            info[hemi]['mid'] = str(Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' / 'ses-1' / 'anat' / f'sub-{self.subject}_ses-1_hemi-{hemi}_midthickness.surf.gii')
+            info[hemi]['outer'] = str(Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' / 'ses-1' / 'anat' / f'sub-{self.subject}_ses-1_hemi-{hemi}_pial.surf.gii')
+            info[hemi]['inflated'] = str(Path(self.bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}' / 'ses-1' / 'anat' / f'sub-{self.subject}_ses-1_hemi-{hemi}_inflated.surf.gii')
+            info[hemi]['curvature'] = str(Path(self.bids_folder) / 'derivatives' / 'freesurfer' / f'sub-{self.subject}' / 'surf' / f'{fs_hemi}.curv')
 
             for key in info[hemi]:
-                assert(os.path.exists(info[hemi][key])), f'{info[hemi][key]} does not exist'
+                assert(Path(info[hemi][key]).exists()), f'{info[hemi][key]} does not exist'
 
         return info
 
@@ -612,8 +591,8 @@ class Subject(object):
 
         behavior = []
         for run in runs:
-            behavior.append(pd.read_table(op.join(
-                self.bids_folder, f'sub-{self.subject}/ses-{session}/func/sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv')))
+            behavior.append(pd.read_table(
+                Path(self.bids_folder) / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv'))
 
         behavior = pd.concat(behavior, keys=runs, names=['run'])
         behavior = behavior.reset_index().set_index(
@@ -634,13 +613,11 @@ class Subject(object):
         return events
 
     def get_target_dir(subject, session, sourcedata, base, modality='func'):
-        target_dir = op.join(sourcedata, 'derivatives', base, f'sub-{subject}', f'ses-{session}',
-                            modality)
+        target_dir = Path(sourcedata) / 'derivatives' / base / f'sub-{subject}' / f'ses-{session}' / modality
 
-        if not op.exists(target_dir):
-            os.makedirs(target_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
 
-        return target_dir
+        return str(target_dir)
 
 
     def get_paradigm(self, session=None):

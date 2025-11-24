@@ -1,7 +1,7 @@
 import glob
 import argparse
 import pandas as pd
-import os.path as op
+from pathlib import Path
 import numpy as np
 import re
 from text import TextSession
@@ -12,13 +12,13 @@ def get_payout(subject, session, settings='default'):
 
     task = 'payout'
 
-    logs_calibrate = glob.glob(op.abspath(op.join(
-        'logs', f'sub-{subject}', f'ses-{session}', f'sub-{subject}_ses-{session}_task-calibration_run-*_events.tsv')))
-    print(op.abspath(op.join('logs', f'sub-{subject}', f'ses-{session}',
-                             f'sub-{subject}_ses-{session}_task-calibrate_run-*_events.tsv')))
+    logs_calibrate = glob.glob(str(
+        Path('logs') / f'sub-{subject}' / f'ses-{session}' / f'sub-{subject}_ses-{session}_task-calibration_run-*_events.tsv'))
+    print(str(Path('logs') / f'sub-{subject}' / f'ses-{session}' /
+                             f'sub-{subject}_ses-{session}_task-calibrate_run-*_events.tsv'))
     print(logs_calibrate)
-    logs_task = glob.glob(op.abspath(op.join(
-        'logs', f'sub-{subject}', f'ses-{session}', f'sub-{subject}_ses-{session}_task-task_run-*_events.tsv')))
+    logs_task = glob.glob(str(
+        Path('logs') / f'sub-{subject}' / f'ses-{session}' / f'sub-{subject}_ses-{session}_task-task_run-*_events.tsv'))
 
     reg = re.compile(
         '.*sub-(?P<subject>.+)_ses-(?P<session>.+)_task-(?P<task>.+)_run-(?P<run>[0-9]+)_events\.tsv')
@@ -82,8 +82,7 @@ def get_payout(subject, session, settings='default'):
 
     output_dir, output_str = get_output_dir_str(subject, session, task, None)
 
-    settings_fn = op.join(op.dirname(__file__), 'settings',
-                          f'{settings}.yml')
+    settings_fn = Path(__file__).parent / 'settings' / f'{settings}.yml'
 
     payout_session = TextSession(txt=txt,
                                  output_str='payout',

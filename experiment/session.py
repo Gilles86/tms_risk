@@ -2,7 +2,7 @@ from stimuli import FixationLines
 from exptools2.core import Session, PylinkEyetrackerSession
 from psychopy import visual, logging
 import pandas as pd
-import os.path as op
+from pathlib import Path
 
 
 class PileSession(PylinkEyetrackerSession):
@@ -27,8 +27,8 @@ class PileSession(PylinkEyetrackerSession):
 
     def _create_logfile(self):
         """ Creates a logfile. """
-        log_path = op.join(self.output_dir, self.output_str + '_log.txt')
-        return logging.LogFile(f=log_path, filemode='w', level=logging.WARNING)
+        log_path = Path(self.output_dir) / (self.output_str + '_log.txt')
+        return logging.LogFile(f=str(log_path), filemode='w', level=logging.WARNING)
 
     def run(self):
         """ Runs experiment. """
@@ -56,8 +56,8 @@ class PileSession(PylinkEyetrackerSession):
         if len(array_log) > 0:
             array_log = pd.concat(array_log)
 
-            array_log.to_csv(op.join(
-                self.output_dir, self.output_str + '_stimarray_locations.tsv'), sep='\t')
+            array_log.to_csv(
+                Path(self.output_dir) / (self.output_str + '_stimarray_locations.tsv'), sep='\t')
 
 
 class PileEyeTrackerSession(PileSession, PylinkEyetrackerSession):

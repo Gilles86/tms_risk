@@ -1,8 +1,7 @@
 import numpy as np
 import argparse
 from tms_risk.utils.data import get_all_behavior, get_participant_info
-import os.path as op
-import os
+from pathlib import Path
 import arviz as az
 import bambi
 import pandas as pd
@@ -10,10 +9,9 @@ import pandas as pd
 def main(model_label, n_cores=4, burnin=2000, samples=4000, bids_folder='/data/ds-tmsrisk'):
 
     df = get_data(model_label, bids_folder)
-    target_folder = op.join(bids_folder, 'derivatives', 'cogmodels')
+    target_folder = Path(bids_folder) / 'derivatives' / 'cogmodels'
 
-    if not op.exists(target_folder):
-        os.makedirs(target_folder)
+    target_folder.mkdir(parents=True, exist_ok=True)
 
     target_accept = 0.8
 
@@ -23,7 +21,7 @@ def main(model_label, n_cores=4, burnin=2000, samples=4000, bids_folder='/data/d
     model = build_model(model_label, df)
     trace = model.fit(burnin, samples, init='adapt_diag', target_accept=target_accept, cores=n_cores)
     az.to_netcdf(trace,
-                 op.join(target_folder, f'model-{model_label}_trace.netcdf'))
+                 str(target_folder / f'model-{model_label}_trace.netcdf'))
 
 def build_model(model_label, df):
     if model_label == 'probit_simple':

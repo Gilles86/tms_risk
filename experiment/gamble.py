@@ -4,7 +4,6 @@ from psychopy.visual import Pie, TextStim
 from utils import run_experiment, create_stimulus_array_log_df
 from stimuli import _create_stimulus_array, CertaintyStimulus, ProbabilityPieChart
 import numpy as np
-import os.path as op
 import pandas as pd
 from trial import InstructionTrial
 

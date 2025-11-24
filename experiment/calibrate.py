@@ -4,7 +4,7 @@ from session import PileSession
 from utils import run_experiment
 import numpy as np
 from psychopy import logging
-import os.path as op
+from pathlib import Path
 import pandas as pd
 from gamble import IntroBlockTrial, GambleTrial
 from trial import OutroTrial, InstructionTrial
@@ -37,10 +37,10 @@ class CalibrationSession(PileSession):
 
     def create_trials(self):
 
-        calibrate_settings_folder = op.abspath(
-            op.join('settings', 'calibration'))
-        trial_settings = pd.read_csv(op.abspath(op.join(calibrate_settings_folder,
-                                                        f'sub-{self.subject}_ses-calibrate.tsv')), sep='\t')
+        calibrate_settings_folder = Path('settings') / 'calibration'
+        trial_settings = pd.read_csv(
+            calibrate_settings_folder / f'sub-{self.subject}_ses-calibrate.tsv',
+            sep='\t')
 
         self.n_runs = trial_settings.run.unique().shape[0]
 

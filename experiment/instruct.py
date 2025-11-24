@@ -3,7 +3,7 @@ from gamble import IntroBlockTrial, GambleTrial
 from utils import get_output_dir_str, create_design, sample_isis
 from psychopy.visual import TextStim, ImageStim
 from psychopy import logging
-import os.path as op
+from pathlib import Path
 import argparse
 from trial import InstructionTrial
 import numpy as np
@@ -323,11 +323,10 @@ if __name__ == '__main__':
     subject, session, task, run = cmd_args.subject, 'instruction', 'instruction',  None
     output_dir, output_str = get_output_dir_str(subject, session, task, run)
 
-    log_file = op.join(output_dir, output_str + '_log.txt')
+    log_file = output_dir / (output_str + '_log.txt')
     logging.warn(f'Writing results to: {log_file}')
 
-    settings_fn = op.join(op.dirname(__file__), 'settings',
-                          f'{cmd_args.settings}.yml')
+    settings_fn = Path(__file__).parent / 'settings' / f'{cmd_args.settings}.yml'
 
     session_object = InstructionSession(output_str=output_str,
                                         output_dir=output_dir,
@@ -336,6 +335,6 @@ if __name__ == '__main__':
     session_object.create_trials()
     print(session_object.trials)
     logging.warn(
-        f'Writing results to: {op.join(session_object.output_dir, session_object.output_str)}')
+        f'Writing results to: {Path(session_object.output_dir) / session_object.output_str}')
     session_object.run()
     session_object.close()
