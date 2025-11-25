@@ -143,8 +143,6 @@ class Subject(object):
         self.subject = '%02d' % int(subject)
         self.bids_folder = bids_folder
 
-        self.fmriprep_dir = op.join(bids_folder, 'derivatives', 'fmriprep', f'sub-{self.subject}')
-
         self.tms_conditions = {1:'baseline', 2:None, 3:None}
 
         for key, value in get_participant_info(bids_folder).loc[f'sub-{self.subject}'].items():
@@ -650,9 +648,9 @@ class Subject(object):
         bids_folder = Path(self.bids_folder)
 
         if session is None:
-            paradigm1 = self.get_paradigm(session=2)
-            paradigm2 = self.get_paradigm(session=3)
-            return pd.concat([paradigm1, paradigm2], keys=[2,3], names=['session'])
+            paradigm2 = self.get_paradigm(session=2)
+            paradigm3 = self.get_paradigm(session=3)
+            return pd.concat([paradigm2, paradigm3], keys=[2,3], names=['session'])
 
 
         assert session in [1,2,3], "Session must be 1, 2, or 3"
@@ -662,7 +660,7 @@ class Subject(object):
         paradigm = [pd.read_csv(bids_folder / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_task-task_run-{run}_events.tsv', sep='\t') for run in runs]
         paradigm = pd.concat(paradigm, keys=runs, names=['run'])
 
-        paradigm = paradigm[paradigm.trial_type == 'stimulus 1'].set_index('trial_nr')
+        paradigm = paradigm[paradigm.trial_type == 'stimulus 1'].set_index('trial_nr', append=True)
 
         paradigm['log(n1)'] = np.log(paradigm['n1'])
 
