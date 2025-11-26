@@ -76,8 +76,16 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
     grid = get_grid(model_label)
 
     grid_parameters = optimizer.fit_grid(*grid, use_correlation_cost=True)
+    
+
+    if model_label in [0, 1]:
+        fixed_pars = [('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')]
+    elif model_label in [2]:
+        fixed_pars = [('mu_unbounded', 'C(session)[2.0]'),('mu_unbounded', 'C(session)[3.0]'),
+                      ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
+        
     grid_parameters = optimizer.fit(init_pars=grid_parameters, learning_rate=.05, store_intermediate_parameters=False, max_n_iterations=10000,
-                    fixed_pars=[('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')],
+                    fixed_pars=fixed_pars,
                     r2_atol=0.00001)
 
 
