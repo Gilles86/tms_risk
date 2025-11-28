@@ -52,15 +52,16 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
     stimulus_range = np.linspace(paradigm['x'].min(), paradigm['x'].max(), 100).astype(np.float32)
     model.init_pseudoWWT(stimulus_range, raw_pars)
 
-    resid_fitter = ResidualFitter(model, data, paradigm, raw_pars)
-
     pred = model.predict(paradigm, raw_pars)
     r2 = get_rsq(data, pred)
+    print(r2)
     assert(r2[cvr2_mask].min() > 0.0), "Some voxels have negative R², cannot proceed"
 
+    print('Masking data.')
     data = data.loc[:, cvr2_mask]
     raw_pars = raw_pars.loc[cvr2_mask, :]
 
+    resid_fitter = ResidualFitter(model, data, paradigm, raw_pars)
     omega, dof = resid_fitter.fit(method='gauss', spherical=True)
 
     print('Simulating data...')
@@ -72,21 +73,24 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
     }).astype(np.float32)
 
     model = get_model(1, fake_paradigm)
-    simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=500)
+    simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=1000)
 
     # Calculating pdf
     print('Calculating pdf...')
-    pdf = model.get_stimulus_pdf(simulated_data, stimulus_range=fake_paradigm, parameters=raw_pars, omega=omega, dof=dof, normalize=False)
+    pdf = model.get_stimulus_pdf(simulated_data, stimulus_range=fake_paradigm, parameters=raw_pars, omega=omega, dof=dof, normalize=True)
     pdf = pdf.unstack('repeat')
     pdf.index = pd.MultiIndex.from_frame(fake_paradigm)
+    print(pdf)
 
     pdf = pdf.apply(lambda d: d.xs(d.name[1], level='session'), axis=1).stack('repeat')
     pdf.columns = np.exp(pdf.columns)
 
     # x-level of index should take the exponential
     pdf = pdf.reset_index()
+    print(pdf)
     pdf['x'] = np.exp(pdf['x'])
     pdf = pdf.set_index(['x', 'session', 'repeat'])
+    print(pdf)
 
     pars = pd.DataFrame(index=pdf.index)
     pars['E'] = get_expected_value(pdf, normalize=True)
