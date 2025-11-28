@@ -4,9 +4,9 @@ from re import I
 import pandas as pd
 from itertools import product
 import numpy as np
-import pkg_resources
+from importlib.resources import files
 import yaml
-from sklearn.decomposition import PCA
+# from sklearn.decomposition import PCA
 from nilearn import image
 from nilearn.maskers import NiftiMasker
 from collections.abc import Iterable
@@ -29,7 +29,8 @@ def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
 
 def get_all_subject_ids(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
 
-    with pkg_resources.resource_stream('tms_risk', '/data/all_subjects.yml') as stream:
+    resource_path = files('tms_risk').joinpath('data/all_subjects.yml')
+    with resource_path.open('r') as stream:
         subjects = yaml.safe_load(stream)
 
     outliers = [22, 49] # see tms_risk/behavior/outliers.ipynb
@@ -60,7 +61,8 @@ def get_all_behavior(bids_folder='/data/ds-tmsrisk', drop_no_responses=True, all
     return pd.concat(behavior)
 
 def get_tms_conditions():
-    with pkg_resources.resource_stream('tms_risk', '/data/tms_keys.yml') as stream:
+    resource_path = files('tms_risk').joinpath('data/tms_keys.yml')
+    with resource_path.open('r') as stream:
         return yaml.safe_load(stream)
 
 
@@ -143,11 +145,6 @@ class Subject(object):
         self.subject = '%02d' % int(subject)
         self.bids_folder = bids_folder
 
-<<<<<<< HEAD
-=======
-        self.fmriprep_dir = Path(bids_folder) / 'derivatives' / 'fmriprep' / f'sub-{self.subject}'
-
->>>>>>> bf66e1c (refactor: Replace os.path with pathlib.Path for modern path handling)
         self.tms_conditions = {1:'baseline', 2:None, 3:None}
 
         for key, value in get_participant_info(bids_folder).loc[f'sub-{self.subject}'].items():
@@ -405,7 +402,7 @@ class Subject(object):
         base_mask = image.load_img(str(base_mask), dtype='int32') # To prevent weird nilearn warning
 
         first_run = self.get_preprocessed_bold(session=session, runs=[1])[0]
-        base_mask = image.resample_to_img(base_mask, first_run, interpolation='nearest')
+        base_mask = image.resample_to_img(base_mask, first_run, interpolation='nearest', force_resample=True, copy_header=True)
 
         if roi is None:
             if epi_space:
@@ -432,7 +429,7 @@ class Subject(object):
                 mask = anat_mask
 
         else:
-            raise NotImplementedError
+            raise NotImplementedError(f'ROI {roi} not implemented')
 
         return image.load_img(str(mask), dtype='int32')
     
@@ -509,8 +506,42 @@ class Subject(object):
 
         return parameters
 
-    def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative',
-    parameters=None, key=None, nilearn=False):
+    def get_prf_parameters2(self, model_label=0, roi=None, return_image=False):
+
+        if return_image:
+            raise NotImplementedError("Return image not implemented for get_prf_parameters2")
+
+        mask = self.get_volume_mask(session=1, roi=roi, epi_space=True)
+        masker = NiftiMasker(mask) 
+
+        pars = []
+
+        r2_fn = Path(self.bids_folder) / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed' / f'sub-{self.subject}' /  f'sub-{self.subject}_desc-r2.optim_space-T1w_pars.nii.gz'
+        r2 = pd.Series(masker.fit_transform(str(r2_fn)).squeeze(), name=('r2', None))
+        pars.append(r2)
+
+
+        try:
+            cvr2_fn = Path(self.bids_folder) / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed.cv' / f'sub-{self.subject}' / f'sub-{self.subject}_desc-cvr2.optim_space-T1w_pars.nii.gz'
+            cvr2 = pd.Series(masker.fit_transform(str(cvr2_fn)).squeeze(), name=('cvr2', None))
+            pars.append(cvr2)
+        except Exception as e:
+            logging.warning(f'Could not load cvr2 for subject {self.subject}: {e}')
+
+        parameter_labels = ['mu', 'sd', 'amplitude', 'baseline']
+
+        for par_label in parameter_labels:
+            for session in [2, 3]:
+                fn = Path(self.bids_folder) / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed' / f'sub-{self.subject}' / f'ses-{session}' / f'sub-{self.subject}_ses-{session}_desc-{par_label}.optim_space-T1w_pars.nii.gz'
+                p = pd.Series(masker.fit_transform(str(fn)).squeeze(), name=(par_label, session))
+                pars.append(p)
+
+        pars = pd.concat(pars, axis=1)
+        pars.columns.set_names(['parameter', 'session'], inplace=True)
+
+        return pars
+
+    def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative', parameters=None, key=None, nilearn=False):
 
         if mask is not None:
             raise NotImplementedError
