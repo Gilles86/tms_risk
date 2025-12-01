@@ -16,6 +16,19 @@ import logging
 from pathlib import Path
 logging.basicConfig(level=logging.WARNING, format='%(levelname)s: %(message)s')
 
+def get_empirical_prior_n(bids_folder):
+
+    df = get_all_behavior(bids_folder=bids_folder, drop_no_responses=False, all_tms_conditions=True)
+    n = np.arange(7, 4*28)
+
+    # Make discrete prior
+    prior = pd.DataFrame(index=pd.Index(n, name='n'))
+    prior['p'] = df[['n1', 'n2']].stack().value_counts()
+    prior['p'] = prior['p'].fillna(0)
+    prior['p'] = prior['p'] / prior['p'].sum()
+
+    return prior['p']
+
 
 def get_tms_subjects(bids_folder='/data/ds-tmsrisk', exclude_outliers=True):
     subjects = [int(e) for e in get_tms_conditions().keys()]
