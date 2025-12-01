@@ -3,11 +3,12 @@ from tms_risk.utils.data import Subject, get_empirical_prior_n
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from nilearn.input_data import NiftiMasker
+from nilearn.maskers import NiftiMasker
 from tms_risk.encoding_model.fit_regression_nprf import get_model
 from braincoder.optimize import ResidualFitter
 from braincoder.utils import get_rsq
 from braincoder.utils.math import get_expected_value
+from tqdm import tqdm
 
 
 def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk', spherical=False, use_prior=False):
@@ -69,7 +70,7 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk', spheric
     omega, dof = resid_fitter.fit(method='gauss', spherical=spherical)
 
     print('Simulating data...')
-    x = np.log(np.arange(5, 28*4 + 1))
+    x = np.log(np.arange(7, 28*4 + 1))
     sessions = [2.0, 3.0]
     fake_paradigm = pd.DataFrame({
         'x': np.tile(x, len(sessions)),
@@ -79,9 +80,21 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk', spheric
     model = get_model(1, fake_paradigm)
     simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=250)
 
-    # Calculating pdf
+    # Calculating pdf - process in batches to avoid numerical issues
     print('Calculating pdf...')
-    pdf = model.get_stimulus_pdf(simulated_data, stimulus_range=fake_paradigm, parameters=raw_pars, omega=omega, dof=dof, normalize=False)
+    repeats = simulated_data.index.get_level_values('repeat').unique()
+    batch_size = 25
+    
+    pdf_list = []
+    for i in tqdm(range(0, len(repeats), batch_size), desc='Processing batches'):
+        batch_repeats = repeats[i:i+batch_size]
+        batch_data = simulated_data.loc[simulated_data.index.get_level_values('repeat').isin(batch_repeats)]
+        
+        batch_pdf = model.get_stimulus_pdf(batch_data, stimulus_range=fake_paradigm, parameters=raw_pars, 
+                                           omega=omega, dof=dof, normalize=True)
+        pdf_list.append(batch_pdf)
+    
+    pdf = pd.concat(pdf_list, axis=0)
     pdf = pdf.unstack('repeat')
     pdf.index = pd.MultiIndex.from_frame(fake_paradigm)
     print(pdf)
