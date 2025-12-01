@@ -100,7 +100,7 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk', spheric
     print(pdf)
 
     pdf = pdf.apply(lambda d: d.xs(d.name[1], level='session'), axis=1).stack('repeat')
-    pdf.columns = np.exp(pdf.columns)
+    pdf.columns = np.round(np.exp(pdf.columns))
 
     # x-level of index should take the exponential
     pdf = pdf.reset_index()
