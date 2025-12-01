@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from tms_risk.utils.data import Subject
+from tms_risk.utils.data import Subject, get_empirical_prior_n
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -10,13 +10,16 @@ from braincoder.utils import get_rsq
 from braincoder.utils.math import get_expected_value
 
 
-def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
+def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk', spherical=False, use_prior=False):
 
     sub = Subject(subject)
 
     bids_folder = Path(bids_folder)
 
-    target_dir = bids_folder / 'derivatives' / 'expected_uncertainty' / f'sub-{subject:02d}' / 'func'
+    dir_name = 'expected_uncertainty_spherical' if spherical else 'expected_uncertainty'
+    dir_name += '.objective_prior' if use_prior else ''
+
+    target_dir = bids_folder / 'derivatives' / dir_name / f'sub-{subject:02d}' / 'func'
     target_dir.mkdir(parents=True, exist_ok=True)
 
     pars = sub.get_prf_parameters2(model_label=1, roi=roi)
@@ -50,7 +53,6 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
     data = pd.DataFrame(data, index=paradigm.index).astype(np.float32)
 
     stimulus_range = np.linspace(paradigm['x'].min(), paradigm['x'].max(), 100).astype(np.float32)
-    model.init_pseudoWWT(stimulus_range, raw_pars)
 
     pred = model.predict(paradigm, raw_pars)
     r2 = get_rsq(data, pred)
@@ -61,11 +63,13 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
     data = data.loc[:, cvr2_mask]
     raw_pars = raw_pars.loc[cvr2_mask, :]
 
+    model.init_pseudoWWT(stimulus_range, raw_pars)
+
     resid_fitter = ResidualFitter(model, data, paradigm, raw_pars)
-    omega, dof = resid_fitter.fit(method='gauss', spherical=True)
+    omega, dof = resid_fitter.fit(method='gauss', spherical=spherical)
 
     print('Simulating data...')
-    x = np.log(np.arange(5, 28*4))
+    x = np.log(np.arange(5, 28*4 + 1))
     sessions = [2.0, 3.0]
     fake_paradigm = pd.DataFrame({
         'x': np.tile(x, len(sessions)),
@@ -73,11 +77,11 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
     }).astype(np.float32)
 
     model = get_model(1, fake_paradigm)
-    simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=1000)
+    simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=250)
 
     # Calculating pdf
     print('Calculating pdf...')
-    pdf = model.get_stimulus_pdf(simulated_data, stimulus_range=fake_paradigm, parameters=raw_pars, omega=omega, dof=dof, normalize=True)
+    pdf = model.get_stimulus_pdf(simulated_data, stimulus_range=fake_paradigm, parameters=raw_pars, omega=omega, dof=dof, normalize=False)
     pdf = pdf.unstack('repeat')
     pdf.index = pd.MultiIndex.from_frame(fake_paradigm)
     print(pdf)
@@ -91,6 +95,11 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk'):
     pdf['x'] = np.exp(pdf['x'])
     pdf = pdf.set_index(['x', 'session', 'repeat'])
     print(pdf)
+
+    if use_prior:
+        prior = get_empirical_prior_n(bids_folder)
+        prior.index = prior.index.astype(np.float32).set_names('x')
+        pdf = (pdf * prior.T).fillna(0.0)
 
     pars = pd.DataFrame(index=pdf.index)
     pars['E'] = get_expected_value(pdf, normalize=True)
@@ -111,6 +120,8 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('subject', type=int, help='Subject identifier')
     parser.add_argument('--bids_folder', type=str, default='/data/ds-tmsrisk', help='Path to BIDS folder')
+    parser.add_argument('--spherical', action='store_true', help='Use spherical noise model')
+    parser.add_argument('--use_prior', action='store_true', help='Use empirical prior on n')
     args = parser.parse_args()
 
-    main(args.subject, bids_folder=args.bids_folder)
+    main(args.subject, bids_folder=args.bids_folder, spherical=args.spherical, use_prior=args.use_prior)
