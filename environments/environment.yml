@@ -1,0 +1,29 @@
+name: tms_risk
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=1.26.4
+  - scipy>=1.13
+  - scikit-learn=1.7.2
+  - pymc=5.17
+  - bambi=0.13
+  - arviz=0.20
+  - notebook
+  - seaborn
+  - pandas
+  - nilearn
+  - tqdm
+  - compilers
+  - pip
+  - pingouin
+  - ipywidgets
+  - mkl           # Intel Math Kernel Library for optimized CPU computation
+  - mkl-include   # Development headers for MKL
+  - pip:
+      - -e .
+      - ./libs/braincoder
+      - ./libs/bauer
+      - tensorflow==2.18.0
+      - tensorflow-probability
+      - tf-keras

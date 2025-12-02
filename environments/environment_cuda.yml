@@ -1,0 +1,23 @@
+name: tms_risk_cuda
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pymc=5.17
+  - arviz=0.20
+  - notebook
+  - seaborn
+  - pandas
+  - numpy=1.25.*
+  - scipy
+  - nilearn
+  - nipype
+  - tqdm
+  - pip
+  - pip:
+      - tensorflow==2.14.0  # Supports CUDA 12.6
+      - tensorflow-probability
+      - tf-keras
+      - -e .
+      - ./libs/braincoder
+      - ./libs/bauer

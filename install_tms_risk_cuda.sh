@@ -17,7 +17,7 @@ module load cuda/12.2.1
 
 # Create the environment
 echo "Creating tms_risk_cuda environment..."
-conda env create -n tms_risk_cuda -f "$HOME/git/tms_risk/environment_cuda.yml"
+conda env create -n tms_risk_cuda -f "$HOME/git/tms_risk/environments/environment_cuda.yml"
 
 # Verify installation
 echo "Verifying TensorFlow and GPU..."
