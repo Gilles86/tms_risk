@@ -8,7 +8,7 @@
 #   BIDS_FOLDER  (path to BIDS dataset)
 # Resources (GPU, memory, time) are specified in the submitting sbatch command.
 
-set -euo pipefail
+set -e
 
 SUBJECT_ID=$(printf "%02d" "${SUBJECT_ID:-${SLURM_ARRAY_TASK_ID}}")
 BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
