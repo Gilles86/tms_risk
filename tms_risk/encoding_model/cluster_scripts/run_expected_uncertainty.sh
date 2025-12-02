@@ -19,7 +19,7 @@ echo "Running expected uncertainty for subject ${SUBJECT_ID} (spherical=${SPHERI
 
 # Initialize conda and activate environment
 source "$HOME/init_conda.sh"
-conda activate tf2-gpu
+conda activate tf2-cpu
 
 FLAGS=""
 if [ "$SPHERICAL" = "1" ]; then

@@ -54,17 +54,15 @@ submit_job() {
     local prior=$2       # 0/1
     local suffix=$3
 
-    sbatch --array="${SUBJECTS}" \
-        --job-name="exp_unc${suffix}" \
-        --output="/home/gdehol/logs/expected_uncertainty${suffix}_%A-%a.txt" \
-        --ntasks=1 \
-        --mem=64G \
-        --gres=gpu:1 \
-        --time=00-02:00:00 \
-        --export=ALL,SPHERICAL=${spherical},USE_PRIOR=${prior},BIDS_FOLDER=${BIDS_FOLDER} \
-        "$HOME/git/tms_risk/tms_risk/encoding_model/cluster_scripts/run_expected_uncertainty.sh"
-
-    echo "Submitted: exp_unc${suffix} (SPHERICAL=${spherical}, USE_PRIOR=${prior}) subjects=[${SUBJECTS}]"
+  sbatch --array="${SUBJECTS}" \
+    --job-name="exp_unc${suffix}" \
+    --output="/home/gdehol/logs/expected_uncertainty${suffix}_%A-%a.txt" \
+    --ntasks=1 \
+    --cpus-per-task=32 \
+    --mem=64G \
+    --time=00:10:00 \
+    --export=ALL,SPHERICAL=${spherical},USE_PRIOR=${prior},BIDS_FOLDER=${BIDS_FOLDER} \
+    "$HOME/git/tms_risk/tms_risk/encoding_model/cluster_scripts/run_expected_uncertainty.sh"    echo "Submitted: exp_unc${suffix} (SPHERICAL=${spherical}, USE_PRIOR=${prior}) subjects=[${SUBJECTS}]"
 }
 
 # Submit jobs

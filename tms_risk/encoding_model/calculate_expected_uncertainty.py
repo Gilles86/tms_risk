@@ -78,7 +78,7 @@ def main(subject, roi='NPCr2cm-cluster', bids_folder='/data/ds-tmsrisk', spheric
     }).astype(np.float32)
 
     model = get_model(1, fake_paradigm)
-    simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=250)
+    simulated_data = model.simulate(paradigm=fake_paradigm, parameters=raw_pars, noise=omega, dof=dof, n_repeats=1000)
 
     # Calculating pdf - process in batches to avoid numerical issues
     print('Calculating pdf...')
