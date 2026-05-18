@@ -19,6 +19,7 @@ dependencies:
   - pip
   - pingouin
   - ipywidgets
+  - mne
   - pip:
       - -e .
       - ./libs/braincoder

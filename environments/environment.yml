@@ -18,6 +18,7 @@ dependencies:
   - pip
   - pingouin
   - ipywidgets
+  - mne
   - mkl           # Intel Math Kernel Library for optimized CPU computation
   - mkl-include   # Development headers for MKL
   - pip:
