@@ -29,7 +29,7 @@ if [ "$USE_PRIOR" = "1" ]; then
   FLAGS+=" --use_prior"
 fi
 
-python "$HOME/git/tms_risk/tms_risk/encoding_model/calculate_expected_uncertainty.py" \
+python "$HOME/git/tms_risk/tms_risk/modeling/calculate_expected_uncertainty.py" \
   "$SUBJECT_ID" \
   --bids_folder "$BIDS_FOLDER" \
   $FLAGS

@@ -62,7 +62,7 @@ submit_job() {
     --mem=64G \
     --time=00:10:00 \
     --export=ALL,SPHERICAL=${spherical},USE_PRIOR=${prior},BIDS_FOLDER=${BIDS_FOLDER} \
-    "$HOME/git/tms_risk/tms_risk/encoding_model/cluster_scripts/run_expected_uncertainty.sh"
+    "$HOME/git/tms_risk/tms_risk/modeling/slurm_jobs/run_expected_uncertainty.sh"
   
   echo "Submitted: exp_unc${suffix} (SPHERICAL=${spherical}, USE_PRIOR=${prior}) subjects=[${SUBJECTS}]"
 }

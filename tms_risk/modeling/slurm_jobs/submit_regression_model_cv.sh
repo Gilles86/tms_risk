@@ -19,7 +19,7 @@ PARTICIPANT_LABEL=$(printf "%02d" "$SLURM_ARRAY_TASK_ID")
 MODEL_LABEL="$1"
 
 # Run the script
-python "$HOME/git/tms_risk/tms_risk/encoding_model/fit_regression_nprf_cv.py" \
+python "$HOME/git/tms_risk/tms_risk/modeling/fit_regression_nprf_cv.py" \
     "$PARTICIPANT_LABEL" \
     "$MODEL_LABEL" \
     --smoothed \

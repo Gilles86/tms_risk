@@ -76,7 +76,7 @@ for ix, (subject, session, mask, nv, smooth, pcc, denoise, retroicor) in enumera
         fh.writelines("#SBATCH --gres gpu:1\n")
         fh.writelines(". $HOME/init_conda.sh\n")
         fh.writelines("conda activate tf2-gpu\n")
-        cmd = f"python $HOME/git/tms_risk/tms_risk/encoding_model/decode.py {subject} {session} --bids_folder /home/gdehol/share/ds-tmsrisk --n_voxels {nv} --mask {mask}"
+        cmd = f"python $HOME/git/tms_risk/tms_risk/modeling/decode.py {subject} {session} --bids_folder /home/gdehol/share/ds-tmsrisk --n_voxels {nv} --mask {mask}"
 
         if denoise:
             cmd += ' --denoise'

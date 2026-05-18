@@ -1,0 +1,38 @@
+name: tms_risk_cpu
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # Scientific stack
+  - numpy=1.26.4
+  - scipy>=1.13
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn=1.7.2
+  - jupyter
+  - ipywidgets
+  - pingouin
+  # Neuroimaging
+  - nibabel
+  - nilearn
+  - mne
+  # Bayesian behavioral modeling (PMC / Flexible PMC fits)
+  - pymc=5.17
+  - bambi=0.13
+  - arviz=0.20
+  # CPU performance
+  - mkl
+  - mkl-include
+  - compilers
+  - tqdm
+  - pip:
+      # In-house libraries — pinned via libs/ submodules
+      - -e ./libs/braincoder
+      - -e ./libs/bauer
+      - -e .
+      # Braincoder backend (TF; CPU build)
+      - tensorflow==2.18.0
+      - tensorflow-probability
+      - tf-keras

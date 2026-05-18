@@ -1,0 +1,35 @@
+name: tms_risk_cuda
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  # Scientific stack
+  - numpy=1.25.*
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - jupyter
+  - ipywidgets
+  - pingouin
+  # Neuroimaging
+  - nibabel
+  - nilearn
+  - nipype
+  # Bayesian behavioral modeling
+  - pymc=5.17
+  - bambi=0.13
+  - arviz=0.20
+  - tqdm
+  - pip:
+      # In-house libraries — pinned via libs/ submodules
+      - -e ./libs/braincoder
+      - -e ./libs/bauer
+      - -e .
+      # Braincoder backend (TF; bundles CUDA 12.6 via pip wheels — must be
+      # built on a GPU compute node so the driver is visible at install time)
+      - tensorflow==2.14.0
+      - tensorflow-probability
+      - tf-keras

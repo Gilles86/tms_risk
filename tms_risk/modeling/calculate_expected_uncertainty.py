@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from nilearn.maskers import NiftiMasker
-from tms_risk.encoding_model.fit_regression_nprf import get_model
+from tms_risk.modeling.fit_regression_nprf import get_model
 from braincoder.optimize import ResidualFitter
 from braincoder.utils import get_rsq
 from braincoder.utils.math import get_expected_value

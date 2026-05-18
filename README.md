@@ -1,55 +1,59 @@
-# TMS Risk Project
+# TMS Risk
 
-Neural and behavioral analysis of TMS effects on risk decision-making.
+Combined cTBS-TMS + 7T fMRI study of how parietal magnitude
+representations causally shape risk preferences (de Hollander, Moisa
+& Ruff). Manuscript draft: `notes/paper/TMS paper -v7.pdf`.
 
-## Quick Start
+The pipeline targets numerosity-tuned right parietal cortex with cTBS
+(vertex control vs. parietal) and measures effects on (a) nPRF
+responses, (b) trial-by-trial decoding accuracy, (c) psychophysical
+choice consistency / risk-neutral probability, and (d) parameters of
+the Perceptual-and-Memory-based Choice (PMC) model and its **Flexible
+PMC** extension.
 
-### Environment Setup
+## Quick start
 
-See [environments/README.md](environments/README.md) for detailed conda environment setup instructions.
+### Local development (Apple Silicon)
 
-**Local development (Mac Apple Silicon):**
 ```bash
-conda env create -f environments/environment_apple_silicon.yml
+conda env create -f environment_apple_silicon.yml
 conda activate tms_risk
 ```
 
-**Local development (Intel Mac/Linux CPU):**
+### Cluster (SLURM)
+
 ```bash
-conda env create -f environments/environment.yml
-conda activate tms_risk
+sbatch create_env/create_cpu_env.sh   # tms_risk_cpu
+sbatch create_env/create_gpu_env.sh   # tms_risk_cuda — must be on GPU node
 ```
 
-**On compute cluster:**
-```bash
-cd ~/git/tms_risk/environments
-sbatch build_env.sh cpu
-```
+See [`create_env/README.md`](create_env/README.md) for env details.
 
-### Running Analysis
-
-See individual module READMEs:
-- `experiment/` - Task implementation
-- `tms_risk/cogmodels/` - Cognitive modeling
-- `tms_risk/encoding_model/` - Neural encoding models
-- `tms_risk/encoding_model/cluster_scripts/` - SLURM batch scripts
-
-## Project Structure
+## Repo layout
 
 ```
 tms_risk/
-├── environments/          # Conda environment specifications
-├── experiment/           # Experimental task code
-├── tms_risk/            # Main analysis package
-│   ├── cogmodels/       # Cognitive model fitting
-│   ├── encoding_model/  # Neural encoding models
-│   ├── utils/           # Data utilities
-│   └── ...
-└── libs/                # External dependencies
-    ├── braincoder/      # Neural encoding framework
-    └── bauer/           # Utility library
+├── CLAUDE.md                       # developer-facing recipes & gotchas
+├── README.md                       # this file
+├── environment_apple_silicon.yml   # local Mac dev env
+├── create_env/                     # cluster env builds (sbatch wrappers)
+├── experiment/                     # PsychoPy task code
+├── libs/                           # git submodules (braincoder, bauer)
+├── notes/                          # paper + working notes
+└── tms_risk/                       # main analysis package
+    ├── utils/data.py               # Subject class — single source of truth
+    ├── prepare/                    # raw → BIDS conversions
+    ├── glm/                        # GLMsingle single-trial betas
+    ├── modeling/                   # nPRF + decoding (braincoder, TensorFlow)
+    ├── behavior/                   # PMC / Flexible PMC / probit (bauer, PyMC)
+    ├── tms_targeting/              # individualized cTBS site selection
+    ├── visualize/                  # plotting helpers
+    └── ...
 ```
+
+Each analysis submodule has its own `slurm_jobs/` subfolder with the
+SLURM wrappers for the python scripts next to it.
 
 ## Citation
 
-[Add citation information when available]
+Manuscript in preparation. See `notes/paper/TMS paper -v7.pdf`.
