@@ -58,7 +58,7 @@ submit_job() {
     --job-name="exp_unc${suffix}" \
     --output="/home/gdehol/logs/expected_uncertainty${suffix}_%A-%a.txt" \
     --ntasks=1 \
-    --cpus-per-task=32 \
+    --cpus-per-task=16 \
     --mem=64G \
     --time=00:10:00 \
     --export=ALL,SPHERICAL=${spherical},USE_PRIOR=${prior},BIDS_FOLDER=${BIDS_FOLDER} \
