@@ -315,6 +315,20 @@ def get_data(bids_folder='/data/ds-tmsrisk', model_label=None):
     df = df.reset_index('session')
     df['choice'] = df['choice'] == 2.0
 
+    # DDM/RDM likelihoods (WFPT) require t0 < min(rt) per subject. Trials with
+    # implausibly short RTs let the sampler wander into the t0 > rt region where
+    # the WFPT log-likelihood floors at -66.1 and the gradient w.r.t. t0 is
+    # exactly zero, which can trap NUTS at a wrong posterior. Mirror the
+    # 0.20 s cutoff used in the bauer lesson 8 tutorial.
+    if model_label is not None and (model_label.startswith('ddm_')
+                                     or model_label.startswith('rdm_')):
+        before = len(df)
+        df = df[df['rt'] >= 0.20].copy()
+        dropped = before - len(df)
+        if dropped:
+            print(f'Dropped {dropped} / {before} trials with rt < 0.20s '
+                  f'({100 * dropped / before:.1f}%) for DDM/RDM fit.')
+
     return df
 
 
