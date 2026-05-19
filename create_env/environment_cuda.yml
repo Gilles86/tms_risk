@@ -24,10 +24,12 @@ dependencies:
   - arviz=0.20
   - tqdm
   - pip:
-      # In-house libraries — pinned via libs/ submodules
-      - -e ./libs/braincoder
-      - -e ./libs/bauer
-      - -e .
+      # In-house libraries — installed editably from libs/ submodules.
+      # Paths are relative to this yml's directory (create_env/), see
+      # environment_cpu.yml for the rationale.
+      - -e ../libs/braincoder
+      - -e ../libs/bauer
+      - -e ..
       # Braincoder backend (TF; bundles CUDA 12.6 via pip wheels — must be
       # built on a GPU compute node so the driver is visible at install time)
       - tensorflow==2.14.0

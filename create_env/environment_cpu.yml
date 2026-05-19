@@ -28,10 +28,13 @@ dependencies:
   - compilers
   - tqdm
   - pip:
-      # In-house libraries — pinned via libs/ submodules
-      - -e ./libs/braincoder
-      - -e ./libs/bauer
-      - -e .
+      # In-house libraries — installed editably from libs/ submodules.
+      # NOTE paths are relative to this yml's directory (create_env/),
+      # not the project root, because that's where pip's cwd lands
+      # during `conda env create -f create_env/environment_cpu.yml`.
+      - -e ../libs/braincoder
+      - -e ../libs/bauer
+      - -e ..
       # Braincoder backend (TF; CPU build)
       - tensorflow==2.18.0
       - tensorflow-probability
