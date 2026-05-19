@@ -33,5 +33,5 @@ dependencies:
       # Braincoder backend (TF; bundles CUDA 12.6 via pip wheels — must be
       # built on a GPU compute node so the driver is visible at install time)
       - tensorflow==2.14.0
-      - tensorflow-probability
+      - tensorflow-probability==0.22.0   # pinned for TF 2.14 compat
       - tf-keras
