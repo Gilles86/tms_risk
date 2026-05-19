@@ -16,6 +16,10 @@ dependencies:
   - jupyter
   - ipywidgets
   - tqdm
+  # Required by tms_risk.utils.data — imported at package init, so this env
+  # needs it even though DDM/RDM fits don't read NIfTI data themselves.
+  - nibabel
+  - nilearn
   - pip:
       # bauer (editable, from submodule) — DDM/RDM live here.
       - -e ../libs/bauer
