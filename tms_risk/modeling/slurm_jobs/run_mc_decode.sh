@@ -21,7 +21,7 @@ SESSION=${SESSION:-2}
 BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 N_VOXELS=${N_VOXELS:-100}
 N_REPEATS=${N_REPEATS:-1000}
-ROI=${ROI:-wang15_ips}
+ROI=${ROI:-NPC12r}
 
 echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} n_repeats=${N_REPEATS}"
 
