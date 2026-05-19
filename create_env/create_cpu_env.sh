@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=create_tms_risk_cpu_env
 #SBATCH --account=zne.uzh
-#SBATCH --partition=cpu
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
