@@ -1,0 +1,24 @@
+name: tms_risk_ddm
+channels:
+  - conda-forge
+dependencies:
+  # hssm is dep-heavy and conflicts with the TF 2.18 + numpy 1.26 stack the
+  # tms_risk_cpu env pins for braincoder. Keep this env minimal: bauer +
+  # hssm + the Bayesian stack only. DDM/RDM fits don't need braincoder.
+  - python=3.11
+  - pip
+  # Scientific stack (no numpy pin — hssm wants numpy 2.x and arviz 0.23+)
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - jupyter
+  - ipywidgets
+  - tqdm
+  - pip:
+      # bauer (editable, from submodule) — DDM/RDM live here.
+      - -e ../libs/bauer
+      - -e ..
+      # DDM/RDM likelihood backend.
+      - hssm>=0.2
