@@ -10,6 +10,6 @@
 
 export PARTICIPANT_LABEL=$(printf "%02d" $SLURM_ARRAY_TASK_ID)
 
-conda activate tf2-gpu
+conda activate tms_risk_cuda
 python $HOME/git/tms_risk/tms_risk/modeling/fit_nprf.py $PARTICIPANT_LABEL 3 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk --denoise  --natural_space --new_parameterisation
 python $HOME/git/tms_risk/tms_risk/modeling/fit_nprf.py $PARTICIPANT_LABEL 3 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk --denoise --smoothed --natural_space --new_parameterisation

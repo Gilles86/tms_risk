@@ -15,5 +15,5 @@ module load nvidia/cuda11.2-cudnn8.1.0
 
 export PARTICIPANT_LABEL=$(printf "%02d" $SLURM_ARRAY_TASK_ID)
 
-source activate tf2-gpu
-python $HOME/git/tms_risk/tms_risk/modeling/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /scratch/gdehol/ds-tmsrisk
+source activate tms_risk_cuda
+python $HOME/git/tms_risk/tms_risk/modeling/fit_task_cv.py $PARTICIPANT_LABEL 1 --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk

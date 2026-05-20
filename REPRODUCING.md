@@ -60,30 +60,35 @@ read from the previous one through the `Subject` class in
 
 ### 1a. Single-trial GLM (GLMsingle)
 
-Computes one β per trial, voxel, run. Required input for the nPRF fits.
+Computes one β per trial, voxel, run. Required input for the nPRF
+fits. **Requires the `glmsingle` package** — not included in the
+`tms_risk_*` envs; install with `pip install glmsingle` into whichever
+env you want to run this in.
 
 ```bash
-# Per subject, sessions 1+2+3 in one go (denoising + RETROICOR variant)
-sbatch --array=1-78 tms_risk/glm/cluster_scripts/<glm_submit>.sh
+# Per session, array over subjects:
+sbatch --array=1-78 tms_risk/glm/slurm_jobs/submit_st_denoise1.sh   # session 1
+sbatch --array=1-78 tms_risk/glm/slurm_jobs/submit_st_denoise2.sh   # session 2
+sbatch --array=1-78 tms_risk/glm/slurm_jobs/submit_st_denoise3.sh   # session 3
 ```
 
-(GLM SLURM wrappers live in `tms_risk/glm/cluster_scripts/`. They write
-to `derivatives/glmsingle.denoise/`.)
+Outputs land in `derivatives/glmsingle.denoise/`.
 
 ### 1b. Numerical PRF fits (encoding model)
 
 Three model variants under `tms_risk/modeling/fit_regression_nprf.py`,
-selected via `--model`:
+selected via the second positional argument (the model label):
 
-| `--model` | What varies across stimulation conditions |
-|-----------|--------------------------------------------|
+| Model | What varies across stimulation conditions |
+|-------|--------------------------------------------|
 | 0 | Nothing — single set of (μ, σ, amp, baseline) per voxel, pooled across sessions |
-| **1** | **Amplitude per session** (the paper's main analysis — Fig 2B) |
+| **1** | **Amplitude per session** (the paper's main analysis — Fig 2A/2B) |
 | 2 | Full session interaction on μ, σ, amplitude, baseline |
 
 ```bash
-# Paper's main fit (model-1): one job per subject, GPU required
-sbatch tms_risk/modeling/slurm_jobs/submit_regression_model.sh
+# Paper's main fit (model-1): one job per subject, GPU required.
+# (SLURM script is an array template — the `1` is the model label.)
+sbatch --array=1-78 tms_risk/modeling/slurm_jobs/submit_regression_model.sh 1
 ```
 
 Outputs land in `derivatives/encoding_model2.model-{N}.smoothed/`.
@@ -92,14 +97,18 @@ Cross-validated version: `submit_regression_model_cv.sh` →
 
 ### 1c. Decoding (per-trial payoff posterior)
 
+`tms_risk/modeling/decode.py` performs cross-session decoding: it
+reads the session-1 PRFs to mask voxels (cvR² > 0), then inverts the
+fit on each trial of sessions 2/3 to produce a posterior over the
+presented numerosity. The submitter is a python orchestrator that
+generates per-subject sbatch jobs:
+
 ```bash
-# Cross-session decoding for Fig 2C
-sbatch tms_risk/modeling/slurm_jobs/submit_cross_session_decode.py
+python tms_risk/modeling/slurm_jobs/submit_decode.py
 ```
 
-This inverts the nPRF model to produce a posterior over the presented
-numerosity per trial, then aggregates into decoded mean + accuracy.
-Reads from `encoding_model2.model-1.smoothed.cv/`.
+Reads from `encoding_model2.model-1.smoothed.cv/`. Outputs to
+`derivatives/decoded_pdfs.volume/`.
 
 ### 1d. Behavioral probit (Fig 3)
 

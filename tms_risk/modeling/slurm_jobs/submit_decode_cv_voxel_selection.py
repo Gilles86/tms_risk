@@ -71,7 +71,7 @@ for ix, (subject, session, mask, smooth, pcc, denoise, retroicor, ns, np) in enu
         fh.writelines("#SBATCH --mem=96G\n")
         # fh.writelines("#SBATCH --gres gpu:1\n")
         fh.writelines(". $HOME/init_conda.sh\n")
-        fh.writelines("conda activate tf2-gpu\n")
+        fh.writelines("conda activate tms_risk_cuda\n")
         cmd = f"python $HOME/git/tms_risk/tms_risk/modeling/decode_select_voxels_cv.py {subject} {session} --bids_folder ~/ds-tmsrisk --mask {mask} --keep_cached"
 
         if denoise:

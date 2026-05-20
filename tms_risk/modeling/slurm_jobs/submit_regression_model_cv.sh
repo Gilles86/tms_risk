@@ -10,7 +10,7 @@
 . "$HOME/init_conda.sh"
 
 # Activate environment
-conda activate tf2-gpu
+conda activate tms_risk_cuda
 
 # Format subject ID as two digits
 PARTICIPANT_LABEL=$(printf "%02d" "$SLURM_ARRAY_TASK_ID")

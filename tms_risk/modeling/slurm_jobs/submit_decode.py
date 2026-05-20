@@ -17,7 +17,7 @@ if not op.exists(job_directory):
     os.makedirs(job_directory)
 
 
-bids_folder = '/scratch/gdehol/ds-tmsrisk'
+bids_folder = '/shares/zne.uzh/gdehol/ds-tmsrisk'
 
 subjects = [subject.subject for subject in get_subjects(bids_folder=bids_folder, all_tms_conditions=True)]
 sessions = ['1', '2', '3']#[1:]
@@ -75,8 +75,8 @@ for ix, (subject, session, mask, nv, smooth, pcc, denoise, retroicor) in enumera
         fh.writelines("#SBATCH --mem=96G\n")
         fh.writelines("#SBATCH --gres gpu:1\n")
         fh.writelines(". $HOME/init_conda.sh\n")
-        fh.writelines("conda activate tf2-gpu\n")
-        cmd = f"python $HOME/git/tms_risk/tms_risk/modeling/decode.py {subject} {session} --bids_folder /home/gdehol/share/ds-tmsrisk --n_voxels {nv} --mask {mask}"
+        fh.writelines("conda activate tms_risk_cuda\n")
+        cmd = f"python $HOME/git/tms_risk/tms_risk/modeling/decode.py {subject} {session} --bids_folder /shares/zne.uzh/gdehol/ds-tmsrisk --n_voxels {nv} --mask {mask}"
 
         if denoise:
             cmd += ' --denoise'
