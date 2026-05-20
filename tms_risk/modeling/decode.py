@@ -31,7 +31,15 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         natural_space=False,
         mask='wang15_ips'):
 
-    target_dir = op.join(bids_folder, 'derivatives', 'decoded_pdfs.volume')
+    # Output dir must match the suffix conventions of get_pdf() in
+    # tms_risk/utils/data.py (cv_voxel_selection / denoise / smoothed /
+    # pca_confounds / natural_space) — otherwise the analyze_decoding
+    # notebooks can't find what decode.py wrote.
+    if n_voxels == 1:
+        target_dir = op.join(bids_folder, 'derivatives',
+                             'decoded_pdfs.volume.cv_voxel_selection')
+    else:
+        target_dir = op.join(bids_folder, 'derivatives', 'decoded_pdfs.volume')
 
     if denoise:
         target_dir += '.denoise'
@@ -45,8 +53,11 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     if smoothed:
         target_dir += '.smoothed'
 
-    if pca_confounds:
+    if pca_confounds and not denoise:
         target_dir += '.pca_confounds'
+
+    if natural_space:
+        target_dir += '.natural_space'
 
     target_dir = op.join(target_dir, f'sub-{subject}', 'func')
     print(denoise, target_dir)
