@@ -53,24 +53,40 @@ except ImportError:
 from tms_risk.utils.data import get_all_behavior
 
 
-def main(model_label, burnin=5000, samples=5000, bids_folder='/data/ds-tmsrisk'):
+def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
+         backend=None):
 
     df = get_data(bids_folder, model_label=model_label)
 
     target_folder = Path(bids_folder) / 'derivatives' / 'cogmodels'
     target_folder.mkdir(parents=True, exist_ok=True)
 
+    is_accumulator = model_label.startswith('ddm_') or model_label.startswith('rdm_')
+
     if (model_label.startswith('flexible')
-            or model_label.startswith('ddm_')
-            or model_label.startswith('rdm_')
+            or is_accumulator
             or model_label.startswith('session1')):
         target_accept = 0.9
     else:
         target_accept = 0.8
 
+    # DDM/RDM fits are slow under pymc's NUTS — bauer's lesson 8 puts them
+    # on the numpyro backend, which is 3–10× faster on CPU and parallelises
+    # cleanly. Use shorter chains there (1000+1000 is what lesson 8 uses
+    # and what passes diagnostics on the Garcia 2022 dataset).
+    if is_accumulator:
+        burnin = burnin or 1000
+        samples = samples or 1000
+        backend = backend or 'numpyro'
+    else:
+        burnin = burnin or 5000
+        samples = samples or 5000
+        backend = backend or 'pymc'
+
     model = build_model(model_label, df)
     model.build_estimation_model()
-    trace = model.sample(burnin, samples, target_accept=target_accept)
+    trace = model.sample(burnin, samples, target_accept=target_accept,
+                         backend=backend)
     az.to_netcdf(trace, str(target_folder / f'model-{model_label}_trace.netcdf'))
 
 
