@@ -107,8 +107,12 @@ generates per-subject sbatch jobs:
 python tms_risk/modeling/slurm_jobs/submit_decode.py
 ```
 
-Reads from `encoding_model2.model-1.smoothed.cv/`. Outputs to
-`derivatives/decoded_pdfs.volume/`.
+Reads from `encoding_model2.model-1.smoothed.cv/` via
+`Subject.get_prf_parameters(model_label=1, session=N)`. The Subject
+class has a single PRF loader; the old per-session
+`get_prf_parameters_volume` (reading `encoding_model.*`) was retired
+on this branch because only 1–3 subjects had data in that tree.
+Outputs to `derivatives/decoded_pdfs.volume/`.
 
 ### 1d. Behavioral probit (Fig 3)
 
