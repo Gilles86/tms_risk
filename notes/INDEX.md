@@ -21,6 +21,8 @@ durable text — update when adding a new analysis writeup or figure.
 | Fig. 4B | Noise as a function of magnitude (`sd_curves.pdf`) | `tms_risk/behavior/notebooks/figure4.ipynb` |
 | Fig. 4C | cTBS effect on noise vs. magnitude (`sd_curves_diff.pdf`) | `tms_risk/behavior/notebooks/figure4.ipynb` |
 | Table 1 | ELPD model comparison (Flexible PMC variants × null) | `tms_risk/behavior/notebooks/comprehensive_model_comparison.ipynb` |
+| "Linking Neural and Behavioral TMS Effects" (correlations) | brain–behavior bridge: amplitude drop ↔ behavioral noise increase | `tms_risk/behavior/notebooks/analyze_nlc.ipynb` + `tms_risk/modeling/individual_brain_behavior.ipynb` |
+| Fig 4 model-figure supporting plots | flexible2 PPCs + per-subject noise curves | `tms_risk/behavior/notebooks/model_figure.ipynb` |
 | (new) Phase 5 ELPD: DDM/RDM × Flexible PMC | extends Table 1 with accumulator-model variants | `tms_risk/behavior/notebooks/ddm_rdm_model_comparison.ipynb` |
 | (new) Predicted decoding (Fisher + MC) | supplement / addition to Fig 2B–C | `tms_risk/modeling/notebooks/fisher_and_mc_decode.ipynb` |
 
