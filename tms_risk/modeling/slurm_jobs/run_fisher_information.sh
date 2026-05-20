@@ -17,13 +17,15 @@ SESSION=${SESSION:-2}
 BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 N_VOXELS=${N_VOXELS:-100}
 ROI=${ROI:-NPC12r}
+PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_cuda/bin/python}
 
 echo "Fisher information: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS}"
+echo "Python: ${PYTHON_BIN}"
 
-source "$HOME/init_conda.sh"
-conda activate tms_risk_cuda
-
-python "$HOME/git/tms_risk/tms_risk/modeling/fisher_information.py" \
+# Direct env binary — avoids the `conda activate` path, which interacts
+# badly with `set -e` on this cluster (init_conda.sh uses a zsh hook
+# that bails under bash strict mode).
+"${PYTHON_BIN}" "$HOME/git/tms_risk/tms_risk/modeling/fisher_information.py" \
   "$SUBJECT_ID" "$SESSION" \
   --bids_folder "$BIDS_FOLDER" \
   --mask "$ROI" \

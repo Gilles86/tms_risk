@@ -23,12 +23,13 @@ N_VOXELS=${N_VOXELS:-100}
 N_REPEATS=${N_REPEATS:-1000}
 ROI=${ROI:-NPC12r}
 
+PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_cuda/bin/python}
+
 echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} n_repeats=${N_REPEATS}"
+echo "Python: ${PYTHON_BIN}"
 
-source "$HOME/init_conda.sh"
-conda activate tms_risk_cuda
-
-python "$HOME/git/tms_risk/tms_risk/modeling/monte_carlo_decode.py" \
+# Direct env binary (see run_fisher_information.sh for rationale).
+"${PYTHON_BIN}" "$HOME/git/tms_risk/tms_risk/modeling/monte_carlo_decode.py" \
   "$SUBJECT_ID" "$SESSION" \
   --bids_folder "$BIDS_FOLDER" \
   --mask "$ROI" \
