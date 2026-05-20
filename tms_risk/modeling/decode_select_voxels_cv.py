@@ -154,11 +154,7 @@ new_parameterisation=False):
         test_data, test_paradigm = data.xs(test_run, 0, 'run').copy(), paradigm.xs(test_run, 0, 'run').copy()
         train_data, train_paradigm = data.drop(test_run, level='run').copy(), paradigm.drop(test_run, level='run').copy()
 
-        pars = sub.get_prf_parameters_volume(session, cross_validated=True,
-        denoise=denoise, retroicor=retroicor,
-                smoothed=smoothed, pca_confounds=pca_confounds,
-                run=test_run, roi=mask, natural_space=natural_space,
-                new_parameterisation=new_parameterisation)
+        pars = sub.get_prf_parameters(model_label=1, session=session, roi=mask)
 
         if natural_space:
             if new_parameterisation:

@@ -74,7 +74,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     if n_voxels == 0:
         assert(session != 1), 'Cannot use 0 voxels on session 1, because it is used for voxel selection'
 
-        session1_pars = sub.get_prf_parameters_volume(1, run=None, smoothed=smoothed, pca_confounds=pca_confounds, denoise=denoise, retroicor=retroicor, cross_validated=False, natural_space=natural_space, roi=mask)
+        session1_pars = sub.get_prf_parameters(model_label=1, session=1, roi=mask)
 
         r2_mask = session1_pars['cvr2'] > 0.0
         print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
@@ -86,12 +86,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         test_data, test_paradigm = data.xs(test_run, 0, 'run').copy(), paradigm.xs(test_run, 0, 'run').copy()
         train_data, train_paradigm = data.drop(test_run, level='run').copy(), paradigm.drop(test_run, level='run').copy()
 
-        pars = sub.get_prf_parameters_volume(session, cross_validated=True,
-                smoothed=smoothed, pca_confounds=pca_confounds,
-                denoise=denoise,
-                retroicor=retroicor,
-                roi=mask,
-                run=test_run)
+        pars = sub.get_prf_parameters(model_label=1, session=session, roi=mask)
         
         print(pars)
 

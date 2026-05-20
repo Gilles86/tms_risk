@@ -42,7 +42,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
     sub = Subject(subject, bids_folder)
 
-    pars = sub.get_prf_parameters_volume(session, smoothed=smoothed, retroicor=False, denoise=True, cross_validated=False, natural_space=True, roi=roi)
+    pars = sub.get_prf_parameters(model_label=1, session=session, roi=roi)
     data = sub.get_single_trial_volume(session, roi, smoothed=smoothed, retroicor=False, denoise=True)
     paradigm = sub.get_behavior(sessions=session, drop_no_responses=False)
     paradigm = paradigm.droplevel(['subject', 'session'])
@@ -51,7 +51,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         if session == 1:
             raise Exception("Session 1 is used for voxel selection!")
 
-        session1_pars = sub.get_prf_parameters_volume(1, run=None, smoothed=smoothed, pca_confounds=pca_confounds, denoise=denoise, retroicor=retroicor, cross_validated=False, natural_space=natural_space, roi=roi)
+        session1_pars = sub.get_prf_parameters(model_label=1, session=1, roi=roi)
         r2_mask = session1_pars['cvr2'] > 0.0
         print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
         r2_mask = r2_mask[r2_mask].index

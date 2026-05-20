@@ -65,10 +65,7 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
 
     # Same parameter / data loading as fisher_information.py — keep the two
     # in lockstep so the predicted-decoding figure compares apples to apples.
-    pars = sub.get_prf_parameters_volume(
-        session, smoothed=smoothed, retroicor=False, denoise=denoise,
-        cross_validated=False, natural_space=natural_space, roi=roi,
-    )
+    pars = sub.get_prf_parameters(model_label=1, session=session, roi=roi)
     data = sub.get_single_trial_volume(
         session, roi, smoothed=smoothed, retroicor=False, denoise=denoise,
     )
@@ -79,10 +76,7 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
     if n_voxels == 0:
         if session == 1:
             raise Exception("Session 1 is used for voxel selection!")
-        session1_pars = sub.get_prf_parameters_volume(
-            1, smoothed=smoothed, denoise=denoise,
-            cross_validated=False, natural_space=natural_space, roi=roi,
-        )
+        session1_pars = sub.get_prf_parameters(model_label=1, session=1, roi=roi)
         mask_idx = session1_pars.index[session1_pars['cvr2'] > 0.0]
     elif n_voxels == 1:
         mask_idx = pars.index[pars['cvr2'] > 0.0]
