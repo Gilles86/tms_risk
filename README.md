@@ -54,6 +54,11 @@ tms_risk/
 Each analysis submodule has its own `slurm_jobs/` subfolder with the
 SLURM wrappers for the python scripts next to it.
 
+## Reproducing the paper
+
+Step-by-step guide in [`REPRODUCING.md`](REPRODUCING.md): pipeline
+stages, model labels for Table 1, and a per-figure notebook map.
+
 ## Citation
 
 Manuscript in preparation. See `notes/paper/TMS paper -v7.pdf`.
