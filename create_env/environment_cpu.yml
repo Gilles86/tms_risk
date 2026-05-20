@@ -39,3 +39,5 @@ dependencies:
       - tensorflow==2.18.0
       - tensorflow-probability
       - tf-keras
+      # GLMsingle — used by tms_risk/glm/ for single-trial β estimation
+      - git+https://github.com/cvnlab/GLMsingle.git

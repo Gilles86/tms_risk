@@ -61,9 +61,7 @@ read from the previous one through the `Subject` class in
 ### 1a. Single-trial GLM (GLMsingle)
 
 Computes one β per trial, voxel, run. Required input for the nPRF
-fits. **Requires the `glmsingle` package** — not included in the
-`tms_risk_*` envs; install with `pip install glmsingle` into whichever
-env you want to run this in.
+fits. Uses `glmsingle` (now bundled in `tms_risk_cpu`).
 
 ```bash
 # Per session, array over subjects:
