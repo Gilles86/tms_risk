@@ -167,6 +167,7 @@ to the local Mac), every figure regenerates from notebooks under
 | **Fig 4B** — noise as a function of magnitude | same notebook | same |
 | **Fig 4C** — cTBS effect on noise vs. magnitude | same notebook | same |
 | **Table 1** — ELPD comparison | [`tms_risk/behavior/notebooks/comprehensive_model_comparison.ipynb`](tms_risk/behavior/notebooks/comprehensive_model_comparison.ipynb) | the 8 Table-1 traces |
+| **SSM extension** — DDM/RDM × Flexible PMC analogues of paper Table 1 (plus caution-shift alternative-mechanism checks). 4 paper-mirroring rows + 2 extras per family. | [`tms_risk/behavior/notebooks/ddm_rdm_model_comparison.ipynb`](tms_risk/behavior/notebooks/ddm_rdm_model_comparison.ipynb) | 12 SSM traces (`{ddm,rdm}_flexible[_null|_perception|_memory|_threshold|_noise_threshold]`) |
 | Neural ↔ Behavioral link (paper's `r=0.38`, `r=0.76`) | [`tms_risk/behavior/notebooks/analyze_nlc.ipynb`](tms_risk/behavior/notebooks/analyze_nlc.ipynb) + [`tms_risk/modeling/individual_brain_behavior.ipynb`](tms_risk/modeling/individual_brain_behavior.ipynb) | both encoding-model + cogmodel traces |
 
 ⚠ `notebooks/figure2.ipynb` is misnamed from an earlier draft — it
