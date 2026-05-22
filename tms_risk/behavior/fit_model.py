@@ -87,6 +87,20 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
     model.build_estimation_model()
     trace = model.sample(burnin, samples, target_accept=target_accept,
                          backend=backend)
+
+    # Compute per-observation log-likelihood in-place so downstream LOO /
+    # WAIC works without rebuilding the model. Without this the comparison
+    # notebooks have to rebuild the model in an env that knows the model
+    # class — for DDM/RDM that means an hssm-enabled env, which we don't
+    # always have locally for plotting.
+    try:
+        import pymc as pm
+        with model.estimation_model:
+            pm.compute_log_likelihood(trace)
+    except Exception as e:
+        print(f'WARNING: pm.compute_log_likelihood failed ({type(e).__name__}: {e}); '
+              f'LOO / WAIC will need a manual rebuild step.')
+
     az.to_netcdf(trace, str(target_folder / f'model-{model_label}_trace.netcdf'))
 
 
