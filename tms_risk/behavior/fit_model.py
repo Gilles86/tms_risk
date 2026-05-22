@@ -42,13 +42,21 @@ from bauer.models import (
     FlexibleNoiseRiskRegressionModel,
 )
 try:
-    from bauer.models import DDMFlexibleNoiseRiskRegressionModel
+    from bauer.models import (
+        DDMFlexibleNoiseRiskRegressionModel,
+        DDMRiskRegressionModel,
+    )
 except ImportError:
     DDMFlexibleNoiseRiskRegressionModel = None
+    DDMRiskRegressionModel = None
 try:
-    from bauer.models import RaceDiffusionFlexibleNoiseRiskRegressionModel
+    from bauer.models import (
+        RaceDiffusionFlexibleNoiseRiskRegressionModel,
+        RaceDiffusionRiskRegressionModel,
+    )
 except ImportError:
     RaceDiffusionFlexibleNoiseRiskRegressionModel = None
+    RaceDiffusionRiskRegressionModel = None
 
 from tms_risk.utils.data import get_all_behavior
 
@@ -172,36 +180,55 @@ def _build_flexible(model_label, df):
 
 
 def _build_ddm_or_rdm(model_label, df):
-    """Dispatch ddm_flexible_* and rdm_flexible_* labels.
+    """Dispatch ddm_*/rdm_* labels (both Weber-noise and Flexible-noise variants).
 
-    Suffix legend:
+    Two families, mirroring the paper's two PMC families:
+
+    - **Weber-noise** (analogue of the paper's `11_*` family):
+      ``ddm_weber_*`` / ``rdm_weber_*``. Uses
+      ``{DDM,RaceDiffusion}RiskRegressionModel`` from bauer.
+
+    - **Flexible-noise** (analogue of the paper's `flexible2_*` family):
+      ``ddm_flexible_*`` / ``rdm_flexible_*``. Uses
+      ``{DDM,RaceDiffusion}FlexibleNoiseRiskRegressionModel`` with 5
+      B-splines on each noise term.
+
+    Suffix legend (same in both families):
         _null              no TMS regressor (baseline)
         _perception        TMS on perceptual_noise_sd only
         _memory            TMS on memory_noise_sd only
-        ''                 TMS on both noise terms (matches Flexible PMC main)
-        _threshold         TMS on accumulator threshold (a) only
+        ''                 TMS on both noise terms (paper's main claim analogue)
+        _threshold         TMS on accumulator threshold ``a`` only
         _noise_threshold   TMS on both noise terms + threshold
-
-    All use polynomial_order=5 and memory_model='shared_perceptual_noise',
-    matching the paper's Flexible PMC model.
     """
     if model_label.startswith('ddm_'):
-        if DDMFlexibleNoiseRiskRegressionModel is None:
-            raise Exception(
-                'DDMFlexibleNoiseRiskRegressionModel is not available — '
-                'check libs/bauer is installed with DDM extras (hssm/pymc-ddm).'
-            )
-        cls = DDMFlexibleNoiseRiskRegressionModel
         kind = 'ddm'
+        weber_cls = DDMRiskRegressionModel
+        flex_cls = DDMFlexibleNoiseRiskRegressionModel
     elif model_label.startswith('rdm_'):
-        if RaceDiffusionFlexibleNoiseRiskRegressionModel is None:
-            raise Exception('RaceDiffusionFlexibleNoiseRiskRegressionModel unavailable.')
-        cls = RaceDiffusionFlexibleNoiseRiskRegressionModel
         kind = 'rdm'
+        weber_cls = RaceDiffusionRiskRegressionModel
+        flex_cls = RaceDiffusionFlexibleNoiseRiskRegressionModel
     else:
         raise Exception(f'Not a DDM/RDM label: {model_label!r}')
 
-    suffix = model_label[len(kind) + 1 + len('flexible'):]
+    rest = model_label[len(kind) + 1:]   # strip "ddm_" or "rdm_"
+    if rest.startswith('flexible'):
+        cls = flex_cls
+        suffix = rest[len('flexible'):]
+    elif rest.startswith('weber'):
+        cls = weber_cls
+        suffix = rest[len('weber'):]
+    else:
+        raise Exception(
+            f'{kind} label must be {kind}_weber_* or {kind}_flexible_*, '
+            f'got {model_label!r}')
+
+    if cls is None:
+        raise Exception(
+            f'{kind} class for label {model_label!r} is not available — '
+            f'check libs/bauer is at a recent commit + the DDM env has hssm.')
+
     if suffix.startswith('_'):
         suffix = suffix[1:]
 
@@ -221,12 +248,10 @@ def _build_ddm_or_rdm(model_label, df):
     else:
         raise Exception(f'Unrecognised {kind} suffix: {suffix!r}')
 
-    return cls(
-        df, regressors=regressors,
-        prior_estimate='full',
-        memory_model='shared_perceptual_noise',
-        spline_order=5,
-    )
+    kwargs = dict(prior_estimate='full', memory_model='shared_perceptual_noise')
+    if cls is flex_cls:
+        kwargs['spline_order'] = 5
+    return cls(df, regressors=regressors, **kwargs)
 
 
 # ---------------------------------------------------------------------------

@@ -1,35 +1,51 @@
 #!/bin/bash
 #
-# Submit the DDM × Flexible-PMC and RDM × Flexible-PMC model sweep for the
-# Table-1-style ELPD comparison adding accumulator-model variants.
+# Submit the full SSM × PMC analogue sweep for the Table-1-style ELPD
+# comparison adding accumulator-model variants.
 #
-# Six variants per accumulator family (DDM and RDM):
+# Two families × two noise structures × 4-6 regressor variants:
+#
+#   Weber-noise:    analogues of the paper's 11_* PMC family
+#                   (no splines, single noise param per term)
+#   Flexible-noise: analogues of the paper's flexible2_* family
+#                   (5-spline noise function over magnitude)
+#
+# Regressor suffixes (same in both noise structures):
 #   _null            no TMS regressor (baseline)
 #   _perception      TMS on perceptual noise only
 #   _memory          TMS on memory noise only
-#   (bare)           TMS on both noise terms (matches Flexible PMC paper claim)
-#   _threshold       TMS on accumulator threshold only (alternative hypothesis)
-#   _noise_threshold TMS on both noise terms + threshold
+#   (bare)           TMS on both noise terms (paper claim analogue)
+#   _threshold       Flexible only — TMS on accumulator threshold
+#   _noise_threshold Flexible only — TMS on both noise + threshold
 #
 # Run from this directory: `bash submit_all_ddm_rdm_models.sh`
-# Each job is a fit_model.sh sbatch.
 
 set -e
 
 model_labels=(
-    # DDM × Flexible PMC family
-    "ddm_flexible"
+    # ── Weber-noise SSM family (paper Weber PMC analogue: 11_null, 11a, 11b, 11c) ──
+    "ddm_weber_null"
+    "ddm_weber_perception"
+    "ddm_weber_memory"
+    "ddm_weber"
+
+    "rdm_weber_null"
+    "rdm_weber_perception"
+    "rdm_weber_memory"
+    "rdm_weber"
+
+    # ── Flexible-noise SSM family (paper Flexible PMC analogue: flexible2_*) ──
     "ddm_flexible_null"
     "ddm_flexible_perception"
     "ddm_flexible_memory"
+    "ddm_flexible"
     "ddm_flexible_threshold"
     "ddm_flexible_noise_threshold"
 
-    # Race-diffusion × Flexible PMC family
-    "rdm_flexible"
     "rdm_flexible_null"
     "rdm_flexible_perception"
     "rdm_flexible_memory"
+    "rdm_flexible"
     "rdm_flexible_threshold"
     "rdm_flexible_noise_threshold"
 )
