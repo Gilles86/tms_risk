@@ -23,7 +23,7 @@
 set -e
 
 model_labels=(
-    # ── Weber-noise SSM family (paper Weber PMC analogue: 11_null, 11a, 11b, 11c) ──
+    # ── Weber-noise, shared_perceptual_noise (paper analogue of 11_*) ──
     "ddm_weber_null"
     "ddm_weber_perception"
     "ddm_weber_memory"
@@ -33,6 +33,19 @@ model_labels=(
     "rdm_weber_perception"
     "rdm_weber_memory"
     "rdm_weber"
+
+    # ── Weber-noise, independent memory model (n1/n2_evidence_sd) ──
+    # Same evidence-noise structure, different decomposition. Bauer's
+    # default; used in notes/tms_risk_ddm_fitting_brief.md's recipe.
+    "ddm_indep_null"
+    "ddm_indep_n1"
+    "ddm_indep_n2"
+    "ddm_indep"
+
+    "rdm_indep_null"
+    "rdm_indep_n1"
+    "rdm_indep_n2"
+    "rdm_indep"
 
     # ── Flexible-noise SSM family (paper Flexible PMC analogue: flexible2_*) ──
     "ddm_flexible_null"

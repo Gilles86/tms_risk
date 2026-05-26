@@ -181,26 +181,32 @@ def _build_flexible(model_label, df):
 
 
 def _build_ddm_or_rdm(model_label, df):
-    """Dispatch ddm_*/rdm_* labels (both Weber-noise and Flexible-noise variants).
+    """Dispatch ddm_*/rdm_* labels (Weber- and Flexible-noise; two memory_models).
 
-    Two families, mirroring the paper's two PMC families:
+    Three noise structures, two SSM kinds (DDM, RDM):
 
-    - **Weber-noise** (analogue of the paper's `11_*` family):
-      ``ddm_weber_*`` / ``rdm_weber_*``. Uses
-      ``{DDM,RaceDiffusion}RiskRegressionModel`` from bauer.
+    - ``*_weber_*`` — Weber (scalar) noise, ``memory_model='shared_perceptual_noise'``
+      (paper-analogue of `11_*`). Regressors are on `perceptual_noise_sd` /
+      `memory_noise_sd`.
+    - ``*_indep_*`` — Weber (scalar) noise, ``memory_model='independent'``
+      (bauer's default). Regressors are on `n1_evidence_sd` / `n2_evidence_sd`.
+      Different decomposition of the same evidence-noise structure.
+    - ``*_flexible_*`` — 5-spline noise per term, ``memory_model='shared_perceptual_noise'``
+      (paper-analogue of `flexible2_*`).
 
-    - **Flexible-noise** (analogue of the paper's `flexible2_*` family):
-      ``ddm_flexible_*`` / ``rdm_flexible_*``. Uses
-      ``{DDM,RaceDiffusion}FlexibleNoiseRiskRegressionModel`` with 5
-      B-splines on each noise term.
-
-    Suffix legend (same in both families):
-        _null              no TMS regressor (baseline)
-        _perception        TMS on perceptual_noise_sd only
-        _memory            TMS on memory_noise_sd only
-        ''                 TMS on both noise terms (paper's main claim analogue)
-        _threshold         TMS on accumulator threshold ``a`` only
-        _noise_threshold   TMS on both noise terms + threshold
+    Suffix legend (slightly different per noise structure):
+        _null            no TMS regressor (baseline)
+        ── weber / flexible (shared_perceptual_noise) ──
+        _perception      TMS on perceptual_noise_sd only
+        _memory          TMS on memory_noise_sd only
+        ''               TMS on both noise terms (paper's main claim analogue)
+        ── indep (independent memory model) ──
+        _n1              TMS on n1_evidence_sd only
+        _n2              TMS on n2_evidence_sd only
+        ''               TMS on both
+        ── flexible only ──
+        _threshold       TMS on accumulator threshold ``a`` only
+        _noise_threshold TMS on both noise terms + threshold
     """
     if model_label.startswith('ddm_'):
         kind = 'ddm'
@@ -217,13 +223,22 @@ def _build_ddm_or_rdm(model_label, df):
     if rest.startswith('flexible'):
         cls = flex_cls
         suffix = rest[len('flexible'):]
+        memory_model = 'shared_perceptual_noise'
+        is_flex = True
     elif rest.startswith('weber'):
         cls = weber_cls
         suffix = rest[len('weber'):]
+        memory_model = 'shared_perceptual_noise'
+        is_flex = False
+    elif rest.startswith('indep'):
+        cls = weber_cls
+        suffix = rest[len('indep'):]
+        memory_model = 'independent'
+        is_flex = False
     else:
         raise Exception(
-            f'{kind} label must be {kind}_weber_* or {kind}_flexible_*, '
-            f'got {model_label!r}')
+            f'{kind} label must start with {kind}_weber_* / {kind}_indep_* '
+            f'/ {kind}_flexible_*, got {model_label!r}')
 
     if cls is None:
         raise Exception(
@@ -234,23 +249,33 @@ def _build_ddm_or_rdm(model_label, df):
         suffix = suffix[1:]
 
     regressors = {}
+    if memory_model == 'shared_perceptual_noise':
+        n1_term, n2_term = 'memory_noise_sd', 'perceptual_noise_sd'
+        n1_label, n2_label = 'memory', 'perception'
+    else:
+        n1_term, n2_term = 'n1_evidence_sd', 'n2_evidence_sd'
+        n1_label, n2_label = 'n1', 'n2'
+
     if suffix == 'null':
         pass
-    elif suffix == 'perception':
-        regressors = _stim('perceptual_noise_sd')
-    elif suffix == 'memory':
-        regressors = _stim('memory_noise_sd')
+    elif suffix == n1_label:
+        regressors = _stim(n1_term)
+    elif suffix == n2_label:
+        regressors = _stim(n2_term)
     elif suffix == '':
-        regressors = _stim('perceptual_noise_sd', 'memory_noise_sd')
-    elif suffix == 'threshold':
+        regressors = _stim(n1_term, n2_term)
+    elif suffix == 'threshold' and is_flex:
         regressors = _stim('a')
-    elif suffix == 'noise_threshold':
-        regressors = _stim('perceptual_noise_sd', 'memory_noise_sd', 'a')
+    elif suffix == 'noise_threshold' and is_flex:
+        regressors = _stim(n1_term, n2_term, 'a')
     else:
-        raise Exception(f'Unrecognised {kind} suffix: {suffix!r}')
+        raise Exception(
+            f'Unrecognised {kind} suffix {suffix!r} for {memory_model} '
+            f'(valid: null, {n1_label}, {n2_label}, '''
+            + (', threshold, noise_threshold' if is_flex else '') + ')')
 
-    kwargs = dict(prior_estimate='full', memory_model='shared_perceptual_noise')
-    if cls is flex_cls:
+    kwargs = dict(prior_estimate='full', memory_model=memory_model)
+    if is_flex:
         kwargs['spline_order'] = 5
     return cls(df, regressors=regressors, **kwargs)
 
