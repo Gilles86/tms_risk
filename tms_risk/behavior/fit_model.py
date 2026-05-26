@@ -71,25 +71,26 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
 
     is_accumulator = model_label.startswith('ddm_') or model_label.startswith('rdm_')
 
-    if (model_label.startswith('flexible')
-            or is_accumulator
-            or model_label.startswith('session1')):
-        target_accept = 0.9
-    else:
-        target_accept = 0.8
-
-    # DDM/RDM fits are slow under pymc's NUTS — bauer's lesson 8 puts them
-    # on the numpyro backend, which is 3–10× faster on CPU and parallelises
-    # cleanly. Use shorter chains there (1000+1000 is what lesson 8 uses
-    # and what passes diagnostics on the Garcia 2022 dataset).
+    # DDM/RDM fits use the recipe from bauer's
+    # notes/tms_risk_ddm_fitting_brief.md: numpyro backend, tune=2000,
+    # target_accept=0.99, and bauer's `mapjitter` starting-point finder
+    # (on by default for DDM/Race — MAP centre + prior-scaled jitter).
+    # That recipe took the failing config from ~12% to 100% convergence.
     if is_accumulator:
-        burnin = burnin or 1000
+        burnin = burnin or 2000
         samples = samples or 1000
         backend = backend or 'numpyro'
+        target_accept = 0.99
+    elif model_label.startswith('flexible') or model_label.startswith('session1'):
+        burnin = burnin or 5000
+        samples = samples or 5000
+        backend = backend or 'pymc'
+        target_accept = 0.9
     else:
         burnin = burnin or 5000
         samples = samples or 5000
         backend = backend or 'pymc'
+        target_accept = 0.8
 
     model = build_model(model_label, df)
     model.build_estimation_model()

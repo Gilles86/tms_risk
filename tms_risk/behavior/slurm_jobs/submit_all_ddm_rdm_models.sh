@@ -51,6 +51,8 @@ model_labels=(
 )
 
 for MODEL_LABEL in "${model_labels[@]}"; do
-    sbatch fit_model.sh "$MODEL_LABEL"
-    echo "Submitted: $MODEL_LABEL"
+    # GPU L4, lowprio (more L4 nodes there) — see
+    # bauer/notes/tms_risk_ddm_fitting_brief.md.
+    sbatch --gres=gpu:L4:1 --partition=lowprio fit_model.sh "$MODEL_LABEL"
+    echo "Submitted: $MODEL_LABEL (GPU L4)"
 done
