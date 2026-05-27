@@ -23,7 +23,11 @@ N_VOXELS=${N_VOXELS:-100}
 N_REPEATS=${N_REPEATS:-1000}
 ROI=${ROI:-NPC12r}
 
-PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_cuda/bin/python}
+# monte_carlo_decode.py calls model.get_expected_uncertainty(), which only
+# exists in braincoder's keras-backend branch — so default to
+# tms_risk_unified (which pulls that branch). Override via PYTHON_BIN if
+# needed.
+PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_unified/bin/python}
 # Set SPHERICAL=1 to use a diagonal noise covariance (per-voxel τ, no ρ).
 SPHERICAL_FLAG=""
 if [ -n "${SPHERICAL:-}" ]; then
