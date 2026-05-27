@@ -110,8 +110,11 @@ def load_mc_decode(root: Path = SPHERICAL_ROOT) -> pd.DataFrame:
     # get_expected_uncertainty's output). This is the precision of the
     # point estimate, independent of bias. mean_abs_error keeps the bias
     # term and inherits the grid-mean-collapse artefact.
-    out['expected_variance'] = out['var_E']
-    out['expected_variance']    = out['mean_abs_error']   # kept for the diagnostic
+    # `expected_variance` = empirical Var(decoded_mean) across n_simulations.
+    # `expected_abs_error`  = mean |decoded − true|; kept for the diagnostic
+    # but NOT used in the headline figure.
+    out['expected_variance']   = out['var_E']
+    out['expected_abs_error']  = out['mean_abs_error']
     out['bias']              = out['mean_error']
     return out
 
