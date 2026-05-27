@@ -25,7 +25,6 @@ import pandas as pd
 
 from braincoder.models import LogGaussianPRF
 from braincoder.optimize import ResidualFitter
-from braincoder.utils.math import get_expected_value, get_sd_posterior
 
 from tms_risk.utils import Subject
 
@@ -104,49 +103,24 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
           learning_rate=0.005, max_n_iterations=20000,
           spherical=spherical)
 
-    # Forward-simulate `n_repeats` × len(STIMULUS_RANGE) trials. Stratified:
-    # one repeat = full coverage of the stimulus grid → predicted decoding
-    # bias / SD as functions of true magnitude.
-    rng = np.random.default_rng(seed)
-    paradigm_sim = pd.DataFrame(
-        np.tile(STIMULUS_RANGE, n_repeats).astype(np.float32),
-        columns=['n1'],
-    )
-    paradigm_sim.index = pd.MultiIndex.from_product(
-        [np.arange(n_repeats), STIMULUS_RANGE],
-        names=['repeat', 'true_stim'],
-    )
-
-    # `model.simulate` adds noise drawn from omega (with `dof` → MVT,
-    # else MVN). One shot does all reps × all stimuli.
-    sim_data = model.simulate(
-        paradigm=paradigm_sim['n1'], noise=omega, dof=dof, n_repeats=1,
-    )
-    sim_data.index = paradigm_sim.index
-
-    # Invert: per simulated trial, evaluate the posterior over the
-    # stimulus grid in one vectorized call.
-    pdf = model.get_stimulus_pdf(
-        sim_data, stimulus_range=STIMULUS_RANGE.astype(np.float32),
+    # Simulate `n_repeats` noisy responses per stimulus and decode each
+    # via `model.get_expected_uncertainty` (canonical braincoder API in the
+    # keras-backend branch). Returns one row per true stimulus with
+    # mean_E (posterior mean averaged across reps), var_E (empirical
+    # variance of the posterior mean across reps), mean_error, etc.
+    out = model.get_expected_uncertainty(
+        stimuli=STIMULUS_RANGE.astype(np.float32),
         omega=omega, dof=dof,
+        n_simulations=n_repeats,
+        progress=True,
     )
-
-    decoded_mean = get_expected_value(pdf)
-    decoded_sd = get_sd_posterior(pdf)
-
-    out = pd.DataFrame({
-        'decoded_mean': decoded_mean.values,
-        'decoded_sd': decoded_sd.values,
-    }, index=paradigm_sim.index)
-    out['true_stim'] = out.index.get_level_values('true_stim')
-    out['bias'] = out['decoded_mean'] - out['true_stim']
 
     out_path = op.join(
         target_dir,
         f'sub-{subject}_ses-{session}_roi-{roi}_nvoxels-{n_voxels}_mc_decode.tsv',
     )
     out.to_csv(out_path, sep='\t')
-    print(f'Wrote {out_path}  ({len(out):,} rows; n_repeats={n_repeats})')
+    print(f'Wrote {out_path}  ({len(out):,} rows; n_simulations={n_repeats})')
 
 
 if __name__ == '__main__':

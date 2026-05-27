@@ -7,10 +7,29 @@ with the TF 2.18 / numpy 1.26 stack.
 
 | Use case | YML file | Env name |
 |----------|----------|----------|
+| **One env to rule them all** — TF 2.20 + pymc 5.28 + hssm + ssm-simulators + braincoder + bauer (Recommended for new work) | `environment_unified.yml` | `tms_risk_unified` |
 | Local Mac dev (Apple Silicon, Metal-accelerated TF) | `../environment_apple_silicon.yml` | `tms_risk` |
-| Cluster CPU jobs (PMC fits, plotting, aggregation) | `environment_cpu.yml` | `tms_risk_cpu` |
-| Cluster GPU jobs (nPRF fits, decoding) | `environment_cuda.yml` | `tms_risk_cuda` |
-| Cluster DDM/RDM fits (bauer + hssm) | `environment_ddm.yml` | `tms_risk_ddm` |
+| Cluster CPU jobs (PMC fits, plotting, aggregation) — older numpy 1.26 stack | `environment_cpu.yml` | `tms_risk_cpu` |
+| Cluster GPU jobs (nPRF fits, decoding) — older TF 2.14 / numpy 1.25 stack | `environment_cuda.yml` | `tms_risk_cuda` |
+| Cluster DDM/RDM fits (bauer + hssm) — older split env | `environment_ddm.yml` | `tms_risk_ddm` |
+
+## Unified env (recommended for new work)
+
+`environment_unified.yml` collapses the previous cpu/cuda/ddm split. The
+historical conflict (TF≤2.18 needing `numpy<2.1` vs `ssm-simulators`
+needing `numpy>=2.0`) dissolves once TF 2.20 drops the cap and
+pytensor 2.38 / pymc 5.28 become numpy-2 native. Build on a GPU node so
+TF's bundled CUDA wheels see the NVIDIA driver:
+
+```bash
+sbatch create_env/create_unified_env.sh   # tms_risk_unified (GPU node)
+```
+
+The unified env is the only env that pulls braincoder's `keras-backend`
+branch (and therefore `model.get_expected_uncertainty`). For modeling /
+decode / mc_decode jobs on the cluster, switch the runner's
+`PYTHON_BIN` to `$HOME/data/conda/envs/tms_risk_unified/bin/python`.
+Existing fits made with `tms_risk_cuda` remain reproducible.
 
 ## Local (Mac, Apple Silicon)
 
