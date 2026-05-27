@@ -91,14 +91,22 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
         raise NotImplementedError("Only natural space is implemented")
 
     # Build the nPRF + fit the residual covariance.
-    model = LogGaussianPRF(parameters=pars,
-                           paradigm=paradigm_obs['n1'].astype(np.float32))
-    predictions = model.predict()
-    data.index = predictions.index
+    # The new braincoder's ResidualFitter re-runs predict() internally to get
+    # residuals and then aligns on pandas index. Force both `data` and
+    # `paradigm` to a simple RangeIndex so the predict-output index always
+    # matches and the alignment can't drop rows.
+    n1_paradigm = pd.Series(
+        paradigm_obs['n1'].values.astype(np.float32),
+        index=pd.RangeIndex(len(paradigm_obs), name='trial'),
+        name='n1',
+    )
+    data = data.copy()
+    data.index = n1_paradigm.index
+    model = LogGaussianPRF(parameters=pars, paradigm=n1_paradigm)
     model.init_pseudoWWT(stimulus_range=STIMULUS_RANGE, parameters=pars)
 
     omega, dof = ResidualFitter(
-        model, data, paradigm_obs['n1'].astype(np.float32),
+        model, data, n1_paradigm,
     ).fit(init_sigma2=1.0, init_dof=10.0, method='t',
           learning_rate=0.005, max_n_iterations=20000,
           spherical=spherical)
