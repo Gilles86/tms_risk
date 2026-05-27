@@ -105,8 +105,14 @@ def load_mc_decode(root: Path = SPHERICAL_ROOT) -> pd.DataFrame:
     if not rows:
         raise SystemExit(f'No TSVs found under {root}')
     out = pd.concat(rows, ignore_index=True)
-    out['expected_error'] = out['mean_abs_error']
-    out['bias']           = out['mean_error']
+    # The user's headline metric is the *empirical variance of the
+    # decoded point estimate across forward draws* (var_E in
+    # get_expected_uncertainty's output). This is the precision of the
+    # point estimate, independent of bias. mean_abs_error keeps the bias
+    # term and inherits the grid-mean-collapse artefact.
+    out['expected_variance'] = out['var_E']
+    out['expected_variance']    = out['mean_abs_error']   # kept for the diagnostic
+    out['bias']              = out['mean_error']
     return out
 
 
@@ -231,7 +237,7 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
     # Per-subject × stimulus paired diff
     paired = mc.pivot_table(
         index=['subject', 'value'], columns='stimulation_condition',
-        values='expected_error', aggfunc='mean',
+        values='expected_variance', aggfunc='mean',
     ).reset_index()
     paired['diff'] = paired['ips'] - paired['vertex']
     n_paired = paired.dropna(subset=['ips', 'vertex'])['subject'].nunique()
@@ -250,7 +256,7 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
     label_x = 10
     for cond in ('ips', 'vertex'):
         sub = mc[mc.stimulation_condition == cond]
-        agg = sub.groupby('value')['expected_error'].agg(['mean', 'sem']).reset_index()
+        agg = sub.groupby('value')['expected_variance'].agg(['mean', 'sem']).reset_index()
         ax1.fill_between(agg['value'], agg['mean'] - agg['sem'],
                          agg['mean'] + agg['sem'], alpha=0.20, color=COLOR[cond],
                          linewidth=0)
@@ -265,7 +271,7 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
                      fontsize=9, ha='center',
                      fontweight='bold' if cond == 'ips' else 'normal')
     ax1.set_xlabel('True magnitude (n)')
-    ax1.set_ylabel('Expected error\n(natural units)')
+    ax1.set_ylabel('Expected variance of\ndecoded estimate (natural²)')
     _style_x(ax1)
     sns.despine(ax=ax1, offset=5, trim=True)
 
@@ -299,7 +305,7 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
                  transform=ax2.transAxes, ha='left', va='top', fontsize=6.5,
                  color='0.4')
     ax2.set_xlabel('True magnitude (n)')
-    ax2.set_ylabel('Expected error\n(IPS − Vertex)')
+    ax2.set_ylabel('Expected variance\n(IPS − Vertex)')
     _style_x(ax2)
     sns.despine(ax=ax2, offset=5, trim=True)
 
