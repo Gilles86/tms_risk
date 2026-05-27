@@ -25,12 +25,23 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from tms_risk.utils.data import get_all_behavior
+from tms_risk.behavior.utils import stimulation_palette
 
 
 SPHERICAL_ROOT = Path(
     '/data/ds-tmsrisk/derivatives/monte_carlo_decode.denoise.spherical'
 )
-COLOR = {'ips': 'tab:red', 'vertex': 'tab:blue'}
+# Use the project's canonical IPS / vertex palette (seaborn default
+# colors 2 and 3, alphabetical → ips=green, vertex=red), matching the
+# PPC plots in tms_risk.behavior.utils.
+COLOR = {'ips': stimulation_palette[0], 'vertex': stimulation_palette[1]}
+
+# Most experimental stimuli are ≤ ~80 (q99 = 96, q95 = 68). The decoder
+# evaluates over 7–111 but the tails are sparsely sampled and dominated
+# by grid-mean shrinkage; cap the figure for readability.
+N_MIN, N_MAX = 7, 80
+# Natural-magnitude x-tick locations on the log axis.
+X_TICKS = [7, 10, 15, 20, 30, 50, 80]
 
 
 def load_mc_decode(root: Path = SPHERICAL_ROOT) -> pd.DataFrame:
@@ -52,7 +63,13 @@ def load_mc_decode(root: Path = SPHERICAL_ROOT) -> pd.DataFrame:
     if not rows:
         raise SystemExit(f'No TSVs found under {root}')
     out = pd.concat(rows, ignore_index=True)
-    out['decoded_sd'] = np.sqrt(out['var_E'])
+    # Realised simulate-and-decode error per stimulus. `mean_abs_error` =
+    # average |posterior_mean - true_value| across n_simulations forward
+    # draws from the fitted model + residual covariance. This is the actual
+    # decoding error we'd expect for a fresh trial, NOT the posterior width
+    # the decoder claims (= sqrt(var_E)).
+    out['expected_error'] = out['mean_abs_error']
+    out['rmse'] = np.sqrt(out['var_E'] + out['mean_error']**2)
     out['bias'] = out['mean_error']
     return out
 
@@ -76,31 +93,37 @@ def main():
           f"subjects: ips={mc[mc.stimulation_condition=='ips']['subject'].nunique()}, "
           f"vertex={mc[mc.stimulation_condition=='vertex']['subject'].nunique()}")
 
+    # Cap to the experimentally-meaningful range (most trials ≤ 80).
+    mc = mc[(mc['value'] >= N_MIN) & (mc['value'] <= N_MAX)].copy()
+
     fig, axes = plt.subplots(1, 3, figsize=(13, 4.2), sharex=True)
 
-    # Panel 1 — decoded SD vs true magnitude per condition
+    def _style_x(ax):
+        ax.set_xscale('log')
+        ax.set_xticks(X_TICKS)
+        ax.get_xaxis().set_major_formatter(
+            plt.matplotlib.ticker.ScalarFormatter())
+        ax.minorticks_off()
+
+    # Panel 1 — realised decoding error vs true magnitude
     ax = axes[0]
     for cond, sub in mc.groupby('stimulation_condition'):
-        agg = sub.groupby('value')['decoded_sd'].agg(['mean', 'sem']).reset_index()
+        agg = sub.groupby('value')['expected_error'].agg(['mean', 'sem']).reset_index()
         ax.fill_between(agg['value'], agg['mean'] - agg['sem'],
                         agg['mean'] + agg['sem'], alpha=0.25, color=COLOR[cond])
         ax.plot(agg['value'], agg['mean'], color=COLOR[cond], lw=2,
                 label=cond.capitalize())
     ax.set_xlabel('True magnitude (n)')
-    ax.set_ylabel('Decoded SD (posterior σ, natural units)')
-    ax.set_title('Decoding acuity per condition\n(lower = sharper)')
+    ax.set_ylabel('Expected decoding error\n(mean |decoded − true|, natural units)')
+    ax.set_title('Realised decoding error\n(lower = sharper readout)')
     ax.legend(title='TMS condition', loc='upper left', frameon=False)
-    ax.set_xscale('log')
+    _style_x(ax)
 
-    # Panel 2 — IPS − vertex difference curve
+    # Panel 2 — IPS − vertex difference curve (paired within-subject)
     ax = axes[1]
-    diff = (mc.groupby(['stimulation_condition', 'value'])['decoded_sd'].mean()
-              .unstack('stimulation_condition'))
-    diff['diff'] = diff['ips'] - diff['vertex']
-    # Subject-level diff for SEM band (paired within-subject)
     paired = mc.pivot_table(index=['subject', 'value'],
                              columns='stimulation_condition',
-                             values='decoded_sd', aggfunc='mean').reset_index()
+                             values='expected_error', aggfunc='mean').reset_index()
     paired['diff'] = paired['ips'] - paired['vertex']
     diff_agg = paired.groupby('value')['diff'].agg(['mean', 'sem']).reset_index()
     ax.fill_between(diff_agg['value'], diff_agg['mean'] - diff_agg['sem'],
@@ -108,9 +131,9 @@ def main():
     ax.plot(diff_agg['value'], diff_agg['mean'], color='black', lw=2)
     ax.axhline(0, ls='--', color='k', alpha=0.4)
     ax.set_xlabel('True magnitude (n)')
-    ax.set_ylabel('Decoded SD: IPS − Vertex')
-    ax.set_title('TMS effect on decoding acuity\n(positive = IPS-TMS hurts)')
-    ax.set_xscale('log')
+    ax.set_ylabel('Expected error: IPS − Vertex')
+    ax.set_title('TMS effect on decoding error\n(positive = IPS-TMS hurts)')
+    _style_x(ax)
 
     # Panel 3 — bias (sanity check for grid-mean collapse)
     ax = axes[2]
@@ -124,7 +147,7 @@ def main():
     ax.set_xlabel('True magnitude (n)')
     ax.set_ylabel('Decoded mean − true magnitude')
     ax.set_title('Decoder bias\n(>0 = pulled toward grid mean)')
-    ax.set_xscale('log')
+    _style_x(ax)
 
     plt.suptitle(
         f'Spherical-Ω expected uncertainty across the number line — '
