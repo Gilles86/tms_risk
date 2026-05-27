@@ -5,7 +5,11 @@
 
 set -e
 
-SUBJECTS="${SUBJECTS:-2,5,7,8,9,10,11,12,13,14,15,16,18,19,20,21,24,25,26,27,30,31,32,33,34,38,42,44,45,46,47,48,50,51,52}"
+## TMS subjects with PRF fits available — intersection of tms_keys.yml
+## (the actual cTBS cohort) with encoding_model2.model-1.smoothed/ on disk.
+## Excludes sub-22 and sub-49 (TMS subjects without PRF fits) and the
+## non-TMS PRF subjects 35/36/37 etc.
+SUBJECTS="${SUBJECTS:-1,2,3,4,5,6,7,9,10,11,18,19,21,25,26,29,30,31,34,35,36,37,45,46,47,50,53,56,59,62,63,67,69,72,74}"
 BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 # Pass SPHERICAL=1 to use a diagonal noise covariance (per-voxel τ, no ρ).
 # Outputs land under derivatives/fisher_information.…spherical/ so the
