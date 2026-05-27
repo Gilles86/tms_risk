@@ -103,6 +103,22 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
     data = data.copy()
     data.index = n1_paradigm.index
     model = LogGaussianPRF(parameters=pars, paradigm=n1_paradigm)
+
+    # Drop voxels whose PRF predictions blow up. In keras-backend braincoder,
+    # LogGaussianPRF returns NaN when `mu` is very negative (preferred
+    # numerosity below 1) — voxels that were never going to contribute anyway
+    # (cvr2 near zero). The older braincoder silently produced garbage; the
+    # new one propagates NaN, which then poisons the residual covariance fit.
+    preds = model.predict()
+    finite_voxels = preds.columns[~preds.isna().any(axis=0)]
+    n_dropped = preds.shape[1] - len(finite_voxels)
+    if n_dropped > 0:
+        print(f'[mc_decode] dropping {n_dropped}/{preds.shape[1]} voxels with NaN predictions '
+              f'(likely negative-mu PRFs)')
+        pars = pars.loc[finite_voxels]
+        data = data.loc[:, finite_voxels]
+        model = LogGaussianPRF(parameters=pars, paradigm=n1_paradigm)
+
     model.init_pseudoWWT(stimulus_range=STIMULUS_RANGE, parameters=pars)
 
     omega, dof = ResidualFitter(
@@ -110,6 +126,11 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
     ).fit(init_sigma2=1.0, init_dof=10.0, method='t',
           learning_rate=0.005, max_n_iterations=20000,
           spherical=spherical)
+    # ResidualFitter returns a TF EagerTensor in the new branch — convert to
+    # numpy so `model.simulate` inside get_expected_uncertainty can call
+    # `.astype(np.float32)` on it without a TypeError.
+    omega = np.asarray(omega, dtype=np.float32)
+    dof = float(dof)
 
     # Simulate `n_repeats` noisy responses per stimulus and decode each
     # via `model.get_expected_uncertainty` (canonical braincoder API in the
