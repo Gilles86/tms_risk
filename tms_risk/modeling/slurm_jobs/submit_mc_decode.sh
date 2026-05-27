@@ -9,18 +9,22 @@ set -e
 
 SUBJECTS="${SUBJECTS:-2,5,7,8,9,10,11,12,13,14,15,16,18,19,20,21,24,25,26,27,30,31,32,33,34,38,42,44,45,46,47,48,50,51,52}"
 BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
+# Pass SPHERICAL=1 to use a diagonal noise covariance.
+SPHERICAL=${SPHERICAL:-}
 
 for SESSION in 2 3; do
+    JOB_NAME="mc_decode_ses${SESSION}"
+    [ -n "$SPHERICAL" ] && JOB_NAME="${JOB_NAME}_sph"
     sbatch --array="${SUBJECTS}" \
-      --job-name="mc_decode_ses${SESSION}" \
+      --job-name="${JOB_NAME}" \
       --account=zne.uzh \
-      --output="/home/gdehol/logs/mc_decode_ses${SESSION}_%A-%a.txt" \
+      --output="/home/gdehol/logs/${JOB_NAME}_%A-%a.txt" \
       --ntasks=1 \
       --cpus-per-task=4 \
       --gpus=1 \
       --mem=24G \
       --time=00:30:00 \
-      --export=ALL,SESSION=${SESSION},BIDS_FOLDER=${BIDS_FOLDER} \
+      --export=ALL,SESSION=${SESSION},BIDS_FOLDER=${BIDS_FOLDER},SPHERICAL=${SPHERICAL} \
       "$HOME/git/tms_risk/tms_risk/modeling/slurm_jobs/run_mc_decode.sh"
-    echo "Submitted: mc_decode_ses${SESSION}, subjects=[${SUBJECTS}]"
+    echo "Submitted: ${JOB_NAME}, subjects=[${SUBJECTS}], spherical=${SPHERICAL:-0}"
 done

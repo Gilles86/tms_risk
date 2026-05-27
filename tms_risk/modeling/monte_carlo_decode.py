@@ -51,13 +51,15 @@ def _sample_paradigm(n_trials, rng, stimulus_pool=None):
 
 def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
          bids_folder='/data', roi='wang15_ips',
-         n_repeats=1000, seed=0, natural_space=True):
+         n_repeats=1000, seed=0, natural_space=True, spherical=False):
 
     target_dir = op.join(bids_folder, 'derivatives', 'monte_carlo_decode')
     if denoise:
         target_dir += '.denoise'
     if smoothed:
         target_dir += '.smoothed'
+    if spherical:
+        target_dir += '.spherical'
     target_dir = op.join(target_dir, f'sub-{subject}', f'ses-{session}', 'func')
     os.makedirs(target_dir, exist_ok=True)
 
@@ -99,7 +101,8 @@ def main(subject, session, smoothed=False, denoise=True, n_voxels=100,
     omega, dof = ResidualFitter(
         model, data, paradigm_obs['n1'].astype(np.float32),
     ).fit(init_sigma2=1.0, init_dof=10.0, method='t',
-          learning_rate=0.005, max_n_iterations=20000)
+          learning_rate=0.005, max_n_iterations=20000,
+          spherical=spherical)
 
     # Forward-simulate `n_repeats` × len(STIMULUS_RANGE) trials. Stratified:
     # one repeat = full coverage of the stimulus grid → predicted decoding
@@ -155,6 +158,8 @@ if __name__ == '__main__':
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--mask', default='wang15_ips')
     parser.add_argument('--natural_space', action='store_true')
+    parser.add_argument('--spherical', action='store_true',
+                        help='Use diagonal noise covariance (per-voxel τ, no ρ).')
     parser.add_argument('--n_voxels', default=100, type=int)
     parser.add_argument('--n_repeats', default=1000, type=int)
     parser.add_argument('--seed', default=0, type=int)
@@ -166,4 +171,5 @@ if __name__ == '__main__':
         n_voxels=args.n_voxels, bids_folder=args.bids_folder,
         roi=args.mask, n_repeats=args.n_repeats, seed=args.seed,
         natural_space=args.natural_space,
+        spherical=args.spherical,
     )

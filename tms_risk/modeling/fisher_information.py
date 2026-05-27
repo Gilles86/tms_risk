@@ -15,6 +15,7 @@ stimulus_range = np.arange(7, 28*4)
 def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids_folder='/data',
         retroicor=False,
         natural_space=False,
+        spherical=False,
         roi='wang15_ips'):
 
     target_dir = op.join(bids_folder, 'derivatives', 'fisher_information')
@@ -33,6 +34,13 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
     if pca_confounds:
         target_dir += '.pca_confounds'
+
+    if spherical:
+        # Diagonal noise: skip the cross-voxel correlation term in
+        # ResidualFitter so omega = diag(τ²). Empirically the full Ω
+        # over-estimates covariance and the decoder collapses toward the
+        # stimulus-range mean, washing out individual RF tuning.
+        target_dir += '.spherical'
 
     target_dir = op.join(target_dir, f'sub-{subject}', f'ses-{session}', 'func')
     print(denoise, target_dir)
@@ -85,7 +93,8 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
             init_dof=10.0,
             method='t',
             learning_rate=0.005,
-            max_n_iterations=20000)
+            max_n_iterations=20000,
+            spherical=spherical)
 
 
     fi = model.get_fisher_information(stimulus_range.astype(np.float32), omega, dof)
@@ -104,10 +113,13 @@ if __name__ == '__main__':
     parser.add_argument('--denoise', action='store_true')
     parser.add_argument('--mask', default='wang15_ips')
     parser.add_argument('--natural_space', action='store_true')
+    parser.add_argument('--spherical', action='store_true',
+                        help='Use diagonal noise covariance (per-voxel τ, no ρ).')
     parser.add_argument('--n_voxels', default=100, type=int)
     args = parser.parse_args()
 
     main(subject=args.subject, session=args.session, smoothed=args.smoothed, pca_confounds=args.pca_confounds, denoise=args.denoise,
             n_voxels=args.n_voxels,
             natural_space=args.natural_space,
+            spherical=args.spherical,
             bids_folder=args.bids_folder, roi=args.mask)

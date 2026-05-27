@@ -18,8 +18,16 @@ BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 N_VOXELS=${N_VOXELS:-100}
 ROI=${ROI:-NPC12r}
 PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_cuda/bin/python}
+# Set SPHERICAL=1 to use a diagonal noise covariance (per-voxel τ, no
+# cross-voxel ρ). The full Ω tends to over-estimate covariance and
+# collapse the decoder toward the stimulus-range mean. Diagonal Ω
+# restores individual-RF tuning.
+SPHERICAL_FLAG=""
+if [ -n "${SPHERICAL:-}" ]; then
+    SPHERICAL_FLAG="--spherical"
+fi
 
-echo "Fisher information: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS}"
+echo "Fisher information: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} spherical=${SPHERICAL:-0}"
 echo "Python: ${PYTHON_BIN}"
 
 # Direct env binary — avoids the `conda activate` path, which interacts
@@ -30,4 +38,4 @@ echo "Python: ${PYTHON_BIN}"
   --bids_folder "$BIDS_FOLDER" \
   --mask "$ROI" \
   --n_voxels "$N_VOXELS" \
-  --denoise --natural_space
+  --denoise --natural_space ${SPHERICAL_FLAG}

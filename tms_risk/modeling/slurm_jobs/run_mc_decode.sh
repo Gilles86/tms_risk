@@ -24,8 +24,13 @@ N_REPEATS=${N_REPEATS:-1000}
 ROI=${ROI:-NPC12r}
 
 PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_cuda/bin/python}
+# Set SPHERICAL=1 to use a diagonal noise covariance (per-voxel τ, no ρ).
+SPHERICAL_FLAG=""
+if [ -n "${SPHERICAL:-}" ]; then
+    SPHERICAL_FLAG="--spherical"
+fi
 
-echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} n_repeats=${N_REPEATS}"
+echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} n_repeats=${N_REPEATS} spherical=${SPHERICAL:-0}"
 echo "Python: ${PYTHON_BIN}"
 
 # Direct env binary (see run_fisher_information.sh for rationale).
@@ -35,4 +40,4 @@ echo "Python: ${PYTHON_BIN}"
   --mask "$ROI" \
   --n_voxels "$N_VOXELS" \
   --n_repeats "$N_REPEATS" \
-  --denoise --natural_space
+  --denoise --natural_space ${SPHERICAL_FLAG}
