@@ -17,7 +17,12 @@ SESSION=${SESSION:-2}
 BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 N_VOXELS=${N_VOXELS:-100}
 ROI=${ROI:-NPC12r}
-PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_cuda/bin/python}
+# fisher_information.py uses ResidualFitter from braincoder's keras-backend
+# branch (numpy-2 / TF-2.20 stack), shipped only in `tms_risk_unified`.
+# tms_risk_cuda's editable braincoder install now points at the same
+# code (post-submodule-bump) but its TF 2.14 doesn't have Keras 3 ops,
+# so use tms_risk_unified instead. Override via PYTHON_BIN if needed.
+PYTHON_BIN=${PYTHON_BIN:-$HOME/data/conda/envs/tms_risk_unified/bin/python}
 # Set SPHERICAL=1 to use a diagonal noise covariance (per-voxel τ, no
 # cross-voxel ρ). The full Ω tends to over-estimate covariance and
 # collapse the decoder toward the stimulus-range mean. Diagonal Ω

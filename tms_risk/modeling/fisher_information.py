@@ -79,15 +79,36 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
     if not natural_space:
         raise NotImplementedError("Only natural space is implemented")
 
-    model = LogGaussianPRF(parameters=pars, paradigm=paradigm['n1'].astype(np.float32))
-    predictions = model.predict()
+    # Same index + NaN-voxel fixes applied to monte_carlo_decode.py — the
+    # keras-backend braincoder's ResidualFitter re-runs predict() internally
+    # and aligns on pandas index, so paradigm + data must share an index.
+    # And LogGaussianPRF.predict returns NaN for voxels with strongly
+    # negative `mu` (preferred numerosity < 1) which were silently producing
+    # garbage in the old branch — drop them so the residual fit isn't
+    # poisoned.
+    import pandas as pd
+    n1_paradigm = pd.Series(
+        paradigm['n1'].values.astype(np.float32),
+        index=pd.RangeIndex(len(paradigm), name='trial'),
+        name='n1',
+    )
+    data = data.copy()
+    data.index = n1_paradigm.index
 
-    data.index = predictions.index
+    model = LogGaussianPRF(parameters=pars, paradigm=n1_paradigm)
+    predictions = model.predict()
+    finite_voxels = predictions.columns[~predictions.isna().any(axis=0)]
+    n_dropped = predictions.shape[1] - len(finite_voxels)
+    if n_dropped > 0:
+        print(f'[fisher] dropping {n_dropped}/{predictions.shape[1]} voxels with NaN predictions '
+              f'(likely negative-mu PRFs)')
+        pars = pars.loc[finite_voxels]
+        data = data.loc[:, finite_voxels]
+        model = LogGaussianPRF(parameters=pars, paradigm=n1_paradigm)
 
     model.init_pseudoWWT(stimulus_range=stimulus_range, parameters=pars)
 
-    residfit = ResidualFitter(model, data,
-                                paradigm['n1'].astype(np.float32))
+    residfit = ResidualFitter(model, data, n1_paradigm)
 
     omega, dof = residfit.fit(init_sigma2=1.0,
             init_dof=10.0,
@@ -95,6 +116,9 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
             learning_rate=0.005,
             max_n_iterations=20000,
             spherical=spherical)
+    # ResidualFitter returns a TF EagerTensor — convert to numpy.
+    omega = np.asarray(omega, dtype=np.float32)
+    dof = float(dof)
 
 
     fi = model.get_fisher_information(stimulus_range.astype(np.float32), omega, dof)
