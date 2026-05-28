@@ -90,6 +90,20 @@ def main(bids_folder='/data/ds-tmsrisk'):
 
     color_per_model = {'m0': '#7F7F7F', 'm1': '#3B5BA5', 'm2': '#C44E52'}
 
+    # Per-parameter y-limits: shared across all three model columns so they
+    # are directly comparable, scaled to the group-mean ± SEM band rather
+    # than the across-subject spread (which can dominate and squash the
+    # signal). Add a healthy margin so most subject lines stay on-panel.
+    par_ylims = {}
+    for par in PARAMS:
+        grp_all = (df.groupby(['model', 'session'])[par]
+                     .agg(['mean', 'sem']).reset_index())
+        lo = (grp_all['mean'] - 5 * grp_all['sem']).min()
+        hi = (grp_all['mean'] + 5 * grp_all['sem']).max()
+        # Pad ±10% of the band
+        pad = (hi - lo) * 0.1
+        par_ylims[par] = (lo - pad, hi + pad)
+
     for col, m in enumerate(MODELS):
         mtag = f'm{m}'
         for row, par in enumerate(PARAMS):
@@ -119,6 +133,7 @@ def main(bids_folder='/data/ds-tmsrisk'):
             if row == len(PARAMS) - 1:
                 ax.set_xlabel('Session')
                 ax.set_xticks(list(SESSIONS))
+            ax.set_ylim(*par_ylims[par])
             sns.despine(ax=ax, offset=3, trim=True)
 
     fig.suptitle(f'Per-session PRF parameter means in {ROI} '

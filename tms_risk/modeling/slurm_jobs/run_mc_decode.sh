@@ -33,6 +33,10 @@ SPHERICAL_FLAG=""
 if [ -n "${SPHERICAL:-}" ]; then
     SPHERICAL_FLAG="--spherical"
 fi
+MODEL_LABEL_FLAG=""
+if [ -n "${MODEL_LABEL:-}" ]; then
+    MODEL_LABEL_FLAG="--model_label ${MODEL_LABEL}"
+fi
 
 echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} n_repeats=${N_REPEATS} spherical=${SPHERICAL:-0}"
 echo "Python: ${PYTHON_BIN}"
@@ -44,4 +48,4 @@ echo "Python: ${PYTHON_BIN}"
   --mask "$ROI" \
   --n_voxels "$N_VOXELS" \
   --n_repeats "$N_REPEATS" \
-  --denoise --natural_space ${SPHERICAL_FLAG}
+  --denoise --natural_space ${SPHERICAL_FLAG} ${MODEL_LABEL_FLAG}

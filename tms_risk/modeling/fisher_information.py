@@ -16,9 +16,13 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         retroicor=False,
         natural_space=False,
         spherical=False,
+        model_label=1,
         roi='wang15_ips'):
 
     target_dir = op.join(bids_folder, 'derivatives', 'fisher_information')
+    if model_label != 1:
+        # Preserve default-path back-compat when m1 is used.
+        target_dir += f'.model{model_label}'
 
     if denoise:
         target_dir += '.denoise'
@@ -50,7 +54,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
 
     sub = Subject(subject, bids_folder)
 
-    pars = sub.get_prf_parameters(model_label=1, session=session, roi=roi)
+    pars = sub.get_prf_parameters(model_label=model_label, session=session, roi=roi)
     data = sub.get_single_trial_volume(session, roi, smoothed=smoothed, retroicor=False, denoise=True)
     paradigm = sub.get_behavior(sessions=session, drop_no_responses=False)
     paradigm = paradigm.droplevel(['subject', 'session'])
@@ -59,7 +63,7 @@ def main(subject, session, smoothed, pca_confounds, denoise, n_voxels=1000, bids
         if session == 1:
             raise Exception("Session 1 is used for voxel selection!")
 
-        session1_pars = sub.get_prf_parameters(model_label=1, session=1, roi=roi)
+        session1_pars = sub.get_prf_parameters(model_label=model_label, session=1, roi=roi)
         r2_mask = session1_pars['cvr2'] > 0.0
         print(f"Using session 1 to select voxels. Mask {r2_mask.sum()} voxels big")
         r2_mask = r2_mask[r2_mask].index
@@ -139,6 +143,8 @@ if __name__ == '__main__':
     parser.add_argument('--natural_space', action='store_true')
     parser.add_argument('--spherical', action='store_true',
                         help='Use diagonal noise covariance (per-voxel τ, no ρ).')
+    parser.add_argument('--model_label', type=int, default=1,
+                        help='PRF model variant 0/1/2 (default 1, paper Fig 2).')
     parser.add_argument('--n_voxels', default=100, type=int)
     args = parser.parse_args()
 
@@ -146,4 +152,5 @@ if __name__ == '__main__':
             n_voxels=args.n_voxels,
             natural_space=args.natural_space,
             spherical=args.spherical,
+            model_label=args.model_label,
             bids_folder=args.bids_folder, roi=args.mask)

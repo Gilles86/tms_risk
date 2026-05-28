@@ -15,10 +15,12 @@ BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 # Outputs land under derivatives/fisher_information.…spherical/ so the
 # two flavors don't collide.
 SPHERICAL=${SPHERICAL:-}
+MODEL_LABEL=${MODEL_LABEL:-}
 
 for SESSION in 2 3; do
     JOB_NAME="fisher_ses${SESSION}"
     [ -n "$SPHERICAL" ] && JOB_NAME="${JOB_NAME}_sph"
+    [ -n "$MODEL_LABEL" ] && JOB_NAME="${JOB_NAME}_m${MODEL_LABEL}"
     sbatch --array="${SUBJECTS}" \
       --job-name="${JOB_NAME}" \
       --account=zne.uzh \
@@ -28,7 +30,7 @@ for SESSION in 2 3; do
       --gpus=1 \
       --mem=24G \
       --time=00:20:00 \
-      --export=ALL,SESSION=${SESSION},BIDS_FOLDER=${BIDS_FOLDER},SPHERICAL=${SPHERICAL} \
+      --export=ALL,SESSION=${SESSION},BIDS_FOLDER=${BIDS_FOLDER},SPHERICAL=${SPHERICAL},MODEL_LABEL=${MODEL_LABEL} \
       "$HOME/git/tms_risk/tms_risk/modeling/slurm_jobs/run_fisher_information.sh"
     echo "Submitted: ${JOB_NAME}, subjects=[${SUBJECTS}], spherical=${SPHERICAL:-0}"
 done
