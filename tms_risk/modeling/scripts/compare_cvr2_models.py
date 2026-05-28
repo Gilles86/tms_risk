@@ -35,7 +35,12 @@ SUBJECTS = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 18, 19, 21, 25, 26, 29, 30, 31,
 # V1 / V2 / control ROIs aren't on disk here, so we restrict to those.
 ROIS = ['NPC12r', 'NPCl', 'NPCr', 'NF1', 'NTO']
 MODELS = (0, 1, 2)
-NULL_THRESHOLD = 0.0   # cvR² > 0 ≡ beats the per-voxel training-mean predictor
+# The null model = "predict the per-voxel training-set mean for every test
+# trial". Its cvR² on a held-out fold is ≈ 0 by definition. We carry it as
+# an explicit 4th column so the winner-counting is between
+# {null, m0, m1, m2}: voxels where null is highest = noise voxels (no
+# encoding model beats the constant predictor).
+NULL_CVR2 = 0.0
 
 
 def load_cvr2(subject: int, model_label: int, roi: str,
@@ -68,6 +73,11 @@ def load_cvr2(subject: int, model_label: int, roi: str,
 
 def main(rois=ROIS, subjects=SUBJECTS, bids_folder='/data/ds-tmsrisk',
          session_label: str = 'global'):
+    """For every voxel, compute the winner among {null, m0, m1, m2} by
+    cvR². null has cvR² = 0 by construction (predict per-voxel
+    training-mean). Per subject, aggregate win proportions over ALL
+    voxels in the ROI (no pre-filtering — the 'null wins' fraction is
+    the noise-voxel fraction)."""
     apply_style()
     sess = None if session_label == 'global' else int(session_label)
 
@@ -84,36 +94,31 @@ def main(rois=ROIS, subjects=SUBJECTS, bids_folder='/data/ds-tmsrisk',
             except FileNotFoundError as e:
                 print(f'  skip sub-{sid:02d} {roi} ({e})')
                 continue
-            # Non-noise voxels: at least one model beats the null
-            non_noise = (cv > NULL_THRESHOLD).any(axis=1)
-            cv_nn = cv[non_noise]
-            n_total, n_nn = len(cv), int(non_noise.sum())
-            if n_nn == 0:
-                continue
-            # Winner per voxel
-            winner = cv_nn.idxmax(axis=1)
+            # Explicit null column = 0 everywhere. Winner per voxel includes
+            # null as a candidate; voxels where null wins ≡ noise voxels.
+            cv = cv.assign(null=NULL_CVR2)
+            cv = cv[['null', 'm0', 'm1', 'm2']]   # column order for plotting
+            winner = cv.idxmax(axis=1)
             counts = winner.value_counts() / len(winner)
-            for m in MODELS:
+            for label in ['null', 'm0', 'm1', 'm2']:
                 rows.append({
                     'roi':      roi,
                     'subject':  sid,
-                    'model':    f'm{m}',
-                    'win_prop': float(counts.get(f'm{m}', 0.0)),
-                    'n_total':  n_total,
-                    'n_non_noise': n_nn,
+                    'model':    label,
+                    'win_prop': float(counts.get(label, 0.0)),
+                    'n_total':  len(cv),
                 })
             per_subj_voxels.append({
-                'roi':         roi,
-                'subject':     sid,
-                'n_voxels':    n_total,
-                'n_non_noise': n_nn,
-                'frac_non_noise': n_nn / n_total,
+                'roi':            roi,
+                'subject':        sid,
+                'n_voxels':       len(cv),
+                'frac_signal':    float(1 - counts.get('null', 0.0)),
             })
 
     df = pd.DataFrame(rows)
     diag = pd.DataFrame(per_subj_voxels)
     print('\nVoxel pool per (subject, ROI):')
-    print(diag.groupby('roi')[['n_voxels', 'n_non_noise', 'frac_non_noise']]
+    print(diag.groupby('roi')[['n_voxels', 'frac_signal']]
               .agg(['mean', 'median', 'min', 'max']).round(2))
 
     print('\nGroup-mean win proportions by ROI:')
@@ -126,49 +131,47 @@ def main(rois=ROIS, subjects=SUBJECTS, bids_folder='/data/ds-tmsrisk',
     if n_roi == 1:
         axes = [axes]
 
-    palette = {'m0': '#7F7F7F', 'm1': '#3B5BA5', 'm2': '#C44E52'}
-    model_label_map = {'m0': 'm0\n(pooled)',
-                        'm1': 'm1\n(amp per ses)',
-                        'm2': 'm2\n(full per ses)'}
+    order = ['null', 'm0', 'm1', 'm2']
+    palette = {'null': '#9C9C9C', 'm0': '#7F7F7F', 'm1': '#3B5BA5', 'm2': '#C44E52'}
+    model_label_map = {'null': 'null\n(train mean)',
+                        'm0':   'm0\n(pooled)',
+                        'm1':   'm1\n(amp per ses)',
+                        'm2':   'm2\n(full per ses)'}
 
     for ax, roi in zip(axes, rois):
         sub = df[df.roi == roi]
         if len(sub) == 0:
             ax.set_title(f'{roi}\n(no data)')
             continue
-        # Swarm of subjects
         sns.stripplot(
             data=sub, x='model', y='win_prop', ax=ax,
-            order=[f'm{m}' for m in MODELS],
-            palette=palette, size=3.5, alpha=0.6, jitter=0.18,
-            edgecolor='none', zorder=2,
+            order=order, palette=palette, size=3.5, alpha=0.6,
+            jitter=0.18, edgecolor='none', zorder=2,
         )
-        # Group mean ± SEM
         grp = sub.groupby('model')['win_prop'].agg(['mean', 'sem']).reset_index()
         for _, row in grp.iterrows():
-            xpos = list(MODELS).index(int(row['model'][1:]))
+            xpos = order.index(row['model'])
             ax.errorbar(xpos, row['mean'], yerr=row['sem'],
                          marker='D', markersize=8, mew=1.5,
                          color='black', mfc=palette[row['model']],
                          capsize=3, zorder=5, lw=1.5)
-        ax.axhline(1/3, ls=':', color='0.6', lw=0.6, zorder=0)
-        ax.annotate('Chance (1/3)', xy=(2, 1/3), xytext=(2.2, 1/3 + 0.02),
-                     textcoords='data', ha='right', va='bottom',
-                     fontsize=6.5, color='0.5')
-        ax.set_xticklabels([model_label_map[f'm{m}'] for m in MODELS],
-                            fontsize=8)
+        ax.axhline(0.25, ls=':', color='0.6', lw=0.6, zorder=0)
+        ax.set_xticklabels([model_label_map[m] for m in order], fontsize=7.5)
         ax.set_xlabel('')
-        ax.set_ylabel('Voxel-win proportion\non non-noise pool'
+        ax.set_ylabel('Voxel-win proportion'
                        if ax is axes[0] else '')
-        ax.set_title(roi, fontsize=10)
+        # Per-ROI signal fraction = 1 − P(null wins)
+        signal_frac = 1 - grp[grp.model == 'null']['mean'].iloc[0]
+        ax.set_title(f"{roi}\nsignal voxels: {signal_frac*100:.0f}%",
+                      fontsize=9)
         ax.set_ylim(0, 1)
         sns.despine(ax=ax, offset=4, trim=True)
 
-    fig.suptitle('cvR² model comparison: which encoding-model variant wins per voxel?',
-                  fontsize=10, y=1.04)
+    fig.suptitle('cvR² model comparison vs null (training-mean predictor)',
+                  fontsize=11, y=1.04)
     fig.text(0.5, -0.04,
               f'session = {session_label}  ·  n_subjects = {df["subject"].nunique()}  '
-              f'·  non-noise = (any of m0/m1/m2 with cvR² > {NULL_THRESHOLD})  '
+              f'·  null = predict per-voxel training-set mean (cvR² ≡ 0)  '
               f'·  diamonds = group mean ± SEM',
               ha='center', va='top', fontsize=7.5, color='0.4')
 
