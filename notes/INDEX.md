@@ -24,6 +24,14 @@ durable text — update when adding a new analysis writeup or figure.
 | "Linking Neural and Behavioral TMS Effects" (correlations) | brain–behavior bridge: amplitude drop ↔ behavioral noise increase | `tms_risk/behavior/notebooks/analyze_nlc.ipynb` + `tms_risk/modeling/individual_brain_behavior.ipynb` |
 | (new) Phase 5 ELPD: DDM/RDM × Flexible PMC | extends Table 1 with accumulator-model variants | `tms_risk/behavior/notebooks/ddm_rdm_model_comparison.ipynb` |
 | (new) Predicted decoding (Fisher + MC) | supplement / addition to Fig 2B–C | `tms_risk/modeling/notebooks/fisher_and_mc_decode.ipynb` |
+| Figs. S1.1–S1.4 | Perceptual-distortion / total-noise heatmaps (Supplementary Text 1) | `tms_risk/behavior/scripts/plot_perceptual_heatmaps.py` (port of `behavior/notebooks/nov25/2d_distortion_curces.ipynb`) |
+
+**S1.1–S1.3 right column is a RATIO (IPS / vertex), not a difference.** The
+published v8 panels titled it "IPS - Vertex" while computing `ips / vertex`
+(colour scales 0.90–1.10 / 0.95–1.05, centred on 1). Only S1.4 is a genuine
+subtraction (`noise_ips − noise_vertex`, ±0.75). The regenerated figures in
+`figures/sfig_s1_*.{pdf,png}` label this correctly; the S1.1 and S1.3 captions
+in the manuscript still say "difference" and need the same fix.
 
 ## Working data
 
