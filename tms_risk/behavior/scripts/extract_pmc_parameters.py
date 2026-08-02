@@ -72,6 +72,12 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
     family = int(post.attrs.get('tms_risk_family', family))
     terms = NOISE_TERMS[family]
     spline_order = int(post.attrs.get('tms_risk_spline_order', spline_order)) or spline_order
+    # How nu_1 is built from the two noise terms. The default wraps the softplus around
+    # the SUM, so the memory contribution nu_1 - nu_2 is unconstrained in sign; the
+    # `additive` variant adds two softplus outputs, pinning it at >= 0. Reconstructing a
+    # trace with the wrong one is silent -- every parameter is present either way -- so
+    # it is read from the trace, never assumed.
+    composition = post.attrs.get('tms_risk_memory_composition', 'sum_then_softplus')
     df = get_data(bids_folder)
     lower = float(df[['n1', 'n2']].min().min())
     upper = float(df[['n1', 'n2']].max().max())
@@ -152,8 +158,16 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
             'hi': np.quantile(dnu, .975, axis=0)}))
     if family == 2:
         # Emit the per-position curves too, so downstream figures never have to
-        # recompose them. bauer builds nu_1 = softplus(eta_mem + eta_perc) --
-        # the softplus wraps the SUM -- and nu_2 = softplus(eta_perc).
+        # recompose them. Under the default composition bauer builds
+        # nu_1 = softplus(eta_mem + eta_perc) -- the softplus wraps the SUM -- and
+        # nu_2 = softplus(eta_perc); under `additive` it is nu_1 = nu_2 + softplus(eta_mem).
+        def compose_n1(cd):
+            m, p = eta[('memory_noise_sd', cd)], eta[('perceptual_noise_sd', cd)]
+            return softplus(p) + softplus(m) if composition == 'additive' else softplus(m + p)
+
+        def compose_n2(cd):
+            return softplus(eta[('perceptual_noise_sd', cd)])
+
         eta = {}
         for term in terms:
             c = np.stack([post[f'{term}_spline{i}_mu'].values for i in
@@ -162,11 +176,8 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
             cc = coef_by_condition(c)
             eta[(term, 'ips')] = cc['ips'] @ B[term].T
             eta[(term, 'vertex')] = cc['vertex'] @ B[term].T
-        for key, nu_of in [('n1_evidence_sd',
-                            lambda cd: softplus(eta[('memory_noise_sd', cd)]
-                                                + eta[('perceptual_noise_sd', cd)])),
-                           ('n2_evidence_sd',
-                            lambda cd: softplus(eta[('perceptual_noise_sd', cd)]))]:
+        for key, nu_of in [('n1_evidence_sd', compose_n1),
+                           ('n2_evidence_sd', compose_n2)]:
             nu = {cd: nu_of(cd) for cd in ['ips', 'vertex']}
             for cd in ['ips', 'vertex']:
                 rows.append(pd.DataFrame({
@@ -181,12 +192,12 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
         # The memory CONTRIBUTION, nu_1 - nu_2, propagated through the same draws so it
         # carries a real credible interval. It cannot be recovered from the marginal
         # intervals of nu_1 and nu_2, and its sign is the substantive question: the
-        # model composes nu_1 = softplus(eta_mem + eta_perc), which does not constrain
-        # the contribution to be positive.
+        # default composition does not constrain the contribution to be positive, and
+        # its sign is the substantive question. Under `additive` it is >= 0 by
+        # construction, so a non-negative curve there is a property of the model, not a
+        # finding -- which is exactly why the two are compared by ELPD.
         for cd in ['ips', 'vertex']:
-            n1 = softplus(eta[('memory_noise_sd', cd)] + eta[('perceptual_noise_sd', cd)])
-            n2 = softplus(eta[('perceptual_noise_sd', cd)])
-            g = n1 - n2
+            g = compose_n1(cd) - compose_n2(cd)
             rows.append(pd.DataFrame({
                 'term': 'memory_contribution', 'stimulation': cd, 'payoff': xs,
                 'nu': g.mean(0), 'lo': np.quantile(g, .025, axis=0),
