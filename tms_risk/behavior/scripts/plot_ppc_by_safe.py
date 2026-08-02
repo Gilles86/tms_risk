@@ -69,15 +69,11 @@ def main(data_dir, label, out_stem):
                 ax.fill_between(g.frac, g.lo, g.hi, color=colr, alpha=.22, lw=0,
                                 zorder=1)
                 ax.plot(g.frac, g['mean'], color=colr, lw=1.2, zorder=2)
-                # Unlike the pooled PPC, the observed points here DO carry their SEM.
-                # Splitting five ways leaves ~139 trials per cell, so the sampling
-                # error of the proportion (~0.05) is larger than the predictive band
-                # on the group mean (~0.03). Without the bars the eye compares a point
-                # to an interval that excludes the point's own uncertainty, and an
-                # average miss of 0.56 SEM reads as misfit.
-                ax.errorbar(g.frac, g.observed, yerr=g.observed_sem, fmt='o',
-                            color=colr, ms=3.8, lw=0, elinewidth=.9, capsize=0,
-                            zorder=4)
+                # No error bars on the data: the band is a true posterior predictive,
+                # built from simulated choices, so it already contains the sampling
+                # noise the observed proportion carries. Adding SEMs on top would
+                # double-count that uncertainty.
+                ax.plot(g.frac, g.observed, 'o', color=colr, ms=3.8, lw=0, zorder=4)
             ax.set_xlim(xlo, xhi)
             ax.set_xticks([1.5, 2, 2.5, 3])
             ax.set_ylim(.12, .95)

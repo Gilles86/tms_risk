@@ -111,6 +111,14 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
     d['stim'] = d['stimulation_condition']
     # option 2 is the risky one exactly when the risky option came second
     p_risky = np.where((~d['risky_first']).values[:, None], p2, 1 - p2)
+    # A posterior predictive band must be built from SIMULATED OUTCOMES, not from the
+    # predicted probabilities. Aggregating p gives the posterior of the model's mean
+    # probability -- parameter uncertainty only -- which is far narrower than the
+    # distribution of an observed proportion and makes ordinary sampling scatter look
+    # like misfit. Drawing the choices puts the trial-level binomial noise into the
+    # band, which is what the observed points have to be judged against.
+    rng = np.random.default_rng(0)
+    sim = (rng.random(p_risky.shape) < p_risky).astype(float)
 
     # observed: within-subject means, then across subjects
     obs = (d.assign(y=d['chose_risky'].astype(float))
@@ -122,7 +130,7 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
     # model: same aggregation, per draw, so the band is a real predictive interval
     keys = ['subject', 'order', 'bin', 'stim']
     idx = pd.MultiIndex.from_frame(d[keys])
-    per_draw = (pd.DataFrame(p_risky, index=idx)
+    per_draw = (pd.DataFrame(sim, index=idx)
                   .groupby(level=keys).mean()
                   .groupby(['order', 'bin', 'stim']).mean())
     mod = pd.DataFrame({'mean': per_draw.mean(1),
@@ -197,7 +205,7 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
                 .groupby(['order', 'stake_bin', 'sbin']).mean().rename('frac'))
     obs_s = obs_s.join(xpos_s, on=['order', 'stake_bin', 'sbin'])
     idx_s = pd.MultiIndex.from_frame(d[keys_s])
-    per_draw_s = (pd.DataFrame(p_risky, index=idx_s)
+    per_draw_s = (pd.DataFrame(sim, index=idx_s)
                     .groupby(level=keys_s).mean()
                     .groupby(grp_s).mean())
     mod_s = pd.DataFrame({'mean': per_draw_s.mean(1),
