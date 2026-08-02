@@ -52,6 +52,11 @@ mpl.rcParams.update({
 sns.set_context('paper')
 PANEL = dict(fontsize=11, fontweight='bold', va='bottom', ha='right')
 XT = [1.5, 2, 2.5, 3]
+# The risk-neutral ratio: EV_risky = 0.55 * n_risky equals EV_safe = n_safe at
+# n_risky/n_safe = 1/0.55. Left of it choosing risky is risk-seeking, right of it
+# choosing safe is risk-averse, so it turns the axis from arbitrary into
+# interpretable. The fitted indifference points (1/RNP) straddle it.
+RISK_NEUTRAL = 1 / 0.55
 
 
 # NOTE on what the model line is.
@@ -100,6 +105,7 @@ def main(data_dir, label, out_stem):
     for row, order in enumerate(ORDERS):
         ax = fig.add_subplot(gs[row, 0]); lefts.append(ax)
         ax.axhline(.5, color='.8', lw=.7, ls='--', zorder=0)
+        ax.axvline(RISK_NEUTRAL, color='.55', lw=.7, ls=':', zorder=0)
         o = obs[obs.order == order]
         r = rat[rat.order == order].set_index('bin')
         for stim, colr, mk in [('vertex', VERTEX, 'o'), ('ips', IPS, 's')]:
@@ -119,6 +125,9 @@ def main(data_dir, label, out_stem):
         ax.set_ylabel('P(chose risky)')
         ax.text(.035, .95, order, transform=ax.transAxes, fontsize=8, color='.2',
                 va='top')
+        if row == 0:
+            ax.text(RISK_NEUTRAL, .155, 'Risk\nneutral', fontsize=6.2, color='.45',
+                    ha='center', va='bottom', linespacing=1.15)
         if row == 0:
             ax.set_xticklabels([])
         else:

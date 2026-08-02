@@ -168,14 +168,20 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
     # WITHIN each safe payoff, because the ratios available differ across them -- a
     # shared binning would leave cells empty at the extremes. Four bins keeps ~100
     # trials and ~28 subjects per cell.
-    d['sbin'] = (d.groupby('n_safe')['frac']
-                 .transform(lambda v: pd.qcut(v, 4, labels=False, duplicates='drop')))
+    # Vincentized: quantile bins are formed WITHIN each (subject, safe payoff), so every
+    # participant contributes to every bin by construction. Binning within n_safe alone
+    # left cells covering only 22-32 of the 35 subjects, because the risky payoffs a
+    # participant sees depend on their own responses. With 3 within-subject bins, 100%
+    # of cells contain all 35. `bin(risky/safe)` in utils/data.py is built the same way.
+    d['sbin'] = (d.groupby(['subject', 'n_safe'], group_keys=False)['frac']
+                 .apply(lambda v: pd.qcut(v, 3, labels=False, duplicates='drop')))
     keys_s = ['subject', 'order', 'n_safe', 'sbin', 'stim']
     grp_s = ['order', 'n_safe', 'sbin', 'stim']
     obs_s = (d.assign(y=d['chose_risky'].astype(float))
                .groupby(keys_s)['y'].mean()
                .groupby(grp_s).agg(['mean', 'sem']).reset_index())
-    xpos_s = d.groupby(['order', 'n_safe', 'sbin'])['frac'].mean().rename('frac')
+    xpos_s = (d.groupby(['subject', 'order', 'n_safe', 'sbin'])['frac'].mean()
+                .groupby(['order', 'n_safe', 'sbin']).mean().rename('frac'))
     obs_s = obs_s.join(xpos_s, on=['order', 'n_safe', 'sbin'])
     idx_s = pd.MultiIndex.from_frame(d[keys_s])
     per_draw_s = (pd.DataFrame(p_risky, index=idx_s)

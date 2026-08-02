@@ -55,6 +55,11 @@ mpl.rcParams.update({
 sns.set_context('paper')
 
 ORDERS = ['Risky first', 'Risky second']
+# The risk-neutral ratio: EV_risky = 0.55 * n_risky equals EV_safe = n_safe at
+# n_risky/n_safe = 1/0.55. Left of it choosing risky is risk-seeking, right of it
+# choosing safe is risk-averse, so it turns the axis from arbitrary into
+# interpretable. The fitted indifference points (1/RNP) straddle it.
+RISK_NEUTRAL = 1 / 0.55
 # (key, title, cmap, colour-centre, ink) -- `ink` is the contour/marker colour, chosen
 # to read against that column's colormap so no outline stroke is needed.
 SPECS = [
@@ -118,6 +123,7 @@ def main(data_dir, label, out_stem):
                           inline_spacing=3)
             ax.scatter(cells_x, cells_y, s=5.5, facecolor='none', edgecolor=ink,
                        linewidth=.5, zorder=4, alpha=.7)
+            ax.axhline(RISK_NEUTRAL, color='w', lw=.7, ls=':', alpha=.75, zorder=3)
             ax.set_xticks([7, 14, 20, 28])
             ax.set_yticks([1, 2, 3, 4])
             if row == 0:

@@ -47,6 +47,11 @@ sns.set_context('paper')
 
 ORDERS = ['Risky first', 'Risky second']
 SAFES = [7., 10., 14., 20., 28.]          # the levels the design actually sampled
+# The risk-neutral ratio: EV_risky = 0.55 * n_risky equals EV_safe = n_safe at
+# n_risky/n_safe = 1/0.55. Left of it choosing risky is risk-seeking, right of it
+# choosing safe is risk-averse, so it turns the axis from arbitrary into
+# interpretable. The fitted indifference points (1/RNP) straddle it.
+RISK_NEUTRAL = 1 / 0.55
 PANEL = dict(fontsize=11, fontweight='bold', va='bottom', ha='right')
 
 
@@ -85,6 +90,7 @@ def main(data_dir, label, out_stem):
         for c, order in enumerate(ORDERS):
             ax = fig.add_subplot(gs[r, c]); axes[r, c] = ax
             o = d[d.order == order]
+            ax.axvline(RISK_NEUTRAL, color='.55', lw=.7, ls=':', zorder=0)
             if key == 'p_vertex':
                 ax.axhline(.5, color='.6', lw=.7, ls='--', zorder=0)
             if key == 'effect':
