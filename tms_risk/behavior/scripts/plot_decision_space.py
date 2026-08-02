@@ -159,10 +159,16 @@ def main(bids_folder, model_label, bauer_path, out_stem, n_draws, n_grid, data_d
         # per-condition absolutes, for the preprint's Fig-5 style panels
         n_v, _, _ = cell_mean(s, sv)
         n_i, _, _ = cell_mean(s, si)
+        evr_v, _, _ = cell_mean(ev_r, sv)
+        evr_i, _, _ = cell_mean(ev_r, si)
+        evs_v, _, _ = cell_mean(ev_s, sv)
+        evs_i, _, _ = cell_mean(ev_s, si)
         out[name] = dict(x=xs, y=ys, p_vertex=p_v, cause=r_i / r_v,
                          leverage=lev, effect=p_i - p_v,
                          noise_vertex=n_v, noise_ips=n_i,
-                         ratio_vertex=r_v, ratio_ips=r_i)
+                         ratio_vertex=r_v, ratio_ips=r_i,
+                         ev_risky_vertex=evr_v, ev_risky_ips=evr_i,
+                         ev_safe_vertex=evs_v, ev_safe_ips=evs_i)
 
     # -------------------------------------------------------------------- plot
     fig, axes = plt.subplots(2, 3, figsize=(7.25, 4.9), constrained_layout=True,
@@ -218,7 +224,9 @@ def main(bids_folder, model_label, bauer_path, out_stem, n_draws, n_grid, data_d
                              **{k: o[k][i, j] for k in
                                 ['p_vertex', 'cause', 'leverage', 'effect',
                                  'noise_vertex', 'noise_ips',
-                                 'ratio_vertex', 'ratio_ips']}})
+                                 'ratio_vertex', 'ratio_ips',
+                                 'ev_risky_vertex', 'ev_risky_ips',
+                                 'ev_safe_vertex', 'ev_safe_ips']}})
     tsv = Path(data_dir) / f'decision_space.{model_label}.tsv'
     tsv.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(tsv, sep='\t', index=False)
