@@ -72,6 +72,8 @@ def main(trace_dirs, patterns, out_stem, gate):
     loos, meta = {}, {}
     for p in paths:
         label = label_of(p)
+        if label in loos:      # same label, different --trace_dir (e.g. objective prior)
+            label = f'{label}@{p.parent.name}'
         print(f'reading {p.name} ...', flush=True)
         idata = az.from_netcdf(str(p))
         if 'log_likelihood' not in idata:
@@ -92,6 +94,7 @@ def main(trace_dirs, patterns, out_stem, gate):
             'divergences': int(idata.sample_stats['diverging'].sum())
             if 'diverging' in getattr(idata, 'sample_stats', {}) else -1,
             'bauer_commit': a.get('tms_risk_bauer_commit', '?')[:7],
+            'prior': a.get('tms_risk_prior_estimate', 'full'),
         }
         meta[label]['converged'] = (meta[label]['max_rhat'] <= gate[0]
                                     and meta[label]['min_ess'] >= gate[1])

@@ -98,7 +98,7 @@ def bauer_commit(path):
 
 
 def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
-          noise='flexible'):
+          noise='flexible', prior_estimate='full'):
     """Build the noise model.
 
     `noise='flexible'`  B-spline noise function over magnitude in natural space.
@@ -111,7 +111,7 @@ def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
     import bauer.models as bm
     kw = dict(regressors={n: 'stimulation_condition' for n in regressor_names},
               memory_model='shared_perceptual_noise' if family == 2 else 'independent',
-              prior_estimate='full')
+              prior_estimate=prior_estimate)
     if noise == 'weber':
         return bm.RiskRegressionModel(df, **kw)
     cls = bm.FlexibleNoiseRiskRegressionModel
@@ -125,7 +125,7 @@ def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
     return cls(df, **kw)
 
 
-def constrain_priors(model, df, verbose=True):
+def constrain_priors(model, df, verbose=True, prior_mu_sigma=10., prior_sd_mu=3.):
     """Replace bauer's very wide default priors with ones that respect the payoff scale.
 
     The defaults let the sampler reach degenerate regions: noise spline intercepts are
@@ -143,15 +143,18 @@ def constrain_priors(model, df, verbose=True):
     """
     safe_mu = float(df['n_safe'].mean()) if 'n_safe' in df else 16.
     risky_mu = float(df['n_risky'].mean()) if 'n_risky' in df else 36.
+    # With prior_estimate='objective' the prior is fixed to the empirical payoff
+    # distribution and carries no free parameters, so only the noise splines remain
+    # to constrain. The loop below is keyed on parameter names, so this is automatic.
     changed = []
     for key, info in model.free_parameters.items():
         if 'spline' in key and ('noise_sd' in key or 'evidence_sd' in key):
             info['mu_intercept'], info['sigma_intercept'] = 0.5, 1.5
         elif key.endswith('_prior_mu'):
             info['mu_intercept'] = risky_mu if key.startswith('risky') else safe_mu
-            info['sigma_intercept'] = 10.
+            info['sigma_intercept'] = prior_mu_sigma
         elif key.endswith('_prior_sd'):
-            info['mu_intercept'], info['sigma_intercept'] = 3., 1.
+            info['mu_intercept'], info['sigma_intercept'] = prior_sd_mu, 1.
         else:
             continue
         changed.append(f"{key}~N({info['mu_intercept']:.1f},{info['sigma_intercept']:.1f})")
@@ -176,6 +179,13 @@ def main():
     parser.add_argument('--chains', default=4, type=int)
     parser.add_argument('--cores', default=4, type=int)
     parser.add_argument('--target_accept', default=0.9, type=float)
+    parser.add_argument('--prior_estimate', default='full',
+                        choices=['full', 'shared', 'objective'],
+                        help="'full' fits a (mu, sd) prior per option type; 'objective' "
+                             'FIXES the prior to the empirical payoff distribution, '
+                             'removing it as a free parameter. The latter is the '
+                             'robustness check for whether the fitted prior is doing '
+                             'the work of a compressive value function.')
     parser.add_argument('--constrain', action='store_true',
                         help='use payoff-scale priors instead of bauer defaults')
     parser.add_argument('--backend', default='pymc',
@@ -226,7 +236,7 @@ def main():
     from fit_model import get_data
 
     print(f'bauer     {Path(bauer.__file__).parent}  (variant: {args.variant})')
-    print(f'label     {label}  noise: {noise}  '
+    print(f'label     {label}  noise: {noise}  prior: {args.prior_estimate}  '
           + (f'splines: {spline_order} (degree {args.spline_degree})  ' if noise == 'flexible' else '')
           + f'family {family}  regressors: {SUFFIX_REGRESSORS[family][suffix] or "none"}')
 
@@ -243,7 +253,8 @@ def main():
 
     model = build(df, SUFFIX_REGRESSORS[family][suffix],
                   spline_order=spline_order, family=family,
-                  spline_degree=args.spline_degree, noise=noise)
+                  spline_degree=args.spline_degree, noise=noise,
+                  prior_estimate=args.prior_estimate)
     if args.constrain:
         if noise == 'weber':
             # Weber's prior mu/sd live in LOG space, so the payoff-scale numbers
@@ -293,6 +304,7 @@ def main():
     trace.posterior.attrs['tms_risk_regressors'] = ','.join(SUFFIX_REGRESSORS[family][suffix])
     trace.posterior.attrs['tms_risk_family'] = family
     trace.posterior.attrs['tms_risk_noise'] = noise
+    trace.posterior.attrs['tms_risk_prior_estimate'] = args.prior_estimate
     trace.posterior.attrs['tms_risk_spline_order'] = spline_order if noise == 'flexible' else 0
     trace.posterior.attrs['tms_risk_spline_degree'] = args.spline_degree
     trace.posterior.attrs['tms_risk_init'] = args.init
