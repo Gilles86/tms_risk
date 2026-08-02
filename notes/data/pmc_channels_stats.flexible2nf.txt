@@ -1,0 +1,76 @@
+bauer from /data/git/tms_risk/libs/bauer/bauer
+35 subjects, 8335 trials
+family 2 (shared perceptual), spline order 5
+graph matches trace: 35 subjects, regressors ['Intercept', 'stimulation_condition[T.vertex]']
+evaluating 4 x 50 = 200 posterior draws on 16670 rows
+reconstruction check: max |Phi(m/s) - p_model| = 4.14e-09
+
+=== is the risky option pulled up, or the safe option pulled down? ===
+    (risky-second trials; perceived EV in CHF, objective payoff for reference)
+  risky option  objective  19.90 | vertex   7.74 (-61.1%) -> IPS   7.42  delta -0.321 [-0.529, -0.118]
+  safe option   objective  15.83 | vertex   7.59 (-52.0%) -> IPS   7.13  delta -0.460 [-0.728, -0.239]
+note: p_choice deterministic also available
+
+=== fitted safe prior mean: group 3.56 CHF; per subject median 3.58, 35/35 below 7, 35/35 below 10 ===
+
+=== perceived EV per objective safe payoff (risky-second trials, CHF) ===
+  n_safe  safe: obj  percept   bias             cTBS d | risky: obj  percept   bias             cTBS d
+       7       7.00     6.03   down -0.273 [-0.484,-0.090] |       8.66     6.19   down -0.120 [-0.213,-0.043]
+      10      10.00     6.92   down -0.394 [-0.618,-0.192] |      12.51     7.04   down -0.212 [-0.358,-0.081]
+      14      14.00     7.50   down -0.421 [-0.675,-0.209] |      17.57     7.77   down -0.309 [-0.519,-0.105]
+      20      20.00     8.33   down -0.534 [-0.884,-0.259] |      25.22     8.51   down -0.428 [-0.700,-0.143]
+      28      28.00     9.16   down -0.674 [-1.129,-0.298] |      35.40     9.17   down -0.531 [-0.898,-0.152]
+
+=== cTBS effect on the perceived value of each option, by position (CHF) ===
+                 delta
+option position       
+risky  first    -0.313
+       second   -0.320
+safe   first    -0.459
+       second   -0.343
+
+=== Delta P(risky) predicted by the fitted Flexible PMC, per channel ===
+channel           bias_only  bias_risky_percept_only  bias_safe_percept_only   full  noise_only
+order        bin                                                                               
+Risky first  20%      0.011                   -0.059                   0.107  0.009      -0.003
+             32%      0.009                   -0.083                   0.123  0.007      -0.002
+             44%      0.005                   -0.106                   0.122  0.005      -0.001
+             56%      0.001                   -0.118                   0.113  0.002       0.000
+             68%      0.005                   -0.120                   0.100  0.007       0.001
+             80%      0.007                   -0.111                   0.083  0.010       0.002
+Risky second 20%      0.071                   -0.065                   0.165  0.071      -0.002
+             32%      0.070                   -0.092                   0.177  0.070      -0.001
+             44%      0.058                   -0.119                   0.163  0.060       0.001
+             56%      0.041                   -0.132                   0.141  0.043       0.002
+             68%      0.033                   -0.138                   0.119  0.036       0.002
+             80%      0.026                   -0.124                   0.094  0.029       0.002
+
+=== Delta P(risky) by SAFE payoff: observed vs model channels (risky second) ===
+channel  observed           obs_ci   full  bias_only  bias_safe_percept_only  bias_risky_percept_only  noise_only
+n_safe                                                                                                           
+7.0         0.096  [+0.012,+0.179]  0.056      0.057                   0.087                   -0.039       0.001
+10.0        0.011  [-0.060,+0.082]  0.069      0.067                   0.127                   -0.074       0.001
+14.0        0.073  [-0.014,+0.159]  0.048      0.044                   0.133                   -0.108       0.001
+20.0        0.047  [-0.037,+0.131]  0.042      0.039                   0.167                   -0.150       0.000
+28.0        0.038  [-0.042,+0.119]  0.046      0.044                   0.205                   -0.183       0.000
+
+=== the same, by risky payoff ===
+channel                   bias_only  bias_risky_percept_only  bias_safe_percept_only   full  noise_only
+order        n_risky_bin                                                                               
+Risky first  7-17             0.025                   -0.035                   0.060  0.025       0.000
+             18-26           -0.003                   -0.078                   0.078 -0.003      -0.001
+             27-36           -0.011                   -0.106                   0.100 -0.010      -0.000
+             37-53           -0.007                   -0.141                   0.143 -0.006      -0.001
+             54-112           0.026                   -0.139                   0.163  0.028      -0.001
+Risky second 7-17             0.088                   -0.027                   0.116  0.088       0.002
+             18-26            0.058                   -0.070                   0.123  0.058      -0.001
+             27-36            0.047                   -0.103                   0.133  0.049       0.000
+             37-53            0.036                   -0.160                   0.167  0.040       0.001
+             54-112           0.019                   -0.200                   0.181  0.023       0.002
+
+=== mean |Delta P| over risky-second trials ===
+  full        mean Delta = +0.0521 [+0.0290, +0.0733]   mean |Delta| = 0.1200
+  bias_only   mean Delta = +0.0503 [+0.0265, +0.0735]   mean |Delta| = 0.1192
+  noise_only  mean Delta = +0.0008 [-0.0004, +0.0024]   mean |Delta| = 0.0077
+  bias_risky_percept_only mean Delta = -0.1109 [-0.1804, -0.0383]   mean |Delta| = 0.1269
+  bias_safe_percept_only mean Delta = +0.1438 [+0.0818, +0.2057]   mean |Delta| = 0.1694

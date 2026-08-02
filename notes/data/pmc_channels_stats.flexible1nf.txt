@@ -21,6 +21,14 @@ note: p_choice deterministic also available
       20      20.00     8.36   down -0.501 [-0.796,-0.264] |      25.22     8.48   down -0.382 [-0.596,-0.178]
       28      28.00     9.09   down -0.596 [-0.977,-0.316] |      35.40     9.06   down -0.473 [-0.784,-0.215]
 
+=== cTBS effect on the perceived value of each option, by position (CHF) ===
+                 delta
+option position       
+risky  first    -0.272
+       second   -0.282
+safe   first    -0.412
+       second   -0.312
+
 === Delta P(risky) predicted by the fitted Flexible PMC, per channel ===
 channel           bias_only  bias_risky_percept_only  bias_safe_percept_only   full  noise_only
 order        bin                                                                               
