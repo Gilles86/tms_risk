@@ -129,42 +129,65 @@ def main(data_dir, label, out_stem):
     lefts[0].legend(loc='lower right', fontsize=7, handlelength=1.6, borderpad=.3,
                     labelspacing=.25)
 
-    # --- c, d: the cTBS change in each probit parameter
-    stats, rights = {}, []
+    # --- c, d: the cTBS change in each probit parameter, one column per parameter,
+    # one cell per presentation order. Each column keeps a single shared y-range
+    # across its two rows, so the top-vs-bottom offset IS the order effect.
     specs = [('rnp', 'Δ risk-neutral probability\nIPS − vertex'),
              ('slope', 'Δ psychometric slope\nIPS − vertex')]
-    for row, (par, ylab) in enumerate(specs):
-        ax = fig.add_subplot(gs[row, 1]); rights.append(ax)
-        ax.axhline(0, color='.8', lw=.7, ls='--', zorder=0)
-        for i, order in enumerate(ORDERS):
-            d = paired_delta(post, par, order)
+    deltas = {(par, order): paired_delta(post, par, order)
+              for par, _ in specs for order in ORDERS}
+
+    stats, rights = {}, {}
+    for col, (par, ylab) in enumerate(specs):
+        allv = np.concatenate([deltas[(par, o)] for o in ORDERS])
+        pad = .16 * (allv.max() - allv.min())
+        ylim = (allv.min() - 1.35 * pad, allv.max() + pad)
+        for row, order in enumerate(ORDERS):
+            ax = fig.add_subplot(gs[row, col + 1]); rights[(par, order)] = ax
+            ax.axhline(0, color='.8', lw=.7, ls='--', zorder=0)
+            d = deltas[(par, order)]
             lo, hi = np.quantile(d, [.025, .975])
-            stats[(par, order)] = (d.mean(), lo, hi, pfmt(d))
+            p = pfmt(d)
+            stats[(par, order)] = (d.mean(), lo, hi, p)
             colr = IPS if order == 'Risky second' else '.55'
-            parts = ax.violinplot([d], positions=[i], widths=.7, showextrema=False)
+            parts = ax.violinplot([d], positions=[0], widths=.85, showextrema=False)
             for b in parts['bodies']:
                 b.set_facecolor(colr); b.set_alpha(.22); b.set_edgecolor('none')
-            ax.plot([i, i], [lo, hi], color=colr, lw=1.7, solid_capstyle='round',
+            ax.plot([0, 0], [lo, hi], color=colr, lw=1.7, solid_capstyle='round',
                     zorder=3)
-            ax.plot([i], [d.mean()], 'o', color=colr, ms=5.5, mec='white', mew=.8,
+            ax.plot([0], [d.mean()], 'o', color=colr, ms=5.5, mec='white', mew=.8,
                     zorder=4)
-        ax.set_xticks([0, 1])
-        ax.set_xticklabels(['Risky\nfirst', 'Risky\nsecond'] if row else ['', ''])
-        ax.set_xlim(-.62, 1.62)
-        ax.set_ylabel(ylab)
-        # p-values under each distribution, in the paper's pBayesian convention
-        span = ax.get_ylim()[1] - ax.get_ylim()[0]
-        ax.set_ylim(ax.get_ylim()[0] - .16 * span, ax.get_ylim()[1])
-        ylo = ax.get_ylim()[0]
-        for i, order in enumerate(ORDERS):
-            _, _, _, p = stats[(par, order)]
+            ax.set_xlim(-.7, .7)
+            ax.set_ylim(*ylim)
+            ax.set_xticks([])
+            ax.spines['bottom'].set_visible(False)
+            # p-value under each distribution, in the paper's pBayesian convention
             bold = 'bold' if p.startswith('p <') or float(p.split('=')[-1]) < .05 else 'normal'
-            ax.text(i, ylo + .03 * span, p, ha='center', va='bottom', fontsize=6.8,
+            ax.text(0, ylim[0] + .035 * (ylim[1] - ylim[0]), p, ha='center',
+                    va='bottom', fontsize=6.8,
                     color='.15' if bold == 'bold' else '.45', fontweight=bold)
+            # restate the order in-cell, in the same position and style as on the
+            # left: the rows do align, but the columns are far enough apart that the
+            # reader should not have to track the alignment across the gap
+            ax.text(.04, .98, order, transform=ax.transAxes, fontsize=6.8,
+                    color='.45', ha='left', va='top')
 
-    for a, letter in zip([lefts[0], lefts[1], rights[0], rights[1]], 'abcd'):
-        a.text(-.15, 1.03, letter, transform=a.transAxes, **PANEL)
+    for a, letter in zip([lefts[0], lefts[1],
+                          rights[('rnp', ORDERS[0])], rights[('slope', ORDERS[0])]],
+                         'abcd'):
+        a.text(-.15 if a in lefts else -.42, 1.03, letter, transform=a.transAxes,
+               **PANEL)
     sns.despine(fig=fig, offset=4)
+    for ax in rights.values():
+        ax.spines['bottom'].set_visible(False)
+
+    # one y-label per right-hand column, centred over both of its rows
+    fig.canvas.draw()
+    for par, ylab in specs:
+        top = rights[(par, ORDERS[0])].get_position()
+        bot = rights[(par, ORDERS[1])].get_position()
+        fig.text(top.x0 - .085, (top.y1 + bot.y0) / 2, ylab, rotation=90,
+                 va='center', ha='center', fontsize=8.5)
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.03)
     plt.close(fig)
