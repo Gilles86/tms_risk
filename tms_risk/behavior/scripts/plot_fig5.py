@@ -78,9 +78,10 @@ def main(data_dir, label, out_stem):
     d = pd.read_csv(data / f'decision_space.{label}.tsv', sep='\t')
     cells_x, cells_y = design_cells(data)
 
-    fig = plt.figure(figsize=(7.25, 5.15))
-    gs = fig.add_gridspec(2, 3, hspace=.13, wspace=.16,
-                          left=.085, right=.985, top=.855, bottom=.20)
+    obs = pd.read_csv(data / 'behavior_effect_grid.tsv', sep='\t')
+    fig = plt.figure(figsize=(7.25, 4.3))
+    gs = fig.add_gridspec(2, 4, hspace=.13, wspace=.14,
+                          left=.075, right=.99, top=.845, bottom=.235)
 
     # one colour scale per column, so the two rows are directly comparable
     norms = {}
@@ -89,6 +90,8 @@ def main(data_dir, label, out_stem):
         if centre is None:
             norms[key] = (np.nanmin(z), np.nanmax(z))
         else:
+            if key == 'effect':
+                z = np.concatenate([z, obs.delta.values])
             c = np.nanmax(np.abs(z - centre))
             norms[key] = (centre - c, centre + c)
 
@@ -120,20 +123,48 @@ def main(data_dir, label, out_stem):
             else:
                 ax.set_yticklabels([])
 
-    for col, (key, _, _, _, _) in enumerate(SPECS):
-        ref = fig.axes[3 + col]                      # bottom-row axis for this column
-        box = ref.get_position()
-        cax = fig.add_axes([box.x0, .075, box.width, .022])
+        # --- fourth column: what participants actually did, binned the same way
+        ax = fig.add_subplot(gs[row, 3])
+        oo = obs[obs.order == order]
+        piv = oo.pivot_table(index='ratio_mid', columns='n_safe', values='delta')
+        xs = np.sort(oo.n_safe.unique())
+        ys = np.sort(oo.ratio_mid.unique())
+        xe = np.concatenate([[xs[0] - (xs[1] - xs[0]) / 2],
+                             (xs[:-1] + xs[1:]) / 2,
+                             [xs[-1] + (xs[-1] - xs[-2]) / 2]])
+        ye = np.concatenate([[ys[0] - (ys[1] - ys[0]) / 2],
+                             (ys[:-1] + ys[1:]) / 2,
+                             [ys[-1] + (ys[-1] - ys[-2]) / 2]])
+        vmin, vmax = norms['effect']
+        ims['observed'] = ax.pcolormesh(xe, ye, piv.values, cmap='RdBu_r',
+                                        vmin=vmin, vmax=vmax, edgecolors='w',
+                                        linewidth=.4)
+        ax.set_xticks([7, 14, 20, 28]); ax.set_yticks([1, 2, 3, 4])
+        ax.set_ylim(1, 4)
+        ax.set_yticklabels([])
+        if row == 0:
+            ax.set_title('Observed Δ P(chose risky)\nIPS − vertex', fontsize=7.8,
+                         color='.2', pad=4)
+            ax.set_xticklabels([])
+        else:
+            ax.set_xlabel('Safe payoff (CHF)')
+
+    # one colourbar per column; columns 3 and 4 share a scale, so one bar spans both
+    bars = [(0, 'cause', 0), (1, 'leverage', 1), (2, 'effect', 3)]
+    for col, key, last_col in bars:
+        b0 = fig.axes[4 + col].get_position()
+        b1 = fig.axes[4 + last_col].get_position()
+        cax = fig.add_axes([b0.x0, .105, b1.x1 - b0.x0, .022])
         cb = fig.colorbar(ims[key], cax=cax, orientation='horizontal')
         cb.outline.set_linewidth(.6)
         cax.tick_params(labelsize=6.5, length=2)
 
-    for col, letter in enumerate('abc'):
+    for col, letter in enumerate('abcd'):
         ax = fig.axes[col]
-        ax.text(-.06 if col else -.30, 1.16, letter, transform=ax.transAxes,
+        ax.text(-.06 if col else -.34, 1.17, letter, transform=ax.transAxes,
                 fontsize=11, fontweight='bold', va='bottom', ha='right')
-    fig.suptitle('A distortion only changes behaviour where the psychometric function '
-                 'is steep', fontsize=9, y=.955, color='.15')
+    fig.suptitle('A distortion moves choice only where the psychometric function is '
+                 'steep — and the data agree', fontsize=9, y=.95, color='.15')
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.03)
     plt.close(fig)
@@ -141,9 +172,9 @@ def main(data_dir, label, out_stem):
     print(f'wrote {out_stem}.pdf')
     for order in ORDERS:
         o = d[d.order == order]
-        lo = o[(o.n_safe <= 10) & (o.ratio <= 1.6)]
-        print(f'  {order:14s} peak Δ P(risky) = {o.effect.max():+.4f}; '
-              f'mean in the low corner = {lo.effect.mean():+.4f}')
+        ob = obs[obs.order == order]
+        print(f'  {order:14s} model mean Δ = {o.effect.mean():+.4f}   '
+              f'observed mean Δ = {ob.delta.mean():+.4f}')
 
 
 if __name__ == '__main__':
