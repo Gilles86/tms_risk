@@ -60,6 +60,25 @@ def main(bids_folder, out_dir, n_ratio_bins):
         assert rho > 0, (f'P(chose risky) must rise with the payoff ratio, '
                          f'got rho = {rho:.2f} for {order}')
 
+    # Collapsed over the ratio bins: 35 subjects per cell instead of ~25, so this is
+    # the version that can carry a meaningful error bar. The 2D grid above is too
+    # thin per cell to read as evidence on its own.
+    keys2 = ['order', 'n_safe']
+    ps2 = (d.groupby(keys2 + ['subject', 'stimulation_condition'])['y']
+             .mean().unstack('stimulation_condition').dropna())
+    ps2['delta'] = ps2['ips'] - ps2['vertex']
+    g2 = ps2.groupby(keys2)
+    out2 = pd.DataFrame({
+        'vertex': g2['vertex'].mean(), 'ips': g2['ips'].mean(),
+        'delta': g2['delta'].mean(), 'sem': g2['delta'].sem(),
+        'n_subjects': g2['delta'].size(),
+    }).reset_index()
+    p2 = Path(out_dir) / 'behavior_effect_by_safe.tsv'
+    out2.to_csv(p2, sep='\t', index=False)
+    print(f'wrote {p2}  ({len(out2)} cells, '
+          f'{out2.n_subjects.min()}-{out2.n_subjects.max()} subjects per cell)')
+    print(out2.round(3).to_string(index=False))
+
     p = Path(out_dir) / 'behavior_effect_grid.tsv'
     out.to_csv(p, sep='\t', index=False)
     print(f'wrote {p}  ({len(out)} cells, {out.n_trials.sum()} trials, '

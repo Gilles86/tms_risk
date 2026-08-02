@@ -78,7 +78,7 @@ def main(data_dir, label, out_stem):
     d = pd.read_csv(data / f'decision_space.{label}.tsv', sep='\t')
     cells_x, cells_y = design_cells(data)
 
-    obs = pd.read_csv(data / 'behavior_effect_grid.tsv', sep='\t')
+    obs = pd.read_csv(data / 'behavior_effect_by_safe.tsv', sep='\t')
     fig = plt.figure(figsize=(7.25, 4.3))
     gs = fig.add_gridspec(2, 4, hspace=.13, wspace=.14,
                           left=.075, right=.99, top=.845, bottom=.235)
@@ -90,12 +90,11 @@ def main(data_dir, label, out_stem):
         if centre is None:
             norms[key] = (np.nanmin(z), np.nanmax(z))
         else:
-            if key == 'effect':
-                z = np.concatenate([z, obs.delta.values])
             c = np.nanmax(np.abs(z - centre))
             norms[key] = (centre - c, centre + c)
 
-    ims = {}
+    ims, d_axes = {}, []
+    IPS = '#d62728'
     for row, order in enumerate(ORDERS):
         o = d[d.order == order]
         for col, (key, title, cmap, _, ink) in enumerate(SPECS):
@@ -123,34 +122,38 @@ def main(data_dir, label, out_stem):
             else:
                 ax.set_yticklabels([])
 
-        # --- fourth column: what participants actually did, binned the same way
+        # --- fourth column: model prediction against what participants actually did.
+        # A 2D grid of the observed effect was too thin per cell (~25 subjects) to read
+        # as evidence; collapsing over the ratio gives 35 subjects per point and an
+        # error bar, which is what makes this a usable posterior predictive check.
         ax = fig.add_subplot(gs[row, 3])
-        oo = obs[obs.order == order]
-        piv = oo.pivot_table(index='ratio_mid', columns='n_safe', values='delta')
-        xs = np.sort(oo.n_safe.unique())
-        ys = np.sort(oo.ratio_mid.unique())
-        xe = np.concatenate([[xs[0] - (xs[1] - xs[0]) / 2],
-                             (xs[:-1] + xs[1:]) / 2,
-                             [xs[-1] + (xs[-1] - xs[-2]) / 2]])
-        ye = np.concatenate([[ys[0] - (ys[1] - ys[0]) / 2],
-                             (ys[:-1] + ys[1:]) / 2,
-                             [ys[-1] + (ys[-1] - ys[-2]) / 2]])
-        vmin, vmax = norms['effect']
-        ims['observed'] = ax.pcolormesh(xe, ye, piv.values, cmap='RdBu_r',
-                                        vmin=vmin, vmax=vmax, edgecolors='w',
-                                        linewidth=.4)
-        ax.set_xticks([7, 14, 20, 28]); ax.set_yticks([1, 2, 3, 4])
-        ax.set_ylim(1, 4)
-        ax.set_yticklabels([])
+        ax.axhline(0, color='.75', lw=.7, ls='--', zorder=0)
+        mo = o.groupby('n_safe').effect.mean()
+        ax.plot(mo.index.values, mo.values, color='.35', lw=1.6, zorder=2)
+        ob = obs[obs.order == order].sort_values('n_safe')
+        ax.errorbar(ob.n_safe, ob.delta, yerr=ob['sem'], fmt='o', color=IPS, ms=4.2,
+                    lw=0, elinewidth=1.1, capsize=0, zorder=3)
+        ax.set_xticks([7, 14, 20, 28])
+        ax.set_xlim(5, 30)
+        ax.yaxis.tick_right(); ax.yaxis.set_label_position('right')
+        ax.spines['right'].set_visible(True); ax.spines['left'].set_visible(False)
         if row == 0:
-            ax.set_title('Observed Δ P(chose risky)\nIPS − vertex', fontsize=7.8,
+            ax.set_title('Model vs observed\nΔ P(chose risky)', fontsize=7.8,
                          color='.2', pad=4)
             ax.set_xticklabels([])
+            ax.text(.05, .06, 'Model', transform=ax.transAxes, fontsize=7, color='.35')
+            ax.text(.05, .19, 'Observed', transform=ax.transAxes, fontsize=7, color=IPS)
         else:
             ax.set_xlabel('Safe payoff (CHF)')
+        ax.set_ylabel('Δ P(chose risky)', fontsize=8)
+        d_axes.append(ax)
 
     # one colourbar per column; columns 3 and 4 share a scale, so one bar spans both
-    bars = [(0, 'cause', 0), (1, 'leverage', 1), (2, 'effect', 3)]
+    lo = min(a.get_ylim()[0] for a in d_axes)
+    hi = max(a.get_ylim()[1] for a in d_axes)
+    for a in d_axes:
+        a.set_ylim(lo, hi)
+    bars = [(0, 'cause', 0), (1, 'leverage', 1), (2, 'effect', 2)]
     for col, key, last_col in bars:
         b0 = fig.axes[4 + col].get_position()
         b1 = fig.axes[4 + last_col].get_position()
@@ -174,7 +177,8 @@ def main(data_dir, label, out_stem):
         o = d[d.order == order]
         ob = obs[obs.order == order]
         print(f'  {order:14s} model mean Δ = {o.effect.mean():+.4f}   '
-              f'observed mean Δ = {ob.delta.mean():+.4f}')
+              f'observed mean Δ = {ob.delta.mean():+.4f} '
+              f'(peak {ob.delta.max():+.3f} ± {ob.loc[ob.delta.idxmax(), "sem"]:.3f})')
 
 
 if __name__ == '__main__':
