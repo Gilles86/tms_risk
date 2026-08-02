@@ -147,7 +147,13 @@ def main(bids_folder, model_label, bauer_path, out_stem, n_draws, n_grid, data_d
     for rf_val, name in [(True, 'Risky first'), (False, 'Risky second')]:
         base = (p['risky_first'] == rf_val).values
         sv, si = base & ~ips, base & ips
+        # `m` is EV2 - EV1, so norm.cdf(m/s) is P(choose the SECOND option). The
+        # risky option is second only when risky_first is False, so on risky-first
+        # trials that probability belongs to the safe option and has to be flipped
+        # before it can be called P(chose risky). Without this, p_vertex and effect
+        # carry the wrong sign on half the design.
         pv = ss.norm.cdf(m / s)
+        pv = np.where(p['risky_first'].values[:, None], 1.0 - pv, pv)
         p_v, _, _ = cell_mean(pv, sv)
         p_i, xs, ys = cell_mean(pv, si)
         # cause: perceived risky/safe EV ratio, IPS relative to vertex
