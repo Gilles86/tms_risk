@@ -1,10 +1,17 @@
 """Figure 5: where in the decision space cTBS actually changes behaviour.
 
-The argument runs left to right, and the reader should be able to multiply the first
-two columns to get the third:
+The argument runs left to right: a distortion of perceived value (column a) matters
+only where choice is sensitive to it (column b), and the behavioural effect (column c)
+is large only where both hold.
 
-    distortion  x  leverage  =  behavioural effect
-      (cause)      (|dP/dm|)     (Delta P(risky))
+The columns are NOT literally multiplicable. `cause` is a dimensionless ratio
+(perceived risky/safe EV, IPS over vertex) while `leverage` is |dP/dm| in units of
+1/CHF, so their product is not `effect`; regressing one on the other gives a slope of
+0.74, not 1. Each is also averaged over subjects and draws independently, so by
+Jensen's inequality none of them is a function of the others' displayed means --
+`leverage` runs about 0.70x the value implied by the plotted `p_vertex` and
+`noise_vertex`, and peaks at p = 0.44-0.47 rather than exactly 0.5. The columns are
+three separate views of one mechanism, not an arithmetic chain.
 
 Rows are presentation order. The point of the figure is the contrast BETWEEN the rows,
 so every column shares one colour scale across both rows -- the preprint version gave
