@@ -30,7 +30,45 @@ import matplotlib as mpl          # noqa: E402
 import matplotlib.pyplot as plt   # noqa: E402
 import seaborn as sns             # noqa: E402
 from fit_model import get_data    # noqa: E402
-from tms_risk.behavior.scripts.decompose_pmc_channels import build_flexible  # noqa: E402
+from tms_risk.behavior.scripts.fit_pmc_noisefix import (SUFFIX_REGRESSORS,  # noqa: E402
+                                                        build as build_model)
+
+
+def rebuild(df, idata, model_label):
+    """Rebuild the exact model a trace was fitted with.
+
+    `compute_deterministics` needs a graph whose free variables match the posterior,
+    so the regressor set, family, spline count and spline degree all have to agree.
+    Every fit from 2026-07 on stamps those into `posterior.attrs`, which is more
+    reliable than re-deriving them from the label; the regex is the fallback for
+    older traces.
+    """
+    a = idata.posterior.attrs
+    m = re.fullmatch(r'(flexible|weber)([12])(\.\d)?_noisefix(_\w+)?(\.\w+)?', model_label)
+    if m is None:                                   # pre-refit labels, e.g. `flexible2`
+        m2 = re.fullmatch(r'flexible([12])(\.\d)?', model_label)
+        if m2 is None:
+            raise SystemExit(f'cannot infer a model from label {model_label!r}')
+        noise, family, order_, suffix = 'flexible', int(m2.group(1)), \
+            (5 if m2.group(2) is None else int(m2.group(2)[1:])), ''
+    else:
+        noise = 'weber' if m.group(1) == 'weber' else 'flexible'
+        family, suffix = int(m.group(2)), (m.group(4) or '')
+        order_ = 5 if m.group(3) is None else int(m.group(3)[1:])
+
+    family = int(a.get('tms_risk_family', family))
+    order_ = int(a.get('tms_risk_spline_order', order_)) or order_
+    degree = int(a.get('tms_risk_spline_degree', 3))
+    if 'tms_risk_noise' in a:
+        noise = a['tms_risk_noise']
+    if 'tms_risk_regressors' in a:
+        regs = [r for r in a['tms_risk_regressors'].split(',') if r]
+    else:
+        regs = SUFFIX_REGRESSORS[family][suffix]
+    print(f'rebuilding {model_label}: noise={noise} family={family} '
+          f'splines={order_} degree={degree} regressors={regs or "none"}')
+    return build_model(df, regs, spline_order=order_, family=family,
+                       spline_degree=degree, noise=noise)
 
 VERTEX, IPS = '#2ca02c', '#d62728'
 
@@ -53,11 +91,9 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
     df = get_data(bids_folder)
     tdir = Path(trace_dir) if trace_dir else Path(bids_folder) / 'derivatives' / 'cogmodels'
     idata = az.from_netcdf(tdir / f'model-{model_label}_trace.netcdf')
-    m = re.fullmatch(r'flexible([12])(\.\d)?(_noisefix)?(\.\w+)?', model_label)
-    family, order_ = int(m.group(1)), (5 if m.group(2) is None else int(m.group(2)[1:]))
+    model = rebuild(df.copy(), idata, model_label)
     model_label = tag or model_label
 
-    model = build_flexible(df.copy(), spline_order=order_, family=family)
     model.build_estimation_model(save_p_choice=True)
     keep = np.linspace(0, idata.posterior.sizes['draw'] - 1,
                        max(1, n_draws // idata.posterior.sizes['chain'])).astype(int)

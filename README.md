@@ -2,7 +2,12 @@
 
 Combined cTBS-TMS + 7T fMRI study of how parietal magnitude
 representations causally shape risk preferences (de Hollander, Moisa
-& Ruff). Manuscript draft: `notes/paper/TMS paper -v7.pdf`.
+& Ruff). Manuscript draft: `notes/paper/TMS_paper_v8_with_CR_comments.pdf`.
+
+> **Looking for the code behind a specific figure, table or statistic?**
+> [`notes/PROVENANCE.md`](notes/PROVENANCE.md) has one row per published item:
+> which script produces it, what it reads, what it writes, and whether the
+> number in the current draft is still current.
 
 The pipeline targets numerosity-tuned right parietal cortex with cTBS
 (vertex control vs. parietal) and measures effects on (a) nPRF

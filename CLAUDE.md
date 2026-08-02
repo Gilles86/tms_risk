@@ -180,6 +180,12 @@ exceeds 0.02, so a wrong pin cannot pass unnoticed.
 
 ## Where the paper's numbers come from
 
+**`notes/PROVENANCE.md` is the index**: one row per published figure, table and
+reported statistic, with the script that produces it, the TSV it reads, and whether
+the draft's number is still current. Update it whenever you add or supersede an
+analysis — it is the file a future reader will open first.
+
+
 One cell per reported statistic. `notes/v8_stats_check.md` holds a
 line-by-line audit of the v8 Results against these cells.
 
