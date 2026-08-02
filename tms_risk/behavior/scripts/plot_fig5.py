@@ -101,7 +101,8 @@ def main(data_dir, label, out_stem):
             norms[key] = (centre - c, centre + c)
 
     ims, d_axes = {}, []
-    IPS = '#d62728'
+    # a difference is not one of the conditions, so it does not take the IPS red
+    DIFF = '#1a1a1a'
     for row, order in enumerate(ORDERS):
         o = d[d.order == order]
         for col, (key, title, cmap, _, ink) in enumerate(SPECS):
@@ -138,7 +139,7 @@ def main(data_dir, label, out_stem):
         mo = o.groupby('n_safe').effect.mean()
         ax.plot(mo.index.values, mo.values, color='.35', lw=1.6, zorder=2)
         ob = obs[obs.order == order].sort_values('n_safe')
-        ax.errorbar(ob.n_safe, ob.delta, yerr=ob['sem'], fmt='o', color=IPS, ms=4.2,
+        ax.errorbar(ob.n_safe, ob.delta, yerr=ob['sem'], fmt='o', color=DIFF, ms=4.2,
                     lw=0, elinewidth=1.1, capsize=0, zorder=3)
         ax.set_xticks([7, 14, 20, 28])
         ax.set_xlim(5, 30)
@@ -149,7 +150,7 @@ def main(data_dir, label, out_stem):
                          color='.2', pad=4)
             ax.set_xticklabels([])
             ax.text(.05, .06, 'Model', transform=ax.transAxes, fontsize=7, color='.35')
-            ax.text(.05, .19, 'Observed', transform=ax.transAxes, fontsize=7, color=IPS)
+            ax.text(.05, .19, 'Observed', transform=ax.transAxes, fontsize=7, color=DIFF)
         else:
             ax.set_xlabel('Safe payoff (CHF)')
         ax.set_ylabel('Δ P(chose risky)', fontsize=8)

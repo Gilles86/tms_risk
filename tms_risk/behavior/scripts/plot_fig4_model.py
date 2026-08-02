@@ -27,6 +27,10 @@ import pandas as pd
 import seaborn as sns
 
 VERTEX, IPS = '#2ca02c', '#d62728'
+# Colour is semantic across the paper: green = vertex, red = IPS. A DIFFERENCE
+# between them is a third quantity, not one of the conditions, so it gets its own
+# near-black ink rather than borrowing the IPS red.
+DIFF = '#1a1a1a'
 FLEX, WEBER = '#3B5BA5', '#9c9c9c'
 XT = [7, 14, 28, 56, 112]
 
@@ -218,8 +222,8 @@ def main(data_dir, table, label, out_stem):
     rel = pd.read_csv(data / f'pmcpars_relative.{label}.tsv', sep='\t')
     rel = rel[rel.term == 'perceptual_noise_sd'].sort_values('payoff')
     ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
-    ax.fill_between(rel.payoff, rel.lo, rel.hi, color=IPS, alpha=.18, lw=0, zorder=1)
-    ax.plot(rel.payoff, rel.pct, color=IPS, zorder=2)
+    ax.fill_between(rel.payoff, rel.lo, rel.hi, color=DIFF, alpha=.16, lw=0, zorder=1)
+    ax.plot(rel.payoff, rel.pct, color=DIFF, zorder=2)
     ax.set_xscale('log'); ax.set_xticks(XT)
     ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.set_xlabel('Payoff (CHF)')

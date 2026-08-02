@@ -27,6 +27,10 @@ import pandas as pd
 import seaborn as sns
 
 VERTEX, IPS = '#2ca02c', '#d62728'
+# Colour is semantic across the paper: green = vertex, red = IPS. A DIFFERENCE
+# between them is a third quantity, not one of the conditions, so it gets its own
+# near-black ink rather than borrowing the IPS red.
+DIFF = '#1a1a1a'
 FLAT, SHIFT = '#3B5BA5', '#b8860b'      # consistency-only, preference-only
 ORDERS = ['Risky first', 'Risky second']
 
@@ -80,7 +84,7 @@ def main(data_dir, out_stem):
 
         # bins whose baseline is above 0.5 -- where flattening MUST be negative
         above = r.vertex.values > .5
-        ax.errorbar(xs, r.delta, yerr=r['sem'], fmt='o', color=IPS, ms=4.4, lw=0,
+        ax.errorbar(xs, r.delta, yerr=r['sem'], fmt='o', color=DIFF, ms=4.4, lw=0,
                     elinewidth=1.1, capsize=0, zorder=4)
         if above.any():
             ax.scatter(xs[above], r.delta.values[above], s=95, facecolor='none',
@@ -100,7 +104,7 @@ def main(data_dir, out_stem):
     axes[0].text(.04, .84, 'Pure shift', transform=axes[0].transAxes,
                  fontsize=6.8, color=SHIFT, va='top')
     axes[0].text(.04, .73, 'Observed', transform=axes[0].transAxes,
-                 fontsize=6.8, color=IPS, va='top')
+                 fontsize=6.8, color=DIFF, va='top')
     axes[1].text(.97, .04, 'Ringed: baseline > 0.5,\nwhere flattening must be negative',
                  transform=axes[1].transAxes, fontsize=6.3, color='.3', va='bottom',
                  ha='right', linespacing=1.25)
@@ -110,7 +114,7 @@ def main(data_dir, out_stem):
     ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
     order_bins = list(dict.fromkeys(nrk.n_risky_bin))
     xb = np.arange(len(order_bins))
-    for o, colr, mk in [('Risky second', IPS, 'o'), ('Risky first', '.55', 's')]:
+    for o, colr, mk in [('Risky second', DIFF, 'o'), ('Risky first', '.62', 's')]:
         g = nrk[nrk.order == o].set_index('n_risky_bin').reindex(order_bins).reset_index()
         ax.errorbar(xb + (.07 if o == 'Risky second' else -.07), g.delta, yerr=g['sem'],
                     fmt=mk, color=colr, ms=4.2, lw=0, elinewidth=1.1, capsize=0,
@@ -120,9 +124,9 @@ def main(data_dir, out_stem):
     ax.set_ylabel('Δ P(chose risky)\nIPS − vertex')
     ax.set_title('By payoff size', fontsize=8.5, color='.2', pad=4)
     ax.text(.97, .95, 'Risky second', transform=ax.transAxes, fontsize=6.8,
-            color=IPS, va='top', ha='right')
+            color=DIFF, va='top', ha='right')
     ax.text(.97, .84, 'Risky first', transform=ax.transAxes, fontsize=6.8,
-            color='.55', va='top', ha='right')
+            color='.62', va='top', ha='right')
 
     for a, letter in zip([axes[0], axes[1], ax], 'abc'):
         a.text(-.20, 1.06, letter, transform=a.transAxes, **PANEL)

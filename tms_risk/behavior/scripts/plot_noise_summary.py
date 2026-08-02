@@ -28,6 +28,10 @@ import pandas as pd
 import seaborn as sns
 
 VERTEX, IPS = '#2ca02c', '#d62728'
+# Colour is semantic across the paper: green = vertex, red = IPS. A DIFFERENCE
+# between them is a third quantity, not one of the conditions, so it gets its own
+# near-black ink rather than borrowing the IPS red.
+DIFF = '#1a1a1a'
 FIRST, SECOND = '#3B5BA5', '#7b3294'
 
 mpl.rcParams.update({
@@ -108,9 +112,9 @@ def winner(data, label, out_stem):
     d = c[(c.term == 'perceptual_noise_sd') & (c.stimulation == 'ips - vertex')]
     d = d.sort_values('payoff')
     ax.axhline(0, color='.75', lw=.6, ls='--', zorder=0)
-    ax.fill_between(d.payoff, d.lo, d.hi, color=IPS, alpha=.18, lw=0)
-    ax.plot(d.payoff, d.nu, color=IPS)
-    n_sig = cred(ax, d, d.hi.max() * 1.06, IPS)
+    ax.fill_between(d.payoff, d.lo, d.hi, color=DIFF, alpha=.16, lw=0)
+    ax.plot(d.payoff, d.nu, color=DIFF)
+    n_sig = cred(ax, d, d.hi.max() * 1.06, DIFF)
     ax.set_xscale('log'); ax.set_xticks(XT)
     ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.set_xlabel('Payoff (CHF)')
@@ -123,7 +127,7 @@ def winner(data, label, out_stem):
     v = c[(c.term == 'perceptual_noise_sd') & (c.stimulation == 'vertex')].set_index('payoff').nu
     rel = 100 * (i / v - 1)
     ax.axhline(0, color='.75', lw=.6, ls='--', zorder=0)
-    ax.plot(rel.index.values, rel.values, color=IPS)
+    ax.plot(rel.index.values, rel.values, color=DIFF)
     ax.set_xscale('log'); ax.set_xticks(XT)
     ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.set_xlabel('Payoff (CHF)')
