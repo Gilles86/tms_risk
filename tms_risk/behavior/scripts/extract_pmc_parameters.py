@@ -178,6 +178,19 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
                 'term': key, 'stimulation': 'ips - vertex', 'payoff': xs,
                 'nu': d_.mean(0), 'lo': np.quantile(d_, .025, axis=0),
                 'hi': np.quantile(d_, .975, axis=0)}))
+        # The memory CONTRIBUTION, nu_1 - nu_2, propagated through the same draws so it
+        # carries a real credible interval. It cannot be recovered from the marginal
+        # intervals of nu_1 and nu_2, and its sign is the substantive question: the
+        # model composes nu_1 = softplus(eta_mem + eta_perc), which does not constrain
+        # the contribution to be positive.
+        for cd in ['ips', 'vertex']:
+            n1 = softplus(eta[('memory_noise_sd', cd)] + eta[('perceptual_noise_sd', cd)])
+            n2 = softplus(eta[('perceptual_noise_sd', cd)])
+            g = n1 - n2
+            rows.append(pd.DataFrame({
+                'term': 'memory_contribution', 'stimulation': cd, 'payoff': xs,
+                'nu': g.mean(0), 'lo': np.quantile(g, .025, axis=0),
+                'hi': np.quantile(g, .975, axis=0), 'p_pos': (g > 0).mean(0)}))
 
     curves = pd.concat(rows)
     curves.to_csv(out_dir / f'pmcpars_curves.{label}.tsv', sep='\t', index=False)
