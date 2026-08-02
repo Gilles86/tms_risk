@@ -89,11 +89,11 @@ XPAD = .9  # CHF of margin, so the end ticks are not flush against the panel edg
 # Panel geometry in figure coordinates. The block of 2D maps and the 1D panel get a
 # wide gutter between them so that column d's y-axis never crowds column c; the left
 # margin has to hold the rotated row name as well as the y-axis label.
-MAPS_L, MAPS_R = .082, .723
+MAPS_L, MAPS_R = .082, .726
 D_L, D_R = .781, .995
 TOP, BOTTOM = .855, .315
 CBAR_Y, CBAR_H = .120, .020
-YLAB_X = -.125  # axes-fraction x of the maps' y-label; matplotlib's automatic
+YLAB_X = -.170  # axes-fraction x of the maps' y-label; matplotlib's automatic
 #                 placement leaves ~0.3 inch of dead space we cannot afford here
 
 
@@ -103,20 +103,20 @@ def grid(d, key):
     return piv.columns.values, piv.index.values, piv.values
 
 
-def design_cells(data):
-    """The 30 (safe payoff, ratio) combinations the participants actually saw."""
+def design_payoffs(data):
+    """The five safe payoffs the design actually used -- the figure's x ticks.
+
+    The risky amount was titrated per subject, so the ratio on the y axis has no
+    discrete levels to mark; see the module docstring.
+    """
     p = pd.read_csv(data / 'paradigm_payoffs.tsv', sep='\t')
-    p['ratio'] = p.n_risky / p.n_safe
-    p['bin'] = pd.qcut(p.ratio, 6, labels=False)
-    cy = p.groupby('bin').ratio.mean().values
-    cx = np.sort(p.n_safe.unique())
-    return np.tile(cx, len(cy)), np.repeat(cy, len(cx))
+    return np.sort(p.n_safe.unique())
 
 
 def main(data_dir, label, out_stem):
     data = Path(data_dir)
     d = pd.read_csv(data / f'decision_space.{label}.tsv', sep='\t')
-    cells_x, cells_y = design_cells(data)
+    xticks = design_payoffs(data)
     obs = pd.read_csv(data / 'behavior_effect_by_safe.tsv', sep='\t')
 
     fig = plt.figure(figsize=(7.25, 4.4))
@@ -146,22 +146,16 @@ def main(data_dir, label, out_stem):
             ims[key] = ax.pcolormesh(x, y, z, cmap=cmap, shading='gouraud',
                                      vmin=vmin, vmax=vmax, rasterized=True)
             _, _, pv = grid(o, 'p_vertex')
-            ax.contour(x, y, pv, levels=[.5], colors=ink, linewidths=1.1)
+            cs = ax.contour(x, y, pv, levels=[.5], colors=ink, linewidths=1.1)
             # Dotted and thinner than the contour so the reference line and the model
             # output stay distinguishable even where they run close together.
             ax.axhline(RISK_NEUTRAL, color=ink, lw=.7, ls=':', alpha=.75, zorder=3)
-            ax.scatter(cells_x, cells_y, s=5.5, facecolor='none', edgecolor=ink,
-                       linewidth=.5, zorder=4, alpha=.7)
-            # The contour is named once, in the one band of the panel that carries no
-            # design cells (between the ratio-2.84 and ratio-3.63 rows), with a leader
-            # down to the line: an inline contour label sits on top of the cells.
+            # Named once, inline, placed by hand in the smoothest stretch of the map
+            # and well clear of the risk-neutral line below it.
             if row == 0 and col == 0:
-                ax.annotate('Indifference', xy=(13.4, 2.07), xytext=(9.2, 3.25),
-                            fontsize=6.5, color='.15', ha='left', va='center',
-                            arrowprops=dict(arrowstyle='-', color='.35', lw=.6,
-                                            connectionstyle='arc3,rad=-.25',
-                                            shrinkA=2, shrinkB=1))
-            ax.set_xticks(XTICKS)
+                ax.clabel(cs, fmt={.5: 'Indifference'}, fontsize=6.5, inline=True,
+                          inline_spacing=4, manual=[(19.5, 2.4)])
+            ax.set_xticks(xticks)
             ax.set_yticks([1, 2, 3, 4])
             ax.set_xlim(x.min() - XPAD, x.max() + XPAD)
             ax.set_ylim(y.min(), y.max())
@@ -172,6 +166,7 @@ def main(data_dir, label, out_stem):
                 # short enough to fit inside the panel height -- a longer label
                 # overhangs the axes and runs into the other row's copy
                 ax.set_ylabel('Risky/safe ratio')
+                ax.yaxis.set_label_coords(YLAB_X, .5)
             else:
                 ax.set_yticklabels([])
             sns.despine(ax=ax, offset=3, trim=True)
@@ -187,19 +182,21 @@ def main(data_dir, label, out_stem):
         ob = obs[obs.order == order].sort_values('n_safe')
         ax.errorbar(ob.n_safe, ob.delta, yerr=ob['sem'], fmt='o', color=DIFF, ms=4.2,
                     lw=0, elinewidth=1.1, capsize=0, zorder=3)
-        ax.set_xticks(XTICKS)
-        ax.set_xlim(7 - XPAD * 1.6, 28 + XPAD * 1.6)
+        ax.set_xticks(xticks)
+        ax.set_xlim(xticks.min() - XPAD * 1.6, xticks.max() + XPAD * 1.6)
         ax.set_yticks([-.05, 0, .05, .10])
         ax.set_ylim(-.09, .16)
-        ax.set_ylabel('Δ P(chose risky)')
+        # The quantity is named in the column title, not in a y-label: a rotated
+        # y-label here has to clear four 5-character tick labels and ends up sitting
+        # on top of column c's map.
         if row == 0:
-            ax.set_title('Model vs observed', color='.2', pad=4)
+            ax.set_title('Model vs observed\nΔ P(chose risky)', color='.2', pad=6)
             ax.set_xticklabels([])
             # Direct labels rather than a legend, in the headroom above the row-0 data
             # (which peaks at 0.085, at 28 CHF, on the far side of the panel).
-            ax.text(.03, .97, 'Observed', transform=ax.transAxes, fontsize=7,
+            ax.text(.03, .93, 'Observed', transform=ax.transAxes, fontsize=7,
                     color=DIFF, va='top')
-            ax.text(.03, .855, 'Model', transform=ax.transAxes, fontsize=7,
+            ax.text(.03, .825, 'Model', transform=ax.transAxes, fontsize=7,
                     color=MODEL, va='top')
         sns.despine(ax=ax, offset=4, trim=True)
         d_axes.append(ax)
