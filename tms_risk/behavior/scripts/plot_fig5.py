@@ -18,11 +18,14 @@ so every column shares one colour scale across both rows -- the preprint version
 each of its twelve panels its own autoscaled colourbar, which makes exactly that
 comparison impossible to make by eye.
 
-The indifference contour (vertex P(risky) = 0.5) is drawn on all six panels. It is the
-ridge of the leverage map by construction: a distortion of the decision variable only
-moves choices where the psychometric function is steep, and the psychometric function
-is steepest at indifference. Distortions far from that contour are invisible in
-behaviour however large they are.
+The indifference contour (vertex P(risky) = 0.5) is drawn on all six panels, flanked by
+the 0.25 and 0.75 contours. The 0.5 line is the ridge of the leverage map by
+construction: a distortion of the decision variable only moves choices where the
+psychometric function is steep, and the psychometric function is steepest at
+indifference. Distortions far from that contour are invisible in behaviour however
+large they are. The spacing of the three contours is that steepness made visible --
+bunched where choice is sensitive, spread where it is not -- which is why the leverage
+column and the contour spacing tell the same story.
 
 There is no lattice of "design cells" to mark. The safe payoff is a real 5-level
 design factor (7, 10, 14, 20, 28 CHF), but the risky amount was titrated per subject,
@@ -44,6 +47,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from matplotlib.collections import LineCollection
 
 mpl.rcParams.update({
     'font.family': 'Helvetica',
@@ -65,6 +69,14 @@ ORDERS = ['Risky first', 'Risky second']
 # choosing safe is risk-averse, so it turns the axis from arbitrary into
 # interpretable. The fitted indifference points (1/RNP) straddle it.
 RISK_NEUTRAL = 1 / 0.55
+# One quantity, one ink. The indifference contour meant the same thing in every panel
+# but was drawn white on mako and dark on RdBu_r, which reads as two different things.
+# A single dark grey works on all three maps because the p = 0.5 contour runs through
+# the pale middle of the diverging maps and along mako's light high-leverage ridge --
+# which is not a coincidence: leverage peaks at indifference.
+CONTOUR = '0.15'   # the p = 0.5 indifference contour
+FLANK = '0.45'     # its 0.25 / 0.75 flanks, lighter so the hierarchy is obvious
+GUIDE = '0.35'     # the risk-neutral reference, dotted so it cannot be confused
 # A difference between the two stimulation conditions is a third quantity: it must not
 # borrow the IPS red or the vertex green, so everything derived from it takes
 # near-black. The model prediction it is checked against takes mid-grey.
@@ -73,15 +85,12 @@ MODEL = '.45'
 
 # Titles are hard-wrapped so that no line is wider than its panel -- an overflowing
 # title runs straight into the neighbouring column's panel letter.
-# (key, title, cmap, colour-centre, ink, colourbar ticks) -- `ink` is the colour of
-# every line and marker drawn over that column's map (indifference contour, design
-# cells, risk-neutral reference), chosen to read against its colormap so no outline
-# stroke is needed.
+# (key, title, cmap, colour-centre, colourbar ticks)
 SPECS = [
-    ('cause', 'Perceived risky/safe\nratio, IPS / vertex', 'RdBu_r', 1.0, '.15',
+    ('cause', 'Perceived risky/safe\nratio, IPS / vertex', 'RdBu_r', 1.0,
      [.95, 1.00, 1.05]),
-    ('leverage', 'Leverage\n(1/CHF)', 'mako', None, 'w', [.1, .2, .3, .4]),
-    ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, '.15', [-.1, 0., .1]),
+    ('leverage', 'Leverage\n(1/CHF)', 'mako', None, [.1, .2, .3, .4]),
+    ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, [-.1, 0., .1]),
 ]
 
 XPAD = .9  # CHF of margin, so the end ticks are not flush against the panel edge
@@ -127,7 +136,7 @@ def main(data_dir, label, out_stem):
 
     # one colour scale per column, so the two rows are directly comparable
     norms = {}
-    for key, _t, _cmap, centre, _ink, _ct in SPECS:
+    for key, _t, _cmap, centre, _ct in SPECS:
         z = np.concatenate([d[d.order == o][key].values for o in ORDERS])
         if centre is None:
             norms[key] = (np.nanmin(z), np.nanmax(z))
@@ -138,7 +147,7 @@ def main(data_dir, label, out_stem):
     ims, map_axes, d_axes = {}, [], []
     for row, order in enumerate(ORDERS):
         o = d[d.order == order]
-        for col, (key, title, cmap, _c, ink, _ct) in enumerate(SPECS):
+        for col, (key, title, cmap, _c, _ct) in enumerate(SPECS):
             ax = fig.add_subplot(gs[row, col])
             map_axes.append(ax)
             x, y, z = grid(o, key)
@@ -146,15 +155,22 @@ def main(data_dir, label, out_stem):
             ims[key] = ax.pcolormesh(x, y, z, cmap=cmap, shading='gouraud',
                                      vmin=vmin, vmax=vmax, rasterized=True)
             _, _, pv = grid(o, 'p_vertex')
-            cs = ax.contour(x, y, pv, levels=[.5], colors=ink, linewidths=1.1)
+            # 0.25 and 0.75 flank the indifference line. Where the three bunch up the
+            # psychometric function is steep, where they spread apart it is shallow --
+            # so the leverage panel's message becomes visible in every column, without
+            # a word of text. Thin and solid rather than dashed, to stay clearly
+            # distinct from the dotted risk-neutral line they run near.
+            cf = ax.contour(x, y, pv, levels=[.25, .75], colors=FLANK,
+                            linewidths=.6, alpha=.8)
+            cs = ax.contour(x, y, pv, levels=[.5], colors=CONTOUR, linewidths=1.1)
+            # label every contour in every panel; with the wider panels there is room,
+            # and it saves the reader carrying the meaning across from one panel
+            ax.clabel(cs, fmt={.5: '50%'}, fontsize=5.8, inline=True, inline_spacing=3)
+            ax.clabel(cf, fmt={.25: '25%', .75: '75%'}, fontsize=5.4, inline=True,
+                      inline_spacing=2)
             # Dotted and thinner than the contour so the reference line and the model
             # output stay distinguishable even where they run close together.
-            ax.axhline(RISK_NEUTRAL, color=ink, lw=.7, ls=':', alpha=.75, zorder=3)
-            # Named once, inline, placed by hand in the smoothest stretch of the map
-            # and well clear of the risk-neutral line below it.
-            if row == 0 and col == 0:
-                ax.clabel(cs, fmt={.5: 'Indifference'}, fontsize=6.5, inline=True,
-                          inline_spacing=4, manual=[(19.5, 2.4)])
+            ax.axhline(RISK_NEUTRAL, color=GUIDE, lw=.7, ls=':', alpha=.9, zorder=3)
             ax.set_xticks(xticks)
             ax.set_yticks([1, 2, 3, 4])
             ax.set_xlim(x.min() - XPAD, x.max() + XPAD)
@@ -177,8 +193,20 @@ def main(data_dir, label, out_stem):
         # error bar, which is what makes this a usable posterior predictive check.
         ax = fig.add_subplot(gsd[row, 0])
         ax.axhline(0, color='.75', lw=.7, ls='--', zorder=0)
+        # Panel d plots exactly the quantity column c maps, so it uses column c's
+        # encoding too: the line is coloured by its own value on c's colormap and
+        # norm. A dark casing underneath keeps it visible where the effect is near
+        # zero and the colour is therefore near-white.
         mo = o.groupby('n_safe').effect.mean()
-        ax.plot(mo.index.values, mo.values, color=MODEL, lw=1.6, zorder=2)
+        mx, my = mo.index.values, mo.values
+        pts = np.array([mx, my]).T.reshape(-1, 1, 2)
+        segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
+        vmin_e, vmax_e = norms['effect']
+        ax.plot(mx, my, color='.3', lw=3.4, solid_capstyle='round', zorder=2)
+        lc = LineCollection(segs, cmap='RdBu_r', norm=plt.Normalize(vmin_e, vmax_e),
+                            lw=2.4, capstyle='round', zorder=3)
+        lc.set_array((my[:-1] + my[1:]) / 2)
+        ax.add_collection(lc)
         ob = obs[obs.order == order].sort_values('n_safe')
         ax.errorbar(ob.n_safe, ob.delta, yerr=ob['sem'], fmt='o', color=DIFF, ms=4.2,
                     lw=0, elinewidth=1.1, capsize=0, zorder=3)
@@ -207,7 +235,7 @@ def main(data_dir, label, out_stem):
                  fontsize=8.5)
 
     # one colourbar per column, aligned to that column and set well below the x-label
-    for col, (key, _t, _c, _ce, _i, ticks) in enumerate(SPECS):
+    for col, (key, _t, _c, _ce, ticks) in enumerate(SPECS):
         b = map_axes[3 + col].get_position()
         cax = fig.add_axes([b.x0, CBAR_Y, b.width, CBAR_H])
         cb = fig.colorbar(ims[key], cax=cax, orientation='horizontal', ticks=ticks)
