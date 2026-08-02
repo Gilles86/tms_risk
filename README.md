@@ -59,6 +59,25 @@ SLURM wrappers for the python scripts next to it.
 Step-by-step guide in [`REPRODUCING.md`](REPRODUCING.md): pipeline
 stages, model labels for Table 1, and a per-figure notebook map.
 
+### Which notebook produced which reported number
+
+Every statistic in the Results maps to one notebook cell:
+
+| Reported in the paper | Notebook |
+|---|---|
+| nPRF amplitude / preferred numerosity / dispersion / explained variance / proportion cvR² > 0 (Fig. 2A–B) | `tms_risk/modeling/notebooks/analyze_encoding_model.ipynb` |
+| Decoding accuracy + decoding × presentation-order ANOVA (Fig. 2C) | `tms_risk/modeling/notebooks/analyze_decoding.ipynb` |
+| Psychometric curves, slope (consistency) and RNP (Fig. 3) | `tms_risk/notebooks/figure2.ipynb` (name is historical) |
+| Indifference point × consistency; ΔConsistency × Δrisk attitude, overall and split by trial order | `tms_risk/behavior/notebooks/correlation_preference_noise.ipynb` |
+| Flexible PMC noise curves (Fig. 4) | `tms_risk/behavior/notebooks/figure4.ipynb` |
+| ELPD model comparison (Table 1) | `tms_risk/behavior/notebooks/comprehensive_model_comparison.ipynb` |
+| Δamplitude × Δcognitive-noise brain–behaviour link | `tms_risk/behavior/notebooks/neurobehavioral_correlates.ipynb` |
+
+A line-by-line audit of the v8 Results against these cells — including
+three discrepancies and the reproducibility caveats introduced by the
+`cleanup/ddm-port` refactor — is in
+[`notes/v8_stats_check.md`](notes/v8_stats_check.md).
+
 ## Citation
 
 Manuscript in preparation. See `notes/paper/TMS paper -v7.pdf`.

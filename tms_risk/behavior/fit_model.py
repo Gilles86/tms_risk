@@ -174,7 +174,7 @@ def _build_flexible(model_label, df):
     regressors = _flexible_noise_regressors(suffix, memory_model)
     return FlexibleNoiseRiskRegressionModel(
         df, regressors=regressors,
-        polynomial_order=polynomial_order,
+        spline_order=polynomial_order,   # bauer renamed polynomial_order → spline_order
         memory_model=memory_model,
         prior_estimate='full',
     )

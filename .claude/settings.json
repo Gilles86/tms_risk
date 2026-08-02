@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pdftotext *)",
+      "Bash(pdftoppm *)",
+      "Bash(sysctl -n *)"
+    ]
+  }
+}

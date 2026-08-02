@@ -1,0 +1,5 @@
+trace	ok	max_rhat	min_ess_bulk	divergences	chains	draws	n_par	worst_par	family	constrained	bauer_commit	size_gb
+flexible1_noisefix.head	True	1.0	2445.0	10	4	5000	28	n1_evidence_sd_spline1_mu[Intercept]	1	True	e05f73a1f6b54510fc002f188a87be5521583208	1.164754044264555
+flexible1_noisefix_first.head	True	1.0	3301.0	15	4	5000	28	n1_evidence_sd_spline1_mu[Intercept]	1	True	e05f73a1f6b54510fc002f188a87be5521583208	1.1129992231726646
+flexible1_noisefix_null.head	True	1.0	1653.0	0	4	5000	28	n1_evidence_sd_spline1_mu[Intercept]	1	True	e05f73a1f6b54510fc002f188a87be5521583208	0.9128790618851781
+flexible1_noisefix_second.head	True	1.0	983.0	26	4	5000	28	n1_evidence_sd_spline1_mu[Intercept]	1	True	e05f73a1f6b54510fc002f188a87be5521583208	1.1129752779379487

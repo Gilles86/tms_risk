@@ -1,0 +1,13 @@
+diff --git a/bauer/models.py b/bauer/models.py
+index 744d32f..e74abef 100644
+--- a/bauer/models.py
++++ b/bauer/models.py
+@@ -1131,7 +1131,7 @@ class FlexibleNoiseComparisonModel(BaseModel):
+                 dm1 = self.make_dm(x=self.paradigm['n1'], variable=key1)
+                 spline_pars1 = pt.stack([parameters[l1] for l1 in labels1], axis=1)
+                 dm2 = self.make_dm(x=self.paradigm['n1'], variable=key2)
+-                spline_pars2 = pt.stack([parameters[l1] for l1 in labels1], axis=1)
++                spline_pars2 = pt.stack([parameters[l2] for l2 in labels2], axis=1)
+ 
+                 return pt.softplus(pt.sum(spline_pars1 * dm1, 1) + pt.sum(spline_pars2 * dm2, 1))
+ 

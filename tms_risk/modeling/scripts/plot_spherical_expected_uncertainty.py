@@ -47,6 +47,13 @@ COLOR = {'ips': '#d62728', 'vertex': '#2ca02c'}
 N_MIN, N_MAX = 7, 80
 X_TICKS = [7, 10, 15, 20, 30, 50, 80]
 
+# Small-numerosity window for the targeted paired test. The decoder collapses
+# toward the grid mean (~59), so the absolute-error curve is dominated by a
+# shared central-tendency artifact and the whole-range cluster test is diluted;
+# the hypothesis (and the experiment's sampling) lives at small numerosities —
+# the paper's lowest safe options are 7/10/14, preferred-numerosity IQR [6,10].
+TEST_WINDOW = (7, 14)
+
 
 # ── Scientific-figures rcParams ─────────────────────────────────────────────
 def apply_style():
@@ -137,6 +144,7 @@ def cluster_perm_test(
     n_perm: int = 1000,
     alpha_cluster: float = 0.05,
     rng_seed: int = 0,
+    tail: str = 'greater',
 ):
     """Sign-flip cluster permutation test on a per-subject paired-difference
     curve ``ips − vertex`` over a stimulus grid.
@@ -164,8 +172,12 @@ def cluster_perm_test(
     if n_subj < 2:
         return None
 
-    # Cluster-forming threshold = two-sided t critical at p < alpha_cluster
-    t_thresh = stats.t.ppf(1 - alpha_cluster / 2, df=n_subj - 1)
+    # Cluster-forming threshold. 'greater' = one-sided directional test
+    # (predict IPS > Vertex: more decoding error after parietal cTBS); only
+    # positive clusters count. 'two-sided' keeps |t| clusters of either sign.
+    one_sided = (tail == 'greater')
+    t_thresh = stats.t.ppf(1 - alpha_cluster, df=n_subj - 1) if one_sided \
+        else stats.t.ppf(1 - alpha_cluster / 2, df=n_subj - 1)
 
     def t_curve(diffs):
         m = diffs.mean(axis=0)
@@ -174,20 +186,24 @@ def cluster_perm_test(
         return np.where(s > 0, m / s, 0.0)
 
     def find_clusters(t_vec, thresh):
-        """Return list of (start, end_inclusive, signed_sum) for contiguous
-        runs where |t| > thresh, signed by the cluster's sign."""
+        """Contiguous supra-threshold runs as (start, end_inclusive, sum_t).
+        One-sided keeps t > thresh; two-sided keeps |t| > thresh."""
         out = []
-        above = np.abs(t_vec) > thresh
+        above = (t_vec > thresh) if one_sided else (np.abs(t_vec) > thresh)
         if not above.any():
             return out
-        # Identify contiguous runs
         runs = np.diff(np.concatenate([[False], above, [False]]).astype(int))
         starts = np.where(runs ==  1)[0]
         ends   = np.where(runs == -1)[0] - 1
         for s, e in zip(starts, ends):
-            signed_sum = float(t_vec[s:e + 1].sum())
-            out.append((int(s), int(e), signed_sum))
+            out.append((int(s), int(e), float(t_vec[s:e + 1].sum())))
         return out
+
+    # Null cluster mass: max positive cluster (one-sided) or max |cluster| (two-sided).
+    def max_mass(clusters):
+        if not clusters:
+            return 0.0
+        return max((m if one_sided else abs(m)) for _, _, m in clusters)
 
     t_obs    = t_curve(D)
     obs_clusters = find_clusters(t_obs, t_thresh)
@@ -197,14 +213,13 @@ def cluster_perm_test(
     null_max_mass = np.zeros(n_perm)
     for k in range(n_perm):
         flips = rng.choice([-1.0, 1.0], size=n_subj)[:, None]
-        t_perm = t_curve(D * flips)
-        perm_clusters = find_clusters(t_perm, t_thresh)
-        null_max_mass[k] = max((abs(m) for _, _, m in perm_clusters), default=0.0)
+        null_max_mass[k] = max_mass(find_clusters(t_curve(D * flips), t_thresh))
 
-    # P-value per observed cluster = fraction of perms with max-|mass| ≥ |obs|
+    # P-value per observed cluster = fraction of perms with max-mass ≥ obs mass.
     clusters_out = []
     for s, e, m in obs_clusters:
-        p = float((null_max_mass >= abs(m)).mean())
+        obs_mass = m if one_sided else abs(m)
+        p = float((null_max_mass >= obs_mass).mean())
         clusters_out.append({'start': s, 'end': e, 'mass': m, 'p': p})
 
     return {
@@ -218,6 +233,21 @@ def cluster_perm_test(
     }
 
 
+def windowed_paired_test(paired, window):
+    """One-sided paired test of the mean IPS−Vertex difference over a stimulus
+    window (predict IPS > Vertex, i.e. parietal cTBS *increases* error). Returns
+    per-subject mean diff averaged over the window, then t vs 0."""
+    lo, hi = window
+    w = paired[(paired['value'] >= lo) & (paired['value'] <= hi)]
+    per_sub = w.groupby('subject')['diff'].mean().dropna()
+    if len(per_sub) < 3:
+        return None
+    t, p_two = stats.ttest_1samp(per_sub, 0.0)
+    p_one = p_two / 2 if t > 0 else 1 - p_two / 2
+    return {'t': float(t), 'p_one': float(p_one),
+            'mean': float(per_sub.mean()), 'n': int(len(per_sub))}
+
+
 # ── Plot ────────────────────────────────────────────────────────────────────
 def _style_x(ax, ticks=X_TICKS, x_min=N_MIN, x_max=N_MAX):
     ax.set_xscale('log')
@@ -227,22 +257,42 @@ def _style_x(ax, ticks=X_TICKS, x_min=N_MIN, x_max=N_MAX):
     ax.minorticks_off()
 
 
-def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
-    apply_style()
+# Plotted metric. Default = mean_abs_error (the realised mean |decoded − true|).
+# √var_E (`expected_sd`) is the decoder's self-reported posterior width and is
+# FOOLED by grid-mean collapse: under low SNR (IPS, reduced amplitude after
+# cTBS) the posterior collapses toward the grid mean, so var_E *shrinks* while
+# the estimate becomes more biased — making the cTBS effect appear reversed.
+# mean_abs_error captures the realised error (incl. bias) and shows IPS worse,
+# consistent with the paper. See CLAUDE.md "Expected uncertainty vs decoded SD".
+METRIC = {
+    'mean_abs_error': ('expected_abs_error',
+                       'Expected absolute\ndecoding error (n)',
+                       'Abs. decoding error\n(IPS − Vertex)'),
+    'expected_sd':    ('expected_sd',
+                       'Expected SD of\ndecoded estimate (natural)',
+                       'Expected SD\n(IPS − Vertex)'),
+}
 
-    mc = load_mc_decode()
+
+def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000,
+         metric: str = 'mean_abs_error', log_prior: bool = False):
+    apply_style()
+    metric_col, metric_ylabel, metric_dlabel = METRIC[metric]
+
+    root = Path(str(SPHERICAL_ROOT) + '.logprior') if log_prior else SPHERICAL_ROOT
+    mc = load_mc_decode(root=root)
     mc = mc[mc['n_voxels'] == n_voxels]
     mc = join_stimulation_condition(mc)
     mc = mc[(mc['value'] >= N_MIN) & (mc['value'] <= N_MAX)].copy()
 
     n_ips = mc[mc.stimulation_condition == 'ips']['subject'].nunique()
     n_vtx = mc[mc.stimulation_condition == 'vertex']['subject'].nunique()
-    print(f'mc: {len(mc):,} rows · n_voxels={n_voxels} · IPS subj={n_ips} · Vertex subj={n_vtx}')
+    print(f'mc: {len(mc):,} rows · n_voxels={n_voxels} · metric={metric} · IPS subj={n_ips} · Vertex subj={n_vtx}')
 
     # Per-subject × stimulus paired diff
     paired = mc.pivot_table(
         index=['subject', 'value'], columns='stimulation_condition',
-        values='expected_sd', aggfunc='mean',
+        values=metric_col, aggfunc='mean',
     ).reset_index()
     paired['diff'] = paired['ips'] - paired['vertex']
     n_paired = paired.dropna(subset=['ips', 'vertex'])['subject'].nunique()
@@ -261,7 +311,7 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
     label_x = 10
     for cond in ('ips', 'vertex'):
         sub = mc[mc.stimulation_condition == cond]
-        agg = sub.groupby('value')['expected_sd'].agg(['mean', 'sem']).reset_index()
+        agg = sub.groupby('value')[metric_col].agg(['mean', 'sem']).reset_index()
         ax1.fill_between(agg['value'], agg['mean'] - agg['sem'],
                          agg['mean'] + agg['sem'], alpha=0.20, color=COLOR[cond],
                          linewidth=0)
@@ -276,7 +326,7 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
                      fontsize=9, ha='center',
                      fontweight='bold' if cond == 'ips' else 'normal')
     ax1.set_xlabel('True magnitude (n)')
-    ax1.set_ylabel('Expected SD of\ndecoded estimate (natural)')
+    ax1.set_ylabel(metric_ylabel)
     _style_x(ax1)
     sns.despine(ax=ax1, offset=5, trim=True)
 
@@ -306,11 +356,25 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
                              fontsize=7, color=color, fontweight='bold')
         # Subtle in-panel note on the test
         ax2.text(0.02, 0.98,
-                 f'Cluster perm. test\n|t| > {perm["t_thresh"]:.2f}, n_perm = {n_perm}',
+                 f'1-sided cluster perm.\nt > {perm["t_thresh"]:.2f}, n_perm = {n_perm}',
                  transform=ax2.transAxes, ha='left', va='top', fontsize=6.5,
                  color='0.4')
+    # Targeted paired test over the small-numerosity window — where the
+    # hypothesis and the experiment's sampling live (the whole-range cluster
+    # test is diluted by the grid-mean-collapse tail at large n).
+    lo, hi = TEST_WINDOW
+    ax2.axvspan(lo, hi, color='0.92', zorder=0)
+    wt = windowed_paired_test(paired.dropna(subset=['ips', 'vertex']), TEST_WINDOW)
+    if wt is not None:
+        print(f'windowed test n={lo}-{hi}: Δ={wt["mean"]:+.3f} '
+              f't({wt["n"]-1})={wt["t"]:+.2f} p_1s={wt["p_one"]:.3f}')
+        ax2.text(0.98, 0.04,
+                 f'n = {lo}–{hi}:  Δ = {wt["mean"]:+.2f}\n'
+                 f't({wt["n"]-1}) = {wt["t"]:+.2f},  p = {wt["p_one"]:.3f} (1-sided)',
+                 transform=ax2.transAxes, ha='right', va='bottom', fontsize=7,
+                 color='black')
     ax2.set_xlabel('True magnitude (n)')
-    ax2.set_ylabel('Expected SD\n(IPS − Vertex)')
+    ax2.set_ylabel(metric_dlabel)
     _style_x(ax2)
     sns.despine(ax=ax2, offset=5, trim=True)
 
@@ -342,7 +406,8 @@ def main(n_voxels: int = DEFAULT_N_VOXELS, n_perm: int = 1000):
         ha='center', va='top', fontsize=7.5, color='0.4',
     )
 
-    out = Path('notes/figures/spherical_expected_uncertainty')
+    out = Path('notes/figures/spherical_expected_uncertainty'
+               + ('_logprior' if log_prior else ''))
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out.with_suffix('.pdf'))
     fig.savefig(out.with_suffix('.png'), dpi=200)
@@ -362,5 +427,12 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--n_voxels', type=int, default=DEFAULT_N_VOXELS)
     p.add_argument('--n_perm', type=int, default=1000)
+    p.add_argument('--metric', default='mean_abs_error',
+                   choices=['mean_abs_error', 'expected_sd'],
+                   help='Realised error (default) vs the √var_E posterior width '
+                        '(fooled by grid-mean collapse).')
+    p.add_argument('--log_prior', action='store_true',
+                   help='Load the log-prior (geometric-grid) decode.')
     args = p.parse_args()
-    main(n_voxels=args.n_voxels, n_perm=args.n_perm)
+    main(n_voxels=args.n_voxels, n_perm=args.n_perm, metric=args.metric,
+         log_prior=args.log_prior)

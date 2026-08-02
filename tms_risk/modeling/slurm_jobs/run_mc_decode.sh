@@ -37,8 +37,19 @@ MODEL_LABEL_FLAG=""
 if [ -n "${MODEL_LABEL:-}" ]; then
     MODEL_LABEL_FLAG="--model_label ${MODEL_LABEL}"
 fi
+# Set SELECTION=mixture to use the R²-mixture P(signal)>=0.5 voxel selection
+# on session-1 cvR² (overrides N_VOXELS). Default empty = use N_VOXELS rule.
+SELECTION_FLAG=""
+if [ -n "${SELECTION:-}" ]; then
+    SELECTION_FLAG="--selection ${SELECTION}"
+fi
+# Set LOG_PRIOR=1 for a geometric (log-spaced) stimulus grid = flat log prior.
+LOG_PRIOR_FLAG=""
+if [ -n "${LOG_PRIOR:-}" ]; then
+    LOG_PRIOR_FLAG="--log_prior"
+fi
 
-echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} n_repeats=${N_REPEATS} spherical=${SPHERICAL:-0}"
+echo "Monte-Carlo decode: sub-${SUBJECT_ID} ses-${SESSION} roi=${ROI} n_voxels=${N_VOXELS} selection=${SELECTION:-none} n_repeats=${N_REPEATS} spherical=${SPHERICAL:-0}"
 echo "Python: ${PYTHON_BIN}"
 
 # Direct env binary (see run_fisher_information.sh for rationale).
@@ -48,4 +59,4 @@ echo "Python: ${PYTHON_BIN}"
   --mask "$ROI" \
   --n_voxels "$N_VOXELS" \
   --n_repeats "$N_REPEATS" \
-  --denoise --natural_space ${SPHERICAL_FLAG} ${MODEL_LABEL_FLAG}
+  --denoise --natural_space ${SPHERICAL_FLAG} ${MODEL_LABEL_FLAG} ${SELECTION_FLAG} ${LOG_PRIOR_FLAG}

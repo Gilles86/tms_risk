@@ -32,6 +32,8 @@ SUBJECTS = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 18, 19, 21, 25, 26, 29, 30, 31,
             34, 35, 36, 37, 45, 46, 47, 50, 53, 56, 59, 62, 63, 67, 69, 72, 74]
 ROI = 'NPC12r'
 PARAMS = ['mu', 'sd', 'amplitude', 'baseline']
+# TMS condition palette: IPS (stimulated) = red, Vertex (sham) = green.
+# See memory feedback_ips_vertex_palette — NOT the alphabetical mapping.
 COLOR = {'ips': '#d62728', 'vertex': '#2ca02c'}
 
 
@@ -67,20 +69,31 @@ def collect(bids_folder='/data/ds-tmsrisk', model_label=2):
     return df
 
 
-def main(model_label=2, bids_folder='/data/ds-tmsrisk'):
-    apply_style()
-    df = collect(bids_folder=bids_folder, model_label=model_label)
-    print(f'collected {len(df)} (subject × condition) rows in {ROI}')
-    print(df.groupby('stimulation_condition')['subject'].nunique())
+def load_pivots_from_tsv(model_label=2):
+    """Rebuild the per-param {ips, vertex, diff} wide tables from the saved
+    TSV — lets us replot locally without reloading raw subject PRF data."""
+    tsv = Path(f'notes/data/m{model_label}_tms_param_shifts.tsv')
+    full = pd.read_csv(tsv, sep='\t', header=[0, 1], index_col=0)
+    return {par: full[par] for par in PARAMS}
 
-    # Pivot to one row per subject with (ips, vertex) columns for each param
-    pivots = {}
-    for par in PARAMS:
-        wide = df.pivot_table(index='subject', columns='stimulation_condition',
-                                values=par, aggfunc='mean')
-        wide = wide.dropna(subset=['ips', 'vertex'])
-        wide['diff'] = wide['ips'] - wide['vertex']
-        pivots[par] = wide
+
+def main(model_label=2, bids_folder='/data/ds-tmsrisk', from_tsv=False):
+    apply_style()
+    if from_tsv:
+        pivots = load_pivots_from_tsv(model_label=model_label)
+    else:
+        df = collect(bids_folder=bids_folder, model_label=model_label)
+        print(f'collected {len(df)} (subject × condition) rows in {ROI}')
+        print(df.groupby('stimulation_condition')['subject'].nunique())
+
+        # Pivot to one row per subject with (ips, vertex) columns for each param
+        pivots = {}
+        for par in PARAMS:
+            wide = df.pivot_table(index='subject', columns='stimulation_condition',
+                                    values=par, aggfunc='mean')
+            wide = wide.dropna(subset=['ips', 'vertex'])
+            wide['diff'] = wide['ips'] - wide['vertex']
+            pivots[par] = wide
     n_paired = pivots[PARAMS[0]].shape[0]
     print(f'paired subjects (IPS + Vertex both present): {n_paired}')
 
@@ -135,15 +148,18 @@ def main(model_label=2, bids_folder='/data/ds-tmsrisk'):
     fig.savefig(out_root.with_suffix('.png'), dpi=200)
     print(f'wrote {out_root}.{{pdf,png}}')
 
-    out_tsv = Path(f'notes/data/m{model_label}_tms_param_shifts.tsv')
-    full = pd.concat({par: pivots[par] for par in PARAMS}, axis=1)
-    full.to_csv(out_tsv, sep='\t')
-    print(f'wrote {out_tsv}')
+    if not from_tsv:
+        out_tsv = Path(f'notes/data/m{model_label}_tms_param_shifts.tsv')
+        full = pd.concat({par: pivots[par] for par in PARAMS}, axis=1)
+        full.to_csv(out_tsv, sep='\t')
+        print(f'wrote {out_tsv}')
 
 
 if __name__ == '__main__':
     import argparse
     p = argparse.ArgumentParser()
     p.add_argument('--model_label', type=int, default=2)
+    p.add_argument('--from_tsv', action='store_true',
+                   help='Replot from the saved TSV instead of reloading raw PRF data')
     args = p.parse_args()
-    main(model_label=args.model_label)
+    main(model_label=args.model_label, from_tsv=args.from_tsv)

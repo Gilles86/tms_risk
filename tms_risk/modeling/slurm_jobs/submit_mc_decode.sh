@@ -14,6 +14,10 @@ BIDS_FOLDER=${BIDS_FOLDER:-/shares/zne.uzh/gdehol/ds-tmsrisk}
 # Pass SPHERICAL=1 to use a diagonal noise covariance.
 SPHERICAL=${SPHERICAL:-}
 MODEL_LABEL=${MODEL_LABEL:-}
+# Memory per task. High-voxel selections (top500, cvR²>0, mixture) OOM at 24G
+# because the residual covariance + simulate scale with voxel count — bump to
+# 64G for those. SELECTION is forwarded via --export=ALL.
+MEM=${MEM:-24G}
 
 for SESSION in 2 3; do
     JOB_NAME="mc_decode_ses${SESSION}"
@@ -26,7 +30,7 @@ for SESSION in 2 3; do
       --ntasks=1 \
       --cpus-per-task=4 \
       --gpus=1 \
-      --mem=24G \
+      --mem=${MEM} \
       --time=00:30:00 \
       --export=ALL,SESSION=${SESSION},BIDS_FOLDER=${BIDS_FOLDER},SPHERICAL=${SPHERICAL},MODEL_LABEL=${MODEL_LABEL} \
       "$HOME/git/tms_risk/tms_risk/modeling/slurm_jobs/run_mc_decode.sh"

@@ -1,0 +1,37 @@
+# Lean CPU env for behavioural (PMC / probit) fits on the ScienceCloud VM.
+#
+# Deliberately excludes tensorflow / braincoder / neuroimaging deps — this env is
+# only for `tms_risk.behavior.*` model fitting, which needs pymc + pandas.
+#
+# bauer is deliberately NOT installed here. The PMC traces are version-sensitive
+# (see CLAUDE.md); scripts put a pinned bauer checkout on sys.path themselves, so
+# an installed copy would only create ambiguity about which one is in use.
+name: tms_risk_behavior
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy=1.26.4
+  - scipy>=1.13
+  - pandas
+  - patsy
+  - statsmodels
+  - pymc=5.17
+  - arviz=0.20
+  # arviz 0.20 touches matplotlib.style.core, removed in matplotlib 3.11
+  - matplotlib-base<3.11
+  - seaborn  # bauer.utils.plotting imports it at package import time
+  # tms_risk.utils.data imports nilearn/nibabel at module level, so even
+  # behaviour-only work needs them present.
+  - nibabel
+  - nilearn
+  - h5netcdf
+  - netcdf4
+  - mkl
+  - mkl-include
+  - compilers
+  - tqdm
+  - pyyaml
+  - pip:
+      - -e ..

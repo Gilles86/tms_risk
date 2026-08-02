@@ -35,6 +35,9 @@ MODELS = [
 # ── Load data ────────────────────────────────────────────────────────────────
 df = get_all_behavior(bids_folder='/data/ds-tmsrisk')
 df = df[df['rt'] >= 0.20].copy()
+# Patsy formulas reference `stimulation_condition` as a column, but
+# get_all_behavior puts it in the MultiIndex.
+df = df.reset_index('stimulation_condition')
 # `chose_risky` and `log(risky/safe)` are already in df from get_all_behavior.
 df['log_ratio'] = df['log(risky/safe)']
 df['log_ratio_bin'] = pd.qcut(df['log_ratio'], q=7, duplicates='drop')
@@ -54,28 +57,34 @@ for label, color, code, family in MODELS:
     try:
         idata = az.from_netcdf(bids / f'model-{code}_trace.netcdf')
         model = build_model(code, df.copy())
+        # bauer.ppc requires the estimation model to be built first (it uses
+        # self.estimation_model.coords + the design matrices stored on `model`).
+        # Flex models override with `paradigm=` kwarg; base RiskModel uses `data=`.
+        try:
+            model.build_estimation_model(data=df)
+        except TypeError:
+            model.build_estimation_model(paradigm=df)
 
         ppc = model.ppc(df, idata, n_posterior_samples=ppc_n_samples,
                         progressbar=True, random_seed=0)
-        # ppc is a DataFrame indexed by (trial × ppc_sample),
-        # with `simulated_choice` (bool) and (DDM/RDM) `simulated_rt`.
-        # Cast to "chose risky" (True = chose option 2)
         ppc['chose_risky'] = ppc['simulated_choice'].astype(float)
-        # Bring log_ratio_mid in via the trial index. ppc's index keeps the
-        # df's index levels (subject/session/...) plus ppc_sample at the end.
-        df_keys = df.set_index(['log_ratio_mid'], append=True).reset_index(
-            'log_ratio_mid')['log_ratio_mid']
-        # Align by the common index levels (drop ppc_sample)
-        keep_levels = [n for n in ppc.index.names if n != 'ppc_sample']
-        ppc['log_ratio_mid'] = ppc.index.droplevel('ppc_sample').map(df['log_ratio_mid'].to_dict())
-
-        # Aggregate per (ppc_sample, log_ratio_mid)
-        binwise = (ppc.groupby(['ppc_sample', 'log_ratio_mid'], observed=True)['chose_risky']
+        # Bring log_ratio_mid in by inner-joining on the trial index levels
+        # (those that ppc inherits from df, minus ppc_sample).
+        trial_levels = [n for n in ppc.index.names if n != 'ppc_sample']
+        mid_lookup = df.reset_index()[trial_levels + ['log_ratio_mid']].drop_duplicates(trial_levels).set_index(trial_levels)['log_ratio_mid']
+        ppc_flat = ppc.reset_index()
+        ppc_flat = ppc_flat.merge(mid_lookup.reset_index(), on=trial_levels, how='left')
+        missing = ppc_flat['log_ratio_mid'].isna().sum()
+        print(f'  merged {len(ppc_flat) - missing}/{len(ppc_flat)} ppc rows with bin')
+        binwise = (ppc_flat.groupby(['ppc_sample', 'log_ratio_mid'], observed=True)['chose_risky']
                        .mean().unstack('log_ratio_mid'))
         results[label] = (binwise.values, color, family)
         print(f'  ppc: {binwise.shape}')
-    except (ImportError, RuntimeError) as e:
-        print(f'  SKIPPED ({type(e).__name__}): {e}')
+    except Exception as e:
+        # Catch broadly: DDM ppc needs ssm-simulators (ImportError); flex PMC
+        # ppc can hit scipy domain errors on the Bernoulli node when a draw's
+        # spline-derived p falls outside (0, 1).
+        print(f'  SKIPPED ({type(e).__name__}): {str(e)[:160]}')
         results[label] = (None, color, family)
 
 # ── Plot ────────────────────────────────────────────────────────────────────
