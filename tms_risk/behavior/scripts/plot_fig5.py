@@ -28,7 +28,6 @@ import argparse
 from pathlib import Path
 
 import matplotlib as mpl
-import matplotlib.patheffects as pe
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -49,10 +48,12 @@ mpl.rcParams.update({
 sns.set_context('paper')
 
 ORDERS = ['Risky first', 'Risky second']
+# (key, title, cmap, colour-centre, ink) -- `ink` is the contour/marker colour, chosen
+# to read against that column's colormap so no outline stroke is needed.
 SPECS = [
-    ('cause', 'Perceived risky/safe ratio\nIPS / vertex', 'RdBu_r', 1.0),
-    ('leverage', 'Leverage\n(how far a distortion moves choice)', 'mako', None),
-    ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0),
+    ('cause', 'Perceived risky/safe ratio\nIPS / vertex', 'RdBu_r', 1.0, '0.15'),
+    ('leverage', 'Leverage\n(how far a distortion moves choice)', 'mako', None, 'w'),
+    ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, '0.15'),
 ]
 
 
@@ -83,7 +84,7 @@ def main(data_dir, label, out_stem):
 
     # one colour scale per column, so the two rows are directly comparable
     norms = {}
-    for key, _, cmap, centre in SPECS:
+    for key, _, cmap, centre, _ink in SPECS:
         z = np.concatenate([d[d.order == o][key].values for o in ORDERS])
         if centre is None:
             norms[key] = (np.nanmin(z), np.nanmax(z))
@@ -94,19 +95,19 @@ def main(data_dir, label, out_stem):
     ims = {}
     for row, order in enumerate(ORDERS):
         o = d[d.order == order]
-        for col, (key, title, cmap, _) in enumerate(SPECS):
+        for col, (key, title, cmap, _, ink) in enumerate(SPECS):
             ax = fig.add_subplot(gs[row, col])
             x, y, z = grid(o, key)
             vmin, vmax = norms[key]
             ims[key] = ax.pcolormesh(x, y, z, cmap=cmap, shading='gouraud',
                                      vmin=vmin, vmax=vmax, rasterized=True)
             _, _, pv = grid(o, 'p_vertex')
-            # matplotlib >= 3.8 removed ContourSet.collections; the set itself is the
-            # artist now, so set the outline stroke on it directly.
-            cs = ax.contour(x, y, pv, levels=[.5], colors='w', linewidths=1.4)
-            cs.set(path_effects=[pe.withStroke(linewidth=2.6, foreground='0.15')])
-            ax.scatter(cells_x, cells_y, s=5.5, facecolor='none', edgecolor='w',
-                       linewidth=.55, zorder=4, alpha=.85)
+            cs = ax.contour(x, y, pv, levels=[.5], colors=ink, linewidths=1.1)
+            if row == 0 and col == 0:
+                ax.clabel(cs, fmt={.5: 'Indifference'}, fontsize=6, inline=True,
+                          inline_spacing=3)
+            ax.scatter(cells_x, cells_y, s=5.5, facecolor='none', edgecolor=ink,
+                       linewidth=.5, zorder=4, alpha=.7)
             ax.set_xticks([7, 14, 20, 28])
             ax.set_yticks([1, 2, 3, 4])
             if row == 0:
@@ -118,20 +119,8 @@ def main(data_dir, label, out_stem):
                 ax.set_ylabel(f'{order}\n\nRisky/safe payoff ratio', fontsize=8.5)
             else:
                 ax.set_yticklabels([])
-            if row == 1 and col == 0:
-                ax.text(8.2, 3.55, 'Indifference', color='w', fontsize=6.2,
-                        path_effects=[pe.withStroke(linewidth=2.2, foreground='.15')])
-            if row == 1 and col == 2:
-                ax.annotate('Effect concentrates below the\ncontour, at small safe payoffs',
-                            xy=(8.6, 1.5), xytext=(12.5, 3.45), fontsize=6.6, color='w',
-                            ha='left', va='center',
-                            path_effects=[pe.withStroke(linewidth=2.2, foreground='.15')],
-                            arrowprops=dict(arrowstyle='-', color='w', lw=.9,
-                                            connectionstyle='arc3,rad=.25',
-                                            path_effects=[pe.withStroke(linewidth=2.2,
-                                                                        foreground='.15')]))
 
-    for col, (key, _, _, _) in enumerate(SPECS):
+    for col, (key, _, _, _, _) in enumerate(SPECS):
         ref = fig.axes[3 + col]                      # bottom-row axis for this column
         box = ref.get_position()
         cax = fig.add_axes([box.x0, .075, box.width, .022])
