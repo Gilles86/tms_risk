@@ -79,12 +79,17 @@ def main(data_dir, table, label, out_stem):
     dup = t.short.duplicated(keep=False)
     t.loc[dup, 'short'] = [f'{r.short} (fam. {r.family})' for _, r in t[dup].iterrows()]
 
-    fig = plt.figure(figsize=(7.25, 2.75))
-    gs = fig.add_gridspec(1, 4, width_ratios=[1.55, 1, .85, 1], wspace=.78,
-                          left=.155, right=.99, top=.84, bottom=.19)
+    # Row 1 is the model comparison at full width -- the model names need the room and
+    # it is the panel the argument turns on. Row 2 gives the three curves real width.
+    n_models = len(t)
+    fig = plt.figure(figsize=(7.25, 2.05 + .19 * n_models))
+    top_frac = (.19 * n_models) / (2.05 + .19 * n_models)
+    gs = fig.add_gridspec(2, 3, height_ratios=[top_frac, 1 - top_frac],
+                          hspace=.52, wspace=.42,
+                          left=.30, right=.985, top=.965, bottom=.105)
 
     # --- a: ELPD, as a cost relative to the best model
-    ax = fig.add_subplot(gs[0, 0])
+    ax = fig.add_subplot(gs[0, :])
     y = np.arange(len(t))[::-1]
     for yi, (_, r) in zip(y, t.iterrows()):
         colr = WEBER if r.weber else FLEX
@@ -113,7 +118,8 @@ def main(data_dir, table, label, out_stem):
     # the first-presented option is noisier; that requires eta_mem > 0, which fails
     # below ~12 CHF. The curve is drawn to show that memory noise, unlike perceptual
     # noise, does not scale with magnitude.
-    ax = fig.add_subplot(gs[0, 1])
+    ax = fig.add_subplot(gs[1, 0])
+    ax.set_position(ax.get_position())     # row 2 starts a fresh left margin
     c = pd.read_csv(data / f'pmcpars_curves.{label}.tsv', sep='\t')
     TERM, MEM = 'perceptual_noise_sd', 'memory_noise_sd'
     p = c[(c.term == TERM) & (c.stimulation == 'vertex')].sort_values('payoff')
@@ -156,7 +162,7 @@ def main(data_dir, table, label, out_stem):
             rotation=30)
 
     # --- c: the memory contribution, on a linear axis where its sign is legible
-    ax = fig.add_subplot(gs[0, 2])
+    ax = fig.add_subplot(gs[1, 1])
     ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
     ax.plot(gap.index.values, gap.values, color='.25', lw=1.4, zorder=2)
     ax.set_xscale('log'); ax.set_xticks([7, 28, 112])
@@ -168,7 +174,7 @@ def main(data_dir, table, label, out_stem):
             fontsize=6.2, color='.4', va='bottom', ha='right')
 
     # --- d: the increase as a percentage, with its credible interval
-    ax = fig.add_subplot(gs[0, 3])
+    ax = fig.add_subplot(gs[1, 2])
     rel = pd.read_csv(data / f'pmcpars_relative.{label}.tsv', sep='\t')
     rel = rel[rel.term == 'perceptual_noise_sd'].sort_values('payoff')
     ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
@@ -182,7 +188,7 @@ def main(data_dir, table, label, out_stem):
     hi7 = rel.iloc[(rel.payoff - 112).abs().argmin()]
 
     for a, letter in zip(fig.axes, 'abcd'):
-        a.text(-.13 if letter == 'a' else -.34, 1.05, letter,
+        a.text(-.055 if letter == 'a' else -.26, 1.04, letter,
                transform=a.transAxes, **PANEL)
     sns.despine(fig=fig, offset=4)
     for ext in ['pdf', 'png', 'svg']:
