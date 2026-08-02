@@ -25,6 +25,12 @@ NIfTIs on the cluster. So every analysis is split:
 * **`notes/data/*.tsv` is the source data of record.** It is tracked in git. Every
   figure can be rebuilt from it with no trace, no bauer, no GPU, no cluster.
 * **`notes/figures/` is not tracked.** It is output. Delete it freely.
+  It is sorted into one folder per *plot type* (`ppc/`, `noise/`, `decision_space/`,
+  `percepts/`, `mechanism/`, `parameters/`, `model_compare/`, `imaging/`) because the
+  model label is already in every filename, so grouping this way puts every model's
+  version of the same plot side by side. `paper/` holds a copy of whichever variant
+  the manuscript currently uses. Re-sort after generating new figures with
+  `python -m tms_risk.behavior.scripts.organize_figures --apply`.
 * Extraction scripts take `--trace_dir` and `--tag`; plotting scripts take `--label`
   and resolve `notes/data/<something>.<label>.tsv`.
 
