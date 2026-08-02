@@ -40,6 +40,19 @@ def softplus(x):
     return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
 
 
+def coef_by_condition(coefs):
+    """(sample, regressor, spline) -> {'ips': ..., 'vertex': ...}.
+
+    Regressors are ['Intercept', 'stimulation_condition[T.vertex]'], so IPS is the
+    reference level and vertex = Intercept + contrast. A model that does not put the
+    stimulation regressor on this term has a single column, and the two conditions
+    are then the same curve by construction.
+    """
+    ips = coefs[:, 0, :]
+    vertex = ips + coefs[:, 1, :] if coefs.shape[1] > 1 else ips
+    return {'ips': ips, 'vertex': vertex}
+
+
 def basis(x, df_, lower, upper):
     """The ecc6454 spline basis: cubic B-spline over the full payoff range."""
     return np.asarray(dmatrix(
@@ -56,6 +69,9 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
     idata = az.from_netcdf(tdir / f'model-{label}_trace.netcdf')
     label = tag or label
     post = idata.posterior
+    family = int(post.attrs.get('tms_risk_family', family))
+    terms = NOISE_TERMS[family]
+    spline_order = int(post.attrs.get('tms_risk_spline_order', spline_order)) or spline_order
     df = get_data(bids_folder)
     lower = float(df[['n1', 'n2']].min().min())
     upper = float(df[['n1', 'n2']].max().max())
@@ -119,16 +135,16 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
         coefs = np.stack([post[f'{term}_spline{i}_mu'].values for i in
                           range(1, spline_order + 1)], -1)         # chain, draw, reg, spline
         coefs = coefs.reshape(-1, coefs.shape[-2], coefs.shape[-1])   # sample, reg, spline
-        for cond, c in [('ips', coefs[:, 0, :]),
-                        ('vertex', coefs[:, 0, :] + coefs[:, 1, :])]:
+        for cond, c in coef_by_condition(coefs).items():
             nu = softplus(c @ B[term].T)                            # sample x x
             rows.append(pd.DataFrame({
                 'term': term, 'stimulation': cond, 'payoff': xs,
                 'nu': nu.mean(0), 'lo': np.quantile(nu, .025, axis=0),
                 'hi': np.quantile(nu, .975, axis=0)}))
         # IPS - vertex difference, propagated through the same draws
-        nu_i = softplus(coefs[:, 0, :] @ B[term].T)
-        nu_v = softplus((coefs[:, 0, :] + coefs[:, 1, :]) @ B[term].T)
+        cc = coef_by_condition(coefs)
+        nu_i = softplus(cc['ips'] @ B[term].T)
+        nu_v = softplus(cc['vertex'] @ B[term].T)
         dnu = nu_i - nu_v
         rows.append(pd.DataFrame({
             'term': term, 'stimulation': 'ips - vertex', 'payoff': xs,
@@ -143,8 +159,9 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
             c = np.stack([post[f'{term}_spline{i}_mu'].values for i in
                           range(1, spline_order + 1)], -1)
             c = c.reshape(-1, c.shape[-2], c.shape[-1])
-            eta[(term, 'ips')] = c[:, 0, :] @ B[term].T
-            eta[(term, 'vertex')] = (c[:, 0, :] + c[:, 1, :]) @ B[term].T
+            cc = coef_by_condition(c)
+            eta[(term, 'ips')] = cc['ips'] @ B[term].T
+            eta[(term, 'vertex')] = cc['vertex'] @ B[term].T
         for key, nu_of in [('n1_evidence_sd',
                             lambda cd: softplus(eta[('memory_noise_sd', cd)]
                                                 + eta[('perceptual_noise_sd', cd)])),
@@ -175,8 +192,9 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
         coefs = np.stack([post[f'{term}_spline{i}_mu'].values for i in
                           range(1, spline_order + 1)], -1)
         coefs = coefs.reshape(-1, coefs.shape[-2], coefs.shape[-1])
-        nu_i = softplus(coefs[:, 0, :] @ B[term].T)
-        nu_v = softplus((coefs[:, 0, :] + coefs[:, 1, :]) @ B[term].T)
+        cc = coef_by_condition(coefs)
+        nu_i = softplus(cc['ips'] @ B[term].T)
+        nu_v = softplus(cc['vertex'] @ B[term].T)
         rel = 100. * (nu_i / nu_v - 1.)
         rel_rows.append(pd.DataFrame({
             'term': term, 'payoff': xs, 'pct': rel.mean(0),
@@ -207,8 +225,9 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
         coefs = np.stack([post[f'{term}_spline{i}_mu'].values for i in
                           range(1, spline_order + 1)], -1)
         coefs = coefs.reshape(-1, coefs.shape[-2], coefs.shape[-1])
-        dnu = (softplus(coefs[:, 0, :] @ Bp[term].T)
-               - softplus((coefs[:, 0, :] + coefs[:, 1, :]) @ Bp[term].T))
+        cc = coef_by_condition(coefs)
+        dnu = (softplus(cc['ips'] @ Bp[term].T)
+               - softplus(cc['vertex'] @ Bp[term].T))
         pg = (dnu > 0).mean(0)
         print(f'  {TERM_LABEL[term]:20s}' + '  '.join(f'{v:6.3f}' for v in pg))
         for v, x, g in zip(picks, dnu.T, pg):
