@@ -56,9 +56,13 @@ SHORT = [
     (r'.*second-presented option only\)$',       'Second option'),
     (r'.*null model$',                           'No cTBS effect'),
 ]
-# models whose cTBS effect is tied to presentation position rather than to a
-# representational component -- these are the ones the argument turns on
-POSITIONAL = {'First + second option', 'First option', 'Second option'}
+# Models in which the cTBS effect is CONFINED TO ONE PRESENTATION POSITION. Note the
+# *full* models are not in this set: 'First + second option' and 'Perceptual + memory'
+# are exact reparameterisations of one another (c1 = memory + perceptual, c2 =
+# perceptual), so they share a likelihood and differ only in prior coordinates -- the
+# gap between them is a prior effect, not a difference of mechanism. It is only the
+# restricted models that impose genuinely different claims about where cTBS acts.
+POSITIONAL = {'First option', 'Second option'}
 
 
 def shorten(name):
@@ -113,7 +117,13 @@ def main(data_dir, table, label, out_stem):
     ax.set_xlabel('ELPD cost vs the best model (nats)')
     ax.set_ylim(-.8, len(t) - .2)
     ax.invert_xaxis()
-    ax.text(.98, .06, 'Diamonds: models with an\nexplicit position parameter',
+    best = t.index[0]
+    ax.annotate('Curves below', xy=(t.elpd_diff.iloc[0], y[0]),
+                xytext=(t.elpd_diff.iloc[2], y[0] + .45), fontsize=6.5, color='.35',
+                ha='left', va='center',
+                arrowprops=dict(arrowstyle='-', connectionstyle='arc3,rad=-.2',
+                                color='.5', lw=.6))
+    ax.text(.98, .05, 'Diamonds: cTBS effect confined to\none presentation position',
             transform=ax.transAxes, fontsize=6.3, color='.3', ha='right', va='bottom',
             linespacing=1.25)
 
@@ -141,7 +151,7 @@ def main(data_dir, table, label, out_stem):
     # reverses at small payoffs.
     n1 = c[(c.term == 'n1_evidence_sd') & (c.stimulation == 'vertex')].sort_values('payoff')
     n2 = c[(c.term == 'n2_evidence_sd') & (c.stimulation == 'vertex')].sort_values('payoff')
-    ax.plot(n1.payoff, n1.nu, color='.35', ls='--', lw=1.1, zorder=2)
+    ax.plot(n1.payoff, n1.nu, color='.2', ls=(0, (3.5, 2)), lw=1.3, zorder=3)
     gap = n1.set_index('payoff').nu - n2.set_index('payoff').nu
     cross = gap.index[np.argmin(np.abs(gap.values))]
 
