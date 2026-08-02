@@ -105,38 +105,34 @@ def main(data_dir, label, out_stem):
             if col == 0:
                 ax.set_ylabel('Perceived expected\nvalue (CHF)')
 
-            # ---- the cTBS effect, on its own scale, in the same panel
-            ax2 = ax.twinx(); axes_bot.append(ax2)
-            ax2.axhline(0, color=DIFF, lw=.5, ls=':', alpha=.5, zorder=0)
-            ax2.fill_between(s_.objective_ev, s_.lo, s_.hi, color=DIFF, alpha=.13,
-                             lw=0, zorder=1)
-            ax2.plot(s_.objective_ev, s_.delta, color=DIFF, lw=1.2, ls='--', zorder=2)
-            ax2.set_ylim(dlo, dhi)
-            ax2.spines['right'].set_visible(True)
-            ax2.spines['right'].set_color(DIFF)
-            ax2.spines['top'].set_visible(False)
-            ax2.tick_params(axis='y', colors=DIFF, labelsize=6.8)
-            if col == 1:
-                ax2.set_ylabel('Δ IPS − vertex (CHF)', color=DIFF, fontsize=7.5)
-            else:
-                ax2.set_yticklabels([])
+            # ---- the cTBS effect, shown as the gap itself
+            # A twin axis was tried here and actively misled: the difference curve
+            # sat above the vertex curve in figure coordinates, so it read as a
+            # positive effect when it is negative everywhere. The difference IS the
+            # vertical distance between the two curves, so draw exactly that.
+            for xx, yv, yi in zip(s_.objective_ev, s_.vertex, s_.ips):
+                ax.plot([xx, xx], [yi, yv], color=DIFF, lw=.9, alpha=.75, zorder=2,
+                        solid_capstyle='butt')
+            mean_d = float(s_.delta.mean())
+            ax.text(.965, .06,
+                    f'Mean Δ = {mean_d:+.2f} CHF\n'
+                    f'({s_.delta.min():+.2f} to {s_.delta.max():+.2f})',
+                    transform=ax.transAxes, fontsize=6.4, color=DIFF,
+                    ha='right', va='bottom', linespacing=1.25)
 
     axes_top[0].plot([], [], color=VERTEX, marker='o', ms=3.6, label='Vertex')
     axes_top[0].plot([], [], color=IPS, marker='s', ms=3.6, mfc='white', label='IPS')
-    axes_top[0].plot([], [], color=DIFF, lw=1.2, ls='--', label='Δ (right axis)')
-    leg = axes_top[0].legend(loc='lower right', fontsize=6.4, handlelength=1.6,
-                             borderpad=.3, labelspacing=.22)
+    axes_top[0].plot([], [], color=DIFF, lw=1.4, label='IPS − vertex')
+    leg = axes_top[0].legend(loc='upper left', fontsize=6.4, handlelength=1.6,
+                             borderpad=.3, labelspacing=.22,
+                             bbox_to_anchor=(.02, .88))
     leg.set_zorder(5)
 
     g = d.groupby(['option', 'position']).delta.mean()
-    # axes_bot order is [safe|first-col, risky|first-col, safe|second-col, ...]
-    axes_bot[2].annotate('The safe option falls\nfurthest when it is first',
-                         xy=(24, float(d[(d.order == 'Risky second') &
-                                         (d.option == 'safe')].delta.iloc[-1])),
-                         xytext=(3.5, dlo * .46), fontsize=6.6, color=DIFF,
-                         ha='left', va='center',
-                         arrowprops=dict(arrowstyle='-', connectionstyle='arc3,rad=.25',
-                                         color=DIFF, lw=.6))
+    # axes_top order is [safe|risky-first, risky|risky-first, safe|risky-second, ...]
+    axes_top[2].text(.035, .80, 'Widest gap of the four panels',
+                     transform=axes_top[2].transAxes, fontsize=6.4, color=DIFF,
+                     va='top')
 
     for ax, letter in [(axes_top[0], 'a'), (axes_top[1], 'b')]:
         ax.text(-.17, 1.04, letter, transform=ax.transAxes, **PANEL)
