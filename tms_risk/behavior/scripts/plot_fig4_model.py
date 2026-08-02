@@ -106,32 +106,49 @@ def main(data_dir, table, label, out_stem):
             transform=ax.transAxes, fontsize=6.3, color='.3', ha='right', va='bottom',
             linespacing=1.25)
 
-    # --- b: the noise function, log-log
+    # --- b: the noise functions, log-log
+    # Both components are shown. NOTE the memory curve is softplus(eta_memory), the
+    # parameter as bauer defines it -- it is NOT nu_1 - nu_2. The model composes
+    # nu_1 = softplus(eta_mem + eta_perc), so a positive memory curve does not imply
+    # the first-presented option is noisier; that requires eta_mem > 0, which fails
+    # below ~12 CHF. The curve is drawn to show that memory noise, unlike perceptual
+    # noise, does not scale with magnitude.
     ax = fig.add_subplot(gs[0, 1])
     c = pd.read_csv(data / f'pmcpars_curves.{label}.tsv', sep='\t')
-    TERM = 'perceptual_noise_sd'
+    TERM, MEM = 'perceptual_noise_sd', 'memory_noise_sd'
     p = c[(c.term == TERM) & (c.stimulation == 'vertex')].sort_values('payoff')
     for stim, colr in [('vertex', VERTEX), ('ips', IPS)]:
-        s = c[(c.term == TERM) & (c.stimulation == stim)].sort_values('payoff')
-        ax.fill_between(s.payoff, s.lo, s.hi, color=colr, alpha=.16, lw=0, zorder=1)
-        ax.plot(s.payoff, s.nu, color=colr, zorder=2)
+        s_ = c[(c.term == TERM) & (c.stimulation == stim)].sort_values('payoff')
+        ax.fill_between(s_.payoff, s_.lo, s_.hi, color=colr, alpha=.16, lw=0, zorder=1)
+        ax.plot(s_.payoff, s_.nu, color=colr, zorder=2)
+    # memory: one line if cTBS does not act on it in this model, two if it does
+    dmem = c[(c.term == MEM) & (c.stimulation == 'ips - vertex')]
+    mem_flat = bool(len(dmem)) and float(dmem.nu.abs().max()) < 1e-9
+    for stim, colr in ([('vertex', '.45')] if mem_flat
+                       else [('vertex', VERTEX), ('ips', IPS)]):
+        m_ = c[(c.term == MEM) & (c.stimulation == stim)].sort_values('payoff')
+        ax.plot(m_.payoff, m_.nu, color=colr, ls='--', lw=1.1, zorder=2)
+    mem_slope = np.polyfit(np.log(m_.payoff.values), np.log(m_.nu.values), 1)[0]
+
     x0, y0 = p.payoff.iloc[0], p.nu.iloc[0]
     xs = np.array([x0, p.payoff.iloc[-1]])
     ax.plot(xs, y0 * xs / x0, color='.6', lw=.7, ls=':', zorder=0)
     slope = np.polyfit(np.log(p.payoff.values), np.log(p.nu.values), 1)[0]
     ax.set_xscale('log'); ax.set_yscale('log')
-    ax.set_xticks(XT); ax.set_yticks([1, 2, 4, 8])
+    ax.set_xticks(XT); ax.set_yticks([0.5, 1, 2, 4, 8])
     ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.get_yaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.set_xlabel('Payoff (CHF)')
-    ax.set_ylabel('Perceptual noise ν (CHF)')
-    ax.text(.96, .10, 'IPS', transform=ax.transAxes, fontsize=7.2, color=IPS, ha='right')
-    ax.text(.96, .02, 'Vertex', transform=ax.transAxes, fontsize=7.2, color=VERTEX,
+    ax.set_ylabel('Representational noise ν (CHF)')
+    ax.text(.96, .13, 'IPS', transform=ax.transAxes, fontsize=7.2, color=IPS, ha='right')
+    ax.text(.96, .04, 'Vertex', transform=ax.transAxes, fontsize=7.2, color=VERTEX,
             ha='right')
-    ax.text(.03, .96, f'Slope {slope:.2f}', transform=ax.transAxes, fontsize=7,
-            color='.25', va='top')
-    ax.text(.30, .70, 'Weber (1)', transform=ax.transAxes, fontsize=6.4, color='.5',
-            rotation=32)
+    ax.text(.03, .97, f'Perceptual, slope {slope:.2f}', transform=ax.transAxes,
+            fontsize=6.8, color='.25', va='top')
+    ax.text(.03, .20, f'Memory, slope {mem_slope:.2f}', transform=ax.transAxes,
+            fontsize=6.8, color='.45', va='top')
+    ax.text(.32, .74, 'Weber (1)', transform=ax.transAxes, fontsize=6.4, color='.5',
+            rotation=30)
 
     # --- c: the increase as a percentage, with its credible interval
     ax = fig.add_subplot(gs[0, 2])
@@ -156,7 +173,8 @@ def main(data_dir, table, label, out_stem):
     plt.close(fig)
 
     print(f'wrote {out_stem}.pdf   ({len(t)} models)')
-    print(f'  log-log slope {slope:.3f} (Weber = 1)')
+    print(f'  log-log slope: perceptual {slope:.3f}, memory {mem_slope:.3f} '
+          f'(Weber = 1)')
     print(f'  relative effect: {lo7.pct:+.1f}% at 7 CHF [{lo7.lo:+.1f}, {lo7.hi:+.1f}], '
           f'{hi7.pct:+.1f}% at 112 [{hi7.lo:+.1f}, {hi7.hi:+.1f}]')
     pos = t[t.short.isin(POSITIONAL)]
