@@ -61,11 +61,22 @@ BASE_COMMIT = 'ecc6454'
 # (c1 = memory + perceptual, c2 = perceptual), so the likelihoods are identical;
 # only the prior coordinates and the sampling geometry differ. Family 1 is the
 # better-conditioned one -- family 2's coordinates make the posterior bimodal.
+# The `_prior*` suffixes put the cTBS regressor on the magnitude PRIOR instead of (or
+# as well as) the noise. They are the model-level version of the paper's central
+# dichotomy: did parietal cTBS degrade how precisely payoffs are represented, or did it
+# shift the observer's prior -- i.e. their preferences? Every other row of Table 1 only
+# asks *where in the noise* the effect sits, so without these the "noise, not
+# preference" claim rests on the model-free analyses alone.
 SUFFIX_REGRESSORS = {
     2: {'': ['memory_noise_sd', 'perceptual_noise_sd'], '_null': [],
-        '_memory': ['memory_noise_sd'], '_perception': ['perceptual_noise_sd']},
+        '_memory': ['memory_noise_sd'], '_perception': ['perceptual_noise_sd'],
+        '_prior': ['risky_prior_mu', 'safe_prior_mu'],
+        '_priorsd': ['risky_prior_sd', 'safe_prior_sd'],
+        '_perception_prior': ['perceptual_noise_sd',
+                              'risky_prior_mu', 'safe_prior_mu']},
     1: {'': ['n1_evidence_sd', 'n2_evidence_sd'], '_null': [],
-        '_first': ['n1_evidence_sd'], '_second': ['n2_evidence_sd']},
+        '_first': ['n1_evidence_sd'], '_second': ['n2_evidence_sd'],
+        '_prior': ['risky_prior_mu', 'safe_prior_mu']},
 }
 
 

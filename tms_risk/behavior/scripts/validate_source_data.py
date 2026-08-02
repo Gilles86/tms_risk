@@ -123,14 +123,16 @@ def check_curves(data, label, rep):
         rep.skip(name, 'pmcpars_curves', 'not present')
         return
     d = pd.read_csv(f, sep='\t')
-    pos = d[d.stimulation.isin(['ips', 'vertex'])]
+    # `memory_contribution` is nu_1 - nu_2, a signed contrast, so the positivity
+    # check applies only to the noise functions themselves
+    pos = d[d.stimulation.isin(['ips', 'vertex']) & (d.term != 'memory_contribution')]
     rep.add(name, 'noise is strictly positive', bool((pos.nu > 0).all()),
             f'min {pos.nu.min():.4f}')
     rep.add(name, 'nu lies inside its own credible interval',
             bool(((pos.lo <= pos.nu + TOL) & (pos.nu - TOL <= pos.hi)).all()))
     # the stored contrast must equal the difference of the stored means
     worst, worst_term = 0., ''
-    for term, g in d.groupby('term'):
+    for term, g in d[d.term != 'memory_contribution'].groupby('term'):
         piv = g.pivot_table(index='payoff', columns='stimulation', values='nu')
         if not {'ips', 'vertex', 'ips - vertex'} <= set(piv.columns):
             continue
