@@ -153,7 +153,13 @@ def main(data_dir, table, label, out_stem):
     n2 = c[(c.term == 'n2_evidence_sd') & (c.stimulation == 'vertex')].sort_values('payoff')
     ax.plot(n1.payoff, n1.nu, color='.2', ls=(0, (3.5, 2)), lw=1.3, zorder=3)
     gap = n1.set_index('payoff').nu - n2.set_index('payoff').nu
-    cross = gap.index[np.argmin(np.abs(gap.values))]
+    # every sign change, linearly interpolated -- argmin(|gap|) finds whichever
+    # crossing happens to be nearest zero, not the one that matters
+    gx, gv = gap.index.values, gap.values
+    flips = np.where(np.diff(np.sign(gv)) != 0)[0]
+    crossings = [gx[i] + (gx[i + 1] - gx[i]) * (0 - gv[i]) / (gv[i + 1] - gv[i])
+                 for i in flips]
+    cross = crossings[0] if crossings else float('nan')
 
     x0, y0 = p.payoff.iloc[0], p.nu.iloc[0]
     xs = np.array([x0, p.payoff.iloc[-1]])
@@ -185,6 +191,14 @@ def main(data_dir, table, label, out_stem):
     ax.set_xlabel('Payoff (CHF)')
     ax.set_ylabel('ν₁ − ν₂ (CHF)')
     ax.set_title('Memory contribution', fontsize=7, color='.3', pad=3)
+    if np.isfinite(cross):
+        ax.axvline(cross, color='.55', lw=.7, ls=':', zorder=1)
+        ax.plot([cross], [0], 'o', color='.25', ms=4, zorder=4)
+        ax.annotate(f'{cross:.0f} CHF', xy=(cross, 0),
+                    xytext=(cross * 1.5, gv.min() * .55), fontsize=6.4, color='.3',
+                    ha='left', va='center',
+                    arrowprops=dict(arrowstyle='-', connectionstyle='arc3,rad=.25',
+                                    color='.5', lw=.6))
     ax.text(.96, .06, 'First option less noisy', transform=ax.transAxes,
             fontsize=6.2, color='.4', va='bottom', ha='right')
 
@@ -213,8 +227,10 @@ def main(data_dir, table, label, out_stem):
     print(f'wrote {out_stem}.pdf   ({len(t)} models)')
     print(f'  log-log slope {slope:.3f} (Weber = 1)')
     print(f'  memory contribution nu1 - nu2: {gap.iloc[0]:+.3f} CHF at '
-          f'{gap.index[0]:.0f}, {gap.iloc[-1]:+.3f} at {gap.index[-1]:.0f}; '
-          f'crosses zero near {cross:.1f} CHF')
+          f'{gap.index[0]:.0f}, peak {gv.max():+.3f} at {gx[gv.argmax()]:.0f}, '
+          f'{gap.iloc[-1]:+.3f} at {gap.index[-1]:.0f}')
+    print('  zero crossings: ' + (', '.join(f'{v:.1f} CHF' for v in crossings)
+                                  or 'none'))
     print(f'  relative effect: {lo7.pct:+.1f}% at 7 CHF [{lo7.lo:+.1f}, {lo7.hi:+.1f}], '
           f'{hi7.pct:+.1f}% at 112 [{hi7.lo:+.1f}, {hi7.hi:+.1f}]')
     pos = t[t.base.isin(POSITIONAL)]
