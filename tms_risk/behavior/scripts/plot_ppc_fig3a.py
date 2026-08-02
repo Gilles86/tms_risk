@@ -173,8 +173,14 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
     # left cells covering only 22-32 of the 35 subjects, because the risky payoffs a
     # participant sees depend on their own responses. With 3 within-subject bins, 100%
     # of cells contain all 35. `bin(risky/safe)` in utils/data.py is built the same way.
+    # Bin on the RANK, not the raw value. `frac` takes only 121 distinct values over
+    # 8335 trials, so 388 of them sit exactly on a within-group tercile boundary, and
+    # pandas 2.x and 3.x break those ties differently -- enough to move a cell mean by
+    # 0.014. Ranking with method='first' makes the split deterministic and the bins
+    # exactly equal-sized, so the figure reproduces on any pandas.
     d['sbin'] = (d.groupby(['subject', 'n_safe'], group_keys=False)['frac']
-                 .apply(lambda v: pd.qcut(v, 3, labels=False, duplicates='drop')))
+                 .apply(lambda v: pd.qcut(v.rank(method='first'), 3,
+                                          labels=False, duplicates='drop')))
     keys_s = ['subject', 'order', 'n_safe', 'sbin', 'stim']
     grp_s = ['order', 'n_safe', 'sbin', 'stim']
     obs_s = (d.assign(y=d['chose_risky'].astype(float))

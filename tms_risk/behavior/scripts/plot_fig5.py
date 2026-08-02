@@ -83,9 +83,10 @@ XTICKS = [7, 14, 20, 28]
 XPAD = .9  # CHF of margin, so the design-cell markers at 7 and 28 are not clipped
 
 # Panel geometry in figure coordinates. The block of 2D maps and the 1D panel get a
-# wide gutter between them so that column d's y-axis never crowds column c.
-MAPS_L, MAPS_R = .076, .714
-D_L, D_R = .777, .990
+# wide gutter between them so that column d's y-axis never crowds column c; the left
+# margin has to hold the rotated row name as well as the y-axis label.
+MAPS_L, MAPS_R = .088, .700
+D_L, D_R = .766, .990
 TOP, BOTTOM = .855, .315
 CBAR_Y, CBAR_H = .120, .020
 
@@ -162,7 +163,9 @@ def main(data_dir, label, out_stem):
                 ax.set_title(title, color='.2', pad=4)
                 ax.set_xticklabels([])
             if col == 0:
-                ax.set_ylabel('Risky/safe payoff ratio')
+                # short enough to fit inside the panel height -- a longer label
+                # overhangs the axes and runs into the other row's copy
+                ax.set_ylabel('Risky/safe ratio')
             else:
                 ax.set_yticklabels([])
             sns.despine(ax=ax, offset=3, trim=True)
@@ -208,19 +211,28 @@ def main(data_dir, label, out_stem):
         cb.outline.set_linewidth(.6)
         cax.tick_params(labelsize=7, length=2, pad=2)
 
-    # panel letters: one per column, all on one baseline, all clear of the titles
+    # Panel letters: one per column, identical offset from the column's left edge and
+    # all on one baseline. They sit above the axes, so column a's letter clears its
+    # y-axis label (which is vertically centred inside the axes) without extra room.
     letter_y = TOP + .082
-    for letter, ax in zip('abc', map_axes[:3]):
+    for letter, ax in zip('abcd', map_axes[:3] + d_axes[:1]):
         fig.text(ax.get_position().x0 - .016, letter_y, letter, fontsize=11,
                  fontweight='bold', va='bottom', ha='right')
-    fig.text(D_L - .058, letter_y, 'd', fontsize=11, fontweight='bold',
-             va='bottom', ha='right')
 
-    # row labels, far enough left to clear the y-axis label of column a
+    # Row names, placed from the measured extent of column a's y-axis label rather
+    # than a guessed offset, so they can never ride up against it.
+    fig.canvas.draw()
+    inv = fig.transFigure.inverted()
+    rend = fig.canvas.get_renderer()
+    x_row = min(ax.yaxis.label.get_window_extent(rend).transformed(inv).x0
+                for ax in map_axes[::3]) - .011
     for row, order in enumerate(ORDERS):
         b = map_axes[3 * row].get_position()
-        fig.text(MAPS_L - .058, b.y0 + b.height / 2, order, rotation=90,
-                 ha='center', va='center', fontsize=9, color='.15')
+        t = fig.text(x_row, b.y0 + b.height / 2, order, rotation=90, ha='center',
+                     va='center', fontsize=9, color='.15')
+        # ha/va on rotated text is unreliable; nudge by the measured overhang instead
+        fig.canvas.draw()
+        t.set_x(x_row - (t.get_window_extent(rend).transformed(inv).x1 - x_row))
 
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.03)
