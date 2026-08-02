@@ -165,6 +165,26 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
     curves = pd.concat(rows)
     curves.to_csv(out_dir / f'pmcpars_curves.{label}.tsv', sep='\t', index=False)
 
+    # Relative (proportional) cTBS effect, nu_ips/nu_vertex - 1, propagated through the
+    # same draws so it carries a real credible interval. This is the scale the paper's
+    # magnitude-specificity claim lives on: a roughly constant *absolute* noise
+    # injection is a much larger *proportional* degradation where baseline noise is
+    # small, and baseline noise grows with magnitude.
+    rel_rows = []
+    for term in terms:
+        coefs = np.stack([post[f'{term}_spline{i}_mu'].values for i in
+                          range(1, spline_order + 1)], -1)
+        coefs = coefs.reshape(-1, coefs.shape[-2], coefs.shape[-1])
+        nu_i = softplus(coefs[:, 0, :] @ B[term].T)
+        nu_v = softplus((coefs[:, 0, :] + coefs[:, 1, :]) @ B[term].T)
+        rel = 100. * (nu_i / nu_v - 1.)
+        rel_rows.append(pd.DataFrame({
+            'term': term, 'payoff': xs, 'pct': rel.mean(0),
+            'lo': np.quantile(rel, .025, axis=0), 'hi': np.quantile(rel, .975, axis=0),
+            'p_increase': (rel > 0).mean(0)}))
+    pd.DataFrame(pd.concat(rel_rows)).to_csv(
+        out_dir / f'pmcpars_relative.{label}.tsv', sep='\t', index=False)
+
     print('\n=== noise increase after cTBS (IPS - vertex), at selected payoffs ===')
     d = curves[curves.stimulation == 'ips - vertex']
     for term in terms:

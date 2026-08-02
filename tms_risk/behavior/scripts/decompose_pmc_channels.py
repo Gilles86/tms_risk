@@ -313,6 +313,42 @@ def main(bids_folder, out_dir, model_label='flexible2.6', n_draws=200, seed=1,
     pd.DataFrame(rows).to_csv(
         out_dir / f'pmc_percepts.{model_label}.tsv', sep='\t', index=False)
 
+    # The same percepts, but split by PRESENTATION ORDER -- this is the quantity the
+    # order-specificity of the behavioural effect rests on. The first-presented option
+    # carries memory noise on top of the shared perceptual noise, so it sits further
+    # along the shrinkage curve; adding perceptual noise there costs it more. Whether
+    # the safe option is devalued more when it comes first is therefore a direct,
+    # falsifiable prediction, and this table is what tests it.
+    rows = []
+    for oname, omask in [('Risky first', df['risky_first'].values),
+                         ('Risky second', ~df['risky_first'].values)]:
+        ns_o = df.loc[omask, 'n_safe'].values
+        nr_o = df.loc[omask, 'n_risky'].values
+        for lvl in sorted(np.unique(ns_o)):
+            sel = ns_o == lvl
+            for opt, obj, pv, pi in [
+                    ('safe', float(lvl),
+                     ev_safe_v[omask][sel], ev_safe_i[omask][sel]),
+                    ('risky', 0.55 * nr_o[sel].mean(),
+                     ev_risky_v[omask][sel], ev_risky_i[omask][sel])]:
+                dl = (pi - pv).mean(0)
+                # `position` is what actually drives the prediction: the safe option is
+                # presented first exactly when the risky option is presented second.
+                position = ('first' if ((opt == 'safe') == (oname == 'Risky second'))
+                            else 'second')
+                rows.append({'order': oname, 'n_safe': lvl, 'option': opt,
+                             'position': position, 'objective_ev': obj,
+                             'vertex': pv.mean(), 'ips': pi.mean(),
+                             'delta': dl.mean(), 'lo': np.quantile(dl, .025),
+                             'hi': np.quantile(dl, .975),
+                             'p_decrease': float((dl < 0).mean())})
+    by_order = pd.DataFrame(rows)
+    by_order.to_csv(out_dir / f'pmc_percepts_by_order.{model_label}.tsv',
+                    sep='\t', index=False)
+    say('\n=== cTBS effect on the perceived value of each option, by position (CHF) ===')
+    say(by_order.pivot_table(index=['option', 'position'], values='delta',
+                             aggfunc='mean').round(3).to_string())
+
     # tidy trial table used for every aggregation below
     d = df.reset_index().copy()
     d['bin'] = d['bin(risky/safe)'].astype(str)
