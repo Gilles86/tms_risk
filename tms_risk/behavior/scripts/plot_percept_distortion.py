@@ -57,7 +57,19 @@ def main(data_dir, label, out_stem):
     gs = fig.add_gridspec(2, 2, hspace=.46, wspace=.30,
                           left=.095, right=.90, top=.86, bottom=.10)
 
-    lim_hi = max(d.objective_ev.max(), d.vertex.max()) * 1.06
+    # Percepts are compressed into a narrow band near the prior, so an axis that
+    # spans the objective range squashes all four curves on top of each other. Fit
+    # the y-axis to the percepts instead and mark the fitted priors, which is what
+    # the curves are being pulled toward.
+    lim_hi = d.objective_ev.max() * 1.06
+    pv = pd.concat([d.vertex, d.ips])
+    y_lo, y_hi = pv.min() - .45, pv.max() + .55
+    try:
+        pri = pd.read_csv(data / f'pmcpars_priors.{label}.tsv', sep='\t')
+        pri = pri[pri.level == 'group'].set_index('parameter')['mean']
+        priors = {'safe': float(pri.safe_prior_mu), 'risky': float(pri.risky_prior_mu)}
+    except (FileNotFoundError, KeyError):
+        priors = {}
     dlo = min(d.lo.min(), d.delta.min()) * 1.12
     dhi = max(0.02, d.hi.max() * 1.12)
 
@@ -68,8 +80,14 @@ def main(data_dir, label, out_stem):
         # ---- row 1: perceived vs objective expected value
         ax = fig.add_subplot(gs[0, col]); axes_top.append(ax)
         ax.plot([0, lim_hi], [0, lim_hi], color='.78', lw=.7, ls=':', zorder=0)
-        ax.text(lim_hi * .98, lim_hi * .98, 'Veridical', fontsize=5.8, color='.55',
-                ha='right', va='bottom', rotation=45, rotation_mode='anchor')
+        ax.text(y_hi, y_hi, 'Veridical', fontsize=5.8, color='.6',
+                ha='left', va='bottom', rotation=52, rotation_mode='anchor')
+        for opt, colr in [('safe', SAFE), ('risky', RISKY)]:
+            if opt in priors and y_lo < priors[opt] < y_hi:
+                ax.axhline(priors[opt], color=colr, lw=.6, ls=(0, (4, 3)), alpha=.55,
+                           zorder=0)
+                ax.text(lim_hi * .015, priors[opt], f'{opt.capitalize()} prior',
+                        fontsize=5.8, color=colr, ha='left', va='bottom')
         for opt, base in [('safe', SAFE), ('risky', RISKY)]:
             s = o[o.option == opt].sort_values('objective_ev')
             pos = s.position.iloc[0]
@@ -79,9 +97,10 @@ def main(data_dir, label, out_stem):
                     mfc='white', zorder=3)
             ax.annotate(f'{opt.capitalize()} ({pos})',
                         xy=(s.objective_ev.iloc[-1], s.vertex.iloc[-1]),
-                        xytext=(4, 6 if opt == 'safe' else -12),
-                        textcoords='offset points', fontsize=6.6, color=base)
-        ax.set_xlim(0, lim_hi); ax.set_ylim(0, lim_hi)
+                        xytext=(-2, 7 if opt == 'safe' else -13),
+                        textcoords='offset points', fontsize=6.6, color=base,
+                        ha='right')
+        ax.set_xlim(0, lim_hi); ax.set_ylim(y_lo, y_hi)
         ax.set_title(order, fontsize=8.5, color='.2', pad=4)
         ax.set_xlabel('Objective expected value (CHF)')
         if col == 0:
