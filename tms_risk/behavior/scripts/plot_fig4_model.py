@@ -71,13 +71,15 @@ def shorten(name):
 def main(data_dir, table, label, out_stem):
     data = Path(data_dir)
     t = pd.read_csv(table, sep='\t', index_col=0).sort_values('elpd_diff')
-    t['short'] = t.name.map(shorten)
+    t['base'] = t.name.map(shorten)          # the cTBS locus, family-agnostic
     t['weber'] = t.index.str.startswith('weber')
     t['family'] = t.index.str.extract(r'(?:flexible|weber)([12])')[0].values
-    # loo_table renders both nulls as "Flexible PMC null model"; they are different
-    # models (different prior coordinates) and need distinguishing on the axis
+    # With both noise families present the locus alone is ambiguous, and the two nulls
+    # within a family differ only in prior coordinates, so both need spelling out.
+    t['short'] = [('Weber: ' if r.weber else 'Flexible: ') + r.base
+                  for _, r in t.iterrows()]
     dup = t.short.duplicated(keep=False)
-    t.loc[dup, 'short'] = [f'{r.short} (fam. {r.family})' for _, r in t[dup].iterrows()]
+    t.loc[dup, 'short'] = [f'{r.short} ({r.family})' for _, r in t[dup].iterrows()]
 
     # Row 1 is the model comparison at full width -- the model names need the room and
     # it is the panel the argument turns on. Row 2 gives the three curves real width.
@@ -93,7 +95,7 @@ def main(data_dir, table, label, out_stem):
     y = np.arange(len(t))[::-1]
     for yi, (_, r) in zip(y, t.iterrows()):
         colr = WEBER if r.weber else FLEX
-        mark = 'D' if r.short in POSITIONAL else 'o'
+        mark = 'D' if r.base in POSITIONAL else 'o'
         ax.errorbar(r.elpd_diff, yi, xerr=r.dse, fmt=mark, color=colr, ms=4.4,
                     lw=0, elinewidth=1.1, capsize=0, zorder=3)
     ax.axvline(0, color='.7', lw=.7, ls='--', zorder=0)
@@ -101,7 +103,7 @@ def main(data_dir, table, label, out_stem):
     lbl = [f'{r.short}' + ('' if r.weber else '') for _, r in t.iterrows()]
     ax.set_yticklabels(lbl, fontsize=7)
     for tick, (_, r) in zip(ax.get_yticklabels(), t.iterrows()):
-        if r.short in POSITIONAL:
+        if r.base in POSITIONAL:
             tick.set_color('.15')
             tick.set_fontweight('bold')
     ax.set_xlabel('ELPD cost vs the best model (nats)')
@@ -202,7 +204,7 @@ def main(data_dir, table, label, out_stem):
           f'crosses zero near {cross:.1f} CHF')
     print(f'  relative effect: {lo7.pct:+.1f}% at 7 CHF [{lo7.lo:+.1f}, {lo7.hi:+.1f}], '
           f'{hi7.pct:+.1f}% at 112 [{hi7.lo:+.1f}, {hi7.hi:+.1f}]')
-    pos = t[t.short.isin(POSITIONAL)]
+    pos = t[t.base.isin(POSITIONAL)]
     print('  positional models cost: '
           + ', '.join(f'{r.short} +{r.elpd_diff:.0f}' for _, r in pos.iterrows()))
 

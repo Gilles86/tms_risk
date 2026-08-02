@@ -39,6 +39,10 @@ Usage
 Labels: `flexible2.6_noisefix[_null|_memory|_perception]` -- TMS on both noise
 terms, neither, memory only, or perceptual only. Traces land in
 `<bids>/derivatives/cogmodels.noisefix/model-<label>_trace.netcdf`.
+
+`--memory_composition additive` (needs `--variant head`) additionally constrains
+the memory contribution to be non-negative; the composition used is stamped into
+`trace.posterior.attrs['tms_risk_memory_composition']`.
 """
 import argparse
 import re
@@ -100,7 +104,8 @@ def bauer_commit(path):
 
 
 def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
-          noise='flexible', prior_estimate='full'):
+          noise='flexible', prior_estimate='full',
+          memory_composition='sum_then_softplus'):
     """Build the noise model.
 
     `noise='flexible'`  B-spline noise function over magnitude in natural space.
@@ -108,12 +113,27 @@ def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
                         log space, i.e. scalar invariance / Weber's law. This is
                         the paper's Table-1 baseline family (`11a`-`11c`,
                         `11_null` in fit_model.py) and takes no spline arguments.
+
+    `memory_composition='additive'` constrains the memory contribution to the
+    first-presented option's noise to be non-negative (nu_1 = nu_2 +
+    softplus(eta_memory)). The default keeps bauer's historical composition,
+    softplus(eta_memory + eta_perceptual), under which nu_1 < nu_2 wherever
+    eta_memory < 0 -- which it is below ~12 CHF in these fits.
     """
     import inspect
     import bauer.models as bm
     kw = dict(regressors={n: 'stimulation_condition' for n in regressor_names},
               memory_model='shared_perceptual_noise' if family == 2 else 'independent',
               prior_estimate=prior_estimate)
+    if memory_composition != 'sum_then_softplus':
+        # Only family 2 decomposes noise into memory + perceptual terms.
+        if family != 2:
+            raise SystemExit('--memory_composition only applies to family 2 '
+                             '(shared_perceptual_noise); family 1 has no memory term')
+        if noise == 'weber':
+            raise SystemExit('--memory_composition is flexible-noise only; '
+                             'the weber front-end has no spline noise functions')
+        kw['memory_composition'] = memory_composition
     if prior_estimate == 'objective':
         # bauer's FlexibleNoiseRiskModel raises NotImplementedError for 'objective',
         # so the prior is instead PINNED numerically in `pin_objective_prior` below:
@@ -123,13 +143,16 @@ def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
     if noise == 'weber':
         return bm.RiskRegressionModel(df, **kw)
     cls = bm.FlexibleNoiseRiskRegressionModel
-    key = ('spline_order' if 'spline_order' in inspect.signature(cls).parameters
-           else 'polynomial_order')
+    signature = inspect.signature(cls).parameters
+    key = 'spline_order' if 'spline_order' in signature else 'polynomial_order'
     kw[key] = spline_order
-    if 'spline_degree' in inspect.signature(cls).parameters:
+    if 'spline_degree' in signature:
         kw['spline_degree'] = spline_degree
     elif spline_degree != 3:
         raise SystemExit('this bauer has no spline_degree; use the patched checkout')
+    if 'memory_composition' in kw and 'memory_composition' not in signature:
+        # ecc6454 (`--variant noisefix`) predates the option entirely.
+        raise SystemExit('this bauer has no memory_composition; use --variant head')
     return cls(df, **kw)
 
 
@@ -229,6 +252,16 @@ def main():
                              'removing it as a free parameter. The latter is the '
                              'robustness check for whether the fitted prior is doing '
                              'the work of a compressive value function.')
+    parser.add_argument('--memory_composition', default='sum_then_softplus',
+                        choices=['sum_then_softplus', 'additive'],
+                        help="how perceptual and memory noise combine into the "
+                             "first-presented option's noise. 'sum_then_softplus' "
+                             '(default, and what every published trace was fit '
+                             'under) is softplus(eta_memory + eta_perceptual), '
+                             'which lets the memory contribution go NEGATIVE '
+                             'wherever eta_memory < 0. "additive" is nu_2 + '
+                             'softplus(eta_memory), so holding an option in '
+                             'memory can only add noise. Family 2 + flexible only.')
     parser.add_argument('--constrain', action='store_true',
                         help='use payoff-scale priors instead of bauer defaults')
     parser.add_argument('--backend', default='pymc',
@@ -281,7 +314,8 @@ def main():
     print(f'bauer     {Path(bauer.__file__).parent}  (variant: {args.variant})')
     print(f'label     {label}  noise: {noise}  prior: {args.prior_estimate}  '
           + (f'splines: {spline_order} (degree {args.spline_degree})  ' if noise == 'flexible' else '')
-          + f'family {family}  regressors: {SUFFIX_REGRESSORS[family][suffix] or "none"}')
+          + f'family {family}  regressors: {SUFFIX_REGRESSORS[family][suffix] or "none"}'
+          + (f'  memory: {args.memory_composition}' if family == 2 else ''))
 
     target = (Path(args.out_dir) if args.out_dir else
               Path(args.bids_folder) / 'derivatives' / 'cogmodels.noisefix')
@@ -297,7 +331,8 @@ def main():
     model = build(df, SUFFIX_REGRESSORS[family][suffix],
                   spline_order=spline_order, family=family,
                   spline_degree=args.spline_degree, noise=noise,
-                  prior_estimate=args.prior_estimate)
+                  prior_estimate=args.prior_estimate,
+                  memory_composition=args.memory_composition)
     if args.constrain:
         if noise == 'weber':
             # Weber's prior mu/sd live in LOG space, so the payoff-scale numbers
@@ -350,6 +385,10 @@ def main():
     trace.posterior.attrs['tms_risk_family'] = family
     trace.posterior.attrs['tms_risk_noise'] = noise
     trace.posterior.attrs['tms_risk_prior_estimate'] = args.prior_estimate
+    # Read back off the model, not off argv: this is the composition the
+    # likelihood actually used, and get_sd_curve must be told the same thing.
+    trace.posterior.attrs['tms_risk_memory_composition'] = getattr(
+        model, 'memory_composition', 'sum_then_softplus')
     trace.posterior.attrs['tms_risk_spline_order'] = spline_order if noise == 'flexible' else 0
     trace.posterior.attrs['tms_risk_spline_degree'] = args.spline_degree
     trace.posterior.attrs['tms_risk_init'] = args.init

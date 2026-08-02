@@ -85,9 +85,15 @@ def main(data_dir, label, out_stem):
     rat = pd.read_csv(data / 'localnoise_delta_by_ratio.tsv', sep='\t')
     obs = pd.read_csv(data / f'ppc_fig3a.{label}.tsv', sep='\t')
 
+    # Presentation order is the ROW variable in EVERY column: "Risky first" is always
+    # the top row, "Risky second" always the bottom. So the cTBS effect reads as a
+    # vertical displacement in the right-hand columns, in the same direction that
+    # separates the two psychometric functions on the left. Putting order on the
+    # x-axis of the right panels (as in the earlier draft) encoded the same variable
+    # two different ways and the panels did not line up.
     fig = plt.figure(figsize=(7.25, 4.5))
-    gs = fig.add_gridspec(2, 2, width_ratios=[1.25, 1], hspace=.28, wspace=.40,
-                          left=.09, right=.98, top=.93, bottom=.11)
+    gs = fig.add_gridspec(2, 3, width_ratios=[1.5, 1, 1], hspace=.28, wspace=.62,
+                          left=.085, right=.98, top=.93, bottom=.11)
 
     # --- a, b: psychometric functions, observed proportions over the probit fit
     lefts = []
