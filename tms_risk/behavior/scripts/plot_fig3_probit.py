@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from scipy import stats as ss
 
 VERTEX, IPS = '#2ca02c', '#d62728'
 ORDERS = ['Risky first', 'Risky second']
@@ -53,6 +54,16 @@ PANEL = dict(fontsize=11, fontweight='bold', va='bottom', ha='right')
 XT = [1.5, 2, 2.5, 3]
 
 
+# NOTE on what the model line is.
+# Evaluating Phi at the MEAN posterior parameters gives a curve that is systematically
+# too steep: the observed statistic is a mean over subjects of sigmoids with different
+# indifference points and slopes, and by Jensen that average is flatter than the
+# sigmoid at the average parameters. Measured against these data, the group-parameter
+# curve has RMSE 0.069 while the properly aggregated prediction has RMSE 0.019.
+# So the model line here is `probit_<stim>` from analyze_localized_noise, which is the
+# prediction of the binned statistic, with its own credible interval.
+
+
 def paired_delta(g, parameter, order):
     """IPS - vertex, paired within (chain, draw) so the difference keeps its posterior."""
     s = g[(g.parameter == parameter) & (g.order == order)]
@@ -71,6 +82,7 @@ def main(data_dir, label, out_stem):
     data = Path(data_dir)
     sig = pd.read_csv(data / 'localnoise_signatures.tsv', sep='\t')
     post = pd.read_csv(data / 'localnoise_group_posterior.tsv', sep='\t')
+    rat = pd.read_csv(data / 'localnoise_delta_by_ratio.tsv', sep='\t')
     obs = pd.read_csv(data / f'ppc_fig3a.{label}.tsv', sep='\t')
 
     fig = plt.figure(figsize=(7.25, 4.5))
@@ -82,16 +94,17 @@ def main(data_dir, label, out_stem):
     for row, order in enumerate(ORDERS):
         ax = fig.add_subplot(gs[row, 0]); lefts.append(ax)
         ax.axhline(.5, color='.8', lw=.7, ls='--', zorder=0)
-        s = sig[sig.order == order]
-        for curve, colr in [('Vertex', VERTEX), ('IPS (full probit)', IPS)]:
-            c = s[s.curve == curve].sort_values('x')
-            ax.plot(np.exp(c.x), c.p, color=colr, lw=1.5, zorder=2)
         o = obs[obs.order == order]
+        r = rat[rat.order == order].set_index('bin')
         for stim, colr, mk in [('vertex', VERTEX, 'o'), ('ips', IPS, 's')]:
             g = o[o.stim == stim].sort_values('frac')
-            ax.errorbar(g.frac, g.observed, yerr=g.observed_sem, fmt=mk, color=colr,
-                        ms=4.2, lw=0, elinewidth=1.1, capsize=0,
-                        mfc='white' if stim == 'ips' else colr, mew=1.1, zorder=4)
+            fit = r.loc[g.bin, f'probit_{stim}'].values
+            flo = r.loc[g.bin, f'probit_{stim}_lo'].values
+            fhi = r.loc[g.bin, f'probit_{stim}_hi'].values
+            ax.fill_between(g.frac, flo, fhi, color=colr, alpha=.22, lw=0, zorder=1)
+            ax.plot(g.frac, fit, color=colr, lw=1.4, zorder=2)
+            ax.plot(g.frac, g.observed, mk, color=colr, ms=4.4, lw=0,
+                    mfc='white' if stim == 'ips' else colr, mew=1.1, zorder=4)
         ax.set_xscale('log')
         ax.set_xticks(XT)
         ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
@@ -104,9 +117,9 @@ def main(data_dir, label, out_stem):
             ax.set_xticklabels([])
         else:
             ax.set_xlabel('Risky/safe payoff ratio')
-    lefts[0].plot([], [], color=VERTEX, marker='o', ms=4.2, lw=1.5, label='Vertex')
-    lefts[0].plot([], [], color=IPS, marker='s', ms=4.2, mfc='white', mew=1.1,
-                  lw=1.5, label='IPS')
+    lefts[0].plot([], [], color=VERTEX, marker='o', ms=4.4, lw=1.4, label='Vertex')
+    lefts[0].plot([], [], color=IPS, marker='s', ms=4.4, mfc='white', mew=1.1,
+                  lw=1.4, label='IPS')
     lefts[0].legend(loc='lower right', fontsize=7, handlelength=1.6, borderpad=.3,
                     labelspacing=.25)
 

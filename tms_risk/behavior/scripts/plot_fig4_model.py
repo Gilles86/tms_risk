@@ -133,6 +133,17 @@ def main(data_dir, table, label, out_stem):
     ax.plot(n1.payoff, n1.nu, color='.35', ls='--', lw=1.1, zorder=2)
     gap = n1.set_index('payoff').nu - n2.set_index('payoff').nu
     cross = gap.index[np.argmin(np.abs(gap.values))]
+    # On the log axis the two curves nearly coincide, so the contribution is drawn
+    # on its own linear inset where its sign is legible.
+    ins = ax.inset_axes([.50, .12, .47, .30])
+    ins.axhline(0, color='.6', lw=.6, ls='--', zorder=0)
+    ins.plot(gap.index.values, gap.values, color='.25', lw=1.1)
+    ins.set_xscale('log'); ins.set_xticks([7, 28, 112])
+    ins.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
+    ins.tick_params(labelsize=5.6, length=1.8, pad=1.2)
+    ins.set_title('ν₁ − ν₂ (CHF)', fontsize=5.8, color='.25', pad=1.5)
+    for sp in ('top', 'right'):
+        ins.spines[sp].set_visible(False)
 
     x0, y0 = p.payoff.iloc[0], p.nu.iloc[0]
     xs = np.array([x0, p.payoff.iloc[-1]])
