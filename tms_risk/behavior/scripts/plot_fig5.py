@@ -24,8 +24,13 @@ moves choices where the psychometric function is steep, and the psychometric fun
 is steepest at indifference. Distortions far from that contour are invisible in
 behaviour however large they are.
 
-Open circles mark the 30 (safe payoff x ratio) cells the design actually sampled;
-everything off them is model extrapolation.
+There is no lattice of "design cells" to mark. The safe payoff is a real 5-level
+design factor (7, 10, 14, 20, 28 CHF), but the risky amount was titrated per subject,
+so the risky/safe ratio is continuous -- 121 distinct values, roughly uniform over the
+plotted range of 1 to 4. Earlier versions drew a 5 x 6 grid of open circles whose
+y positions were `pd.qcut` bin means of that continuous cloud; those rows were an
+artefact of the binning, not levels anyone was shown. The x ticks now sit on the five
+payoffs that were sampled, and the y axis is sampled throughout.
 
     python -m tms_risk.behavior.scripts.plot_fig5 --label flexible2nf
 
@@ -79,16 +84,17 @@ SPECS = [
     ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, '.15', [-.1, 0., .1]),
 ]
 
-XTICKS = [7, 14, 20, 28]
-XPAD = .9  # CHF of margin, so the design-cell markers at 7 and 28 are not clipped
+XPAD = .9  # CHF of margin, so the end ticks are not flush against the panel edge
 
 # Panel geometry in figure coordinates. The block of 2D maps and the 1D panel get a
 # wide gutter between them so that column d's y-axis never crowds column c; the left
 # margin has to hold the rotated row name as well as the y-axis label.
-MAPS_L, MAPS_R = .088, .700
-D_L, D_R = .766, .990
+MAPS_L, MAPS_R = .082, .723
+D_L, D_R = .781, .995
 TOP, BOTTOM = .855, .315
 CBAR_Y, CBAR_H = .120, .020
+YLAB_X = -.125  # axes-fraction x of the maps' y-label; matplotlib's automatic
+#                 placement leaves ~0.3 inch of dead space we cannot afford here
 
 
 def grid(d, key):
