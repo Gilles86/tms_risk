@@ -17,13 +17,12 @@ one-line reading: when the risky option comes first the two bars are the same
 height and cancel to nothing; when it comes second the safe bar is roughly twice
 the risky one and a residual survives.
 
-The right-hand panel converts the residual into the quantity the reader cares
-about, using the model's own local slope of P(chose risky) against the perceived
-ratio, taken from decision_space.<label>.tsv.
+The right-hand panel is the observed choice effect, so the reader can check the
+residual's shape against what the subjects actually did.
 
     python -m tms_risk.behavior.scripts.proto_ratio_waterfall
 
-Reads notes/data/pmc_percepts_by_order.<label>.tsv and decision_space.<label>.tsv.
+Reads notes/data/pmc_percepts_by_order.<label>.tsv and behavior_effect_by_safe.tsv.
 """
 import argparse
 from pathlib import Path
@@ -80,20 +79,11 @@ def main(data_dir, label, out_stem):
     d = pd.read_csv(data / f'pmc_percepts_by_order.{label}.tsv', sep='\t')
     w = contributions(d)
 
-    # local slope of P(chose risky) on the perceived ratio, from the model's own
-    # decision-space grid: dP / dlog(ratio), evaluated per (order, stake) by
-    # regressing p_vertex on log(ratio_vertex) across the ratio grid.
-    ds = pd.read_csv(data / f'decision_space.{label}.tsv', sep='\t')
-    slopes = {}
-    for (order, ns), g in ds.groupby(['order', 'n_safe']):
-        g = g.sort_values('ratio')
-        lr = np.log(g.ratio_vertex.values)
-        p = g.p_vertex.values
-        slopes[(order, ns)] = np.polyfit(lr, p, 1)[0]
-    grid_ns = np.array(sorted(ds.n_safe.unique()))
+    # observed choice effect, for the reader to compare the shape against
+    obs = pd.read_csv(data / 'behavior_effect_by_safe.tsv', sep='\t')
 
     fig = plt.figure(figsize=(7.25, 3.5))
-    gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.02], wspace=.36,
+    gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.02], wspace=.30,
                           left=.085, right=.985, top=.79, bottom=.145)
     axes = [fig.add_subplot(gs[0, i]) for i in range(3)]
     bw = .34
@@ -127,26 +117,26 @@ def main(data_dir, label, out_stem):
                         arrowprops=dict(arrowstyle='-', color='0.45', lw=.6,
                                         connectionstyle='arc3,rad=-.25'))
 
-    # ---- what the residual buys, in choice probability -------------------------
+    # ---- what the choices actually did ----------------------------------------
     ax = axes[2]
-    for order, col in [('Risky first', '0.62'), ('Risky second', DIFF)]:
-        s = w[w.order == order].set_index('n_safe').loc[LEVELS]
-        sl = np.array([slopes[(order, grid_ns[np.argmin(abs(grid_ns - v))])]
-                       for v in LEVELS])
-        ax.plot(np.arange(len(LEVELS)), sl * s.net.values / 100, '-D',
-                color=col, mfc=col, ms=5,
-                lw=1.6 if order == 'Risky second' else 1.1, zorder=3)
+    xi = np.arange(len(LEVELS))
+    for order, col, off in [('Risky first', '0.62', -.09),
+                            ('Risky second', DIFF, .09)]:
+        o = obs[obs.order == order].set_index('n_safe').loc[LEVELS]
+        ax.errorbar(xi + off, o.delta, yerr=o['sem'], fmt='-D', color=col,
+                    mfc=col, ms=4.5, elinewidth=.8, capsize=0,
+                    lw=1.6 if order == 'Risky second' else 1.1, zorder=3)
     ax.axhline(0, color='0.4', lw=.8, zorder=1)
-    ax.set_xticks(np.arange(len(LEVELS)))
+    ax.set_xticks(xi)
     ax.set_xticklabels([f'{v:.0f}' for v in LEVELS])
     ax.set_xlim(-.62, len(LEVELS) - .38)
-    ax.set_ylim(-.012, .085)
-    ax.set_yticks([0, .02, .04, .06, .08])
+    ax.set_ylim(-.085, .155)
+    ax.set_yticks([-.05, 0, .05, .10, .15])
     ax.set_xlabel('Safe payoff (CHF)')
     ax.set_ylabel('Δ P(chose risky)')
-    ax.text(len(LEVELS) - .55, .062, 'Risky second', color=DIFF, fontsize=7.5,
+    ax.text(xi[-1] + .35, .098, 'Risky second', color=DIFF, fontsize=7.5,
             ha='right', va='bottom')
-    ax.text(len(LEVELS) - .55, .004, 'Risky first', color='0.55', fontsize=7.5,
+    ax.text(xi[-1] + .35, -.052, 'Risky first', color='0.55', fontsize=7.5,
             ha='right', va='bottom')
 
     for ax, letter in zip(axes, 'abc'):

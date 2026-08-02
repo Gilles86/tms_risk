@@ -92,6 +92,7 @@ section of `CLAUDE.md`, and `notes/pmc_refit_results.md` for the full audit.
 | `flexible1nf`, `flexible2nf` | refits against current bauer with the intended noise composition. `1` = independent per position (first/second), `2` = shared perceptual + memory. Exact reparameterisations of each other | `derivatives/cogmodels.overnight/` |
 | `weber2_noisefix*` | Weber PMC baseline: noise constant in log space (scalar invariance), no spline basis | `derivatives/cogmodels.overnight/` |
 | `flexible2.<N>_noisefix` | spline-complexity ladder, `<N>` = number of basis coefficients | `derivatives/cogmodels.ladder/` |
+| same labels, `additive` composition | ν₁ = ν₂ + softplus(η_mem), i.e. memory noise constrained ≥ 0. **Rejected: 55.7 nats worse (dSE 10.4).** See `notes/positive_memory_noise.md` | `derivatives/cogmodels.additive/` |
 
 Everything fit from 2026-07 onward stamps its provenance into the trace:
 `tms_risk_bauer_commit`, `tms_risk_family`, `tms_risk_spline_order`,
