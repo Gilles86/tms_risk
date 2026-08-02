@@ -185,6 +185,16 @@ def main(data_dir, table, label, out_stem):
     # --- c: the memory contribution, on a linear axis where its sign is legible
     ax = fig.add_subplot(gs[0, 1])
     ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
+    # the credible interval on the CONTRAST, propagated through the draws -- it cannot
+    # be recovered from the marginal intervals of nu_1 and nu_2
+    mc = c[(c.term == 'memory_contribution') & (c.stimulation == 'vertex')]
+    if len(mc):
+        mc = mc.sort_values('payoff')
+        ax.fill_between(mc.payoff, mc.lo, mc.hi, color='.5', alpha=.20, lw=0, zorder=1)
+        neg = mc[mc.hi < 0]
+        if len(neg):
+            ax.plot(neg.payoff, np.zeros(len(neg)), color='#b2182b', lw=2.4,
+                    solid_capstyle='butt', zorder=5)
     ax.plot(gap.index.values, gap.values, color='.25', lw=1.4, zorder=2)
     ax.set_xscale('log'); ax.set_xticks([7, 28, 112])
     ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
@@ -199,8 +209,9 @@ def main(data_dir, table, label, out_stem):
                     ha='left', va='center',
                     arrowprops=dict(arrowstyle='-', connectionstyle='arc3,rad=.25',
                                     color='.5', lw=.6))
-    ax.text(.96, .06, 'First option less noisy', transform=ax.transAxes,
-            fontsize=6.2, color='.4', va='bottom', ha='right')
+    ax.text(.96, .06, 'Red: 95% CrI excludes 0,\nfirst option credibly less noisy',
+            transform=ax.transAxes, fontsize=6.1, color='.35', va='bottom',
+            ha='right', linespacing=1.25)
 
     # --- d: the increase as a percentage, with its credible interval
     ax = fig.add_subplot(gs[0, 2])
