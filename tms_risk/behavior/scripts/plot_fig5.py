@@ -2,7 +2,7 @@
 
 The argument runs left to right: a distortion of perceived value (column a) matters
 only where choice is sensitive to it (column b), and the behavioural effect (column c)
-is large only where both hold.
+is large only where both hold. Column d checks that prediction against the data.
 
 The columns are NOT literally multiplicable. `cause` is a dimensionless ratio
 (perceived risky/safe EV, IPS over vertex) while `leverage` is |dP/dm| in units of
@@ -43,7 +43,7 @@ import seaborn as sns
 mpl.rcParams.update({
     'font.family': 'Helvetica',
     'font.sans-serif': ['Helvetica', 'Helvetica Neue', 'TeX Gyre Heros', 'Arial'],
-    'font.size': 8, 'axes.labelsize': 8.5, 'axes.titlesize': 8.5,
+    'font.size': 8, 'axes.labelsize': 8.5, 'axes.titlesize': 8,
     'xtick.labelsize': 7.5, 'ytick.labelsize': 7.5,
     'axes.linewidth': .8, 'axes.spines.top': False, 'axes.spines.right': False,
     'xtick.direction': 'out', 'ytick.direction': 'out',
@@ -60,13 +60,34 @@ ORDERS = ['Risky first', 'Risky second']
 # choosing safe is risk-averse, so it turns the axis from arbitrary into
 # interpretable. The fitted indifference points (1/RNP) straddle it.
 RISK_NEUTRAL = 1 / 0.55
-# (key, title, cmap, colour-centre, ink) -- `ink` is the contour/marker colour, chosen
-# to read against that column's colormap so no outline stroke is needed.
+# A difference between the two stimulation conditions is a third quantity: it must not
+# borrow the IPS red or the vertex green, so everything derived from it takes
+# near-black. The model prediction it is checked against takes mid-grey.
+DIFF = '#1a1a1a'
+MODEL = '.5'
+
+# Titles are hard-wrapped so that no line is wider than its panel -- an overflowing
+# title runs straight into the neighbouring column's panel letter.
+# (key, title, cmap, colour-centre, ink, colourbar ticks) -- `ink` is the colour of
+# every line and marker drawn over that column's map (indifference contour, design
+# cells, risk-neutral reference), chosen to read against its colormap so no outline
+# stroke is needed.
 SPECS = [
-    ('cause', 'Perceived risky/safe ratio\nIPS / vertex', 'RdBu_r', 1.0, '0.15'),
-    ('leverage', 'Leverage\n(how far a distortion moves choice)', 'mako', None, 'w'),
-    ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, '0.15'),
+    ('cause', 'Perceived risky/safe\nratio, IPS / vertex', 'RdBu_r', 1.0, '.15',
+     [.95, 1.00, 1.05]),
+    ('leverage', 'Leverage\n|∂P/∂m| (1/CHF)', 'mako', None, 'w', [.1, .2, .3, .4]),
+    ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, '.15', [-.1, 0., .1]),
 ]
+
+XTICKS = [7, 14, 20, 28]
+XPAD = .9  # CHF of margin, so the design-cell markers at 7 and 28 are not clipped
+
+# Panel geometry in figure coordinates. The block of 2D maps and the 1D panel get a
+# wide gutter between them so that column d's y-axis never crowds column c.
+MAPS_L, MAPS_R = .076, .714
+D_L, D_R = .777, .990
+TOP, BOTTOM = .855, .315
+CBAR_Y, CBAR_H = .120, .020
 
 
 def grid(d, key):
@@ -89,15 +110,17 @@ def main(data_dir, label, out_stem):
     data = Path(data_dir)
     d = pd.read_csv(data / f'decision_space.{label}.tsv', sep='\t')
     cells_x, cells_y = design_cells(data)
-
     obs = pd.read_csv(data / 'behavior_effect_by_safe.tsv', sep='\t')
-    fig = plt.figure(figsize=(7.25, 4.3))
-    gs = fig.add_gridspec(2, 4, hspace=.13, wspace=.14,
-                          left=.075, right=.99, top=.845, bottom=.235)
+
+    fig = plt.figure(figsize=(7.25, 4.4))
+    gs = fig.add_gridspec(2, 3, left=MAPS_L, right=MAPS_R, top=TOP, bottom=BOTTOM,
+                          wspace=.17, hspace=.17)
+    gsd = fig.add_gridspec(2, 1, left=D_L, right=D_R, top=TOP, bottom=BOTTOM,
+                           hspace=.17)
 
     # one colour scale per column, so the two rows are directly comparable
     norms = {}
-    for key, _, cmap, centre, _ink in SPECS:
+    for key, _t, _cmap, centre, _ink, _ct in SPECS:
         z = np.concatenate([d[d.order == o][key].values for o in ORDERS])
         if centre is None:
             norms[key] = (np.nanmin(z), np.nanmax(z))
@@ -105,86 +128,102 @@ def main(data_dir, label, out_stem):
             c = np.nanmax(np.abs(z - centre))
             norms[key] = (centre - c, centre + c)
 
-    ims, d_axes = {}, []
-    # a difference is not one of the conditions, so it does not take the IPS red
-    DIFF = '#1a1a1a'
+    ims, map_axes, d_axes = {}, [], []
     for row, order in enumerate(ORDERS):
         o = d[d.order == order]
-        for col, (key, title, cmap, _, ink) in enumerate(SPECS):
+        for col, (key, title, cmap, _c, ink, _ct) in enumerate(SPECS):
             ax = fig.add_subplot(gs[row, col])
+            map_axes.append(ax)
             x, y, z = grid(o, key)
             vmin, vmax = norms[key]
             ims[key] = ax.pcolormesh(x, y, z, cmap=cmap, shading='gouraud',
                                      vmin=vmin, vmax=vmax, rasterized=True)
             _, _, pv = grid(o, 'p_vertex')
-            cs = ax.contour(x, y, pv, levels=[.5], colors=ink, linewidths=1.1)
-            if row == 0 and col == 0:
-                ax.clabel(cs, fmt={.5: 'Indifference'}, fontsize=6, inline=True,
-                          inline_spacing=3)
+            ax.contour(x, y, pv, levels=[.5], colors=ink, linewidths=1.1)
+            # Dotted and thinner than the contour so the reference line and the model
+            # output stay distinguishable even where they run close together.
+            ax.axhline(RISK_NEUTRAL, color=ink, lw=.7, ls=':', alpha=.75, zorder=3)
             ax.scatter(cells_x, cells_y, s=5.5, facecolor='none', edgecolor=ink,
                        linewidth=.5, zorder=4, alpha=.7)
-            ax.axhline(RISK_NEUTRAL, color='w', lw=.7, ls=':', alpha=.75, zorder=3)
-            ax.set_xticks([7, 14, 20, 28])
+            # The contour is named once, in the one band of the panel that carries no
+            # design cells (between the ratio-2.84 and ratio-3.63 rows), with a leader
+            # down to the line: an inline contour label sits on top of the cells.
+            if row == 0 and col == 0:
+                ax.annotate('Indifference', xy=(13.4, 2.07), xytext=(9.2, 3.25),
+                            fontsize=6.5, color='.15', ha='left', va='center',
+                            arrowprops=dict(arrowstyle='-', color='.35', lw=.6,
+                                            connectionstyle='arc3,rad=-.25',
+                                            shrinkA=2, shrinkB=1))
+            ax.set_xticks(XTICKS)
             ax.set_yticks([1, 2, 3, 4])
+            ax.set_xlim(x.min() - XPAD, x.max() + XPAD)
+            ax.set_ylim(y.min(), y.max())
             if row == 0:
-                ax.set_title(title, fontsize=7.8, color='.2', pad=4)
+                ax.set_title(title, color='.2', pad=4)
                 ax.set_xticklabels([])
-            else:
-                ax.set_xlabel('Safe payoff (CHF)')
             if col == 0:
-                ax.set_ylabel(f'{order}\n\nRisky/safe payoff ratio', fontsize=8.5)
+                ax.set_ylabel('Risky/safe payoff ratio')
             else:
                 ax.set_yticklabels([])
+            sns.despine(ax=ax, offset=3, trim=True)
 
         # --- fourth column: model prediction against what participants actually did.
         # A 2D grid of the observed effect was too thin per cell (~25 subjects) to read
         # as evidence; collapsing over the ratio gives 35 subjects per point and an
         # error bar, which is what makes this a usable posterior predictive check.
-        ax = fig.add_subplot(gs[row, 3])
+        ax = fig.add_subplot(gsd[row, 0])
         ax.axhline(0, color='.75', lw=.7, ls='--', zorder=0)
         mo = o.groupby('n_safe').effect.mean()
-        ax.plot(mo.index.values, mo.values, color='.35', lw=1.6, zorder=2)
+        ax.plot(mo.index.values, mo.values, color=MODEL, lw=1.6, zorder=2)
         ob = obs[obs.order == order].sort_values('n_safe')
         ax.errorbar(ob.n_safe, ob.delta, yerr=ob['sem'], fmt='o', color=DIFF, ms=4.2,
                     lw=0, elinewidth=1.1, capsize=0, zorder=3)
-        ax.set_xticks([7, 14, 20, 28])
-        ax.set_xlim(5, 30)
-        ax.yaxis.tick_right(); ax.yaxis.set_label_position('right')
-        ax.spines['right'].set_visible(True); ax.spines['left'].set_visible(False)
+        ax.set_xticks(XTICKS)
+        ax.set_xlim(7 - XPAD * 1.6, 28 + XPAD * 1.6)
+        ax.set_yticks([-.05, 0, .05, .10])
+        ax.set_ylim(-.09, .16)
+        ax.set_ylabel('Δ P(chose risky)')
         if row == 0:
-            ax.set_title('Model vs observed\nΔ P(chose risky)', fontsize=7.8,
-                         color='.2', pad=4)
+            ax.set_title('Model vs observed', color='.2', pad=4)
             ax.set_xticklabels([])
-            ax.text(.05, .06, 'Model', transform=ax.transAxes, fontsize=7, color='.35')
-            ax.text(.05, .19, 'Observed', transform=ax.transAxes, fontsize=7, color=DIFF)
-        else:
-            ax.set_xlabel('Safe payoff (CHF)')
-        ax.set_ylabel('Δ P(chose risky)', fontsize=8)
+            # Direct labels rather than a legend, in the headroom above the row-0 data
+            # (which peaks at 0.085, at 28 CHF, on the far side of the panel).
+            ax.text(.03, .97, 'Observed', transform=ax.transAxes, fontsize=7,
+                    color=DIFF, va='top')
+            ax.text(.03, .855, 'Model', transform=ax.transAxes, fontsize=7,
+                    color=MODEL, va='top')
+        sns.despine(ax=ax, offset=4, trim=True)
         d_axes.append(ax)
 
-    # one colourbar per column; columns 3 and 4 share a scale, so one bar spans both
-    lo = min(a.get_ylim()[0] for a in d_axes)
-    hi = max(a.get_ylim()[1] for a in d_axes)
-    for a in d_axes:
-        a.set_ylim(lo, hi)
-    bars = [(0, 'cause', 0), (1, 'leverage', 1), (2, 'effect', 2)]
-    for col, key, last_col in bars:
-        b0 = fig.axes[4 + col].get_position()
-        b1 = fig.axes[4 + last_col].get_position()
-        cax = fig.add_axes([b0.x0, .105, b1.x1 - b0.x0, .022])
-        cb = fig.colorbar(ims[key], cax=cax, orientation='horizontal')
-        cb.outline.set_linewidth(.6)
-        cax.tick_params(labelsize=6.5, length=2)
+    # one x-label for the three maps and one for column d, instead of four copies
+    for x in [(MAPS_L + MAPS_R) / 2, (D_L + D_R) / 2]:
+        fig.text(x, BOTTOM - .108, 'Safe payoff (CHF)', ha='center', va='baseline',
+                 fontsize=8.5)
 
-    for col, letter in enumerate('abcd'):
-        ax = fig.axes[col]
-        ax.text(-.06 if col else -.34, 1.17, letter, transform=ax.transAxes,
-                fontsize=11, fontweight='bold', va='bottom', ha='right')
-    fig.suptitle('A distortion moves choice only where the psychometric function is '
-                 'steep — and the data agree', fontsize=9, y=.95, color='.15')
+    # one colourbar per column, aligned to that column and set well below the x-label
+    for col, (key, _t, _c, _ce, _i, ticks) in enumerate(SPECS):
+        b = map_axes[3 + col].get_position()
+        cax = fig.add_axes([b.x0, CBAR_Y, b.width, CBAR_H])
+        cb = fig.colorbar(ims[key], cax=cax, orientation='horizontal', ticks=ticks)
+        cb.outline.set_linewidth(.6)
+        cax.tick_params(labelsize=7, length=2, pad=2)
+
+    # panel letters: one per column, all on one baseline, all clear of the titles
+    letter_y = TOP + .082
+    for letter, ax in zip('abc', map_axes[:3]):
+        fig.text(ax.get_position().x0 - .016, letter_y, letter, fontsize=11,
+                 fontweight='bold', va='bottom', ha='right')
+    fig.text(D_L - .058, letter_y, 'd', fontsize=11, fontweight='bold',
+             va='bottom', ha='right')
+
+    # row labels, far enough left to clear the y-axis label of column a
+    for row, order in enumerate(ORDERS):
+        b = map_axes[3 * row].get_position()
+        fig.text(MAPS_L - .058, b.y0 + b.height / 2, order, rotation=90,
+                 ha='center', va='center', fontsize=9, color='.15')
+
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.03)
-    plt.close(fig)
 
     print(f'wrote {out_stem}.pdf')
     for order in ORDERS:
@@ -193,6 +232,7 @@ def main(data_dir, label, out_stem):
         print(f'  {order:14s} model mean Δ = {o.effect.mean():+.4f}   '
               f'observed mean Δ = {ob.delta.mean():+.4f} '
               f'(peak {ob.delta.max():+.3f} ± {ob.loc[ob.delta.idxmax(), "sem"]:.3f})')
+    return fig
 
 
 if __name__ == '__main__':
@@ -201,5 +241,6 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', default='/Users/gdehol/git/tms_risk/notes/data')
     parser.add_argument('--out', default=None)
     args = parser.parse_args()
-    main(args.data_dir, args.label,
-         args.out or f'/Users/gdehol/git/tms_risk/notes/figures/fig5.{args.label}')
+    plt.close(main(args.data_dir, args.label,
+                   args.out or
+                   f'/Users/gdehol/git/tms_risk/notes/figures/fig5.{args.label}'))

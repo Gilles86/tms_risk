@@ -46,6 +46,7 @@ Never write "confidence interval" — nothing here is frequentist.
 | Fig 5d | observed points | ±1 SEM, paired within subject, n = 35 | `behavior_effect_by_safe` |
 | PPC figures | model band | 95% posterior predictive interval | `ppc_fig3a` |
 | PPC figures | observed points | ±1 SEM across subjects | `ppc_fig3a` |
+| PPC by safe payoff | observed points | ±1 SEM — shown here, unlike the pooled PPC, because splitting five ways makes the data's sampling error larger than the model band | `ppc_by_safe` |
 | Spline ladder | noise functions and contrast | 95% CrI | `pmcpars_curves` |
 | Percept distortion | Δ perceived value | 95% CrI | `pmc_percepts_by_order` |
 
@@ -67,6 +68,15 @@ Never write "confidence interval" — nothing here is frequentist.
   plotted x is the across-subject mean of each participant's own bin mean — so the axis
   stays in ratio units and can carry real ticks. `bin(risky/safe)` in `utils/data.py`
   is built this way, and so is the safe-payoff split in `plot_ppc_fig3a.py`.
+
+- **When to show SEMs on the data in a PPC.** The convention is that the model carries
+  the uncertainty and the data are bare markers. That holds when the data are precise
+  relative to the model band. Once a figure subdivides enough that the observed
+  proportion's SEM exceeds the band width, drop the convention and show the bars --
+  otherwise the reader compares a point against an interval that excludes the point's
+  own uncertainty and reads ordinary scatter as misfit. In this paper: pooled PPC, no
+  bars (mean |z| = 0.42); PPC split by safe payoff, bars (mean |z| = 0.56, but the band
+  is ~0.03 against a data SEM of ~0.05).
 
 ## Caption boilerplate
 
