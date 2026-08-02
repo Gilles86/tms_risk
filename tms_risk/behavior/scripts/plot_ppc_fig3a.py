@@ -164,6 +164,34 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
     out.to_csv(Path(out_stem).parent.parent / 'data' /
                f'ppc_fig3a.{model_label}.tsv', sep='\t', index=False)
 
+    # The same check broken down by safe payoff as well. The ratio bins are formed
+    # WITHIN each safe payoff, because the ratios available differ across them -- a
+    # shared binning would leave cells empty at the extremes. Four bins keeps ~100
+    # trials and ~28 subjects per cell.
+    d['sbin'] = (d.groupby('n_safe')['frac']
+                 .transform(lambda v: pd.qcut(v, 4, labels=False, duplicates='drop')))
+    keys_s = ['subject', 'order', 'n_safe', 'sbin', 'stim']
+    grp_s = ['order', 'n_safe', 'sbin', 'stim']
+    obs_s = (d.assign(y=d['chose_risky'].astype(float))
+               .groupby(keys_s)['y'].mean()
+               .groupby(grp_s).agg(['mean', 'sem']).reset_index())
+    xpos_s = d.groupby(['order', 'n_safe', 'sbin'])['frac'].mean().rename('frac')
+    obs_s = obs_s.join(xpos_s, on=['order', 'n_safe', 'sbin'])
+    idx_s = pd.MultiIndex.from_frame(d[keys_s])
+    per_draw_s = (pd.DataFrame(p_risky, index=idx_s)
+                    .groupby(level=keys_s).mean()
+                    .groupby(grp_s).mean())
+    mod_s = pd.DataFrame({'mean': per_draw_s.mean(1),
+                          'lo': per_draw_s.quantile(.025, axis=1),
+                          'hi': per_draw_s.quantile(.975, axis=1)}).reset_index()
+    mod_s = mod_s.join(xpos_s, on=['order', 'n_safe', 'sbin'])
+    out_s = mod_s.merge(
+        obs_s.rename(columns={'mean': 'observed', 'sem': 'observed_sem'}),
+        on=['order', 'n_safe', 'sbin', 'stim', 'frac'])
+    out_s.to_csv(Path(out_stem).parent.parent / 'data' /
+                 f'ppc_by_safe.{model_label}.tsv', sep='\t', index=False)
+    print(f'wrote ppc_by_safe.{model_label}.tsv  ({len(out_s)} cells)')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
