@@ -48,6 +48,10 @@ sns.set_context('paper')
 
 def main(data_dir, label, out_stem):
     d = pd.read_csv(Path(data_dir) / f'ppc_by_safe.{label}.tsv', sep='\t')
+    # Limits from the data, with room for the markers: the sixth ladder rung sits at
+    # ~3.20, so a hard-coded upper bound clipped the top point of every panel.
+    pad = .06 * (d.frac.max() - d.frac.min())
+    xlo, xhi = d.frac.min() - pad, d.frac.max() + pad
     safes = np.sort(d.stake_bin.unique())
     stake_mid = d.groupby('stake_bin')['stake'].first()
     n = len(safes)
@@ -74,7 +78,7 @@ def main(data_dir, label, out_stem):
                 ax.errorbar(g.frac, g.observed, yerr=g.observed_sem, fmt='o',
                             color=colr, ms=3.8, lw=0, elinewidth=.9, capsize=0,
                             zorder=4)
-            ax.set_xlim(1.45, 3.15)
+            ax.set_xlim(xlo, xhi)
             ax.set_xticks([1.5, 2, 2.5, 3])
             ax.set_ylim(.12, .95)
             ax.set_yticks([.25, .5, .75])

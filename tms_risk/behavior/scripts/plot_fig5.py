@@ -69,7 +69,7 @@ RISK_NEUTRAL = 1 / 0.55
 # borrow the IPS red or the vertex green, so everything derived from it takes
 # near-black. The model prediction it is checked against takes mid-grey.
 DIFF = '#1a1a1a'
-MODEL = '.5'
+MODEL = '.45'
 
 # Titles are hard-wrapped so that no line is wider than its panel -- an overflowing
 # title runs straight into the neighbouring column's panel letter.
@@ -80,7 +80,7 @@ MODEL = '.5'
 SPECS = [
     ('cause', 'Perceived risky/safe\nratio, IPS / vertex', 'RdBu_r', 1.0, '.15',
      [.95, 1.00, 1.05]),
-    ('leverage', 'Leverage\n|∂P/∂m| (1/CHF)', 'mako', None, 'w', [.1, .2, .3, .4]),
+    ('leverage', 'Leverage\n(1/CHF)', 'mako', None, 'w', [.1, .2, .3, .4]),
     ('effect', 'Δ P(chose risky)\nIPS − vertex', 'RdBu_r', 0.0, '.15', [-.1, 0., .1]),
 ]
 
@@ -93,7 +93,7 @@ MAPS_L, MAPS_R = .082, .726
 D_L, D_R = .781, .995
 TOP, BOTTOM = .855, .315
 CBAR_Y, CBAR_H = .120, .020
-YLAB_X = -.170  # axes-fraction x of the maps' y-label; matplotlib's automatic
+YLAB_X = -.195  # axes-fraction x of the maps' y-label; matplotlib's automatic
 #                 placement leaves ~0.3 inch of dead space we cannot afford here
 
 
@@ -194,10 +194,10 @@ def main(data_dir, label, out_stem):
             ax.set_xticklabels([])
             # Direct labels rather than a legend, in the headroom above the row-0 data
             # (which peaks at 0.085, at 28 CHF, on the far side of the panel).
-            ax.text(.03, .93, 'Observed', transform=ax.transAxes, fontsize=7,
-                    color=DIFF, va='top')
-            ax.text(.03, .825, 'Model', transform=ax.transAxes, fontsize=7,
-                    color=MODEL, va='top')
+            ax.text(.03, .745, 'Observed', transform=ax.transAxes, fontsize=7,
+                    color=DIFF, va='center')
+            ax.text(.03, .648, 'Model', transform=ax.transAxes, fontsize=7,
+                    color=MODEL, va='center')
         sns.despine(ax=ax, offset=4, trim=True)
         d_axes.append(ax)
 
