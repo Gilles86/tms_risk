@@ -80,8 +80,8 @@ def main(data_dir, table, label, out_stem):
     t.loc[dup, 'short'] = [f'{r.short} (fam. {r.family})' for _, r in t[dup].iterrows()]
 
     fig = plt.figure(figsize=(7.25, 2.75))
-    gs = fig.add_gridspec(1, 3, width_ratios=[1.45, 1, 1], wspace=.58,
-                          left=.20, right=.985, top=.84, bottom=.19)
+    gs = fig.add_gridspec(1, 4, width_ratios=[1.55, 1, .85, 1], wspace=.78,
+                          left=.155, right=.99, top=.84, bottom=.19)
 
     # --- a: ELPD, as a cost relative to the best model
     ax = fig.add_subplot(gs[0, 0])
@@ -133,17 +133,6 @@ def main(data_dir, table, label, out_stem):
     ax.plot(n1.payoff, n1.nu, color='.35', ls='--', lw=1.1, zorder=2)
     gap = n1.set_index('payoff').nu - n2.set_index('payoff').nu
     cross = gap.index[np.argmin(np.abs(gap.values))]
-    # On the log axis the two curves nearly coincide, so the contribution is drawn
-    # on its own linear inset where its sign is legible.
-    ins = ax.inset_axes([.50, .12, .47, .30])
-    ins.axhline(0, color='.6', lw=.6, ls='--', zorder=0)
-    ins.plot(gap.index.values, gap.values, color='.25', lw=1.1)
-    ins.set_xscale('log'); ins.set_xticks([7, 28, 112])
-    ins.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
-    ins.tick_params(labelsize=5.6, length=1.8, pad=1.2)
-    ins.set_title('ν₁ − ν₂ (CHF)', fontsize=5.8, color='.25', pad=1.5)
-    for sp in ('top', 'right'):
-        ins.spines[sp].set_visible(False)
 
     x0, y0 = p.payoff.iloc[0], p.nu.iloc[0]
     xs = np.array([x0, p.payoff.iloc[-1]])
@@ -161,13 +150,25 @@ def main(data_dir, table, label, out_stem):
             ha='right')
     ax.text(.03, .97, f'Slope {slope:.2f}', transform=ax.transAxes,
             fontsize=6.8, color='.25', va='top')
-    ax.text(.03, .87, 'Dashed: first-presented option', transform=ax.transAxes,
+    ax.text(.03, .88, 'Dashed: first option', transform=ax.transAxes,
             fontsize=6.4, color='.35', va='top')
     ax.text(.32, .74, 'Weber (1)', transform=ax.transAxes, fontsize=6.4, color='.5',
             rotation=30)
 
-    # --- c: the increase as a percentage, with its credible interval
+    # --- c: the memory contribution, on a linear axis where its sign is legible
     ax = fig.add_subplot(gs[0, 2])
+    ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
+    ax.plot(gap.index.values, gap.values, color='.25', lw=1.4, zorder=2)
+    ax.set_xscale('log'); ax.set_xticks([7, 28, 112])
+    ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
+    ax.set_xlabel('Payoff (CHF)')
+    ax.set_ylabel('ν₁ − ν₂ (CHF)')
+    ax.set_title('Memory contribution', fontsize=7, color='.3', pad=3)
+    ax.text(.96, .06, 'First option less noisy', transform=ax.transAxes,
+            fontsize=6.2, color='.4', va='bottom', ha='right')
+
+    # --- d: the increase as a percentage, with its credible interval
+    ax = fig.add_subplot(gs[0, 3])
     rel = pd.read_csv(data / f'pmcpars_relative.{label}.tsv', sep='\t')
     rel = rel[rel.term == 'perceptual_noise_sd'].sort_values('payoff')
     ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
@@ -176,12 +177,12 @@ def main(data_dir, table, label, out_stem):
     ax.set_xscale('log'); ax.set_xticks(XT)
     ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.set_xlabel('Payoff (CHF)')
-    ax.set_ylabel('Δ perceptual noise (%)\nIPS − vertex')
+    ax.set_ylabel('Δ noise, IPS − vertex (%)')
     lo7 = rel.iloc[(rel.payoff - 7).abs().argmin()]
     hi7 = rel.iloc[(rel.payoff - 112).abs().argmin()]
 
-    for a, letter in zip(fig.axes, 'abc'):
-        a.text(-.14 if letter == 'a' else -.30, 1.05, letter,
+    for a, letter in zip(fig.axes, 'abcd'):
+        a.text(-.13 if letter == 'a' else -.34, 1.05, letter,
                transform=a.transAxes, **PANEL)
     sns.despine(fig=fig, offset=4)
     for ext in ['pdf', 'png', 'svg']:
