@@ -121,14 +121,18 @@ def main(data_dir, table, label, out_stem):
         s_ = c[(c.term == TERM) & (c.stimulation == stim)].sort_values('payoff')
         ax.fill_between(s_.payoff, s_.lo, s_.hi, color=colr, alpha=.16, lw=0, zorder=1)
         ax.plot(s_.payoff, s_.nu, color=colr, zorder=2)
-    # memory: one line if cTBS does not act on it in this model, two if it does
-    dmem = c[(c.term == MEM) & (c.stimulation == 'ips - vertex')]
-    mem_flat = bool(len(dmem)) and float(dmem.nu.abs().max()) < 1e-9
-    for stim, colr in ([('vertex', '.45')] if mem_flat
-                       else [('vertex', VERTEX), ('ips', IPS)]):
-        m_ = c[(c.term == MEM) & (c.stimulation == stim)].sort_values('payoff')
-        ax.plot(m_.payoff, m_.nu, color=colr, ls='--', lw=1.1, zorder=2)
-    mem_slope = np.polyfit(np.log(m_.payoff.values), np.log(m_.nu.values), 1)[0]
+    # The memory CONTRIBUTION is nu_1 - nu_2, not softplus(eta_memory). Plotting the
+    # latter is misleading: it is positive by construction, so it suggests the
+    # first-presented option is always noisier, while the model composes
+    # nu_1 = softplus(eta_mem + eta_perc) and the contribution is negative wherever
+    # eta_mem < 0. A log axis cannot show a negative value, so nu_1 is drawn alongside
+    # nu_2 and the memory contribution is the gap between them -- including where it
+    # reverses at small payoffs.
+    n1 = c[(c.term == 'n1_evidence_sd') & (c.stimulation == 'vertex')].sort_values('payoff')
+    n2 = c[(c.term == 'n2_evidence_sd') & (c.stimulation == 'vertex')].sort_values('payoff')
+    ax.plot(n1.payoff, n1.nu, color='.35', ls='--', lw=1.1, zorder=2)
+    gap = n1.set_index('payoff').nu - n2.set_index('payoff').nu
+    cross = gap.index[np.argmin(np.abs(gap.values))]
 
     x0, y0 = p.payoff.iloc[0], p.nu.iloc[0]
     xs = np.array([x0, p.payoff.iloc[-1]])
@@ -140,13 +144,14 @@ def main(data_dir, table, label, out_stem):
     ax.get_yaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax.set_xlabel('Payoff (CHF)')
     ax.set_ylabel('Representational noise ν (CHF)')
+    ax.set_ylim(min(0.8, float(n1.nu.min()) * .88), None)
     ax.text(.96, .13, 'IPS', transform=ax.transAxes, fontsize=7.2, color=IPS, ha='right')
     ax.text(.96, .04, 'Vertex', transform=ax.transAxes, fontsize=7.2, color=VERTEX,
             ha='right')
-    ax.text(.03, .97, f'Perceptual, slope {slope:.2f}', transform=ax.transAxes,
+    ax.text(.03, .97, f'Slope {slope:.2f}', transform=ax.transAxes,
             fontsize=6.8, color='.25', va='top')
-    ax.text(.03, .20, f'Memory, slope {mem_slope:.2f}', transform=ax.transAxes,
-            fontsize=6.8, color='.45', va='top')
+    ax.text(.03, .87, 'Dashed: first-presented option', transform=ax.transAxes,
+            fontsize=6.4, color='.35', va='top')
     ax.text(.32, .74, 'Weber (1)', transform=ax.transAxes, fontsize=6.4, color='.5',
             rotation=30)
 
@@ -173,8 +178,10 @@ def main(data_dir, table, label, out_stem):
     plt.close(fig)
 
     print(f'wrote {out_stem}.pdf   ({len(t)} models)')
-    print(f'  log-log slope: perceptual {slope:.3f}, memory {mem_slope:.3f} '
-          f'(Weber = 1)')
+    print(f'  log-log slope {slope:.3f} (Weber = 1)')
+    print(f'  memory contribution nu1 - nu2: {gap.iloc[0]:+.3f} CHF at '
+          f'{gap.index[0]:.0f}, {gap.iloc[-1]:+.3f} at {gap.index[-1]:.0f}; '
+          f'crosses zero near {cross:.1f} CHF')
     print(f'  relative effect: {lo7.pct:+.1f}% at 7 CHF [{lo7.lo:+.1f}, {lo7.hi:+.1f}], '
           f'{hi7.pct:+.1f}% at 112 [{hi7.lo:+.1f}, {hi7.hi:+.1f}]')
     pos = t[t.short.isin(POSITIONAL)]
