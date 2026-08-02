@@ -46,6 +46,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
+
 REPO = Path(__file__).resolve().parents[3]
 PATCH = REPO / 'notes' / 'patches' / 'bauer-ecc6454-noisefix.patch'
 BASE_COMMIT = 'ecc6454'
@@ -112,6 +114,12 @@ def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
     kw = dict(regressors={n: 'stimulation_condition' for n in regressor_names},
               memory_model='shared_perceptual_noise' if family == 2 else 'independent',
               prior_estimate=prior_estimate)
+    if prior_estimate == 'objective':
+        # bauer's FlexibleNoiseRiskModel raises NotImplementedError for 'objective',
+        # so the prior is instead PINNED numerically in `pin_objective_prior` below:
+        # built as 'full', then given a near-degenerate hyperprior at the empirical
+        # payoff mean/SD. Same effect, no bauer change.
+        kw['prior_estimate'] = 'full'
     if noise == 'weber':
         return bm.RiskRegressionModel(df, **kw)
     cls = bm.FlexibleNoiseRiskRegressionModel
@@ -123,6 +131,41 @@ def build(df, regressor_names, spline_order=6, family=2, spline_degree=3,
     elif spline_degree != 3:
         raise SystemExit('this bauer has no spline_degree; use the patched checkout')
     return cls(df, **kw)
+
+
+def pin_objective_prior(model, df, verbose=True, eps=0.01):
+    """Fix the magnitude prior to the OBJECTIVE payoff distribution.
+
+    The fitted priors sit far below the stimulus range (safe_prior_mu ~ 4 CHF against
+    a 7-112 CHF range), compressing an objective 28 CHF into a perceived 9 CHF. That
+    is hard to read as a belief about payoffs, and suggests the prior is standing in
+    for a compressive value function -- which is how this architecture produces risk
+    aversion at all.
+
+    This variant removes that freedom: each prior parameter gets a near-degenerate
+    hyperprior (sigma = eps) at the empirical mean/SD of the payoffs the participant
+    actually saw, and the between-subject dispersion is squeezed to match, so the
+    prior is fixed rather than merely regularised. The ELPD cost of the pin measures
+    how much predictive work the compression was doing.
+    """
+    stats = {'safe': (float(df['n_safe'].mean()), float(df['n_safe'].std())),
+             'risky': (float(df['n_risky'].mean()), float(df['n_risky'].std()))}
+    pinned = []
+    for key, info in model.free_parameters.items():
+        for opt, (m, sd) in stats.items():
+            if key == f'{opt}_prior_mu':
+                target = m
+            elif key == f'{opt}_prior_sd':
+                # transform is softplus; invert it so the transformed value equals sd
+                target = float(np.log(np.expm1(sd))) if sd < 30 else sd
+            else:
+                continue
+            info['mu_intercept'], info['sigma_intercept'] = target, eps
+            info['cauchy_sigma_intercept'] = eps      # squeeze between-subject spread
+            pinned.append(f'{key}={target:.2f}')
+    if verbose:
+        print('pinned prior to the objective payoff distribution: ' + '; '.join(pinned))
+    return model
 
 
 def constrain_priors(model, df, verbose=True, prior_mu_sigma=10., prior_sd_mu=3.):
@@ -263,6 +306,8 @@ def main():
             # published Weber fits converged under them.
             raise SystemExit('--constrain is natural-space only; weber uses bauer defaults')
         constrain_priors(model, df)
+    if args.prior_estimate == 'objective':
+        pin_objective_prior(model, df)
     model.build_estimation_model()
     print(f'sampling  {args.chains} chains, {args.tune} tune + {args.draws} draws, '
           f'target_accept={args.target_accept}, backend={args.backend}, '
