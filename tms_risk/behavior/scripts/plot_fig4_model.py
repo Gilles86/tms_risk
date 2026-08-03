@@ -78,6 +78,14 @@ SHORT = [
 POSITIONAL = {'First option', 'Second option'}
 
 
+# macOS ships Helvetica as a .ttc from which matplotlib registers ONLY the regular
+# face, so fontweight='bold' on a Helvetica text silently renders at regular weight --
+# it does not warn, and the panel letters have been quietly un-bold. Arial is
+# metrically identical to Helvetica and does register a real bold, so anything that
+# has to be heavier asks for Arial by name.
+BOLD = dict(family='Arial', fontweight='bold')
+
+
 def shorten(name):
     for pat, s in SHORT:
         if re.fullmatch(pat, name):
@@ -88,59 +96,73 @@ def shorten(name):
 def ppc_panel(axes, data, label, weber_label):
     """Panel a: observed vs predicted P(risky) per stake tercile, two models.
 
-    Columns are models, rows are presentation order, colour is stimulation. The point
-    of the panel is a THREE-way pattern, so nothing here may be collapsed: the cTBS
-    gap exists only in the risky-second row and only at the low stakes, which is
-    exactly the cell the Weber model cannot reach.
+    Four axes in one row: the two presentation orders under the Weber fit, then the
+    same two under the flexible fit. The point of the panel is a THREE-way pattern, so
+    nothing here may be collapsed: the cTBS gap exists only in the risky-second row and
+    only at the low stakes, which is exactly the cell the Weber model cannot reach.
+
+    Returns the count of arrowed misses per model, so the caller can report them.
     """
-    cols = [(weber_label, 'Weber PMC'), (label, 'Flexible PMC')]
+    models = [(weber_label, 'Weber PMC'), (label, 'Flexible PMC')]
     frames = {i: pd.read_csv(data / f'ppc_by_stake.{lbl}.tsv', sep='\t')
-              for i, (lbl, _) in enumerate(cols)}
+              for i, (lbl, _) in enumerate(models)}
 
     allv = pd.concat(frames.values())
-    ylo = min(allv.lo.min(), (allv.observed - allv.observed_sem).min()) - .012
-    yhi = max(allv.hi.max(), (allv.observed + allv.observed_sem).max()) + .012
+    ylo = min(allv.lo.min(), allv.observed.min()) - .012
+    yhi = max(allv.hi.max(), allv.observed.max()) + .012
     stakes = np.sort(allv.stake.unique())
     x = np.arange(len(stakes))
 
-    for col, (_, title) in enumerate(cols):
-        d = frames[col]
-        for row, order in enumerate(ORDERS):
-            ax = axes[row, col]
+    misses = {}
+    for m, (lbl, _) in enumerate(models):
+        d = frames[m]
+        for o, order in enumerate(ORDERS):
+            ax = axes[2 * m + o]
             for stim, colr in [('vertex', VERTEX), ('ips', IPS)]:
                 s = d[(d.order == order) & (d.stim == stim)].sort_values('stake')
                 ax.fill_between(x, s.lo, s.hi, color=colr, alpha=.20, lw=0, zorder=1)
                 ax.plot(x, s['mean'], color=colr, lw=1.2, zorder=2)
-                # nudge the two conditions apart so overlapping SEMs stay readable
-                dx = .07 if stim == 'ips' else -.07
-                ax.errorbar(x + dx, s.observed, yerr=s.observed_sem, fmt='o',
-                            color=colr, ms=3.4, lw=0, elinewidth=.9, capsize=0,
-                            zorder=4)
+                # No error bar on the observed points. The uncertainty that matters
+                # for a predictive check is the model's, and that is the shaded band;
+                # a between-subject SEM on top of it invites reading the two as
+                # comparable when they answer different questions.
+                dx = .06 if stim == 'ips' else -.06
+                ax.plot(x + dx, s.observed, 'o', color=colr, ms=3.8, lw=0, zorder=4)
+                # Arrow every observed point the model's own 95% predictive interval
+                # fails to cover. Found from the numbers rather than placed by hand, so
+                # a refit cannot leave an arrow pointing at a cell that now fits.
+                for _, r in s.iterrows():
+                    if r.lo <= r.observed <= r.hi:
+                        continue
+                    up = r.observed > r.hi
+                    xi = float(x[np.argmin(np.abs(stakes - r.stake))]) + dx
+                    ax.annotate('', xy=(xi, r.observed), xycoords='data',
+                                xytext=(-15, 13 if up else -13),
+                                textcoords='offset points', zorder=6,
+                                arrowprops=dict(arrowstyle='-|>', color='.1', lw=.9,
+                                                shrinkA=0, shrinkB=3.5,
+                                                mutation_scale=6))
+                    misses[lbl] = misses.get(lbl, 0) + 1
             ax.set_ylim(ylo, yhi)
             ax.set_xlim(-.42, len(stakes) - .58)
             ax.set_xticks(x)
+            ax.set_xticklabels([f'{v:.0f}' for v in stakes])
             ax.set_yticks([.5, .55, .6, .65])
-            if row == 0:
-                ax.set_title(title, fontsize=7.6, color='.15', pad=4)
-                ax.set_xticklabels([])
-            else:
-                ax.set_xticklabels([f'{v:.0f}' for v in stakes])
-                ax.set_xlabel('Stake (CHF)')
-            if col == 0:
+            ax.set_title(order, fontsize=7.2, color='.3', pad=4, style='italic')
+            if 2 * m + o == 0:
                 ax.set_ylabel('P(chose risky)')
-                ax.text(.04, .94, order, transform=ax.transAxes, fontsize=7,
-                        color='.25', va='top', style='italic')
-            else:
+            if o == 1:                       # only the second panel of each pair
                 ax.set_yticklabels([])
-    axes[0, 1].text(.96, .92, 'IPS', transform=axes[0, 1].transAxes, fontsize=7,
-                    color=IPS, ha='right', va='top')
-    axes[0, 1].text(.96, .78, 'Vertex', transform=axes[0, 1].transAxes, fontsize=7,
-                    color=VERTEX, ha='right', va='top')
-    axes[1, 0].text(.5, .045, 'No cTBS gap', transform=axes[1, 0].transAxes,
-                    fontsize=6.3, color='.4', ha='center')
-    axes[1, 1].text(.5, .045, 'cTBS gap at low stakes',
-                    transform=axes[1, 1].transAxes, fontsize=6.3, color='.4',
-                    ha='center')
+    axes[0].text(.97, .96, 'IPS', transform=axes[0].transAxes, fontsize=7,
+                 color=IPS, ha='right', va='top')
+    axes[0].text(.97, .82, 'Vertex', transform=axes[0].transAxes, fontsize=7,
+                 color=VERTEX, ha='right', va='top')
+    axes[1].text(.96, .04, 'Arrows: observed outside\nthe model\'s 95% interval',
+                 transform=axes[1].transAxes, fontsize=6, color='.35', va='bottom',
+                 ha='right', linespacing=1.25)
+    axes[3].text(.96, .04, 'cTBS gap reproduced', transform=axes[3].transAxes,
+                 fontsize=6, color='.35', va='bottom', ha='right')
+    return misses
 
 
 def main(data_dir, table, label, weber_label, out_stem):
@@ -156,30 +178,49 @@ def main(data_dir, table, label, weber_label, out_stem):
     dup = t.short.duplicated(keep=False)
     t.loc[dup, 'short'] = [f'{r.short} ({r.family})' for _, r in t[dup].iterrows()]
 
-    # Two bands. The top one carries the qualitative check and the mechanism; the
-    # bottom one is the model comparison, which needs the full width for its labels
-    # and a row of height for every model.
+    # Three bands, one per argument: the qualitative check, the mechanism, the model
+    # comparison. Laid out in INCHES and converted, because the row heights are set by
+    # what each row contains -- the ELPD panel needs a line of height per model, the
+    # curves want to be wide rather than tall -- and figure fractions would have to be
+    # re-derived by hand every time the model count changes.
     n_models = len(t)
-    h_top, h_bot = 3.05, .175 * n_models
-    fig = plt.figure(figsize=(7.25, h_top + h_bot))
-    split = h_bot / (h_top + h_bot)
-    top, bot = split + .925 * (1 - split), split + .125 * (1 - split)
-    gs_ppc = fig.add_gridspec(2, 2, left=.085, right=.415, top=top, bottom=bot,
-                              hspace=.16, wspace=.10)
-    gs_cur = fig.add_gridspec(1, 2, left=.545, right=.985, top=top, bottom=bot,
-                              wspace=.44)
-    gs_bot = fig.add_gridspec(1, 1, left=.28, right=.985,
-                              top=split - .06, bottom=.075)
+    H_A, H_BC, H_D = 1.30, 1.45, .145 * n_models
+    # PAD_TOP carries three stacked lines above row a (panel title, the two model
+    # headings, the per-axes order titles); each gap carries the row above's tick
+    # labels and axis label plus the next row's title.
+    PAD_TOP, GAP_A, GAP_BC, PAD_BOT = .60, .80, .72, .38
+    H = PAD_TOP + H_A + GAP_A + H_BC + GAP_BC + H_D + PAD_BOT
+    fig = plt.figure(figsize=(7.25, H))
+
+    def band(top_in, height_in):
+        return dict(top=1 - top_in / H, bottom=1 - (top_in + height_in) / H)
+
+    row_a = band(PAD_TOP, H_A)
+    row_bc = band(PAD_TOP + H_A + GAP_A, H_BC)
+    row_d = band(PAD_TOP + H_A + GAP_A + H_BC + GAP_BC, H_D)
+
+    # Panel a is two PAIRS, not four equal columns: the gap between the pairs is what
+    # tells the reader the comparison is Weber-vs-flexible and not four unrelated cells.
+    PAIRS = [(.075, .495), (.575, .995)]
+    gs_a = [fig.add_gridspec(1, 2, left=l, right=r, wspace=.12, **row_a)
+            for l, r in PAIRS]
+    gs_bc = fig.add_gridspec(1, 2, left=.095, right=.975, wspace=.30, **row_bc)
+    gs_d = fig.add_gridspec(1, 1, left=.28, right=.985, **row_d)
 
     # --- a: posterior predictive check, Weber against Flexible
-    ppc_axes = np.empty((2, 2), dtype=object)
-    for r in range(2):
-        for c in range(2):
-            ppc_axes[r, c] = fig.add_subplot(gs_ppc[r, c])
-    ppc_panel(ppc_axes, data, label, weber_label)
+    ppc_axes = [fig.add_subplot(gs_a[m][0, o]) for m in (0, 1) for o in (0, 1)]
+    misses = ppc_panel(ppc_axes, data, label, weber_label)
+    for (l, r), nm in zip(PAIRS, ['Weber PMC', 'Flexible PMC']):
+        fig.text((l + r) / 2, row_a['top'] + .19 / H, nm, ha='center', va='bottom',
+                 fontsize=9.5, color='.1')
+        # The shared x-label has to clear the tick labels of BOTH panels of the pair --
+        # centred under a pair, it lands exactly between the '42' of one and the '13'
+        # of the next, so it needs the vertical room rather than the horizontal.
+        fig.text((l + r) / 2, row_a['bottom'] - .42 / H, 'Stake (CHF)', ha='center',
+                 va='bottom', fontsize=8.5)
 
     # --- b: the noise functions, log-log
-    ax_b = fig.add_subplot(gs_cur[0, 0])
+    ax_b = fig.add_subplot(gs_bc[0, 0])
     c = pd.read_csv(data / f'pmcpars_curves.{label}.tsv', sep='\t')
     TERM = 'perceptual_noise_sd'
     p = c[(c.term == TERM) & (c.stimulation == 'vertex')].sort_values('payoff')
@@ -208,33 +249,43 @@ def main(data_dir, table, label, weber_label, out_stem):
     ax_b.plot(xs, y0 * xs / x0, color='.6', lw=.7, ls=':', zorder=0)
     slope = np.polyfit(np.log(p.payoff.values), np.log(p.nu.values), 1)[0]
     ax_b.set_xscale('log'); ax_b.set_yscale('log')
-    ax_b.set_xticks(XT); ax_b.set_yticks([1, 2, 4, 8])
     ax_b.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax_b.get_yaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
+    ax_b.set_xticks(XT)
     ax_b.set_xlabel('Payoff (CHF)')
     ax_b.set_ylabel(r'Representational noise $\nu$ (CHF)')
-    ax_b.set_ylim(min(0.8, float(n1.nu.min()) * .88), None)
-    ax_b.text(.96, .13, 'IPS', transform=ax_b.transAxes, fontsize=7.2, color=IPS,
+    # The y-range comes from the NOISE CURVES only. The Weber reference reaches 21 CHF
+    # at the right edge, so letting it autoscale the axis squeezes the three curves the
+    # panel is actually about into its lower half. The reference is a guide to the eye
+    # for a slope, and a guide to the eye may run off the top.
+    drawn = pd.concat([c[(c.term == TERM) & (c.stimulation != 'ips - vertex')], n1])
+    ylo, yhi = float(drawn.lo.min()) * .93, float(drawn.hi.max()) * 1.07
+    ax_b.set_ylim(ylo, yhi)
+    ax_b.set_yticks([v for v in [1, 1.5, 2, 3, 4, 6, 8] if ylo < v < yhi])
+    ax_b.minorticks_off()
+    ax_b.text(.97, .14, 'IPS', transform=ax_b.transAxes, fontsize=7.2, color=IPS,
               ha='right')
-    ax_b.text(.96, .04, 'Vertex', transform=ax_b.transAxes, fontsize=7.2, color=VERTEX,
+    ax_b.text(.97, .04, 'Vertex', transform=ax_b.transAxes, fontsize=7.2, color=VERTEX,
               ha='right')
-    ax_b.text(.03, .97, f'Slope {slope:.2f}', transform=ax_b.transAxes,
+    ax_b.text(.03, .96, f'Slope {slope:.2f}', transform=ax_b.transAxes,
               fontsize=6.8, color='.25', va='top')
-    ax_b.text(.03, .90, r'Dashed: first option ($\nu_1$)', transform=ax_b.transAxes,
+    ax_b.text(.03, .84, r'Dashed: first option ($\nu_1$)', transform=ax_b.transAxes,
               fontsize=6.2, color='.35', va='top')
-    # Label the reference line ALONG it. A slope-1 line on log-log is only drawn at
-    # 45 degrees when the decades are equally long on both axes, which they are not
-    # here, so the angle has to come from the rendered positions.
+    # Label the reference line ALONG it, at the height where it is clear of the noise
+    # bands. A slope-1 line on log-log is only drawn at 45 degrees when the decades are
+    # equally long on both axes, which they are not here, so the angle has to come from
+    # the rendered positions rather than from the slope.
     fig.canvas.draw()
     (px0, py0), (px1, py1) = ax_b.transData.transform(
         np.column_stack([xs, y0 * xs / x0]))
-    ax_b.text(18., y0 * 18. / x0, '  Weber, slope 1', fontsize=6.2, color='.5',
-              ha='left', va='bottom', rotation=np.degrees(np.arctan2(py1 - py0,
-                                                                     px1 - px0)),
+    y_lab = np.exp(np.log(ylo) + .62 * (np.log(yhi) - np.log(ylo)))
+    ax_b.text(x0 * y_lab / y0, y_lab, 'Weber, slope 1', fontsize=6.2, color='.5',
+              ha='center', va='bottom',
+              rotation=np.degrees(np.arctan2(py1 - py0, px1 - px0)),
               rotation_mode='anchor')
 
     # --- c: the increase as a percentage, with its credible interval
-    ax_c = fig.add_subplot(gs_cur[0, 1])
+    ax_c = fig.add_subplot(gs_bc[0, 1])
     rel = pd.read_csv(data / f'pmcpars_relative.{label}.tsv', sep='\t')
     rel = rel[rel.term == 'perceptual_noise_sd'].sort_values('payoff')
     ax_c.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
@@ -248,20 +299,15 @@ def main(data_dir, table, label, weber_label, out_stem):
     hi7 = rel.iloc[(rel.payoff - 112).abs().argmin()]
 
     # --- d: ELPD, as a cost relative to the best model
-    ax_d = fig.add_subplot(gs_bot[0, 0])
+    ax_d = fig.add_subplot(gs_d[0, 0])
     y = np.arange(len(t))[::-1]
     for yi, (_, r) in zip(y, t.iterrows()):
         colr = WEBER if r.weber else FLEX
-        mark = 'D' if r.base in POSITIONAL else 'o'
-        ax_d.errorbar(r.elpd_diff, yi, xerr=r.dse, fmt=mark, color=colr, ms=4.4,
+        ax_d.errorbar(r.elpd_diff, yi, xerr=r.dse, fmt='o', color=colr, ms=4.4,
                       lw=0, elinewidth=1.1, capsize=0, zorder=3)
     ax_d.axvline(0, color='.7', lw=.7, ls='--', zorder=0)
     ax_d.set_yticks(y)
     ax_d.set_yticklabels([r.short for _, r in t.iterrows()], fontsize=7)
-    for tick, (_, r) in zip(ax_d.get_yticklabels(), t.iterrows()):
-        if r.base in POSITIONAL:
-            tick.set_color('.15')
-            tick.set_fontweight('bold')
     ax_d.set_xlabel('ELPD cost vs the best model (nats)')
     ax_d.set_ylim(-.8, len(t) - .2)
     ax_d.invert_xaxis()
@@ -270,19 +316,25 @@ def main(data_dir, table, label, weber_label, out_stem):
                   ha='left', va='center',
                   arrowprops=dict(arrowstyle='-', connectionstyle='arc3,rad=-.2',
                                   color='.5', lw=.6))
-    ax_d.text(.98, .05, 'Diamonds: cTBS effect confined to\none presentation position',
-              transform=ax_d.transAxes, fontsize=6.3, color='.3', ha='right',
-              va='bottom', linespacing=1.25)
 
     sns.despine(fig=fig, offset=4)
     # Panel letters in FIGURE coordinates: the four panels sit in three different
     # gridspecs with different margins, so axes-relative offsets would not line up.
-    for xf, yf, letter in [(.012, top + .055 * (1 - split), 'a'),
-                           (.462, top + .055 * (1 - split), 'b'),
-                           (.735, top + .055 * (1 - split), 'c'),
-                           (.012, split - .035, 'd')]:
-        fig.text(xf, yf, letter, fontsize=11, fontweight='bold', va='bottom',
-                 ha='left')
+    # Letter hard left, title centred over the panel it names. Centring is read from
+    # the rendered axes rather than written down, because the three rows sit in three
+    # gridspecs with different margins and hand-set centres drift the moment one of
+    # those margins changes.
+    for ax_l, ax_r, yf, letter, title in [
+            (ppc_axes[0], ppc_axes[3], row_a['top'] + .36 / H, 'a',
+             'Posterior predictive checks'),
+            (ax_b, ax_b, row_bc['top'] + .09 / H, 'b',
+             'Noise as a function of magnitude'),
+            (ax_c, ax_c, row_bc['top'] + .09 / H, 'c', 'Effect of cTBS on noise'),
+            (ax_d, ax_d, row_d['top'] + .07 / H, 'd', 'Model comparison')]:
+        fig.text(.008 if letter != 'c' else .507, yf, letter, fontsize=11,
+                 va='bottom', ha='left', **BOLD)
+        fig.text((ax_l.get_position().x0 + ax_r.get_position().x1) / 2, yf + .006,
+                 title, fontsize=8.5, color='.1', va='bottom', ha='center', **BOLD)
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.03)
     plt.close(fig)
