@@ -1,19 +1,19 @@
 """Figure 4: does the flexible noise function earn its parameters, and what does it say?
 
-    a   Posterior predictive check, Weber PMC beside Flexible PMC, split by
+    A   Posterior predictive check, Weber PMC beside Flexible PMC, split by
         presentation order and stake. This is the qualitative half of the model
         comparison: the order x stake x stimulation interaction is visible in the data,
         the Weber model flattens it, the flexible one reproduces it. Deliberately the
         same panel as Fig 4A of the v8 draft.
-    b   The winning model's perceptual noise function on log-log axes, both stimulation
+    B   The winning model's perceptual noise function on log-log axes, both stimulation
         conditions, against a slope-1 (Weber) reference. The fitted slope is ~0.5:
         noise grows with the square root of payoff, not in proportion to it. The first
         option's total noise nu_1 is drawn alongside, so the memory contribution is the
         (small) gap between the two.
-    c   The cTBS increase as a percentage of baseline, with its credible interval. This
+    C   The cTBS increase as a percentage of baseline, with its credible interval. This
         is the scale on which the psychophysical analyses operate, and the scale on
         which the effect is magnitude-specific.
-    d   Every fitted model on one ELPD axis, as a difference from the best with its
+    D   Every fitted model on one ELPD axis, as a difference from the best with its
         dSE. The models that carry an explicit PRESENTATION-POSITION parameter sit far
         below the one that has none, which is the quantitative answer to the objection
         that the order effect was fitted rather than emergent.
@@ -94,7 +94,7 @@ def shorten(name):
 
 
 def ppc_panel(axes, data, label, weber_label):
-    """Panel a: observed vs predicted P(risky) per stake tercile, two models.
+    """Panel A: observed vs predicted P(risky) per stake tercile, two models.
 
     Four axes in one row: the two presentation orders under the Weber fit, then the
     same two under the flexible fit. The point of the panel is a THREE-way pattern, so
@@ -253,7 +253,7 @@ def main(data_dir, table, label, weber_label, out_stem):
     ax_b.get_yaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
     ax_b.set_xticks(XT)
     ax_b.set_xlabel('Payoff (CHF)')
-    ax_b.set_ylabel(r'Representational noise $\nu$ (CHF)')
+    ax_b.set_ylabel(r'Noise $\nu$ (CHF)')
     # The y-range comes from the NOISE CURVES only. The Weber reference reaches 21 CHF
     # at the right edge, so letting it autoscale the axis squeezes the three curves the
     # panel is actually about into its lower half. The reference is a guide to the eye
@@ -311,7 +311,7 @@ def main(data_dir, table, label, weber_label, out_stem):
     ax_d.set_xlabel('ELPD cost vs the best model (nats)')
     ax_d.set_ylim(-.8, len(t) - .2)
     ax_d.invert_xaxis()
-    ax_d.annotate('Shown in a–c', xy=(t.elpd_diff.iloc[0], y[0]),
+    ax_d.annotate('Shown in A–C', xy=(t.elpd_diff.iloc[0], y[0]),
                   xytext=(t.elpd_diff.iloc[2], y[0] + .45), fontsize=6.5, color='.35',
                   ha='left', va='center',
                   arrowprops=dict(arrowstyle='-', connectionstyle='arc3,rad=-.2',
@@ -325,13 +325,13 @@ def main(data_dir, table, label, weber_label, out_stem):
     # gridspecs with different margins and hand-set centres drift the moment one of
     # those margins changes.
     for ax_l, ax_r, yf, letter, title in [
-            (ppc_axes[0], ppc_axes[3], row_a['top'] + .36 / H, 'a',
+            (ppc_axes[0], ppc_axes[3], row_a['top'] + .36 / H, 'A',
              'Posterior predictive checks'),
-            (ax_b, ax_b, row_bc['top'] + .09 / H, 'b',
+            (ax_b, ax_b, row_bc['top'] + .15 / H, 'B',
              'Noise as a function of magnitude'),
-            (ax_c, ax_c, row_bc['top'] + .09 / H, 'c', 'Effect of cTBS on noise'),
-            (ax_d, ax_d, row_d['top'] + .07 / H, 'd', 'Model comparison')]:
-        fig.text(.008 if letter != 'c' else .507, yf, letter, fontsize=11,
+            (ax_c, ax_c, row_bc['top'] + .15 / H, 'C', 'Effect of cTBS on noise'),
+            (ax_d, ax_d, row_d['top'] + .07 / H, 'D', 'Model comparison')]:
+        fig.text(.008 if letter != 'C' else .507, yf, letter, fontsize=11,
                  va='bottom', ha='left', **BOLD)
         fig.text((ax_l.get_position().x0 + ax_r.get_position().x1) / 2, yf + .006,
                  title, fontsize=8.5, color='.1', va='bottom', ha='center', **BOLD)
