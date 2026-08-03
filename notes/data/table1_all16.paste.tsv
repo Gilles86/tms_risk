@@ -1,0 +1,17 @@
+Model	ELPD (LOO)	Eff. no. params	Diff. in ELPD	SE	dSE	r̂	ESS
+Flexible PMC (cTBS on perceptual noise only)	-4157.7	247.6	0.00	47.6	0.0	1.000	745
+Flexible PMC (cTBS on perceptual and memory noise) ⚠	-4159.7	266.3	-2.04	47.7	3.9	1.010	353
+Flexible PMC (cTBS on first- and second-option noise)	-4184.6	254.2	-26.95	48.5	10.7	1.000	3696
+Weber PMC (cTBS on first- and second-option noise)	-4192.4	177.4	-34.79	46.4	17.3	1.000	1466
+Weber PMC (cTBS on perceptual and memory noise)	-4204.1	158.8	-46.43	46.1	17.2	1.000	7709
+Weber PMC (cTBS on perceptual noise only)	-4204.2	150.0	-46.58	46.1	17.0	1.000	6883
+Weber PMC (cTBS on first-presented option only)	-4209.6	158.2	-51.92	46.2	17.6	1.000	5363
+Weber PMC (cTBS on second-presented option only) ⚠	-4216.1	165.6	-58.46	46.4	17.2	1.010	201
+Flexible PMC (cTBS on memory noise only) ⚠	-4217.5	250.5	-59.87	47.4	12.2	1.010	386
+Flexible PMC (cTBS on first-presented option only)	-4222.0	221.4	-64.32	48.3	13.4	1.000	2550
+Flexible PMC (cTBS on second-presented option only)	-4227.5	222.5	-69.87	48.2	13.1	1.000	946
+Weber PMC (cTBS on memory noise only)	-4229.9	147.0	-72.25	46.0	17.8	1.000	5413
+Weber PMC null model (first-/second-option parameterization)	-4261.7	131.3	-104.07	45.9	17.9	1.000	3140
+Weber PMC null model (perceptual/memory parameterization)	-4268.1	123.0	-110.44	45.7	18.3	1.000	7827
+Flexible PMC null model (first-/second-option parameterization)	-4271.8	164.2	-114.11	47.7	15.8	1.000	1259
+Flexible PMC null model (perceptual/memory parameterization) ⚠	-4273.2	192.5	-115.56	46.8	14.4	1.020	109

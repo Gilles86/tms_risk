@@ -1,7 +1,7 @@
 # Flexible PMC refit against current bauer — what the cTBS effect actually is
 
 Traces: `derivatives/cogmodels.overnight/model-flexible1_noisefix*.head_trace.netcdf`
-(GPU node 172.23.206.84, numpyro/JAX, 4 chains × 5000 tune + 5000 draws,
+(GPU node `sciencecloud_gpu`, numpyro/JAX, 4 chains × 5000 tune + 5000 draws,
 constrained priors, bauer `e05f73a`). Figure: `notes/figures/pmc_explained.pdf`.
 Rebuild any panel from the TSVs in `notes/data/*.flexible1nf.tsv` with
 `python -m tms_risk.behavior.scripts.plot_pmc_explained`.

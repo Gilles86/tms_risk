@@ -81,6 +81,148 @@ Do **not** describe memory noise as necessarily additive in the Methods -- write
 composition as bauer implements it, `nu_1 = softplus(eta_mem + eta_perc)`, and say
 explicitly that this leaves the sign of `nu_1 - nu_2` free.
 
+## Does family 1 show it too? Yes — and that is the strongest version of the check
+
+Added 2026-08-03. The worry about `nu_1 < nu_2` is that it might be an artefact of family
+2's composition, `nu_1 = softplus(eta_mem + eta_perc)`. Family 1 settles it: it fits the
+two positions as **independent spline functions**, with no memory/perceptual
+decomposition at all, so it has no composition to produce the result.
+
+`extract_pmc_parameters.py` previously emitted `memory_contribution` only for family 2
+(the block was gated `if family == 2`). A family-1 branch was added, computing
+`nu_1 - nu_2` on the same draws. Run on `sciencecloud_gpu4` against
+`cogmodels.overnight/model-flexible1_noisefix.head_trace.netcdf`.
+
+Posterior probability that **nu_1 < nu_2**:
+
+| payoff | fam 1 vertex | fam 1 IPS | fam 2 vertex | fam 2 IPS |
+|---|---|---|---|---|
+| 7 | **0.997** | **0.983** | **0.998** | **0.952** |
+| 10 | **0.982** | 0.852 | **0.990** | 0.732 |
+| 14 | 0.270 | 0.003 | 0.123 | 0.002 |
+| 20 | 0.074 | 0.000 | 0.003 | 0.000 |
+| 28 | 0.075 | 0.000 | 0.005 | 0.000 |
+| 56 | 0.120 | 0.405 | 0.067 | 0.318 |
+
+Family 1, vertex, `nu_1 - nu_2` in CHF: **−0.358 [−0.685, −0.091]** at 7, −0.222 at 8.8,
+−0.106 at 10.5, crossing zero at **~12.6 CHF**, then +0.08 from 17 upward. Family 2 gives
+−0.275 [−0.568, −0.075] at 7 and crosses at **~12.3 CHF**. The two families agree on the
+sign, the magnitude and the crossing point to within a fraction of a CHF, having
+parameterised the problem completely differently.
+
+**This is only visible on the draws.** In family 1 the marginal 95% CrIs of nu_1 and nu_2
+overlap at *every* payoff (e.g. at 7 CHF, nu_1 = 1.132 [0.907, 1.400] vs
+nu_2 = 1.490 [1.185, 1.862]). The two curves share subject-level and spline structure, so
+their draws are strongly correlated and the difference is far better determined than
+either marginal — the case ERROR_BARS.md rule 2 exists for. Anyone reading the sign off
+the marginal intervals will conclude, wrongly, that there is nothing here.
+
+Three caveats worth stating with it:
+
+1. **It is a low-payoff phenomenon only.** By 14–28 CHF the sign is firmly reversed —
+   the ordinary memory cost, with P(nu_1 > nu_2) ≈ 0.93 (family 1) and > 0.99
+   (family 2). Above ~56 CHF the CrIs are too wide to say anything either way.
+2. **cTBS strengthens the reversal.** Under IPS the crossing happens earlier and the
+   high-payoff nu_1 > nu_2 is more certain (P(nu_1 < nu_2) = 0.000 at 20–28), which
+   follows from cTBS raising nu_1 more than nu_2 (nu_1 carries both components).
+3. **It is a property of the refits, not of the published traces.** Published
+   `flexible1` (bauer `ecc6454`) has nu_1 = 1.32 vs nu_2 = 0.42 at 7 CHF — the *opposite*
+   ordering. That is the same `b66c806` choice-rule/prior divergence documented in
+   `notes/pmc_refit_results.md`, so this finding stands or falls with reporting the HEAD
+   side.
+
+## Did cTBS shift the PRIOR instead of the noise? (2026-08-03)
+
+The obvious alternative to the paper's account: since the model produces its
+risk-attitude shift through prior attraction, maybe cTBS moved the observer's **prior**
+rather than adding noise. `fit_pmc_noisefix.py` defines three variants that put the cTBS
+regressor on the prior — `_prior` (`risky_prior_mu`, `safe_prior_mu`), `_priorsd` (the
+prior SDs) and `_perception_prior` (perceptual noise *and* the prior means). Two were
+fitted on 2026-08-02 but never entered Table 1.
+
+LOO over the full family-2 set including them, all on the same 8335 trials
+(`loo_table.py` on `sciencecloud_gpu3`, traces in `cogmodels.overnight`, bauer
+`e05f73a`) → `notes/data/table1_with_prior_variants.{tsv,md}`:
+
+| model | ELPD | Δ vs best | dSE | r̂ | ESS | div |
+|---|---|---|---|---|---|---|
+| **perceptual noise + prior means** | **−4154.5** | 0 | — | 1.010 | 420 | 70 |
+| perceptual noise only | −4157.7 | 3.2 | 2.6 | 1.000 | 745 | 86 |
+| perceptual + memory noise ⚠ | −4159.7 | 5.2 | 4.7 | 1.010 | 353 | 28 |
+| **prior means only (no noise effect)** | **−4179.2** | 24.7 | 7.4 | 1.000 | 779 | **0** |
+| memory noise only ⚠ | −4217.5 | 63.0 | 12.4 | 1.010 | 386 | 739 |
+| null ⚠ | −4273.2 | 118.7 | 14.6 | 1.020 | 109 | 664 |
+
+**Three readings, and the first two support the paper.**
+
+1. **A pure prior shift is a much worse account than a pure noise effect.** Prior-only
+   sits **21.5 nats below** perception-only. It is nonetheless far better than the null
+   (94 nats), so a prior shift does capture a lot — it is a serious alternative, not a
+   straw man, and it deserves to be in Table 1 rather than omitted.
+2. **Once the noise effect is in the model, adding a prior shift buys nothing credible**:
+   3.2 nats at dSE 2.6, i.e. ~1.2 SE. The combined model is nominally best but is not
+   distinguishable from perception-only.
+3. **Caveat on the headline.** `perception_prior` being *nominally* the best model means
+   "cTBS on perceptual noise only" is no longer the top row of Table 1. The honest
+   statement is that the top three models are within ~5 nats of each other and all
+   contain a perceptual-noise term, while every model lacking one is ≥ 24 nats worse.
+
+Note also that prior-only is the **best-behaved fit in the family** — 0 divergences,
+ESS 779, r̂ 1.000 — so its poorer ELPD is not a sampling artefact.
+
+**Gap:** `_priorsd` (cTBS on the prior *width* rather than its mean) was never fitted.
+A prior that widens under cTBS is not the same hypothesis as one that moves, and it is
+arguably the closer competitor to a noise account. Worth running before Table 1 is final.
+
+## Why the Weber model does not find it
+
+Added 2026-08-03. Two independent reasons, both structural. The Weber model did not look
+and fail to find it — it cannot represent it.
+
+**1. In the Weber family-2 model, nu_1 < nu_2 is forbidden by construction.**
+`bauer/models/risky_choice.py`, the `shared_perceptual_noise` branch:
+
+```python
+free_parameters['perceptual_noise_sd'] = {'mu_intercept': -1., 'transform': 'softplus'}
+free_parameters['memory_noise_sd']     = {'mu_intercept': -1., 'transform': 'softplus'}
+...
+model_inputs['n1_evidence_sd'] = perceptual_sd + memory_sd     # both already softplus'd
+model_inputs['n2_evidence_sd'] = perceptual_sd
+```
+
+Both terms are softplus-transformed **before** the sum, so
+`nu_1 - nu_2 = softplus(eta_mem) > 0` identically. Measured on
+`model-weber2_noisefix.head_trace.netcdf` (group Intercept, averaged over subjects):
+perceptual = 0.1725 [0.1601, 0.1856], memory = **0.0610 [0.0443, 0.0801]** log-units, and
+**P(nu_1 - nu_2 < 0) = 0.0000 — by construction, not by evidence.**
+
+This is exactly the `additive` composition tested above, which costs **55.7 nats** when
+imposed on the Flexible model. The Weber model has that constraint hard-wired. Contrast
+the *Flexible* family 2, where the softplus wraps the **sum**,
+`nu_1 = softplus(eta_mem + eta_perc)`, leaving the sign free — which is why only the
+Flexible model can report on it at all.
+
+**2. Even the Weber family-1 model has no magnitude axis to put a crossover on.**
+The `independent` branch fits `n1_evidence_sd` and `n2_evidence_sd` as two separate
+softplus scalars, so `nu_1 < nu_2` *is* representable there. But they are **constants in
+log space** — one number per subject and condition, no dependence on magnitude. So
+`nu_1 - nu_2` is a single number that applies at every payoff and **cannot cross zero at
+~12.6 CHF**. The model must commit to one sign over the whole range, and
+**76% of option presentations sit above the crossover** (only 23.9% fall below 12.6 CHF),
+so the estimate is pulled to the positive side — the ordinary memory cost — and the
+low-payoff reversal is averaged away. (Structural, from the code: only `weber2_*` traces
+were on `sciencecloud_gpu4`, so the family-1 Weber fit was not checked empirically.)
+
+**Same root cause as the other Weber failure.** `notes/figure_plan_briefing.md` records
+that in the Weber model the cTBS effect on perceptual noise is −0.001, i.e. nothing, and
+that it can only place the effect on memory. That is this same limitation seen from
+another angle: with noise constant in log space there is no magnitude-varying noise
+function, so any magnitude-localised perturbation has nowhere to go.
+
+The model comparison agrees that this rigidity costs it: the best Weber variant is
+−4192.4 against the best Flexible −4157.7, i.e. **34.8 nats worse (dSE 17.3)**
+(`notes/data/table1_all16.md`).
+
 ## Caveats
 
 - `additive` changes the prior geometry as well as imposing the constraint, so the 55.7

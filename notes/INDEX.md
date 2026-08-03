@@ -7,6 +7,24 @@ durable text — update when adding a new analysis writeup or figure.
 
 - [`paper/TMS paper -v7.pdf`](paper/) — current manuscript draft
   (de Hollander, Moisa & Ruff). Six figures, one table.
+- [`reanalysis_handoff.md`](reanalysis_handoff.md) — **start here.** What the
+  2026-08 reanalysis changed, the four bugs behind it, the list of manuscript
+  edits it forces, the current figure plan, and the open decisions.
+- [`analysis_status_2026-08-03.md`](analysis_status_2026-08-03.md) — short status:
+  what is settled, what does not reproduce, what is queued behind GPU.
+- [`checks_20260803.md`](checks_20260803.md) — three checks against existing outputs:
+  the stake/ratio confound, the Fig 5a sign reversal, and the split-correlation labels.
+- [`encoding_model_choice.md`](encoding_model_choice.md) — m1 vs m2, settled on
+  out-of-sample encoding fit. Verdict: m1.
+- [`tuning_width_by_preference.md`](tuning_width_by_preference.md) — tuning width vs
+  preferred numerosity, the preferred-numerosity distribution, and why the
+  decoding-precision analysis is blocked.
+- [`supplementary_brain_behavior_link.md`](supplementary_brain_behavior_link.md) — draft
+  supplementary note: the robustness checks behind the *r* = .53 correlation, in paper voice.
+- [`brain_behavior_link.md`](brain_behavior_link.md) — the per-subject link between the
+  neural and behavioural cTBS effects, under m1 and the latest PMC refits. Gain loss at
+  the stimulation site tracks the loss of choice consistency on safe-first trials
+  (r = .53); site- and order-specific; not carried by ΔP(chose risky) or by the PMC ν.
 
 ## Figure ↔ notebook map
 
@@ -16,7 +34,7 @@ durable text — update when adding a new analysis writeup or figure.
 | Fig. 2A | nPRF tuning in a representative subject | `tms_risk/modeling/notebooks/analyze_encoding_model.ipynb` |
 | Fig. 2B | Group nPRF amplitude × stimulation condition | `tms_risk/modeling/notebooks/analyze_encoding_model.ipynb` |
 | Fig. 2C | Trial-by-trial decoding accuracy | `tms_risk/modeling/notebooks/analyze_decoding.ipynb` |
-| Fig. 3  | Psychometric curves + slopes / RNP (paper labels this Fig 3; notebook is misnamed `figure2.ipynb` from an earlier draft) | `tms_risk/notebooks/figure2.ipynb` |
+| Fig. 3  | Psychometric curves + slopes / RNP (paper labels this Fig 3; notebook is misnamed `figure2.ipynb` from an earlier draft). **Superseded by** `tms_risk/behavior/scripts/plot_fig3_probit.py`, which rebuilds it from `notes/data/*.tsv` | `tms_risk/notebooks/figure2.ipynb` |
 | Fig. 4A | Posterior predictive checks, Weber vs. Flexible PMC | `tms_risk/behavior/notebooks/figure4.ipynb` |
 | Fig. 4B | Noise as a function of magnitude (`sd_curves.pdf`) | `tms_risk/behavior/notebooks/figure4.ipynb` |
 | Fig. 4C | cTBS effect on noise vs. magnitude (`sd_curves_diff.pdf`) | `tms_risk/behavior/notebooks/figure4.ipynb` |
