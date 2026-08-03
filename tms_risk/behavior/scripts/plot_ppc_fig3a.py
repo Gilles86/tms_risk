@@ -222,6 +222,31 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
                  f'ppc_by_safe.{model_label}.tsv', sep='\t', index=False)
     print(f'wrote ppc_by_safe.{model_label}.tsv  ({len(out_s)} cells)')
 
+    # And the same thing collapsed over the ladder, i.e. P(risky) per stake tercile.
+    # This is the v8 Fig-4A panel: the order x stake x stimulation interaction on one
+    # axis, which is the qualitative claim the model comparison then quantifies.
+    # Collapsing has to happen INSIDE the draw loop -- quantiles of the rung-wise
+    # summaries cannot be averaged after the fact.
+    keys_t = ['subject', 'order', 'stake_bin', 'stim']
+    grp_t = ['order', 'stake_bin', 'stim']
+    obs_t = (d.assign(y=d['chose_risky'].astype(float))
+               .groupby(keys_t)['y'].mean()
+               .groupby(grp_t).agg(['mean', 'sem']).reset_index())
+    idx_t = pd.MultiIndex.from_frame(d[keys_t])
+    per_draw_t = (pd.DataFrame(sim, index=idx_t)
+                    .groupby(level=keys_t).mean()
+                    .groupby(grp_t).mean())
+    mod_t = pd.DataFrame({'mean': per_draw_t.mean(1),
+                          'lo': per_draw_t.quantile(.025, axis=1),
+                          'hi': per_draw_t.quantile(.975, axis=1)}).reset_index()
+    mod_t = mod_t.join(stake_mid, on='stake_bin')
+    out_t = mod_t.merge(
+        obs_t.rename(columns={'mean': 'observed', 'sem': 'observed_sem'}),
+        on=grp_t)
+    out_t.to_csv(Path(out_stem).parent.parent / 'data' /
+                 f'ppc_by_stake.{model_label}.tsv', sep='\t', index=False)
+    print(f'wrote ppc_by_stake.{model_label}.tsv  ({len(out_t)} cells)')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
