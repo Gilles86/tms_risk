@@ -347,6 +347,8 @@ def main(data_dir, table, label, weber_label, out_stem):
           f'{gap.iloc[-1]:+.3f} at {gap.index[-1]:.0f}')
     print(f'  relative effect: {lo7.pct:+.1f}% at 7 CHF [{lo7.lo:+.1f}, {lo7.hi:+.1f}], '
           f'{hi7.pct:+.1f}% at 112 [{hi7.lo:+.1f}, {hi7.hi:+.1f}]')
+    print('  arrowed misses (observed outside the 95% predictive interval): '
+          + (', '.join(f'{k} {v}' for k, v in misses.items()) or 'none'))
     for lbl in [weber_label, label]:
         d = pd.read_csv(data / f'ppc_by_stake.{lbl}.tsv', sep='\t')
         w = d.pivot_table(index=['order', 'stake'], columns='stim',
