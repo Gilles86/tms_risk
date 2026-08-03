@@ -1,0 +1,42 @@
+# Lean CPU env for the bambi-based probit refits on the ScienceCloud VM.
+#
+# Why a separate env rather than reusing `tms_risk_behavior`: that env is built for
+# bauer/PMC fits and does NOT contain bambi. The PMC traces are version-sensitive
+# (see CLAUDE.md, "Cognitive-model traces are bauer-version-sensitive"), so nothing
+# should be pip-installed into it after the fact. This env is disposable — it holds
+# no traces of record.
+#
+# Contains no tensorflow / braincoder / bauer. It needs nibabel + nilearn only
+# because `tms_risk.utils.data` imports them at module level, and
+# seaborn / matplotlib-base<3.11 because arviz 0.20 breaks on matplotlib >= 3.11.
+#
+# Build (on the CPU VM, where there is no SLURM):
+#   /data/miniforge3/bin/mamba env create -f create_env/environment_cloud_probit.yml
+#
+# Run one model (see tms_risk/behavior/scripts/fit_probit_randomslopes.py):
+#   cd /data/git/tms_risk && nohup \
+#     /data/miniforge3/envs/tms_risk_probit/bin/python -m \
+#     tms_risk.behavior.scripts.fit_probit_randomslopes --model A_stake_rs \
+#     --out_dir /data/probit_out > /data/logs/probit_A.log 2>&1 &
+name: tms_risk_probit
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # Bayesian modelling stack — same pins as the other envs so traces stay comparable
+  - pymc=5.17
+  - bambi=0.13
+  - arviz=0.20
+  # arviz 0.20 breaks on matplotlib >= 3.11
+  - matplotlib-base<3.11
+  - seaborn
+  # pandas 3 changes the groupby/stack semantics the repo relies on; numpy 2 is
+  # not yet safe across this pymc/arviz pin
+  - pandas<3
+  - numpy<2
+  - scipy
+  # imported at the top of tms_risk.utils.data, so needed even for behaviour-only work
+  - nibabel
+  - nilearn
+  - pyyaml
