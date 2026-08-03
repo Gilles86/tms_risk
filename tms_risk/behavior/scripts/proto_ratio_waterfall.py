@@ -34,7 +34,11 @@ import pandas as pd
 import seaborn as sns
 
 VERTEX, IPS = '#2ca02c', '#d62728'
-SAFE, RISKY = '#4d4d4d', '#b2182b'
+# Red and green are reserved for the STIMULATION conditions throughout the paper, so
+# the two OPTIONS cannot borrow them -- a red bar next to a red IPS curve reads as the
+# same variable. Options get the mako ramp used for payoff elsewhere in Fig 5; the net,
+# being a difference, gets near-black like every other difference in the paper.
+SAFE, RISKY = '#413f80', '#359caa'
 DIFF = '#1a1a1a'
 ORDERS = ['Risky first', 'Risky second']
 LEVELS = [7.0, 10.0, 14.0, 20.0, 28.0]

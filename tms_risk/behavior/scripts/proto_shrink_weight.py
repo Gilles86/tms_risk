@@ -125,8 +125,8 @@ def main(data_dir, label, out_stem):
     a.set_ylabel('Weight on evidence, w')
     a.text(x[0] * .98, s.safe_w_v.iloc[0] * 1.05, 'Safe', color=SAFE,
            fontsize=7.5, ha='left', va='bottom')
-    a.text(x[1] * 1.02, s.risky_w_v.iloc[1] * .84, 'Risky', color=RISKY,
-           fontsize=7.5, ha='left', va='top')
+    a.text(x[3], s.risky_w_v.iloc[3] * .72, 'Risky', color=RISKY,
+           fontsize=7.5, ha='center', va='top')
     a.annotate('cTBS', xy=(x[2], s.safe_w_i.iloc[2]), xytext=(x[3], .62),
                fontsize=7.5, color='0.3', ha='center', va='bottom',
                arrowprops=dict(arrowstyle='-', color='0.45', lw=.6,
@@ -158,8 +158,8 @@ def main(data_dir, label, out_stem):
     e.set_ylabel('Δ Perceived ratio (%)')
     e.text(x[-1] * 1.03, w[w.order == ORDER].ratio_pct.iloc[-1] + .35,
            'Risky second', color=DIFF, fontsize=7.5, ha='right', va='bottom')
-    e.text(x[-1] * 1.03, w[w.order == 'Risky first'].ratio_pct.iloc[-1] - .25,
-           'Risky first', color='0.55', fontsize=7.5, ha='right', va='top')
+    e.text(x[1], -.15, 'Risky first', color='0.55', fontsize=7.5,
+           ha='left', va='top')
 
     for ax, letter in zip([a, b, c, e], 'abcd'):
         ax.set_xscale('log')
