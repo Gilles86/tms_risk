@@ -32,9 +32,14 @@ import arviz as az
 import numpy as np
 import pandas as pd
 
-from tms_risk.behavior.scripts.noise_curve_inference import basis as anchored_basis
-from tms_risk.behavior.scripts.extract_pmc_parameters import (softplus,
-                                                              paradigm_columns)
+# Import only from noise_curve_inference: extract_pmc_parameters pulls in fit_model,
+# which imports bauer, which is deliberately not installed on the fitting nodes.
+from tms_risk.behavior.scripts.noise_curve_inference import (basis as anchored_basis,
+                                                             paradigm_columns)
+
+
+def softplus(x):
+    return np.log1p(np.exp(-np.abs(x))) + np.maximum(x, 0)
 
 
 def flat(post, name, reg=None):
