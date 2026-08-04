@@ -30,6 +30,18 @@ FITS = {
     # intercept-only controls, matching the published random-effects structure
     'A_stake_ri': ('chose_risky ~ x*rf*stim_v*stake_hi + (1|subject)',
                    'x:stim_v:stake_hi', 'x:rf:stim_v:stake_hi'),
+    # REDUCED random effects. The maximal structure (x*stim_v*bin|subject) -- 8
+    # correlated slopes plus an LKJ covariance on 35 subjects -- does not converge:
+    # max r-hat 3.4-4.2, min ESS 4, chains stuck in separate modes. These keep the
+    # between-subject variation that matters for a SLOPE contrast (the slope itself
+    # and its cTBS shift) and drop the rest.
+    'A_stake_rs_red': ('chose_risky ~ x*rf*stim_v*stake_hi + (x*stim_v|subject)',
+                       'x:stim_v:stake_hi', 'x:rf:stim_v:stake_hi'),
+    'C_nsafe_rs_red': ('chose_risky ~ x*rf*stim_v*nsafe_hi + (x*stim_v|subject)',
+                       'x:stim_v:nsafe_hi', 'x:rf:stim_v:nsafe_hi'),
+    'B_stake_ratio_rs_red': ('chose_risky ~ x*rf*stim_v*stake_hi + x*rf*stim_v*ratio_hi'
+                             ' + (x*stim_v|subject)',
+                             'x:stim_v:stake_hi', 'x:rf:stim_v:stake_hi'),
     'C_nsafe_ri': ('chose_risky ~ x*rf*stim_v*nsafe_hi + (1|subject)',
                    'x:stim_v:nsafe_hi', 'x:rf:stim_v:nsafe_hi'),
 }
