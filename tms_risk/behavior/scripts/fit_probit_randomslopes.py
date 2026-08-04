@@ -42,6 +42,19 @@ FITS = {
     'B_stake_ratio_rs_red': ('chose_risky ~ x*rf*stim_v*stake_hi + x*rf*stim_v*ratio_hi'
                              ' + (x*stim_v|subject)',
                              'x:stim_v:stake_hi', 'x:rf:stim_v:stake_hi'),
+    # STRUCTURALLY IDENTICAL to `probit_order`, which converges cleanly with the FULL
+    # random slopes (r-hat 1.000, ESS 762-1907). Random slopes are therefore estimable
+    # in this dataset; what broke the fits above is the FOUR-WAY fixed interaction
+    # (16 fixed effects vs probit_order's 8), not the random-effects structure. These
+    # swap `risky_first` for the magnitude bin on the fixed side and keep the maximal
+    # random structure. Justified because the published model finds no evidence the
+    # stake interaction differs by order (4-way term P = 0.69).
+    'D_stake_like_order': ('chose_risky ~ x*stim_v*stake_hi + (x*stim_v*stake_hi|subject)',
+                           'x:stim_v:stake_hi', None),
+    'E_nsafe_like_order': ('chose_risky ~ x*stim_v*nsafe_hi + (x*stim_v*nsafe_hi|subject)',
+                           'x:stim_v:nsafe_hi', None),
+    'F_ratio_like_order': ('chose_risky ~ x*stim_v*ratio_hi + (x*stim_v*ratio_hi|subject)',
+                           'x:stim_v:ratio_hi', None),
     'C_nsafe_ri': ('chose_risky ~ x*rf*stim_v*nsafe_hi + (1|subject)',
                    'x:stim_v:nsafe_hi', 'x:rf:stim_v:nsafe_hi'),
 }
@@ -82,7 +95,7 @@ def main(model, bids_folder, out_dir, draws, tune, chains, cores):
 
     post = idata.posterior
     c3 = flat(post, c3n)
-    c4 = flat(post, c4n) if c4n in post else np.zeros_like(c3)
+    c4 = flat(post, c4n) if (c4n and c4n in post) else np.zeros_like(c3)
     rows = []
     for lab, v in [('risky SECOND (reference)', c3), ('risky FIRST', c3 + c4),
                    ('averaged over order', c3 + c4 / 2)]:
