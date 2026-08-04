@@ -48,13 +48,41 @@ analytically, exactly as braincoder computes them
 way must reproduce the stored `desc-r2` map. All **105 gates (35 subjects × 3 models)
 passed**: min r = 0.99999999999, max abs difference = 9.5e-07.
 
-**Caveat that applies to every cvR² number below.** `fit_regression_nprf_cv.py` runs
-`max_n_iterations=10` in both gradient stages, where the main fit
-(`fit_regression_nprf.py`) runs `10000`. The CV parameters are therefore far less
-converged than the published parameter maps, and a model with more free parameters
-(m2) has more to lose from that. This is a property of the existing pipeline, not of my
-re-analysis, but it means the m1-vs-m2 CV gap is a lower bound on m2's disadvantage at
-best and confounded at worst. Flagged rather than corrected.
+**Caveat that applies to every cvR² number below — now being corrected.**
+`fit_regression_nprf_cv.py` shipped with `max_n_iterations=10` in both gradient stages,
+where the main fit (`fit_regression_nprf.py`) runs `10000`. The CV parameters are
+therefore **1000× less converged** than the published parameter maps, and a model with
+more free parameters (m2) has more to lose from that. Since the m1-vs-m2 decision rests
+entirely on these numbers, **the conclusion that "m2 buys nothing" could be an artefact
+of under-convergence.** As of 2026-08-04 it is a flag defaulting to 10000; pass
+`--max_n_iterations 10` to reproduce the old behaviour. A properly converged rerun is
+queued on sciencecluster and this section should be revisited when it lands:
+
+    sbatch --array=1-74 tms_risk/modeling/slurm_jobs/submit_regression_nprf.sh 1 --cv
+    sbatch --array=1-74 tms_risk/modeling/slurm_jobs/submit_regression_nprf.sh 2 --cv
+
+**A braincoder bug blocked all of this, and is worth knowing about.**
+`ParameterFitter.fit` logged its parameter list with
+`', '.join(labels[ix] for ix in parameter_ix)`, but regression models
+(`RegressionGaussianPRF`) have **tuple** parameter labels `(parameter, regressor)`, and
+`fixed_pars` is a list of tuples. Because these are logging *arguments* they are
+evaluated eagerly regardless of log level, so **every** `fit_regression_nprf` job —
+m0, m1, m2, m3 — died with `TypeError: expected str instance, tuple found` before the
+first gradient step. Fixed in `libs/braincoder@2a548e7` (branch `keras-backend`) and
+applied to the cluster's `~/git/braincoder_main` checkout. If encoding fits ever fail
+at startup with a `TypeError` from `parameter_fitter.py`, this is why.
+
+### A third variant now exists: m3
+
+`model_label == 3` — **amplitude and `sd` per session, `mu` pooled**. This is exactly m1
+plus a free per-session dispersion, so an m1-vs-m3 comparison isolates the dispersion
+question, which nothing in the current set tests: m1 fixes both `mu` and `sd`, m2 frees
+everything. It matters because the paper's Figure-2 paragraph claims specificity —
+"a specific effect of TMS on the amplitude of the nPRF but not their preferred numerosity
+tuning" — and that claim is about dispersion as well as preference. A single-subject
+smoke test is queued (job 4285835); **the grid ordering in `get_grid` is the risk** — a
+wrong ordering gives silently wrong fits rather than an error, so verify sub-01's
+parameter maps look sane before submitting the full array.
 
 ## (a) Held-out prediction
 
