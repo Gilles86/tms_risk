@@ -143,7 +143,22 @@ def main(bids_folder, model_label, bauer_path, out_stem, n_draws, n_grid, data_d
         piv = t.groupby(['frac', 'n_safe'])['v'].mean().unstack('n_safe')
         return piv.values, piv.columns.values, piv.index.values
 
+    def cell_draws(vals, sel):
+        """Average over SUBJECTS only, keeping the draw axis.
+
+        Needed for any statement about credibility -- `cell_mean` collapses the
+        draws, so the stored decision_space TSV carries posterior means only and
+        cannot answer 'is this cell credibly above/below the centre?'.
+        Returns (list of (frac, n_safe) keys, array (n_cells, n_draws)).
+        """
+        t = p.loc[sel, ['n_safe', 'frac']].reset_index(drop=True)
+        groups = t.groupby(['frac', 'n_safe']).indices
+        v = vals[sel]
+        keys = sorted(groups.keys())
+        return keys, np.stack([v[groups[k]].mean(0) for k in keys])
+
     out = {}
+    draw_rows = []
     for rf_val, name in [(True, 'Risky first'), (False, 'Risky second')]:
         base = (p['risky_first'] == rf_val).values
         sv, si = base & ~ips, base & ips
@@ -175,6 +190,28 @@ def main(bids_folder, model_label, bauer_path, out_stem, n_draws, n_grid, data_d
                          ratio_vertex=r_v, ratio_ips=r_i,
                          ev_risky_vertex=evr_v, ev_risky_ips=evr_i,
                          ev_safe_vertex=evs_v, ev_safe_ips=evs_i)
+
+        # Per-draw versions of the two centred quantities, so their sign can be
+        # tested rather than eyeballed against the white midpoint of the colourmap.
+        keys, rat_v_d = cell_draws(rat, sv)
+        _, rat_i_d = cell_draws(rat, si)
+        _, pv_d = cell_draws(pv, sv)
+        _, pi_d = cell_draws(pv, si)
+        cause_d = rat_i_d / rat_v_d
+        effect_d = pi_d - pv_d
+        draw_rows.append(pd.DataFrame({
+            'order': name,
+            'ratio': [k[0] for k in keys],
+            'n_safe': [k[1] for k in keys],
+            'cause_mean': cause_d.mean(1),
+            'cause_lo': np.quantile(cause_d, .025, axis=1),
+            'cause_hi': np.quantile(cause_d, .975, axis=1),
+            'p_cause_below1': (cause_d < 1).mean(1),
+            'effect_mean': effect_d.mean(1),
+            'effect_lo': np.quantile(effect_d, .025, axis=1),
+            'effect_hi': np.quantile(effect_d, .975, axis=1),
+            'p_effect_below0': (effect_d < 0).mean(1),
+            'n_draws': cause_d.shape[1]}))
 
     # -------------------------------------------------------------------- plot
     fig, axes = plt.subplots(2, 3, figsize=(7.25, 4.9), constrained_layout=True,
@@ -236,6 +273,10 @@ def main(bids_folder, model_label, bauer_path, out_stem, n_draws, n_grid, data_d
     tsv = Path(data_dir) / f'decision_space.{model_label}.tsv'
     tsv.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(rows).to_csv(tsv, sep='\t', index=False)
+
+    dtsv = Path(data_dir) / f'decision_space_draws.{model_label}.tsv'
+    pd.concat(draw_rows, ignore_index=True).to_csv(dtsv, sep='\t', index=False)
+    print(f'wrote {dtsv}')
     print(f'wrote {tsv}')
 
     # ------------------------------------------------- combined figure with curves

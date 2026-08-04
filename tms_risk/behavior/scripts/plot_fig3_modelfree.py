@@ -1,4 +1,14 @@
-"""Figure 3: the cTBS effect, argued without the cognitive model.
+"""RETIRED 2026-08-03 -- do not use for the paper. See plot_fig3_probit.py.
+
+This was one of two candidates for Figure 3. The probit won, on the grounds that a
+probit already assumes nothing beyond "there is a psychophysical curve", so it *is*
+the model-free argument, and this panel is a second and much harder-to-read route to
+the same conclusion. Kept only because the signature argument below is still the
+cleanest refutation of the pure-flattening account if it is ever needed in text.
+
+---
+
+Figure 3: the cTBS effect, argued without the cognitive model.
 
 The preprint explained the effect as a flattening of the psychometric function. That
 explanation makes a hard prediction, and it can be checked with no model at all:

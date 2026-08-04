@@ -247,6 +247,33 @@ def main(bids_folder, model_label, out_stem, n_draws, trace_dir=None, tag=None):
                  f'ppc_by_stake.{model_label}.tsv', sep='\t', index=False)
     print(f'wrote ppc_by_stake.{model_label}.tsv  ({len(out_t)} cells)')
 
+    # And the cTBS effect itself -- the PAIRED difference IPS - vertex per safe payoff,
+    # which is what Figure 5's column E plots. It has to be built as a within-subject
+    # difference inside the draw loop, exactly as `extract_behavior_grid` builds the
+    # observed one: differencing the two conditions' group means instead would drop the
+    # pairing and give a band far wider than the statistic it is meant to bracket.
+    # Because the band comes from simulated choices it already carries the trial-level
+    # binomial noise, so the observed value is plotted against it as a bare marker --
+    # adding its s.e.m. on top would count the same sampling variability twice.
+    keys_d = ['subject', 'order', 'n_safe', 'stim']
+    grp_d = ['order', 'n_safe']
+    y = d.assign(y=d['chose_risky'].astype(float))
+    obs_d = (y.groupby(keys_d)['y'].mean().unstack('stim').dropna())
+    obs_d = (obs_d['ips'] - obs_d['vertex']).groupby(grp_d).agg(
+        observed='mean', observed_sem='sem', n_subjects='size').reset_index()
+    idx_d = pd.MultiIndex.from_frame(d[keys_d])
+    sub = pd.DataFrame(sim, index=idx_d).groupby(level=keys_d).mean()
+    dif = (sub.xs('ips', level='stim') - sub.xs('vertex', level='stim')).dropna()
+    per_draw_d = dif.groupby(level=grp_d).mean()
+    mod_d = pd.DataFrame({'mean': per_draw_d.mean(1),
+                          'lo': per_draw_d.quantile(.025, axis=1),
+                          'hi': per_draw_d.quantile(.975, axis=1)}).reset_index()
+    out_d = mod_d.merge(obs_d, on=grp_d)
+    out_d.to_csv(Path(out_stem).parent.parent / 'data' /
+                 f'ppc_delta_by_safe.{model_label}.tsv', sep='\t', index=False)
+    print(f'wrote ppc_delta_by_safe.{model_label}.tsv  ({len(out_d)} cells)')
+    print(out_d.round(4).to_string(index=False))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

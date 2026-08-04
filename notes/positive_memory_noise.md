@@ -174,6 +174,41 @@ ESS 779, r̂ 1.000 — so its poorer ELPD is not a sampling artefact.
 A prior that widens under cTBS is not the same hypothesis as one that moves, and it is
 arguably the closer competitor to a noise account. Worth running before Table 1 is final.
 
+### How big a prior shift would it take? The parameters say the model is degenerate
+
+`extract_prior_shift.py` → `notes/data/prior_shift.priorshift.tsv`,
+`prior_percept_shift.priorshift.tsv`; figure `notes/figures/prior_shift.pdf`
+(`plot_prior_shift.py`). Three things, and together they are a stronger argument against
+the prior account than the 21.5-nat ELPD gap:
+
+**1. The fitted priors are not plausible and barely identified.** In CHF, against
+payoffs of 7–112:
+
+| prior | vertex | IPS | 95% CrI (IPS) |
+|---|---|---|---|
+| safe | 83.9 | 71.0 | [1.4, 306] |
+| **risky** | **13 995** | **13 393** | **[223, 69 082]** |
+
+The risky prior mean runs off to ~13 000 CHF with an interval spanning three orders of
+magnitude. It samples cleanly (0 divergences, r̂ 1.000, ESS 779) because it barely
+enters the likelihood: with prior SD ≈ 1.6 log units the shrinkage weight w is large,
+the percepts stay near-veridical, and the prior mean is then free to drift.
+
+**2. Neither shift is credible.** IPS − vertex is −0.229 log units for the risky prior
+(P(shift < 0) = 0.71) and −0.280 for the safe prior (P = 0.83). Both CrIs straddle zero.
+
+**3. The decisive point: the two accounts predict qualitatively different percept
+shifts.** Both must ultimately move the percept. A prior shift moves it by
+(1 − w)·Δμ_prior, and (1 − w) grows steeply with payoff as ν grows — so the prior
+account requires a percept shift that **grows with magnitude**: −0.50 CHF at 7 CHF,
+−4.9 at 28, **−23.6 at 112** (risky, first-presented; safe is −0.71 / −6.3 / −29.3).
+The noise account's fitted percept shifts are a few tenths of a CHF and roughly flat
+(−0.14 to −0.6 across safe payoffs 7–28, `pmc_percepts_by_order.flexible2nf.tsv`).
+
+So the prior account does not just fit worse — to produce the observed effect at all it
+needs percept distortions one to two orders of magnitude larger than the noise account,
+concentrated at exactly the large payoffs where the behavioural effect is weakest.
+
 ## Why the Weber model does not find it
 
 Added 2026-08-03. Two independent reasons, both structural. The Weber model did not look

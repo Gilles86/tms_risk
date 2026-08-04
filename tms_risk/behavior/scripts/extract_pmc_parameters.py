@@ -203,6 +203,32 @@ def main(bids_folder, out_dir, label, spline_order, trace_dir=None, tag=None):
                 'nu': g.mean(0), 'lo': np.quantile(g, .025, axis=0),
                 'hi': np.quantile(g, .975, axis=0), 'p_pos': (g > 0).mean(0)}))
 
+    if family == 1:
+        # Family 1 fits the two positions as INDEPENDENT spline functions, so the
+        # memory contribution is just nu_1 - nu_2 and nothing in the parameterisation
+        # constrains its sign. Emitting it here makes family 1 and family 2 directly
+        # comparable on the substantive question -- is the first-presented option
+        # encoded MORE precisely than the second at small payoffs? -- and family 1 is
+        # the stronger test, because it has no memory/perceptual composition that
+        # could be manufacturing the answer.
+        # It cannot be read off the marginal intervals of nu_1 and nu_2: the two share
+        # subject-level and spline structure, so their draws are correlated and the
+        # difference is far better determined than either curve alone.
+        nu_by = {}
+        for term in ['n1_evidence_sd', 'n2_evidence_sd']:
+            c = np.stack([post[f'{term}_spline{i}_mu'].values for i in
+                          range(1, spline_order + 1)], -1)
+            c = c.reshape(-1, c.shape[-2], c.shape[-1])
+            cc = coef_by_condition(c)
+            for cd in ['ips', 'vertex']:
+                nu_by[(term, cd)] = softplus(cc[cd] @ B[term].T)
+        for cd in ['ips', 'vertex']:
+            g = nu_by[('n1_evidence_sd', cd)] - nu_by[('n2_evidence_sd', cd)]
+            rows.append(pd.DataFrame({
+                'term': 'memory_contribution', 'stimulation': cd, 'payoff': xs,
+                'nu': g.mean(0), 'lo': np.quantile(g, .025, axis=0),
+                'hi': np.quantile(g, .975, axis=0), 'p_pos': (g > 0).mean(0)}))
+
     curves = pd.concat(rows)
     curves.to_csv(out_dir / f'pmcpars_curves.{label}.tsv', sep='\t', index=False)
 
