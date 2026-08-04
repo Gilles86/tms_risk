@@ -20,6 +20,13 @@ def get_model(model_label, paradigm):
                                                                      'mu':'0 + C(session)',
                                                                      'sd':'0 + C(session)',
                                                                      'baseline': '0 + C(session)'},)
+    elif model_label == 3:
+        # mu POOLED across sessions, amplitude and dispersion free. This is the model
+        # matching the paper's own specificity claim -- cTBS reduces gain without moving
+        # tuning preference -- and is exactly m1 plus a per-session `sd`, so the m1-vs-m3
+        # comparison isolates the dispersion question. `baseline` stays pooled as in m1.
+        model = RegressionGaussianPRF(paradigm=paradigm, regressors={'amplitude': '0 + C(session)',
+                                                                     'sd': '0 + C(session)'},)
     else:
         raise NotImplementedError(f'Model label {model_label} has not been implemented')
 
@@ -38,6 +45,9 @@ def get_grid(model_label):
         return mus, sds, amplitudes, baselines
     elif model_label == 2:
         return mus[::5], mus[::5], sds[::5], sds[::5], amplitudes, amplitudes, baselines, baselines
+    elif model_label == 3:
+        # one mu, TWO sds (one per session), TWO amplitudes, one baseline
+        return mus, sds[::5], sds[::5], amplitudes, amplitudes, baselines
 
 
 def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=False):
@@ -80,6 +90,9 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
 
     if model_label in [0, 1]:
         fixed_pars = [('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')]
+    elif model_label in [3]:
+        fixed_pars = [('mu_unbounded', 'Intercept'),
+                      ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
     elif model_label in [2]:
         fixed_pars = [('mu_unbounded', 'C(session)[2.0]'),('mu_unbounded', 'C(session)[3.0]'),
                       ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]

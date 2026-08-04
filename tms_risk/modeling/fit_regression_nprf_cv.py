@@ -9,9 +9,10 @@ from pathlib import Path
 import os.path as op
 import numpy as np
 import re
-from fit_regression_nprf import get_model, get_grid
+from tms_risk.modeling.fit_regression_nprf import get_model, get_grid
 
-def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=False):
+def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=False,
+         max_n_iterations=10000):
     bids_folder = Path(bids_folder)
     target_dir = bids_folder / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed.cv' / f'sub-{subject}'
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -56,6 +57,9 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
 
         if model_label in [0, 1]:
             fixed_pars = [('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')]
+        elif model_label in [3]:
+            fixed_pars = [('mu_unbounded', 'Intercept'),
+                        ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
         elif model_label in [2]:
             fixed_pars = [('mu_unbounded', 'C(session)[2.0]'),('mu_unbounded', 'C(session)[3.0]'),
                         ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
@@ -65,7 +69,7 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
             init_pars=grid_parameters,
             learning_rate=.05,
             store_intermediate_parameters=False,
-            max_n_iterations=10,
+            max_n_iterations=max_n_iterations,
             fixed_pars=fixed_pars,
             r2_atol=0.00001
         )
@@ -73,7 +77,7 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
             init_pars=grid_parameters,
             learning_rate=.05,
             store_intermediate_parameters=False,
-            max_n_iterations=10,
+            max_n_iterations=max_n_iterations,
             r2_atol=0.00001
         )
 
@@ -115,5 +119,11 @@ if __name__ == '__main__':
     parser.add_argument('model_label', default=1, type=int)
     parser.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     parser.add_argument('--smoothed', action='store_true')
+    # The CV fits shipped with max_n_iterations=10 while the MAIN fit uses 10000, so
+    # every stored cvR2 came from a 1000x under-converged optimisation -- and a model
+    # with more free parameters is penalised more by that. Default now matches the
+    # main fit; pass --max_n_iterations 10 to reproduce the old behaviour.
+    parser.add_argument('--max_n_iterations', default=10000, type=int)
     args = parser.parse_args()
-    main(args.subject, model_label=args.model_label, bids_folder=args.bids_folder)
+    main(args.subject, model_label=args.model_label, bids_folder=args.bids_folder,
+         max_n_iterations=args.max_n_iterations)
