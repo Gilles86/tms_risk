@@ -22,7 +22,11 @@
 #SBATCH --account=zne.uzh
 
 . $HOME/init_conda.sh
-conda activate tms_risk_cuda
+# tms_risk_prf (Keras 3 on JAX), NOT tms_risk_cuda: the latter allocates a GPU and then
+# runs on CPU -- its TF 2.14 has no CUDA runtime wheels. Verified 2026-08-05: JAX sees
+# the GPU on the same nodes where TF could not, so this was never a node problem.
+conda activate tms_risk_prf
+export KERAS_BACKEND=jax
 
 MODEL_LABEL=${1:-1}
 MODE=${2:-}
