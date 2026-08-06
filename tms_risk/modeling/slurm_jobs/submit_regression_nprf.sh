@@ -1,14 +1,17 @@
 #!/bin/bash
 # Regression-nPRF fit (encoding_model2) for one subject, one model label.
 #
-#   sbatch --array=1-74 submit_regression_nprf.sh 3        # main fit, model 3
-#   sbatch --array=1-74 submit_regression_nprf.sh 3 --cv   # cross-validated
+#   sbatch --array=<subs> submit_regression_nprf.sh 3                    # main fit
+#   sbatch --array=<subs> submit_regression_nprf.sh 3 --cv                # cross-validated
+#   sbatch --array=<subs> submit_regression_nprf.sh 3 '' .refit2026       # separate tree
 #
 # Model labels (fit_regression_nprf.py::get_model):
 #   0  pooled across sessions
 #   1  amplitude per session                     <- the paper's canonical model
 #   2  mu, sd, amplitude, baseline per session
-#   3  amplitude AND sd per session, mu pooled   <- gain + dispersion, tuning fixed
+#   3  amplitude AND sd per session              <- mixes gain and shape; superseded
+#   4  mu AND sd per session                     <- TUNING: what it is tuned to
+#   5  amplitude AND baseline per session        <- RESPONSE MAGNITUDE: how hard it responds
 #
 # NOTE the CV script now defaults to max_n_iterations=10000, matching the main fit.
 # It previously shipped with 10, so every stored cvR2 came from a 1000x
@@ -30,6 +33,9 @@ export KERAS_BACKEND=jax
 
 MODEL_LABEL=${1:-1}
 MODE=${2:-}
+# Third arg: output-tree suffix. Use '.refit2026' to keep a run OUT of the legacy tree
+# encoding_model2.model-{0,1,2}.smoothed, which every published analysis reads.
+OUT_SUFFIX=${3:-}
 export PARTICIPANT_LABEL=$(printf "%02d" $SLURM_ARRAY_TASK_ID)
 BIDS=/shares/zne.uzh/gdehol/ds-tmsrisk
 
@@ -40,5 +46,5 @@ if [ "$MODE" == "--cv" ]; then
         $PARTICIPANT_LABEL $MODEL_LABEL --bids_folder $BIDS
 else
     python -m tms_risk.modeling.fit_regression_nprf \
-        $PARTICIPANT_LABEL $MODEL_LABEL --bids_folder $BIDS
+        $PARTICIPANT_LABEL $MODEL_LABEL --bids_folder $BIDS --out_suffix "$OUT_SUFFIX"
 fi
