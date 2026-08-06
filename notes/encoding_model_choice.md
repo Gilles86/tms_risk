@@ -91,6 +91,40 @@ smoke test is queued (job 4285835); **the grid ordering in `get_grid` is the ris
 wrong ordering gives silently wrong fits rather than an error, so verify sub-01's
 parameter maps look sane before submitting the full array.
 
+## The null was never fitted — here it is (2026-08-06)
+
+`notes/analyses/cvr2_model_comparison.md` describes the null as "predict the per-voxel
+training-set mean", but it was only ever used as the cvR² = 0 line, never computed. That
+reference is not quite right: braincoder's `get_rsq` puts the **held-out fold's own
+mean** in the denominator, so cvR² = 0 means "as good as already knowing the test fold's
+mean" — which a real null predictor does not know. Train-vs-test drift puts a genuine
+null below zero, and nobody had measured how far.
+
+Computed over all 35 subjects under the identical leave-one-run-out scheme
+(`scratchpad/null_cvr2.py` → `notes/data/null_cvr2.tsv`; needs no fitting, the null
+prediction is just a mean):
+
+| | NPC12r | whole brain |
+|---|---|---|
+| **null cvR², predicting the training mean** | **−0.01842** (SD 0.00401) | −0.01992 |
+| fraction of NPC12r voxels where the null alone exceeds 0 | **0.0000** | — |
+| 95th percentile of the null within NPC12r | −0.00406 | — |
+
+**Two things this settles.**
+
+1. **The negative cvR² values are not "worse than nothing".** Against a null of −0.0184,
+   m1 at −0.0059 beats the null by **+0.0125**, and the old under-converged m1 at
+   −0.0118 beat it by only +0.0066 — so proper convergence roughly **doubles** the
+   margin over the null. Reporting cvR² relative to the null is far more readable than
+   quoting raw negative numbers that look alarming.
+2. **The `cvR² > 0` threshold is conservative, not permissive.** The null never exceeds
+   zero in any NPC12r voxel of any subject, and its 95th percentile is −0.004, so a
+   voxel at cvR² = 0 already sits well clear of it. The threshold is not letting noise
+   through — if anything it discards real signal, which is consistent with the finding
+   that thresholding costs power on the amplitude contrast.
+
+Read every number in the next section against the −0.0184 offset.
+
 ## (a) Held-out prediction
 
 Per subject × session, mean cvR² over voxels; the two sessions are averaged within
