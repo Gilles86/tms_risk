@@ -109,7 +109,13 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
         cv_r2s.append(cv_r2)
 
     # Average cross-validated R² across runs
-    cv_r2 = pd.concat(cv_r2s, keys=runs, names=['run']).groupby(level=1, axis=0).mean()
+    # `groupby(..., axis=0)` was removed in pandas 2.x and raises
+    # "TypeError: Series.groupby() got an unexpected keyword argument 'axis'" in the
+    # tms_risk_prf env. For a Series, axis=0 was the default anyway, so dropping it is
+    # equivalent. This line runs AFTER all folds are fitted and written, so a crash here
+    # loses only the average -- the per-run maps survive and can be re-averaged by
+    # `modeling/scripts/aggregate_cv_r2.py` without refitting.
+    cv_r2 = pd.concat(cv_r2s, keys=runs, names=['run']).groupby(level=1).mean()
     target_fn = target_dir / f'sub-{subject}_desc-cvr2.optim_space-T1w_pars.nii.gz'
     masker.inverse_transform(cv_r2).to_filename(target_fn)
 
