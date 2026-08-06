@@ -27,6 +27,19 @@ def get_model(model_label, paradigm):
         # comparison isolates the dispersion question. `baseline` stays pooled as in m1.
         model = RegressionGaussianPRF(paradigm=paradigm, regressors={'amplitude': '0 + C(session)',
                                                                      'sd': '0 + C(session)'},)
+    elif model_label == 4:
+        # TUNING only: preferred numerosity and tuning width free, response magnitude
+        # pooled. `sd` is the SHAPE of the tuning function, not a noise parameter, so it
+        # belongs with `mu`, not with `amplitude`.
+        model = RegressionGaussianPRF(paradigm=paradigm, regressors={'mu': '0 + C(session)',
+                                                                     'sd': '0 + C(session)'},)
+    elif model_label == 5:
+        # RESPONSE MAGNITUDE only: gain and offset free, tuning pooled. This is the
+        # model the paper's specificity claim actually implies -- cTBS changes how
+        # strongly the population responds, not what it is tuned to. m4 vs m5 is the
+        # contrast that separates the two accounts.
+        model = RegressionGaussianPRF(paradigm=paradigm, regressors={'amplitude': '0 + C(session)',
+                                                                     'baseline': '0 + C(session)'},)
     else:
         raise NotImplementedError(f'Model label {model_label} has not been implemented')
 
@@ -48,6 +61,12 @@ def get_grid(model_label):
     elif model_label == 3:
         # one mu, TWO sds (one per session), TWO amplitudes, one baseline
         return mus, sds[::5], sds[::5], amplitudes, amplitudes, baselines
+    elif model_label == 4:
+        # TWO mus, TWO sds, one amplitude, one baseline
+        return mus[::5], mus[::5], sds[::5], sds[::5], amplitudes, baselines
+    elif model_label == 5:
+        # one mu, one sd, TWO amplitudes, TWO baselines
+        return mus, sds, amplitudes, amplitudes, baselines, baselines
 
 
 def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=False):
@@ -92,6 +111,13 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
         fixed_pars = [('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')]
     elif model_label in [3]:
         fixed_pars = [('mu_unbounded', 'Intercept'),
+                      ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
+    elif model_label in [5]:
+        # mu and sd are pooled in m5, so they are fixed at their Intercept, as in m0/m1
+        fixed_pars = [('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')]
+    elif model_label in [4]:
+        # mu and sd are both per-session in m4, as in m2
+        fixed_pars = [('mu_unbounded', 'C(session)[2.0]'), ('mu_unbounded', 'C(session)[3.0]'),
                       ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
     elif model_label in [2]:
         fixed_pars = [('mu_unbounded', 'C(session)[2.0]'),('mu_unbounded', 'C(session)[3.0]'),

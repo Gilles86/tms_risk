@@ -60,6 +60,11 @@ def main(subject, model_label=1, bids_folder='/data/ds-tmsrisk', natural_space=F
         elif model_label in [3]:
             fixed_pars = [('mu_unbounded', 'Intercept'),
                         ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
+        elif model_label in [5]:
+            fixed_pars = [('mu_unbounded', 'Intercept'), ('sd_unbounded', 'Intercept')]
+        elif model_label in [4]:
+            fixed_pars = [('mu_unbounded', 'C(session)[2.0]'), ('mu_unbounded', 'C(session)[3.0]'),
+                        ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
         elif model_label in [2]:
             fixed_pars = [('mu_unbounded', 'C(session)[2.0]'),('mu_unbounded', 'C(session)[3.0]'),
                         ('sd_unbounded', 'C(session)[2.0]'), ('sd_unbounded', 'C(session)[3.0]')]
