@@ -48,6 +48,13 @@ analytically, exactly as braincoder computes them
 way must reproduce the stored `desc-r2` map. All **105 gates (35 subjects × 3 models)
 passed**: min r = 0.99999999999, max abs difference = 9.5e-07.
 
+> **The cvR² numbers in this file are the OLD, under-converged ones.** They are not
+> thrown away: the cluster trees were renamed before the rerun, so
+> `encoding_model2.model-{0,1,2}.smoothed.cv.iter10/` on `/shares` still holds all
+> 2135 files per model, and the local Mac copies plus the derived TSVs in
+> `notes/data/` are untouched. Compare, don't replace, when the rerun lands
+> (arrays 4324044 / 4324045, submitted 2026-08-06).
+
 **Caveat that applies to every cvR² number below — now being corrected.**
 `fit_regression_nprf_cv.py` shipped with `max_n_iterations=10` in both gradient stages,
 where the main fit (`fit_regression_nprf.py`) runs `10000`. The CV parameters are
