@@ -57,9 +57,16 @@ mpl.rcParams.update({
 sns.set_context('paper')
 
 
-def main(data_dir, model_label, roi, out_stem, log_x):
-    d = pd.read_csv(Path(data_dir) / 'prf_params_by_condition.tsv', sep='\t')
-    d = d[(d.model == model_label) & (d.roi == roi)]
+def main(data_dir, model_label, roi, out_stem, log_x, r2_thr, ref_model):
+    all_ = pd.read_csv(Path(data_dir) / 'prf_params_by_condition.tsv', sep='\t')
+    all_ = all_[all_.roi == roi]
+    # Signal voxels are selected on a FIXED reference model's in-sample r2 (default m1,
+    # the canonical one) and the same voxel set is then applied to every model, so a
+    # model is never flattered by choosing its own best voxels.
+    sel = all_[all_.model == ref_model]
+    good = set(map(tuple, sel.loc[sel.r2 > r2_thr, ['subject', 'voxel']].values))
+    d = all_[all_.model == model_label]
+    d = d[[ (a, b) in good for a, b in zip(d.subject, d.voxel) ]]
     if not len(d):
         raise SystemExit(f'no rows for model {model_label}, roi {roi}')
     varying = SESSION_VARYING.get(model_label, [])
@@ -97,7 +104,11 @@ def main(data_dir, model_label, roi, out_stem, log_x):
 
         # ------------------------------------------------ bottom: paired change
         ax = axes[1, j]
-        ps = d.groupby('subject')[cols].mean().dropna()
+        # MEDIAN over voxels within subject, not mean: when a model is poorly
+        # conditioned (m4 lets exp(mu) run to 1e12 in one subject) the mean is
+        # meaningless and the panel unreadable. The published Fig-2 descriptives are
+        # medians for the same reason.
+        ps = d.groupby('subject')[cols].median().dropna()
         diff = (ps[cols[1]] - ps[cols[0]]).values
         ax.axhline(0, color='.6', lw=.8, ls='--', zorder=0)
         for k, (a_, b_) in enumerate(zip(ps[cols[0]], ps[cols[1]])):
@@ -113,7 +124,11 @@ def main(data_dir, model_label, roi, out_stem, log_x):
                         elinewidth=1.5, capsize=0, zorder=5)
         ax.set_xticks([0, 1]); ax.set_xticklabels(['Vertex', 'IPS'])
         ax.set_xlim(-.4, 1.4)
-        ax.set_ylabel('Per-subject mean' if j == 0 else '')
+        ax.set_ylabel('Per-subject median' if j == 0 else '')
+        if free:
+            rng = np.nanpercentile(d[cols].values, [0.1, 99.9])
+            ax.text(.02, .02, f'voxel range [{rng[0]:.3g}, {rng[1]:.3g}]',
+                    transform=ax.transAxes, fontsize=6.5, color='.5', va='bottom')
         if free and np.isfinite(diff).sum() > 2:
             t, p = stats.ttest_1samp(diff[np.isfinite(diff)], 0)
             ax.set_title(f'Δ = {np.nanmean(diff):+.4f}   t({len(ps)-1}) = {t:+.2f}, '
@@ -128,7 +143,8 @@ def main(data_dir, model_label, roi, out_stem, log_x):
                             fontsize=12, fontweight='bold', va='bottom', ha='right')
     free_txt = ', '.join(varying) if varying else 'nothing (fully pooled)'
     fig.suptitle(f'Model m{model_label} — free per session: {free_txt}   ·   {roi}   ·   '
-                 f'n = {n_sub} subjects, {len(d)} voxels   ·   main fit, no folds held out',
+                 f'n = {n_sub} subjects, {len(d)} signal voxels (m{ref_model} r² > {r2_thr})'
+                 f'   ·   main fit, no folds held out',
                  fontsize=9)
     sns.despine(fig=fig, offset=3)
     for ext in ['pdf', 'png', 'svg']:
@@ -142,8 +158,11 @@ if __name__ == '__main__':
     p.add_argument('--model_label', default=5, type=int)
     p.add_argument('--roi', default='NPCr2cm-cluster')
     p.add_argument('--log_x', action='store_true', default=True)
+    p.add_argument('--r2_thr', default=0.05, type=float)
+    p.add_argument('--ref_model', default=1, type=int,
+                   help='model whose r2 defines the signal voxels (kept fixed across models)')
     p.add_argument('--out', default=None)
     a = p.parse_args()
     out = a.out or f'notes/figures/prf_params_m{a.model_label}_{a.roi}'
     Path(out).parent.mkdir(parents=True, exist_ok=True)
-    main(a.data_dir, a.model_label, a.roi, out, a.log_x)
+    main(a.data_dir, a.model_label, a.roi, out, a.log_x, a.r2_thr, a.ref_model)

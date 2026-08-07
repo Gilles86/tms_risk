@@ -16,6 +16,8 @@ durable text — update when adding a new analysis writeup or figure.
   the stake/ratio confound, the Fig 5a sign reversal, and the split-correlation labels.
 - [`encoding_model_choice.md`](encoding_model_choice.md) — m1 vs m2, settled on
   out-of-sample encoding fit. Verdict: m1.
+- [`encoding_model_set_2026-08.md`](encoding_model_set_2026-08.md) — the full m0–m5 set,
+  what each tests, and the central finding: do NOT threshold on functional fit.
 - [`tuning_width_by_preference.md`](tuning_width_by_preference.md) — tuning width vs
   preferred numerosity, the preferred-numerosity distribution, and why the
   decoding-precision analysis is blocked.
