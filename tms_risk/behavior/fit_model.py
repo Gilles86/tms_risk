@@ -147,6 +147,10 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
         trace.posterior.attrs['tms_risk_bauer_commit'] = commit + ('+dirty' if dirty else '')
     except Exception as e:
         print(f'WARNING: could not stamp bauer commit ({type(e).__name__}: {e})')
+    if hasattr(model, 'p_lapse'):
+        trace.posterior.attrs['tms_risk_p_lapse'] = (
+            'fitted' if getattr(model, 'fit_p_lapse', False)
+            else float(model.p_lapse))
 
     az.to_netcdf(trace, str(target_folder / f'model-{model_label}_trace.netcdf'))
 
