@@ -31,6 +31,10 @@ echo "task ${SLURM_ARRAY_TASK_ID}: ${LABEL}"
 cd "$HOME/git/tms_risk"
 export PYTHONPATH="$HOME/git/bauer-powerlaw"
 export PYTHONUNBUFFERED=1
+# pytensor C-compilation cache: per-task dir on /scratch. The default
+# ($HOME/.pytensor) tripped the home quota when 12 tasks compiled at once
+# (observed 2026-08-22, job 5224953_7) and shares one lock across tasks.
+export PYTENSOR_FLAGS="base_compiledir=/scratch/gdehol/pytensor/${SLURM_JOB_ID:-manual}_${SLURM_ARRAY_TASK_ID:-0}"
 
 exec "$HOME/data/conda/envs/tms_risk_cpu/bin/python" -u -m tms_risk.behavior.fit_model \
     "$LABEL" \
