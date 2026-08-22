@@ -76,7 +76,7 @@ the right four-sign pattern, at p ≈ 0.07 for the pre-directed composite —
 suggestive, not sufficient. The proper weighing of all trials and all
 signatures simultaneously is the fitted RDM, which models exactly this
 mixture (σ_k = w·σ_e and drift shrinkage jointly). That is what the
-lapse-equipped fits (job 5227421) will deliver: the fitted decomposition of
+lapse-equipped fits (job 5227427) will deliver: the fitted decomposition of
 the cTBS effect into diffusion vs drift channels, plus the w_s
 (magnitude→speed) test via `rdm_logflex2b` vs `rdm_logflex2b_ws0` vs the
 matched DDM.
@@ -92,7 +92,12 @@ matched DDM.
   `fit_rdm_logflex.sh`, tms_risk `b924d7e`), so "cannot fit without
   lapse" remains untested; the lapse-equipped wave is the first real
   attempt either way.
-- Submitted: GPU array **5227421** (6 tasks: rdm_logflex2_null / 2b /
+- Second failure post-mortem: array 5227421 died in 3 s per task —
+  `nvidia-smi | head -12` under `set -eo pipefail` SIGPIPEs nvidia-smi
+  (exit 141) and aborts the script before `exec python`; the same trap
+  explains the instant deaths in wave 5225709. Fixed (tms_risk, nvidia-smi
+  -L) and resubmitted.
+- Submitted: GPU array **5227427** (6 tasks: rdm_logflex2_null / 2b /
   2b_ws0, ddm_logflex2_null / 2b / 2_threshold; L4, numpyro, mapjitter,
   tune 2000 / draws 1000, target_accept 0.99). Smoke 5227418 queued in
   parallel (env/graph already GPU-validated by 5224998).
