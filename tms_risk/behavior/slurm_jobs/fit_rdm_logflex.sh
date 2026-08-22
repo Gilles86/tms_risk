@@ -36,7 +36,9 @@ mkdir -p "$TMPDIR"
 # CUDA env: activate (activate.d hooks), then exec so SIGTERM reaches python
 source "$HOME/data/miniforge3/etc/profile.d/conda.sh"
 conda activate bauer_cuda
-nvidia-smi | head -12
+# NB: never `nvidia-smi | head` under `set -o pipefail` — head's early
+# close SIGPIPEs nvidia-smi (exit 141) and -e kills the job pre-exec.
+nvidia-smi -L || true
 
 exec python -u -m tms_risk.behavior.fit_model \
     "$LABEL" \
