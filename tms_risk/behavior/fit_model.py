@@ -15,6 +15,14 @@ Live model labels (referenced by analysis notebooks):
         Suffix legend: '_null' = no TMS regressor; 'a' = only n1/memory;
         'b' = only n2/perceptual; bare label = both.
 
+    Power-law-noise PMC family (PowerLawNoiseRiskRegressionModel) — the
+    efficient-coding comparison (SD_k(n) = exp(intercept_k) · n^exponent):
+        power{1|2}[_flat][_null|_exp|_full]
+        1 = independent noise, 2 = shared perceptual/memory noise;
+        '_flat' = no prior / no shrinkage (Thurstonian observer);
+        '_null' = no TMS regressor, bare = TMS on noise intercepts,
+        '_exp' = TMS on the exponent, '_full' = TMS on both.
+
     DDM × Flexible PMC family (DDMFlexibleNoiseRiskRegressionModel) — Phase 5:
         ddm_flexible[_null|_perception|_memory|_threshold|_noise_threshold]
 
@@ -40,6 +48,8 @@ from bauer.models import (
     RiskModel,
     RiskRegressionModel,
     FlexibleNoiseRiskRegressionModel,
+    PowerLawNoiseRiskRegressionModel,
+    LogFlexibleNoiseRiskRegressionModel,
 )
 try:
     from bauer.models import (
@@ -62,11 +72,11 @@ from tms_risk.utils.data import get_all_behavior
 
 
 def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
-         backend=None):
+         backend=None, out_folder=None):
 
     df = get_data(bids_folder, model_label=model_label)
 
-    target_folder = Path(bids_folder) / 'derivatives' / 'cogmodels'
+    target_folder = Path(bids_folder) / 'derivatives' / (out_folder or 'cogmodels')
     target_folder.mkdir(parents=True, exist_ok=True)
 
     is_accumulator = model_label.startswith('ddm_') or model_label.startswith('rdm_')
@@ -86,6 +96,15 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
         samples = samples or 5000
         backend = backend or 'pymc'
         target_accept = 0.9
+    elif (model_label.startswith('power') or model_label.startswith('logflex')
+          or model_label.startswith('lfx2-')):
+        # The hierarchical prior-SD funnel gives ~4-8% divergences at 0.8
+        # (observed on power1_null / power1, 2026-08-20); 0.95 is needed for
+        # trustworthy stimulation-coefficient posteriors.
+        burnin = burnin or 5000
+        samples = samples or 5000
+        backend = backend or 'pymc'
+        target_accept = 0.95
     else:
         burnin = burnin or 5000
         samples = samples or 5000
@@ -109,6 +128,21 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
     except Exception as e:
         print(f'WARNING: pm.compute_log_likelihood failed ({type(e).__name__}: {e}); '
               f'LOO / WAIC will need a manual rebuild step.')
+
+    # Stamp the bauer commit — a stored trace only means something against the
+    # bauer code that produced it (see CLAUDE.md, "Cognitive-model traces are
+    # bauer-version-sensitive").
+    try:
+        import subprocess
+        import bauer as _bauer
+        bauer_repo = Path(_bauer.__file__).resolve().parent.parent
+        commit = subprocess.run(['git', '-C', str(bauer_repo), 'rev-parse', 'HEAD'],
+                                capture_output=True, text=True, check=True).stdout.strip()
+        dirty = subprocess.run(['git', '-C', str(bauer_repo), 'status', '--porcelain'],
+                               capture_output=True, text=True, check=True).stdout.strip()
+        trace.posterior.attrs['tms_risk_bauer_commit'] = commit + ('+dirty' if dirty else '')
+    except Exception as e:
+        print(f'WARNING: could not stamp bauer commit ({type(e).__name__}: {e})')
 
     az.to_netcdf(trace, str(target_folder / f'model-{model_label}_trace.netcdf'))
 
@@ -177,6 +211,149 @@ def _build_flexible(model_label, df):
         spline_order=polynomial_order,   # bauer renamed polynomial_order → spline_order
         memory_model=memory_model,
         prior_estimate='full',
+    )
+
+
+def _build_logflex(model_label, df):
+    """Dispatch logflex{1,2}[_null|a|b] — log-space flexible PMC.
+
+    Weber RiskModel front-end (log-payoff evidence, log(p2/p1) threshold,
+    lognormal priors) + spline noise over log payoff. Family and suffix
+    semantics identical to the flexible family: 1 = independent (n1/n2),
+    2 = shared perceptual/memory; '_null' no TMS, 'a' first/memory only,
+    'b' second/perceptual only, bare = both noise terms.
+    """
+    rest = model_label[len('logflex'):]
+    scalar_mem = rest.startswith('m')     # scalar memory + tightened hyperpriors
+    tight_only = rest.startswith('t')     # tightened hyperpriors, 5-df memory
+    natural = rest.startswith('n')        # natural cubic basis (cr), default priors
+    quadratic = rest.startswith('q')      # degree-2 B-splines, default priors
+    if scalar_mem or tight_only or natural or quadratic:
+        rest = rest[1:]
+    family_digit, rest = rest[0], rest[1:]
+    if family_digit not in ('1', '2') or rest not in ('', '_null', 'a', 'b'):
+        raise Exception(f'Unrecognised logflex label: {model_label!r}')
+    memory_model = 'independent' if family_digit == '1' else 'shared_perceptual_noise'
+    regressors = _flexible_noise_regressors(rest, memory_model)
+    # logflexm*: scalar (Weber-style) memory noise + 5-df perceptual spline,
+    # with tightened hyperpriors on the noise machinery: TMS coefficients get
+    # prior scale 0.4 (pre-softplus, ~"changes beyond +-50% implausible")
+    # instead of the default 1.0, and spline intercepts 1.2 instead of 1.5 --
+    # the constrain_priors philosophy, aimed at the high-payoff variance.
+    model = LogFlexibleNoiseRiskRegressionModel(
+        df, regressors=regressors,
+        spline_order=(1, 5) if scalar_mem else 5,
+        memory_model=memory_model, prior_estimate='full',
+        spline_basis='cr' if natural else 'bs',
+        spline_degree=2 if quadratic else 3,
+    )
+    if scalar_mem or tight_only:
+        _tighten_noise_hyperpriors(model)
+    return model
+
+
+def _tighten_noise_hyperpriors(model):
+    """Shrink the noise-spline hyperpriors: coefficient scale 1.5 -> 1.2 and
+    TMS regression-coefficient scale 1.0 -> 0.4 (pre-softplus; ~'noise changes
+    beyond +-50% implausible'). Applied by wrapping get_free_parameters, which
+    is what feeds build_hierarchical_nodes at graph-build time."""
+    orig_gfp = model.get_free_parameters
+
+    def tightened():
+        fp = orig_gfp()
+        for k, info in fp.items():
+            if 'spline' in k:
+                info['sigma_intercept'] = 1.2
+                info['sigma_regressors'] = 0.4
+        return fp
+
+    model.get_free_parameters = tightened
+    return model
+
+
+def _build_lfx_grid(model_label, df):
+    """Systematic spline/hyperprior grid for the log-space flexible PMC.
+
+    Label grammar:  lfx2-{bs3|bs2|cr3}-{fm|sm}-{dp|tp}-{null|b}
+
+        bs3 / bs2 / cr3   cubic B-spline / quadratic B-spline / natural cubic
+        fm / sm           flexible (5-df spline) vs scalar memory noise
+        dp / tp           default vs tightened noise hyperpriors
+        null / b          no TMS regressor vs TMS on perceptual noise
+
+    3 x 2 x 2 x 2 = 24 cells; shared_perceptual_noise, prior_estimate='full'
+    throughout. Traces land wherever --out_folder points (cogmodels.lfxgrid
+    for the 2026-08 cluster sweep).
+    """
+    import re
+    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm)-(dp|tp)-(null|b)', model_label)
+    if not m:
+        raise Exception(f'Bad lfx2 grid label: {model_label!r}')
+    basis, mem, hp, tms = m.groups()
+    model = LogFlexibleNoiseRiskRegressionModel(
+        df,
+        regressors={} if tms == 'null' else _stim('perceptual_noise_sd'),
+        spline_order=(1, 5) if mem == 'sm' else 5,
+        memory_model='shared_perceptual_noise',
+        prior_estimate='full',
+        spline_basis='cr' if basis == 'cr3' else 'bs',
+        spline_degree=2 if basis == 'bs2' else 3,
+    )
+    if hp == 'tp':
+        _tighten_noise_hyperpriors(model)
+    return model
+
+
+def _build_power(model_label, df):
+    """Dispatch power{1,2}[_flat][|_null|_exp|_full] — power-law-noise PMC.
+
+    Noise: SD_k(n) = exp(log_sd_intercept_k) · n^noise_exponent, exponent
+    shared across options (β = 1 − α indexes Stevens compression).
+
+    Family: power1 = memory_model 'independent' (n1/n2 intercepts, flexible1
+    analogue); power2 = 'shared_perceptual_noise' (perceptual/memory
+    intercepts, flexible2 analogue).
+
+    '_flat' marker = prior_estimate 'none' — the Thurstonian /
+    efficient-coding observer with no shrinkage (exact prior_sd → ∞ limit of
+    the Bayesian model, so the pairs are nested). Without it,
+    prior_estimate='full' as in the flexible family.
+
+    Suffix: '_null' no TMS regressors; '' (bare) TMS on the two noise
+    intercepts (noise-scale change only); '_exp' TMS on noise_exponent only
+    (compression change only); '_full' TMS on intercepts + exponent.
+    """
+    rest = model_label[len('power'):]
+    family_digit, rest = rest[0], rest[1:]
+    if family_digit not in ('1', '2'):
+        raise Exception(f'Unrecognised power family: {model_label!r}')
+    memory_model = 'independent' if family_digit == '1' else 'shared_perceptual_noise'
+
+    prior_estimate = 'full'
+    if rest.startswith('_flat'):
+        prior_estimate = 'none'
+        rest = rest[len('_flat'):]
+
+    if memory_model == 'independent':
+        intercepts = ('n1_log_sd_intercept', 'n2_log_sd_intercept')
+    else:
+        intercepts = ('perceptual_log_sd_intercept', 'memory_log_sd_intercept')
+
+    if rest == '_null':
+        regressors = {}
+    elif rest == '':
+        regressors = _stim(*intercepts)
+    elif rest == '_exp':
+        regressors = _stim('noise_exponent')
+    elif rest == '_full':
+        regressors = _stim('noise_exponent', *intercepts)
+    else:
+        raise Exception(f'Unrecognised power suffix: {rest!r}')
+
+    return PowerLawNoiseRiskRegressionModel(
+        df, regressors=regressors,
+        prior_estimate=prior_estimate,
+        memory_model=memory_model,
     )
 
 
@@ -289,6 +466,16 @@ def build_model(model_label, df):
     # Flexible PMC family — paper's main model
     if model_label.startswith('flexible'):
         return _build_flexible(model_label, df)
+
+    # Log-space flexible PMC (Weber front-end + spline noise over log payoff)
+    if model_label.startswith('lfx2-'):
+        return _build_lfx_grid(model_label, df)
+    if model_label.startswith('logflex'):
+        return _build_logflex(model_label, df)
+
+    # Power-law-noise PMC family (efficient-coding comparison)
+    if model_label.startswith('power'):
+        return _build_power(model_label, df)
 
     # DDM / RDM × Flexible PMC family (Phase 5)
     if model_label.startswith('ddm_') or model_label.startswith('rdm_'):
@@ -417,5 +604,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('model_label', default=None)
     parser.add_argument('--bids_folder', default='/data/ds-tmsrisk')
+    parser.add_argument('--out_folder', default=None,
+                        help='derivatives subfolder for the trace '
+                             '(default: cogmodels)')
     args = parser.parse_args()
-    main(args.model_label, bids_folder=args.bids_folder)
+    main(args.model_label, bids_folder=args.bids_folder,
+         out_folder=args.out_folder)
