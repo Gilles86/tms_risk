@@ -113,8 +113,12 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
 
     model = build_model(model_label, df)
     model.build_estimation_model()
+    sample_kwargs = {}
+    if is_accumulator and backend == 'numpyro':
+        # one GPU: vectorized chains run in parallel (bauer fitting brief)
+        sample_kwargs['chain_method'] = 'vectorized'
     trace = model.sample(burnin, samples, target_accept=target_accept,
-                         backend=backend)
+                         backend=backend, **sample_kwargs)
 
     # Compute per-observation log-likelihood in-place so downstream LOO /
     # WAIC works without rebuilding the model. Without this the comparison
@@ -268,6 +272,62 @@ def _tighten_noise_hyperpriors(model):
         return fp
 
     model.get_free_parameters = tightened
+    return model
+
+
+def _build_accumulator_logflex(model_label, df):
+    """Dispatch {ddm|rdm}_logflex2[_null|b|_threshold][_ws0].
+
+    Accumulator versions of the log-space flexible PMC (see
+    notes/rdm_magnitude_rt_plan.md). Family 2 = shared perceptual/memory
+    noise, prior_estimate='full'. Suffixes: '_null' no TMS regressor;
+    'b' TMS on perceptual splines; '_threshold' TMS on the decision bound
+    `a` (caution confound control). '_ws0' (race only) ablates the w_s
+    magnitude→RT sum channel. Ships the prior-mean wandering mitigation:
+    prior-μ hyperprior centering tightened to σ = 0.5 log-units.
+    """
+    kind = 'ddm' if model_label.startswith('ddm_') else 'rdm'
+    rest = model_label[len(f'{kind}_logflex'):]
+    if not rest.startswith('2'):
+        raise Exception(f'Only family 2 supported: {model_label!r}')
+    rest = rest[1:]
+    ws0 = rest.endswith('_ws0')
+    if ws0:
+        if kind == 'ddm':
+            raise Exception('_ws0 is race-only (the DDM has no sum channel)')
+        rest = rest[:-len('_ws0')]
+    if rest == '_null':
+        regressors = {}
+    elif rest == 'b':
+        regressors = _stim('perceptual_noise_sd')
+    elif rest == '_threshold':
+        regressors = _stim('a')
+    else:
+        raise Exception(f'Unrecognised accumulator-logflex suffix: {rest!r}')
+
+    from bauer.models import (DDMLogFlexibleNoiseRiskRegressionModel,
+                              RaceDiffusionLogFlexibleNoiseRiskRegressionModel)
+    if kind == 'ddm':
+        model = DDMLogFlexibleNoiseRiskRegressionModel(
+            df, regressors=regressors, prior_estimate='full',
+            memory_model='shared_perceptual_noise', spline_order=5)
+    else:
+        model = RaceDiffusionLogFlexibleNoiseRiskRegressionModel(
+            df, regressors=regressors, prior_estimate='full',
+            memory_model='shared_perceptual_noise', spline_order=5,
+            fit_w_s=not ws0)
+
+    # prior-mean wandering mitigation (memo §6): tighter centering on μ.
+    orig_gfp = model.get_free_parameters
+
+    def centered():
+        fp = orig_gfp()
+        for k, info in fp.items():
+            if k.endswith('_prior_mu'):
+                info['sigma_intercept'] = 0.5
+        return fp
+
+    model.get_free_parameters = centered
     return model
 
 
@@ -476,6 +536,10 @@ def build_model(model_label, df):
     # Power-law-noise PMC family (efficient-coding comparison)
     if model_label.startswith('power'):
         return _build_power(model_label, df)
+
+    # DDM / RDM × log-space flexible PMC (magnitude→RT program, 2026-08-22)
+    if model_label.startswith(('ddm_logflex', 'rdm_logflex')):
+        return _build_accumulator_logflex(model_label, df)
 
     # DDM / RDM × Flexible PMC family (Phase 5)
     if model_label.startswith('ddm_') or model_label.startswith('rdm_'):
