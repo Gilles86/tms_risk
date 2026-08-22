@@ -26,6 +26,12 @@ export PYTHONUNBUFFERED=1
 # pytensor C-cache on /scratch, per-task (home-quota + lock contention fix,
 # see fit_lfx_grid.sh / job 5224953_7 post-mortem)
 export PYTENSOR_FLAGS="base_compiledir=/scratch/gdehol/pytensor/${SLURM_JOB_ID:-manual}_${SLURM_ARRAY_TASK_ID:-0}"
+# ... and ALL temp files off node-local /tmp (python tempfile inside
+# pytensor's jax linker killed the first wave: OSError 122 in
+# NamedTemporaryFile, jobs 5225709_1-6). General golden rule now in the
+# sciencecluster skill.
+export TMPDIR="/scratch/gdehol/tmp/${SLURM_JOB_ID:-manual}_${SLURM_ARRAY_TASK_ID:-0}"
+mkdir -p "$TMPDIR"
 
 # CUDA env: activate (activate.d hooks), then exec so SIGTERM reaches python
 source "$HOME/data/miniforge3/etc/profile.d/conda.sh"
