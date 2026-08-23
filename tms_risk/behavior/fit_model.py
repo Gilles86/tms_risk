@@ -350,16 +350,20 @@ def _build_lfx_grid(model_label, df):
     for the 2026-08 cluster sweep).
     """
     import re
-    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm)-(dp|tp)-(null|b|bm)', model_label)
+    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3)-(dp|tp)-(null|b|bm)',
+                     model_label)
     if not m:
         raise Exception(f'Bad lfx2 grid label: {model_label!r}')
     basis, mem, hp, tms = m.groups()
+    # memory-spline df ladder: sm=1 (scalar), m2=2 (linear in log n),
+    # m3=3 (quadratic), fm=5. spline_order = (memory, perceptual).
+    mem_df = {'sm': 1, 'm2': 2, 'm3': 3, 'fm': 5}[mem]
     model = LogFlexibleNoiseRiskRegressionModel(
         df,
         regressors=({} if tms == 'null' else
                     _stim('perceptual_noise_sd') if tms == 'b' else
                     _stim('perceptual_noise_sd', 'memory_noise_sd')),
-        spline_order=(1, 5) if mem == 'sm' else 5,
+        spline_order=(mem_df, 5),
         memory_model='shared_perceptual_noise',
         prior_estimate='full',
         spline_basis='cr' if basis == 'cr3' else 'bs',
