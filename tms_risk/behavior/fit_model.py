@@ -303,6 +303,13 @@ def _build_accumulator_logflex(model_label, df):
     if rest[:2] in ('m2', 'm3'):
         mem_df = int(rest[1])
         rest = rest[2:]
+    # '_op': objective priors — pin the observer's prior at the log-payoff
+    # statistics, removing the prior block (and its hyperprior funnel, the
+    # worst-mixing parameters of the m2 RT wave) from the fit entirely.
+    # Mirrors the dyscalculic_ddm winning spec, which had no free priors.
+    obj_prior = rest.endswith('_op')
+    if obj_prior:
+        rest = rest[:-len('_op')]
     # '_hn': HalfNormal instead of HalfCauchy on ALL group SDs (kills the
     # fat-tail funnel; dyscalculic_ddm lesson 2). Global switch in
     # bauer.core, so it applies to every hierarchical node of this model.
@@ -336,13 +343,14 @@ def _build_accumulator_logflex(model_label, df):
     from bauer.models import (DDMLogFlexibleNoiseRiskRegressionModel,
                               RaceDiffusionLogFlexibleNoiseRiskRegressionModel)
     spline_order = (mem_df, 5)
+    prior_estimate = 'objective' if obj_prior else 'full'
     if kind == 'ddm':
         model = DDMLogFlexibleNoiseRiskRegressionModel(
-            df, regressors=regressors, prior_estimate='full',
+            df, regressors=regressors, prior_estimate=prior_estimate,
             memory_model='shared_perceptual_noise', spline_order=spline_order)
     else:
         model = RaceDiffusionLogFlexibleNoiseRiskRegressionModel(
-            df, regressors=regressors, prior_estimate='full',
+            df, regressors=regressors, prior_estimate=prior_estimate,
             memory_model='shared_perceptual_noise', spline_order=spline_order,
             fit_w_s=not ws0, fit_w_d=not wd1)
 
