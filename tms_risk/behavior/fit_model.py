@@ -295,6 +295,14 @@ def _build_accumulator_logflex(model_label, df):
     if not rest.startswith('2'):
         raise Exception(f'Only family 2 supported: {model_label!r}')
     rest = rest[1:]
+    # optional memory-df marker mirroring the static grid's m2/m3 cells:
+    # 'm2' = linear memory noise in log payoff, 'm3' = quadratic. Kills the
+    # 5-df memory-spline hyperprior funnel that broke the first RT wave
+    # (0/6 converged, worst r-hats on memory_noise_sd_spline*_sd).
+    mem_df = 5
+    if rest[:2] in ('m2', 'm3'):
+        mem_df = int(rest[1])
+        rest = rest[2:]
     ws0 = rest.endswith('_ws0')
     if ws0:
         if kind == 'ddm':
@@ -304,6 +312,8 @@ def _build_accumulator_logflex(model_label, df):
         regressors = {}
     elif rest == 'b':
         regressors = _stim('perceptual_noise_sd')
+    elif rest == 'bm':
+        regressors = _stim('perceptual_noise_sd', 'memory_noise_sd')
     elif rest == '_threshold':
         regressors = _stim('a')
     else:
@@ -311,14 +321,15 @@ def _build_accumulator_logflex(model_label, df):
 
     from bauer.models import (DDMLogFlexibleNoiseRiskRegressionModel,
                               RaceDiffusionLogFlexibleNoiseRiskRegressionModel)
+    spline_order = (mem_df, 5)
     if kind == 'ddm':
         model = DDMLogFlexibleNoiseRiskRegressionModel(
             df, regressors=regressors, prior_estimate='full',
-            memory_model='shared_perceptual_noise', spline_order=5)
+            memory_model='shared_perceptual_noise', spline_order=spline_order)
     else:
         model = RaceDiffusionLogFlexibleNoiseRiskRegressionModel(
             df, regressors=regressors, prior_estimate='full',
-            memory_model='shared_perceptual_noise', spline_order=5,
+            memory_model='shared_perceptual_noise', spline_order=spline_order,
             fit_w_s=not ws0)
 
     # prior-mean wandering mitigation (memo §6): tighter centering on μ.
