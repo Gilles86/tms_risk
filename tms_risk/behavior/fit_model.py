@@ -303,6 +303,13 @@ def _build_accumulator_logflex(model_label, df):
     if rest[:2] in ('m2', 'm3'):
         mem_df = int(rest[1])
         rest = rest[2:]
+    # '_hn': HalfNormal instead of HalfCauchy on ALL group SDs (kills the
+    # fat-tail funnel; dyscalculic_ddm lesson 2). Global switch in
+    # bauer.core, so it applies to every hierarchical node of this model.
+    if rest.endswith('_hn'):
+        from bauer import core as _bauer_core
+        _bauer_core.GROUP_SD_DIST = 'halfnormal'
+        rest = rest[:-len('_hn')]
     # '_wd1' (race only): pin the evidence-to-drift gain w_d = 1, breaking
     # the exact (σ, w's, a) scale ridge so RTs identify the noise LEVEL.
     wd1 = rest.endswith('_wd1')
