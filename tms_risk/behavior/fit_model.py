@@ -303,6 +303,13 @@ def _build_accumulator_logflex(model_label, df):
     if rest[:2] in ('m2', 'm3'):
         mem_df = int(rest[1])
         rest = rest[2:]
+    # '_wd1' (race only): pin the evidence-to-drift gain w_d = 1, breaking
+    # the exact (σ, w's, a) scale ridge so RTs identify the noise LEVEL.
+    wd1 = rest.endswith('_wd1')
+    if wd1:
+        if kind == 'ddm':
+            raise Exception('_wd1 is race-only (the DDM pins v_scale=1 already)')
+        rest = rest[:-len('_wd1')]
     ws0 = rest.endswith('_ws0')
     if ws0:
         if kind == 'ddm':
@@ -330,7 +337,7 @@ def _build_accumulator_logflex(model_label, df):
         model = RaceDiffusionLogFlexibleNoiseRiskRegressionModel(
             df, regressors=regressors, prior_estimate='full',
             memory_model='shared_perceptual_noise', spline_order=spline_order,
-            fit_w_s=not ws0)
+            fit_w_s=not ws0, fit_w_d=not wd1)
 
     # prior-mean wandering mitigation (memo §6): tighter centering on μ.
     orig_gfp = model.get_free_parameters
