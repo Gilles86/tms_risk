@@ -312,6 +312,15 @@ def _build_accumulator_logflex(model_label, df):
         # dyscalculic_ddm spec that converged.
         mem_df, perc_df = 1, 1
         rest = rest[1:]
+    # '_dm0': diagonal mass matrix. RaceMixin/DDMMixin recommend
+    # dense_mass=True, but these models carry ~666 latent dims (35 subjects
+    # x per-parameter offsets), so a full mass matrix means estimating
+    # ~222k covariance entries from 2000 tuning draws — under-determined,
+    # and a noisy near-singular metric wrecks mixing. The *choice* models,
+    # which converge fine, use the default diagonal metric.
+    diag_mass = rest.endswith('_dm0')
+    if diag_mass:
+        rest = rest[:-len('_dm0')]
     # '_op': objective priors — pin the observer's prior at the log-payoff
     # statistics, removing the prior block (and its hyperprior funnel, the
     # worst-mixing parameters of the m2 RT wave) from the fit entirely.
@@ -362,6 +371,10 @@ def _build_accumulator_logflex(model_label, df):
             df, regressors=regressors, prior_estimate=prior_estimate,
             memory_model='shared_perceptual_noise', spline_order=spline_order,
             fit_w_s=not ws0, fit_w_d=not wd1)
+
+    if diag_mass:
+        # instance attribute shadows the mixin's class-level recommendation
+        model.recommended_nuts_kwargs = {}
 
     # prior-mean wandering mitigation (memo §6): tighter centering on μ.
     orig_gfp = model.get_free_parameters
@@ -727,9 +740,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('model_label', default=None)
     parser.add_argument('--bids_folder', default='/data/ds-tmsrisk')
+    parser.add_argument('--burnin', type=int, default=None,
+                        help='tuning draws (default: per-family recipe)')
+    parser.add_argument('--samples', type=int, default=None,
+                        help='post-warmup draws (default: per-family recipe)')
     parser.add_argument('--out_folder', default=None,
                         help='derivatives subfolder for the trace '
                              '(default: cogmodels)')
     args = parser.parse_args()
     main(args.model_label, bids_folder=args.bids_folder,
+         burnin=args.burnin, samples=args.samples,
          out_folder=args.out_folder)
