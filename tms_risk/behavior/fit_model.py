@@ -407,10 +407,10 @@ def _build_lfx_grid(model_label, df):
     """
     import re
     m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3|w)-(dp|tp)-(null|b|bm)'
-                     r'(-op)?(-hn)?', model_label)
+                     r'(-op|-sp)?(-hn)?', model_label)
     if not m:
         raise Exception(f'Bad lfx2 grid label: {model_label!r}')
-    basis, mem, hp, tms, op, hn = m.groups()
+    basis, mem, hp, tms, pri, hn = m.groups()
     # '-hn': HalfNormal rather than HalfCauchy on every group SD. Set
     # explicitly either way — GROUP_SD_DIST is module-level state, so a
     # script that builds several models in one process must not inherit it.
@@ -431,9 +431,14 @@ def _build_lfx_grid(model_label, df):
                     _stim('perceptual_noise_sd', 'memory_noise_sd')),
         spline_order=(mem_df, perc_df),
         memory_model='shared_perceptual_noise',
-        # '-op': observer prior pinned at the log-payoff statistics rather
-        # than four free (risky/safe) x (mu/sd) parameters.
-        prior_estimate='objective' if op else 'full',
+        # Prior block: 'full' = four free (risky/safe) x (mu/sd) params,
+        # each hierarchical. '-sp' = one prior shared across the two roles
+        # (2 params, subject variation kept). '-op' = pinned at the
+        # log-payoff statistics, no free params and no subject variation --
+        # which converges instantly but costs 580 +- 31 ELPD, so it is a
+        # diagnostic, not a candidate.
+        prior_estimate=({'-op': 'objective', '-sp': 'shared'}[pri]
+                        if pri else 'full'),
         spline_basis='cr' if basis == 'cr3' else 'bs',
         spline_degree=2 if basis == 'bs2' else 3,
     )
