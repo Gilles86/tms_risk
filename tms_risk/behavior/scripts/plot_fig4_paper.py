@@ -135,14 +135,27 @@ def s_get(sub, var, reg):
     return q.sort_values('draw')['value'].values
 
 
-def curves(noise, vertex):
+def _pre(noise, vertex):
+    """Pre-softplus spline contribution, (subject, draw, grid)."""
     spl = sorted(v for v in subj['var'].unique()
                  if v.startswith(noise + '_spline') and not v.endswith('_offset'))
     bas = np.asarray(model.make_dm(N_GRID, variable=noise))[:, :len(spl)]
     regs = ['Intercept'] + ([VC] if vertex else [])
     coef = np.stack([np.stack([sum(s_get(sub, v, rg) for rg in regs)
                                for v in spl], 1) for sub in SUBS], 0)
-    return softplus(np.einsum('sdj,gj->sdg', coef, bas)).mean(0)
+    return np.einsum('sdj,gj->sdg', coef, bas)
+
+
+def curves(noise, vertex):
+    return softplus(_pre(noise, vertex)).mean(0)
+
+
+def nu1(vertex):
+    """Total noise on the FIRST-presented option: softplus(perceptual +
+    memory), matching bauer's _get_trialwise_evidence_sd -- NOT the sum of
+    the two softplus curves."""
+    return softplus(_pre('perceptual_noise_sd', vertex)
+                    + _pre('memory_noise_sd', vertex)).mean(0)
 
 
 CH = [('memory_noise_sd', 'Memory', C_MEM, '-'),
@@ -192,7 +205,16 @@ for noise, nm, colr, ls in CH:
     rel = store[(noise, False)] - store[(noise, True)]
     band(ax, rel, colr, alpha=.13, ls=ls)
     ax.plot([], [], color=colr, ls=ls, lw=1.3, label=nm)
-ax.legend(loc='lower left', fontsize=6.5, handlelength=1.6)
+rel_tot = nu1(False) - nu1(True)
+band(ax, rel_tot, '.15', alpha=.16, ls='-')
+ax.plot([], [], color='.15', lw=1.6, label='Total, first option')
+ax.legend(loc='lower left', fontsize=6.3, handlelength=1.6)
+_lo, _hi = 7.001, 28.0
+_sel = (N_GRID >= _lo) & (N_GRID <= _hi)
+_m = rel_tot[:, _sel].mean(1)
+ax.text(.03, .97, f'Total, 7–28 CHF:  P(>0) = {float((_m > 0).mean()):.2f}',
+        transform=ax.transAxes, fontsize=6.5, va='top', color='.15')
+ax.axvspan(_lo, _hi, color='.92', zorder=0)
 logx(ax)
 ax.set_ylabel('Δ noise SD, IPS − vertex\n(log units)', fontsize=7.5)
 ax.set_title('Effect of cTBS', fontsize=8.5, **BOLD)

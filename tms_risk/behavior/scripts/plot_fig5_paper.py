@@ -89,9 +89,25 @@ def coefs_all(term, reg):
 
 SC = {(t, r): coefs_all(t, r).astype(np.float32)
       for t in ('perceptual', 'memory') for r in ('Intercept', VC)}
-PRIOR = {v: np.stack([s_get(sub, v) for sub in SUBS], 0).astype(np.float32)
-         for v in ('risky_prior_mu', 'risky_prior_sd',
-                   'safe_prior_mu', 'safe_prior_sd')}
+def _prior(v):
+    if v not in set(subj['var']):
+        return None
+    return np.stack([s_get(sub, v) for sub in SUBS], 0).astype(np.float32)
+
+
+# Prior SDs may be pinned (prior_estimate='fix_prior_sd'/'fix_safe_prior_sd'),
+# in which case they are absent from the trace: fall back to the model's
+# fixed value, which is already on the SD scale (no softplus).
+PRIOR = {}
+for _role in ('risky', 'safe'):
+    PRIOR[f'{_role}_prior_mu'] = _prior(f'{_role}_prior_mu')
+    _sd = _prior(f'{_role}_prior_sd')
+    if _sd is None:
+        _fx = model._fixed_prior_sds()[0 if _role == 'risky' else 1]
+        PRIOR[f'{_role}_prior_sd_t'] = np.full_like(
+            PRIOR[f'{_role}_prior_mu'], _fx)
+    else:
+        PRIOR[f'{_role}_prior_sd_t'] = softplus(_sd)
 
 
 def nu(n, first, vertex):
@@ -115,7 +131,7 @@ def nu(n, first, vertex):
 
 def percept(n, first, role, vertex):
     mu = PRIOR[f'{role}_prior_mu'][:, :N_DR, None]
-    sd = softplus(PRIOR[f'{role}_prior_sd'][:, :N_DR, None])
+    sd = PRIOR[f'{role}_prior_sd_t'][:, :N_DR, None]
     v = nu(n, first, vertex)
     w = sd ** 2 / (sd ** 2 + v ** 2)
     return w * np.log(n)[None, None, :] + (1 - w) * mu, v, w

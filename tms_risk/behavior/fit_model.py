@@ -417,7 +417,7 @@ def _build_lfx_grid(model_label, df):
     for the 2026-08 cluster sweep).
     """
     import re
-    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3|w)-(dp|tp)-(null|b|bm)'
+    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3|w|sd2|sd3|sd5)-(dp|tp)-(null|b|bm|t)'
                      r'(-op|-sp|-fs|-f1)?(-hn)?', model_label)
     if not m:
         raise Exception(f'Bad lfx2 grid label: {model_label!r}')
@@ -433,15 +433,24 @@ def _build_lfx_grid(model_label, df):
     # single coefficient — the maximally-powered test of "cTBS raises
     # noise", at the cost of the magnitude dependence the flexible cells
     # need to reproduce the order asymmetry.
-    mem_df = {'sm': 1, 'm2': 2, 'm3': 3, 'fm': 5, 'w': 1}[mem]
+    # sd2/sd3/sd5: sum/difference rotation of the shared-noise model -- fit
+    # total and split noise instead of perceptual and memory. The digit is
+    # the split-function df; total always gets 5.
+    sumdiff = mem.startswith('sd')
+    mem_df = ({'sm': 1, 'm2': 2, 'm3': 3, 'fm': 5, 'w': 1}[mem] if not sumdiff
+              else int(mem[2]))
     perc_df = 1 if mem == 'w' else 5
     model = LogFlexibleNoiseRiskRegressionModel(
         df,
         regressors=({} if tms == 'null' else
+                    # 't': cTBS on TOTAL noise only -- a restriction of 'bm',
+                    # one effect function, no channel ambiguity.
+                    _stim('total_noise_sd') if tms == 't' else
+                    _stim('total_noise_sd', 'split_noise_sd') if sumdiff else
                     _stim('perceptual_noise_sd') if tms == 'b' else
                     _stim('perceptual_noise_sd', 'memory_noise_sd')),
         spline_order=(mem_df, perc_df),
-        memory_model='shared_perceptual_noise',
+        memory_model='sum_difference' if sumdiff else 'shared_perceptual_noise',
         # Prior block: 'full' = four free (risky/safe) x (mu/sd) params,
         # each hierarchical. '-sp' = one prior shared across the two roles
         # (2 params, subject variation kept). '-op' = pinned at the
