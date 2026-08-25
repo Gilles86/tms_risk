@@ -418,7 +418,7 @@ def _build_lfx_grid(model_label, df):
     """
     import re
     m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3|w)-(dp|tp)-(null|b|bm)'
-                     r'(-op|-sp)?(-hn)?', model_label)
+                     r'(-op|-sp|-fs)?(-hn)?', model_label)
     if not m:
         raise Exception(f'Bad lfx2 grid label: {model_label!r}')
     basis, mem, hp, tms, pri, hn = m.groups()
@@ -448,7 +448,8 @@ def _build_lfx_grid(model_label, df):
         # log-payoff statistics, no free params and no subject variation --
         # which converges instantly but costs 580 +- 31 ELPD, so it is a
         # diagnostic, not a candidate.
-        prior_estimate=({'-op': 'objective', '-sp': 'shared'}[pri]
+        prior_estimate=({'-op': 'objective', '-sp': 'shared',
+                         '-fs': 'fix_prior_sd'}[pri]
                         if pri else 'full'),
         spline_basis='cr' if basis == 'cr3' else 'bs',
         spline_degree=2 if basis == 'bs2' else 3,
