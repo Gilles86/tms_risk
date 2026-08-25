@@ -72,7 +72,14 @@ from tms_risk.utils.data import get_all_behavior
 
 
 def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
-         backend=None, out_folder=None):
+         backend=None, out_folder=None, group_sd=None, target_accept=None):
+
+    # Group-SD prior family, applied to every hierarchical node of whatever
+    # model follows. HalfNormal clips the fat tail that creates a
+    # group-SD/subject-offset funnel (dyscalculic_ddm lesson 2, after Gelman).
+    if group_sd is not None:
+        from bauer import core as _bauer_core
+        _bauer_core.GROUP_SD_DIST = group_sd
 
     df = get_data(bids_folder, model_label=model_label)
 
@@ -80,6 +87,7 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
     target_folder.mkdir(parents=True, exist_ok=True)
 
     is_accumulator = model_label.startswith('ddm_') or model_label.startswith('rdm_')
+    target_accept_override = target_accept
 
     # DDM/RDM fits use the recipe from bauer's
     # notes/tms_risk_ddm_fitting_brief.md: numpyro backend, tune=2000,
@@ -110,6 +118,9 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
         samples = samples or 5000
         backend = backend or 'pymc'
         target_accept = 0.8
+
+    if target_accept_override is not None:
+        target_accept = target_accept_override
 
     model = build_model(model_label, df)
     model.build_estimation_model()
@@ -755,10 +766,15 @@ if __name__ == '__main__':
                         help='tuning draws (default: per-family recipe)')
     parser.add_argument('--samples', type=int, default=None,
                         help='post-warmup draws (default: per-family recipe)')
+    parser.add_argument('--group_sd', default=None,
+                        choices=['halfcauchy', 'halfnormal'],
+                        help='prior family for every group SD')
+    parser.add_argument('--target_accept', type=float, default=None)
     parser.add_argument('--out_folder', default=None,
                         help='derivatives subfolder for the trace '
                              '(default: cogmodels)')
     args = parser.parse_args()
     main(args.model_label, bids_folder=args.bids_folder,
          burnin=args.burnin, samples=args.samples,
+         group_sd=args.group_sd, target_accept=args.target_accept,
          out_folder=args.out_folder)

@@ -60,7 +60,7 @@ N_GRID = np.exp(np.linspace(np.log(7 + 1e-6), np.log(112 - 1e-6), 80))
 
 # ---------------------------------------------------------------- panel A --
 MODELS = [('ppc_by_stake.weber2nf.tsv', 'Weber PMC\n(constant noise)'),
-          ('ppc_by_stake.flexible2nf.tsv', 'Flexible PMC\n(natural space)'),
+          ('ppc_by_stake.flexible2nf.tsv', 'Flexible PMC, natural space\n(TMS: perceptual + memory)'),
           (ARGS.ppc, ARGS.name.replace(' (', '\n('))]
 frames = {i: pd.read_csv(DATA / f, sep='\t') for i, (f, _) in enumerate(MODELS)}
 allv = pd.concat(frames.values())
