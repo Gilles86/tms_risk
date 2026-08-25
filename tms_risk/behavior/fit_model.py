@@ -331,8 +331,9 @@ def _build_accumulator_logflex(model_label, df):
     # '_hn': HalfNormal instead of HalfCauchy on ALL group SDs (kills the
     # fat-tail funnel; dyscalculic_ddm lesson 2). Global switch in
     # bauer.core, so it applies to every hierarchical node of this model.
+    from bauer import core as _bauer_core
+    _bauer_core.GROUP_SD_DIST = 'halfcauchy'
     if rest.endswith('_hn'):
-        from bauer import core as _bauer_core
         _bauer_core.GROUP_SD_DIST = 'halfnormal'
         rest = rest[:-len('_hn')]
     # '_wd1' (race only): pin the evidence-to-drift gain w_d = 1, breaking
@@ -406,10 +407,15 @@ def _build_lfx_grid(model_label, df):
     """
     import re
     m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3|w)-(dp|tp)-(null|b|bm)'
-                     r'(-op)?', model_label)
+                     r'(-op)?(-hn)?', model_label)
     if not m:
         raise Exception(f'Bad lfx2 grid label: {model_label!r}')
-    basis, mem, hp, tms, op = m.groups()
+    basis, mem, hp, tms, op, hn = m.groups()
+    # '-hn': HalfNormal rather than HalfCauchy on every group SD. Set
+    # explicitly either way — GROUP_SD_DIST is module-level state, so a
+    # script that builds several models in one process must not inherit it.
+    from bauer import core as _bauer_core
+    _bauer_core.GROUP_SD_DIST = 'halfnormal' if hn else 'halfcauchy'
     # memory-spline df ladder: sm=1 (scalar), m2=2 (linear in log n),
     # m3=3 (quadratic), fm=5. spline_order = (memory, perceptual).
     # 'w' = log-space Weber: BOTH noises scalar, so each TMS lever is a
