@@ -299,10 +299,19 @@ def _build_accumulator_logflex(model_label, df):
     # 'm2' = linear memory noise in log payoff, 'm3' = quadratic. Kills the
     # 5-df memory-spline hyperprior funnel that broke the first RT wave
     # (0/6 converged, worst r-hats on memory_noise_sd_spline*_sd).
-    mem_df = 5
+    mem_df, perc_df = 5, 5
     if rest[:2] in ('m2', 'm3'):
         mem_df = int(rest[1])
         rest = rest[2:]
+    elif rest[:1] == 'w':
+        # 'w' = log-space Weber: BOTH noise channels scalar. The chain
+        # diagnostic on the m2 op fits put the residual pathology in the
+        # 5-df perceptual spline's adjacent-coefficient collinearity
+        # (r = -0.60 to -0.70), not in the priors/w_d/SD tails that the
+        # earlier arms fixed. Scalar noise removes it, and matches the
+        # dyscalculic_ddm spec that converged.
+        mem_df, perc_df = 1, 1
+        rest = rest[1:]
     # '_op': objective priors — pin the observer's prior at the log-payoff
     # statistics, removing the prior block (and its hyperprior funnel, the
     # worst-mixing parameters of the m2 RT wave) from the fit entirely.
@@ -342,7 +351,7 @@ def _build_accumulator_logflex(model_label, df):
 
     from bauer.models import (DDMLogFlexibleNoiseRiskRegressionModel,
                               RaceDiffusionLogFlexibleNoiseRiskRegressionModel)
-    spline_order = (mem_df, 5)
+    spline_order = (mem_df, perc_df)
     prior_estimate = 'objective' if obj_prior else 'full'
     if kind == 'ddm':
         model = DDMLogFlexibleNoiseRiskRegressionModel(
