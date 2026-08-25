@@ -39,16 +39,21 @@ PASS, FAIL = '#2c7a52', '#b0453b'
 BOLD = dict(fontweight='bold', fontfamily='Arial')
 ORDERS = ['Risky first', 'Risky second']
 
-TRIO = [('lfx2-bs3-m2-dp-null', 'cTBS changes nothing', 'lfx2-bs3-m2-dp-null'),
-        ('lfx2-bs3-w-dp-bm', 'Noise the same at every payoff',
-         'lfx2-bs3-w-dp-bm  (Weber)'),
-        ('lfx2-bs3-m2-dp-bm', 'Noise grows with payoff, cTBS on both channels',
+TRIO = [('lfx2-bs3-m2-dp-null', 'cTBS changes nothing',
+         'Noise free to vary with payoff; no stimulation term',
+         'lfx2-bs3-m2-dp-null'),
+        ('lfx2-bs3-w-dp-bm', 'Relative noise constant (Weber)',
+         'SD proportional to payoff; cTBS may rescale it',
+         'lfx2-bs3-w-dp-bm'),
+        ('lfx2-bs3-m2-dp-bm', 'Relative noise varies with payoff',
+         'SD-to-payoff ratio free; cTBS on memory + perception',
          'lfx2-bs3-m2-dp-bm  (primary)')]
 
 fig = plt.figure(figsize=(7.25, 8.6))
 
 # ================================================================ panel A ==
-byst = {k: pd.read_csv(DATA / f'ppc_by_stake.{k}.tsv', sep='\t') for k, _, _ in TRIO}
+byst = {k: pd.read_csv(DATA / f'ppc_by_stake.{k}.tsv', sep='\t')
+        for k, _, _, _ in TRIO}
 allv = pd.concat(byst.values())
 stakes = np.sort(allv.stake.unique())
 x = np.arange(len(stakes))
@@ -58,7 +63,7 @@ ylo, yhi = min(allv.lo.min(), allv.observed.min()) - .015, \
 SPANS = [(.075, .345), (.395, .665), (.715, .985)]
 gs_a = [fig.add_gridspec(1, 2, left=l, right=r, wspace=.1, top=.900, bottom=.748)
         for l, r in SPANS]
-for m, (key, name, coord) in enumerate(TRIO):
+for m, (key, name, sub, coord) in enumerate(TRIO):
     d, nmiss = byst[key], 0
     for o, order in enumerate(ORDERS):
         ax = fig.add_subplot(gs_a[m][0, o])
@@ -92,23 +97,24 @@ for m, (key, name, coord) in enumerate(TRIO):
         else:
             ax.set_yticklabels([])
     l, r = SPANS[m]
-    fig.text((l + r) / 2, .958, name, ha='center', fontsize=8, **BOLD)
-    fig.text((l + r) / 2, .940, coord, ha='center', fontsize=6, color='.5',
+    fig.text((l + r) / 2, .962, name, ha='center', fontsize=8, **BOLD)
+    fig.text((l + r) / 2, .945, sub, ha='center', fontsize=6.4, color='.35')
+    fig.text((l + r) / 2, .930, coord, ha='center', fontsize=5.8, color='.6',
              family='monospace')
-    fig.text((l + r) / 2, .921,
+    fig.text((l + r) / 2, .914,
              f'{nmiss} of 12 cells missed', ha='center', fontsize=7,
              color=(FAIL if nmiss else PASS))
     fig.text((l + r) / 2, .707, 'Stake (CHF)', ha='center', fontsize=8)
 
 # ================================================================ panel B ==
 dlt = {k: pd.read_csv(DATA / f'ppc_delta_by_stake.{k}.tsv', sep='\t')
-       for k, _, _ in TRIO}
+       for k, _, _, _ in TRIO}
 alld = pd.concat(dlt.values())
 elo = min(alld.lo.min(), (alld.obs - alld.obs_sem).min()) - .012
 ehi = max(alld.hi.max(), (alld.obs + alld.obs_sem).max()) + .012
 gs_b = [fig.add_gridspec(1, 2, left=l, right=r, wspace=.1, top=.628, bottom=.475)
         for l, r in SPANS]
-for m, (key, name, _) in enumerate(TRIO):
+for m, (key, name, _, _c) in enumerate(TRIO):
     e = dlt[key]
     ncov = int(((e.obs >= e.lo) & (e.obs <= e.hi)).sum())
     for o, order in enumerate(ORDERS):
@@ -138,20 +144,20 @@ for m, (key, name, _) in enumerate(TRIO):
 
 # ================================================================ panel C ==
 ROWS = [  # (plain name, coordinate, elpd, converged, delta-ppc cells)
-    ('Noise grows with payoff · cTBS on memory + perception',
+    ('Relative noise varies with payoff · cTBS on memory + perception',
      'lfx2-bs3-m2-dp-bm', -4149.0, True, 6),
-    ('Noise grows with payoff · cTBS on perception only',
+    ('Relative noise varies with payoff · cTBS on perception only',
      'lfx2-bs2-m3-dp-b', -4153.2, True, 4),
-    ('Noise grows with payoff · cTBS on both (quadratic memory)',
+    ('Relative noise varies with payoff · cTBS on both (quadratic memory)',
      'lfx2-bs2-m3-dp-bm', -4155.0, True, 6),
     ('Published model, natural space · cTBS on both',
      'flexible2', -4161.0, False, 6),
-    ('Noise the same at every payoff · cTBS on both',
+    ('Relative noise constant (Weber) · cTBS on both',
      'lfx2-bs3-w-dp-bm', -4195.1, True, 4),
     ('Published model, natural space · cTBS on memory only',
      'flexible2a', -4217.5, True, 6),
     ('cTBS changes nothing', 'lfx2-bs3-m2-dp-null', -4245.3, True, 4),
-    ('cTBS changes nothing · noise the same at every payoff',
+    ('cTBS changes nothing · relative noise constant (Weber)',
      'lfx2-bs3-w-dp-null', -4264.2, True, 4),
     ('cTBS changes nothing · natural space', 'flexible2_null', -4271.4, True, None),
 ]
@@ -219,8 +225,9 @@ for i, (c, mk, filled, txt) in enumerate(items):
 leg.text(0, .49, 'Blue arrows', fontsize=6.8, va='top', color='#33619e',
          transform=leg.transAxes, **BOLD)
 leg.text(0, .43,
-         'The two comparisons that carry the\nargument: noise must grow with\n'
-         'payoff (46 nats), and cTBS must be\nallowed to change it (96 nats).',
+         'The two comparisons that carry the\nargument. 46 nats: relative noise must\n'
+         'vary with payoff — Weber scaling\n(σ ∝ n) is not enough. 96 nats: cTBS\n'
+         'must be allowed to change the noise.',
          fontsize=6.5, va='top', color='.25', transform=leg.transAxes)
 leg.text(0, .245,
          'Every model shown fits a Bayesian prior over\npayoffs. Pinning it at the payoff statistics\n'
@@ -233,7 +240,7 @@ leg.text(0, .125,
 
 for xf, yf, t in [(.012, .980, 'A'), (.012, .680, 'B'), (.012, .392, 'C')]:
     fig.text(xf, yf, t, fontsize=12, va='bottom', ha='left', **BOLD)
-fig.text(.040, .982, 'Does the model reproduce the choices?', fontsize=8.5,
+fig.text(.040, .986, 'Does the model reproduce the choices?', fontsize=8.5,
          color='.25', style='italic', va='bottom')
 fig.text(.040, .682, 'Does it reproduce the EFFECT of stimulation?',
          fontsize=8.5, color='.25', style='italic', va='bottom')
