@@ -225,17 +225,17 @@ for i, (c, mk, filled, txt) in enumerate(items):
 leg.text(0, .49, 'Blue arrows', fontsize=6.8, va='top', color='#33619e',
          transform=leg.transAxes, **BOLD)
 leg.text(0, .43,
-         'The two comparisons that carry the\nargument. 46 nats: relative noise must\n'
-         'vary with payoff — Weber scaling\n(σ ∝ n) is not enough. 96 nats: cTBS\n'
-         'must be allowed to change the noise.',
+         '46 nats: the noise-to-payoff ratio must\nvary with payoff — noise merely\n'
+         'proportional to payoff (Weber) is not\nenough.\n'
+         '96 nats: cTBS must be allowed to\nchange the noise at all.',
          fontsize=6.5, va='top', color='.25', transform=leg.transAxes)
-leg.text(0, .245,
-         'Every model shown fits a Bayesian prior over\npayoffs. Pinning it at the payoff statistics\n'
-         'instead costs a further 583 ± 31 nats.',
+leg.text(0, .195,
+         'Every model shown fits a Bayesian prior over\npayoffs; pinning it at the payoff statistics\n'
+         'costs a further 583 ± 31 nats.',
          fontsize=6.2, va='top', color='.45', transform=leg.transAxes)
-leg.text(0, .125,
-         'Bands are 95% posterior-predictive intervals from\n200 draws, computed per subject and averaged\n'
-         'across the 35 subjects within draw. Error bars on\nthe data are ±1 SEM.',
+leg.text(0, .085,
+         'Bands: 95% posterior-predictive intervals from 200\ndraws, computed per subject then averaged across\n'
+         'the 35 subjects within draw. Data: ±1 SEM.',
          fontsize=6.2, va='top', color='.45', transform=leg.transAxes)
 
 for xf, yf, t in [(.012, .980, 'A'), (.012, .680, 'B'), (.012, .392, 'C')]:
