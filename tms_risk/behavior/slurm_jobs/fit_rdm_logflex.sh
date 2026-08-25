@@ -1,14 +1,23 @@
 #!/bin/bash
 #SBATCH --job-name=rdmlogflex
 #SBATCH --account=zne.uzh
-#SBATCH --partition=lowprio
+#SBATCH --partition=standard
 #SBATCH --gres=gpu:L4:1
-#SBATCH --time=06:00:00
+#SBATCH --time=02:30:00
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
 #SBATCH --array=1-6
 #SBATCH --output=/home/gdehol/logs/rdmlogflex_%A_%a.txt
 
+# Partition: `standard`, NOT `lowprio`. These fits are GPU-bound and short,
+# which is lowprio's nominal use case, but they are NOT resumable — a
+# preemption throws away up to an hour of sampling. `standard` also has 8
+# dedicated L4 nodes (u24-cva0ls0-509..516), so GPU capacity is not the
+# constraint. Walltime is ~2x the observed 50-90 min runtime; fair-share
+# favours tight requests (observed 2026-08-25: both arrays sat PENDING on
+# lowprio with reason Priority/Resources and became eligible immediately
+# after `scontrol update Partition=standard TimeLimit=02:30:00`).
+#
 # Accumulator (DDM/RDM) x log-space flexible PMC — the magnitude->RT program
 # (notes/rdm_magnitude_rt_plan.md). numpyro on one L4, vectorized chains,
 # tune=2000/draws=1000/target_accept=0.99 + mapjitter via fit_model's
