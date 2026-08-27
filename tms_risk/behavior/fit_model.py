@@ -48,9 +48,20 @@ from bauer.models import (
     RiskModel,
     RiskRegressionModel,
     FlexibleNoiseRiskRegressionModel,
-    PowerLawNoiseRiskRegressionModel,
-    LogFlexibleNoiseRiskRegressionModel,
 )
+# The log-space and power-law front-ends postdate the bauer checkout that produced the
+# natural-space `*_noisefix.head` traces, and `fit_pmc_noisefix.py` imports `get_data`
+# from this module -- so an unguarded import here makes every natural-space refit
+# impossible against the very bauer those traces were fit with. Guarded like the
+# DDM/Race imports below, for the same reason.
+try:
+    from bauer.models import (
+        PowerLawNoiseRiskRegressionModel,
+        LogFlexibleNoiseRiskRegressionModel,
+    )
+except ImportError:
+    PowerLawNoiseRiskRegressionModel = None
+    LogFlexibleNoiseRiskRegressionModel = None
 try:
     from bauer.models import (
         DDMFlexibleNoiseRiskRegressionModel,

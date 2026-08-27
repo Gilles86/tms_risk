@@ -59,18 +59,26 @@ softplus = lambda x: np.logaddexp(0, x)
 N_GRID = np.exp(np.linspace(np.log(7 + 1e-6), np.log(112 - 1e-6), 80))
 
 # ---------------------------------------------------------------- panel A --
-MODELS = [('ppc_by_stake.weber2nf.tsv', 'Weber PMC\n(constant noise)'),
-          ('ppc_by_stake.flexible2nf.tsv', 'Flexible PMC, natural space\n(TMS: perceptual + memory)'),
-          (ARGS.ppc, ARGS.name.replace(' (', '\n('))]
+# Panel A shows the cTBS CONTRAST, not the two conditions separately. Overlapping
+# P(chose risky) curves hide a 0.06 effect inside two 0.1-wide bands; the difference
+# against zero is the quantity the claim is actually about, and it is what separates
+# the models. All three are log-space, so the comparison isolates what the flexible
+# noise function and the cTBS term each buy, rather than confounding it with scale.
+MODELS = [('ppc_delta_by_stake.lfx2-bs3-w-dp-bm.tsv',
+           'Log-Weber PMC\n(constant noise)'),
+          ('ppc_delta_by_stake.lfx2-bs3-m2-dp-null.tsv',
+           'Log-flexible PMC\n(no cTBS effect)'),
+          (f'ppc_delta_by_stake.{ARGS.label}.tsv',
+           ARGS.name.replace(' (', '\n('))]
 frames = {i: pd.read_csv(DATA / f, sep='\t') for i, (f, _) in enumerate(MODELS)}
 allv = pd.concat(frames.values())
-ylo = min(allv.lo.min(), allv.observed.min()) - .012
-yhi = max(allv.hi.max(), allv.observed.max()) + .012
+ylo = min(allv.lo.min(), allv.obs.min()) - .012
+yhi = max(allv.hi.max(), allv.obs.max()) + .012
 stakes = np.sort(allv.stake.unique())
 x = np.arange(len(stakes))
 
 fig = plt.figure(figsize=(7.25, 5.1))
-gs_a = [fig.add_gridspec(1, 2, left=l, right=r, wspace=.12, top=.88, bottom=.60)
+gs_a = [fig.add_gridspec(1, 2, left=l, right=r, wspace=.12, top=.855, bottom=.60)
         for l, r in [(.065, .345), (.39, .67), (.715, .995)]]
 axes_a = []
 for m in range(3):
@@ -81,44 +89,40 @@ for m, (fname, name) in enumerate(MODELS):
     d = frames[m]
     for o, order in enumerate(ORDERS):
         ax = axes_a[2 * m + o]
-        for stim, colr in [('vertex', VERTEX), ('ips', IPS)]:
-            s = d[(d.order == order) & (d.stim == stim)].sort_values('stake')
-            ax.fill_between(x, s.lo, s.hi, color=colr, alpha=.20, lw=0, zorder=1)
-            ax.plot(x, s['mean'], color=colr, lw=1.2, zorder=2)
-            dx = .06 if stim == 'ips' else -.06
-            ax.plot(x + dx, s.observed, 'o', color=colr, ms=3.6, lw=0, zorder=4)
-            for _, r in s.iterrows():
-                if r.lo <= r.observed <= r.hi:
-                    continue
-                xi = float(x[np.argmin(np.abs(stakes - r.stake))]) + dx
-                ax.annotate('', xy=(xi, r.observed), xycoords='data',
-                            xytext=(-14, 12 if r.observed > r.hi else -12),
-                            textcoords='offset points', zorder=6,
-                            arrowprops=dict(arrowstyle='-|>', color='.1', lw=.9,
-                                            shrinkA=0, shrinkB=3.5,
-                                            mutation_scale=6))
-                misses[m] = misses.get(m, 0) + 1
+        s_ = d[d.order == order].sort_values('stake')
+        ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
+        ax.fill_between(x, s_.lo, s_.hi, color='.45', alpha=.22, lw=0, zorder=1)
+        ax.plot(x, s_['median'], color='.25', lw=1.3, zorder=2)
+        ax.plot(x, s_.obs, 'o', color=IPS, ms=4.2, lw=0, zorder=4)
+        for xi, (_, r) in zip(x, s_.iterrows()):
+            if r.lo <= r.obs <= r.hi:
+                continue
+            ax.annotate('', xy=(xi, r.obs), xycoords='data',
+                        xytext=(-13, 11 if r.obs > r.hi else -11),
+                        textcoords='offset points', zorder=6,
+                        arrowprops=dict(arrowstyle='-|>', color='.1', lw=.9,
+                                        shrinkA=0, shrinkB=3.5, mutation_scale=6))
+            misses[m] = misses.get(m, 0) + 1
         ax.set_ylim(ylo, yhi)
         ax.set_xlim(-.42, len(stakes) - .58)
         ax.set_xticks(x)
         ax.set_xticklabels([f'{v:.0f}' for v in stakes])
-        ax.set_yticks([.5, .55, .6, .65])
         ax.set_title(order, fontsize=7, color='.3', pad=3, style='italic')
         if 2 * m + o == 0:
-            ax.set_ylabel('P(chose risky)')
-            ax.text(.06, .96, 'IPS', transform=ax.transAxes, fontsize=7,
+            ax.set_ylabel('\u0394 P(chose risky)\nIPS \u2212 vertex', fontsize=7.5)
+            ax.text(.05, .96, 'Observed', transform=ax.transAxes, fontsize=6.5,
                     color=IPS, va='top')
-            ax.text(.06, .84, 'Vertex', transform=ax.transAxes, fontsize=7,
-                    color=VERTEX, va='top')
+            ax.text(.05, .84, 'Model', transform=ax.transAxes, fontsize=6.5,
+                    color='.25', va='top')
         else:
             ax.set_yticklabels([])
 for m, (gsx, (fname, name)) in enumerate(zip(gs_a, MODELS)):
     l, r = gsx.left, gsx.right
     n = misses.get(m, 0)
-    fig.text((l + r) / 2, .935, name.replace('\n', ' '), ha='center',
-             fontsize=8.5, color='.1', **BOLD)
-    fig.text((l + r) / 2, .905, f'{n} miss' + ('es' if n != 1 else '')
-             + ' of 12', ha='center', fontsize=7,
+    fig.text((l + r) / 2, .985, name, ha='center', va='top', linespacing=1.35,
+             fontsize=8, color='.1', **BOLD)
+    fig.text((l + r) / 2, .878, f'{n} miss' + ('es' if n != 1 else '') + ' of 6',
+             ha='center', fontsize=7,
              color=('#b0453b' if n else '#2c7a52'))
     fig.text((l + r) / 2, .525, 'Stake (CHF)', ha='center', fontsize=8)
 
@@ -162,8 +166,8 @@ CH = [('memory_noise_sd', 'Memory', C_MEM, '-'),
       ('perceptual_noise_sd', 'Perceptual', C_PERC, '--')]
 store = {(n, v): curves(n, v) for n, _, _, _ in CH for v in (False, True)}
 
-gs_b = fig.add_gridspec(1, 3, left=.075, right=.985, top=.40, bottom=.09,
-                        wspace=.46)
+gs_b = fig.add_gridspec(1, 4, left=.075, right=.985, top=.40, bottom=.09,
+                        wspace=.55)
 
 
 def logx(ax):
@@ -185,49 +189,51 @@ def band(ax, y, color, alpha=.13, ls='-'):
     return med
 
 
-ax = fig.add_subplot(gs_b[0, 0])
-for noise, nm, _, ls in CH:
+# Memory and perceptual noise live an order of magnitude apart (memory ~0.7-1.1,
+# perceptual ~0.15-0.3 log units), so a shared axis flattens the perceptual curve
+# into a line at the floor and hides its cTBS effect entirely. One panel each.
+for col, (noise, nm, _c, _ls) in enumerate(CH):
+    ax = fig.add_subplot(gs_b[0, col])
     for vertex, colr in [(True, VERTEX), (False, IPS)]:
-        med = band(ax, store[(noise, vertex)], colr, alpha=.10, ls=ls)
-    ax.text(N_GRID[3], med[3] + (.07 if 'memory' in noise else .05), nm,
-            fontsize=6.5, color='.25')
-logx(ax)
-ax.set_ylabel('Noise SD (log units)')
-ax.set_title('Noise by magnitude', fontsize=8.5, **BOLD)
-ax.text(.97, .97, 'IPS', transform=ax.transAxes, fontsize=7, color=IPS,
-        ha='right', va='top')
-ax.text(.97, .86, 'Vertex', transform=ax.transAxes, fontsize=7, color=VERTEX,
-        ha='right', va='top')
+        band(ax, store[(noise, vertex)], colr, alpha=.13, ls='-')
+    logx(ax)
+    ax.set_ylabel('Noise SD (log units)')
+    ax.set_title(f'{nm} noise', fontsize=8.5, **BOLD)
+    if col == 0:
+        ax.text(.97, .97, 'IPS', transform=ax.transAxes, fontsize=7, color=IPS,
+                ha='right', va='top')
+        ax.text(.97, .85, 'Vertex', transform=ax.transAxes, fontsize=7,
+                color=VERTEX, ha='right', va='top')
 
-ax = fig.add_subplot(gs_b[0, 1])
+# The cTBS panel shows the TOTAL only. Per-channel differences are ten times
+# wider than the effect being claimed -- the memory channel has 2 df and is
+# identified only through the first-presented option -- so plotting them here
+# reads as "no effect" regardless of what the integrated posterior says.
+ax = fig.add_subplot(gs_b[0, 2])
 ax.axhline(0, color='.7', lw=.7, ls='--', zorder=0)
-for noise, nm, colr, ls in CH:
-    rel = store[(noise, False)] - store[(noise, True)]
-    band(ax, rel, colr, alpha=.13, ls=ls)
-    ax.plot([], [], color=colr, ls=ls, lw=1.3, label=nm)
 rel_tot = nu1(False) - nu1(True)
 band(ax, rel_tot, '.15', alpha=.16, ls='-')
-ax.plot([], [], color='.15', lw=1.6, label='Total, first option')
-ax.legend(loc='lower left', fontsize=6.3, handlelength=1.6)
 _lo, _hi = 7.001, 28.0
 _sel = (N_GRID >= _lo) & (N_GRID <= _hi)
 _m = rel_tot[:, _sel].mean(1)
-ax.text(.03, .97, f'Total, 7–28 CHF:  P(>0) = {float((_m > 0).mean()):.2f}',
-        transform=ax.transAxes, fontsize=6.5, va='top', color='.15')
-ax.axvspan(_lo, _hi, color='.92', zorder=0)
+_med, _q = float(np.median(_m)), np.percentile(_m, [2.5, 97.5])
+ax.axvspan(_lo, _hi, color='.93', zorder=0)
+ax.text(.03, .97,
+        f'7-28 CHF: {_med:+.3f}\n[{_q[0]:+.3f}, {_q[1]:+.3f}]\nP(>0) = {float((_m > 0).mean()):.2f}',
+        transform=ax.transAxes, fontsize=6.4, va='top', color='.15',
+        linespacing=1.35)
 logx(ax)
-ax.set_ylabel('Δ noise SD, IPS − vertex\n(log units)', fontsize=7.5)
-ax.set_title('Effect of cTBS', fontsize=8.5, **BOLD)
+ax.set_ylabel('\u0394 noise SD (log units)', fontsize=7.5)
+ax.set_title('cTBS effect, total noise', fontsize=8.5, **BOLD)
 
-# ELPDs verified against notes/data/{lfx_verdicts,power_vs_flexible_ladder}.tsv
-ax = fig.add_subplot(gs_b[0, 2])
+# ELPDs from notes/data/ladder_v11.tsv (paired dSE, identical 8335 trials).
+ax = fig.add_subplot(gs_b[0, 3])
 rows = [('Log-flex, TMS perc. (bs2-m2-b)', -4148.6, 'fail', False),
-        ('Log-flex, TMS both — PRIMARY', -4149.0, 'pass', True),
+        ('Log-flex, TMS both \u2014 PRIMARY', -4149.0, 'pass', True),
         ('Log-flex, TMS both (bs2-m3-bm)', -4155.0, 'pass', False),
-        ('Flexible PMC, TMS perc.', -4157.5, None, False),
-        ('Flexible PMC, TMS both', -4161.0, None, False),
+        ('Flexible PMC, natural space', -4184.6, None, False),
         ('Log-flex, no TMS', -4245.3, None, False),
-        ('Flexible PMC, no TMS', -4271.4, None, False)]
+        ('Natural space, no TMS', -4271.8, None, False)]
 best = max(r[1] for r in rows)
 for y, (name, e, verdict, is_primary) in enumerate(rows[::-1]):
     c = '#2c7a52' if verdict == 'pass' else ('#b0453b' if verdict == 'fail'
@@ -238,18 +244,18 @@ for y, (name, e, verdict, is_primary) in enumerate(rows[::-1]):
             **(BOLD if is_primary else {}))
     if verdict:
         ax.text(e - best - 6, y - .28,
-                'Δ-PPC 6/6' if verdict == 'pass' else 'Δ-PPC 4/6',
+                '\u0394-PPC 6/6' if verdict == 'pass' else '\u0394-PPC 4/6',
                 fontsize=5.8, ha='right', va='center', color=c)
 ax.axvline(0, color='.8', lw=.6, ls='--', zorder=0)
 ax.set_xlim(-215, 30)
 ax.set_ylim(-.7, len(rows) - .2)
 ax.set_yticks([])
 ax.spines['left'].set_visible(False)
-ax.set_xlabel('ELPD − best (nats)')
+ax.set_xlabel('ELPD \u2212 best (nats)')
 ax.set_title('Model comparison', fontsize=8.5, **BOLD)
 
-for xf, yf, letter in [(.008, .955, 'A'), (.008, .44, 'B'), (.345, .44, 'C'),
-                       (.665, .44, 'D')]:
+for xf, yf, letter in [(.008, .955, 'A'), (.008, .44, 'B'), (.255, .44, 'C'),
+                       (.505, .44, 'D'), (.755, .44, 'E')]:
     fig.text(xf, yf, letter, fontsize=11, va='bottom', ha='left', **BOLD)
 
 sns.despine(fig=fig, offset=4)
