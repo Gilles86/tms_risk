@@ -25,7 +25,10 @@ the likelihood barely notices.
 It is reachable because `PRIOR_SPEC` v1-2026-08-28 puts `sigma_intercept = 1.0`
 on `*_prior_mu`, which **in log space is a factor of e**. A safe-option prior
 centred at 31 CHF, when no safe payoff in the experiment exceeds 28, sits inside
-one SD.
+one SD. (Note this is the prior on the group MEAN. The group SDs are HalfNormal
+throughout -- bauer's default since 0.3.0, `core.py` `group_sd_dist` -- so the
+neck is not a heavy-tail problem; the legacy argument name
+`cauchy_sigma_intercept` is misleading on that point.)
 
 ## Fix: close the ridge, don't re-roll the dice
 

@@ -329,13 +329,16 @@ def main():
                          'from a variational draw in the typical set, which is '
                          'what a chain trapped in a secondary mode needs')
     ap.add_argument('--tau_intercept', default=None, type=float,
-                    help='half-Cauchy scale on the GROUP SD of every intercept '
-                         '(PRIOR_SPEC: 0.30 noise / 0.75 prior_mu / 0.40 '
-                         'prior_sd). These are the parameters that fail to mix '
-                         'in log-power-n2 and n2psd -- r_hat 1.09-1.13 with no '
-                         'rogue chain, i.e. funnel geometry, not a stuck chain. '
-                         'A heavy-tailed prior on a group SD is what opens the '
-                         'funnel; tightening it regularises the neck.')
+                    help='scale of the HalfNormal on the GROUP SD of every '
+                         'intercept (PRIOR_SPEC: 0.30 noise / 0.75 prior_mu / '
+                         '0.40 prior_sd). bauer has used HalfNormal since 0.3.0 '
+                         '(core.py `group_sd_dist`); the argument name '
+                         '`cauchy_sigma_intercept` is legacy. These are the '
+                         'parameters that fail to mix in log-power-n2 and '
+                         'n2psd -- r_hat 1.09-1.13 with no rogue chain, i.e. '
+                         'funnel geometry rather than a stuck chain. Tightening '
+                         'the scale narrows the neck; it is a modelling change, '
+                         'so it is stamped into the trace and the filename.')
     ap.add_argument('--sigma_prior_mu', default=None, type=float,
                     help='group-mean prior SD on *_prior_mu. PRIOR_SPEC sets '
                          '1.0, which in log space lets the group prior mean sit '
