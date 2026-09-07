@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Analysis code for the combined cTBS-TMS + 7T fMRI study **"Risk Attitudes Causally Rely on Parietal Magnitude Representations"** (de Hollander, Moisa & Ruff). The paper draft is at `notes/paper/TMS paper -v7.pdf`. The pipeline targets numerosity-tuned right parietal cortex with cTBS (vertex control vs. parietal) and measures effects on (a) nPRF responses, (b) trial-by-trial decoding accuracy, (c) psychophysical choice consistency / risk-neutral probability, and (d) parameters of the Perceptual-and-Memory-based Choice (PMC) model and its **Flexible PMC** extension (B-spline noise function over magnitude).
+Analysis code for the combined cTBS-TMS + 7T fMRI study **"Risk Attitudes Causally Rely on Parietal Magnitude Representations"** (de Hollander, Moisa & Ruff). The paper draft is at `notes/paper/TMS_paper_v9.pdf` (audit + open items: `notes/v9_plan.md`). The pipeline targets numerosity-tuned right parietal cortex with cTBS (vertex control vs. parietal) and measures effects on (a) nPRF responses, (b) trial-by-trial decoding accuracy, (c) psychophysical choice consistency / risk-neutral probability, and (d) parameters of the Perceptual-and-Memory-based Choice (PMC) model and its **Flexible PMC** extension (B-spline noise function over magnitude).
 
 Three layered analyses sit on top of the same BIDS dataset (`/data/ds-tmsrisk` locally; `/shares/zne.uzh/gdehol/ds-tmsrisk` on the cluster):
 
@@ -86,12 +86,16 @@ ssh sciencecloud 'cd /data/git/tms_risk && nohup \
 A 5000-tune + 5000-draw × 4-chain Flexible PMC fit takes roughly 3–5 h on the CPU VM
 (pymc, 3 cores per model, 4 models in parallel).
 
-### The T4 GPU node
+### The T4 GPU nodes
 
-A second VM at `ubuntu@172.23.206.84` (Tesla T4, 8 cores, 31 GB) runs the same fits
-through the **numpyro/JAX** backend (`fit_pmc_noisefix … --backend numpyro`). Same
-layout: `/data/git/tms_risk`, `/data/ds-tmsrisk`, `/data/logs`, conda env
-`tms_risk_gpu` under `/data/miniforge3`. One GPU means one model at a time, but a
+Four further VMs (SSH aliases `sciencecloud_gpu` … `sciencecloud_gpu4`, each a Tesla
+T4, 8 cores, 31 GB) run the same fits through the **numpyro/JAX** backend
+(`fit_pmc_noisefix … --backend numpyro`). Same layout: `/data/git/tms_risk`,
+`/data/ds-tmsrisk`, `/data/logs`, conda env `tms_risk_gpu` under `/data/miniforge3`.
+**Never write their IPs into this repo — it is public.** Addresses, disk layout and
+the conda/CUDA specifics live in the private `~/.claude/reference/sciencecloud-vms.md`;
+the SSH aliases are enough for anything written down here. One GPU means one model at a
+time per box, but a
 5000+5000 × 4-chain `flexible1` fit takes ~1.5–2 h there versus ~15 h+ on the CPU VM,
 so a four-model nested family finishes overnight. `libs/bauer` on that node is
 checked out at the commit the traces are stamped with.
@@ -150,6 +154,36 @@ payoffs only, the HEAD refit spreads it evenly over both options and all payoffs
 order-specific behavioural effect. Decide which side the paper reports; do not let
 the checkout decide.
 
+### Never pin bauer by checking it out on sciencecluster
+
+`~/git/tms_risk/libs/bauer` on the cluster is pip-installed **editable into
+fourteen conda envs**, and not only this project's: `retsupp_neuropythy`,
+`retsupp_snake`, `retsupp.old.20260511`, `soglio_cuda`, `value_capture`,
+`tf-cpu`, `tf2-cpu`, `tf2-gpu`, `tf2-gpu.bak` all resolve `import bauer` to it,
+alongside the five `tms_risk_*` envs. `git checkout <commit>` there changes the
+library for every one of them at once, including jobs already running, and
+nothing raises — results just quietly change.
+
+To pin a version, clone and use PYTHONPATH (it precedes site-packages, so it
+wins over the editable install without touching it):
+
+```bash
+git clone ~/git/tms_risk/libs/bauer /scratch/gdehol/bauer_<tag>
+git -C /scratch/gdehol/bauer_<tag> checkout <commit>
+PYTHONPATH=/scratch/gdehol/bauer_<tag> python -m tms_risk.behavior.fit_model ...
+```
+
+The canonical state of the shared checkout is **4cd98a4**; a `post-checkout`
+hook and an untracked `SHARED_CHECKOUT_README.md` in that directory warn about
+this, but neither can prevent it. Note 4cd98a4 does **not** contain
+`LogFlexibleNoiseRiskRegressionModel`, so the log-space `lfx2-*` grid cannot be
+refit from the shared checkout at all — those traces were produced by
+`dd6feab` and need an isolated clone.
+
+The sciencecloud GPU boxes have no bauer installed in `tms_risk_gpu`, so there
+`import bauer` is resolved purely by path — which makes them the cleaner place
+to run version-pinned fits.
+
 Two ways forward, both supported by
 `tms_risk/behavior/scripts/fit_pmc_noisefix.py`:
 
@@ -169,11 +203,51 @@ exceeds 0.02, so a wrong pin cannot pass unnoticed.
 
 ## Conventions worth knowing
 
+- **Never use a maximum-likelihood estimator.** Every model in this repo,
+  including a throwaway probit fitted "just to check", is **hierarchical
+  Bayesian with partial pooling**, and every uncertainty shown is a posterior
+  credible interval or a posterior predictive interval — never a bootstrap CI,
+  never an s.e.m. bar on an observed point. Two reasons, both load-bearing:
+  pooling subjects within a cell FLATTENS the psychometric function because
+  participants sit at different indifference points (the exact artefact under
+  test), and only a posterior gives a predictive band against which a point
+  outside the band means real misfit. Use
+  `behavior/scripts/fit_observed_probit_hier.py` (TMS cohort, cells include
+  stimulation) or `fit_baseline_probit_hier.py` (session 1, n = 73, cells are
+  order × stake), never `statsmodels.GLM`. Report contrasts computed **per
+  draw**, not as differences of summaries.
+
 - Scripts take a positional `subject` arg and `--bids_folder` kwarg, and are submitted as SLURM arrays from `*/slurm_jobs/`. Each analysis submodule keeps its SLURM wrappers in its own `slurm_jobs/` subfolder.
 - Cognitive model traces are written to `<bids>/derivatives/cogmodels/model-<label>_trace.netcdf` as ArviZ NetCDF. The directory name `cogmodels` is historical (kept on disk so existing traces remain loadable).
 - The `tms_keys.yml` and `all_subjects.yml` resource files under `tms_risk/data/` are the authoritative subject lists; `get_tms_subjects()` reads `tms_keys.yml`, `get_all_subject_ids()` reads `all_subjects.yml`. **For cluster sweeps of PRF-based analyses (decode / fisher / mc_decode), use the intersection of `tms_keys.yml` with `derivatives/encoding_model2.model-1.smoothed/` on disk — 35 subjects** (excludes sub-22 and sub-49 who lack PRF fits). Hard-coded in `tms_risk/modeling/slurm_jobs/submit_{fisher_information,mc_decode}.sh`.
+- **The dataset describes itself** (2026-08-26): `<bids>/sub-XX/sub-XX_sessions.tsv`
+  carries a `stimulation` column (`baseline` for ses-1, `ips`/`vertex` for
+  ses-2/3), and `<bids>/{README,sessions.json,participants.json,task-task_events.json}`
+  document the design, that column, `participants.tsv` and the `_events.tsv`
+  columns. `tms_keys.yml` stays authoritative for the stimulation assignment; the
+  session tables are a one-way export. All of it is installed by `python -m
+  tms_risk.prepare.write_bids_metadata` (`--check` verifies the dataset is still
+  in sync, `--dry_run` previews); the four root files are version-controlled
+  templates in `tms_risk/data/bids_metadata/`, so edit them there, never in the
+  dataset. Read the tables back with `get_sessions_info(bids_folder)` or
+  `get_tms_conditions(bids_folder)` — the latter returns exactly the YAML dict
+  when given a folder, and the packaged YAML when called with no argument.
+  Note `participants.tsv`'s `tms_subject` column is `true` for only 35 subjects —
+  it already excludes the two outliers (22, 49) that `tms_keys.yml` still lists,
+  so it is not a clean "was this subject stimulated" flag; the session table is.
+  The README's "Known quirks" section lists every remaining `bids-validator`
+  error (no `duration` in `_events.tsv`, Philips `_physio.log`, a stray
+  FreeSurfer tree in `sub-32/`, …) — all pre-existing, none introduced by this.
 - The `slurm_jobs/fit_model.sh` wrapper activates `tms_risk_cpu`, uses `--account=zne.uzh`, and invokes the script via `python -m tms_risk.behavior.fit_model`.
 - **Canonical PRF / encoding model**: `model_label=1` of `Subject.get_prf_parameters` — the "amplitude varies per session" regression variant from `modeling/fit_regression_nprf.py` (the paper's Fig 2 fits). All decode / fisher / mc_decode scripts use this. Files live at `derivatives/encoding_model2.model-1.smoothed[.cv]/sub-XX/`.
+- **Color semantics across ALL paper figures** (codified 2026-08-20): red/green is
+  reserved for stimulation (see next bullet); **presentation order never gets a hue** —
+  encode it by row/panel position with a text label wherever possible, and when both
+  orders must share one panel, use **risky second = near-black (`.15`) filled markers,
+  risky first = light gray (`.62`) open markers** (as in `plot_fig3c_localization.py`).
+  Blue/orange are reserved for model contrasts (flexible vs Weber in Fig 4D; tuning vs
+  magnitude models in the Fig 2 bottom row). NOTE: Fig 3B's dark/light densities encode
+  *significance*, not order — do not read or extend them as an order palette.
 - **Canonical IPS / Vertex palette**: **IPS (stimulated) = `#d62728` red, Vertex (sham) = `#2ca02c` green** — red marks the active/experimental arm. Use this in *every* IPS-vs-vertex figure. NOTE: `tms_risk.behavior.utils.stimulation_palette = sns.color_palette()[2:4]` is the tuple `(green, red)`; do **not** blindly zip it with alphabetical `['ips','vertex']` (that gives the inverted IPS=green). Map explicitly: `{'ips': stimulation_palette[1], 'vertex': stimulation_palette[0]}` or hardcode the hexes above.
 - **"Expected uncertainty" vs "decoded SD"**: when plotting decoding-accuracy curves, prefer `mean_abs_error` (the realised mean |decoded − true| from `model.get_expected_uncertainty`) over `sqrt(var_E)`. The former is the actual simulate-and-decode-back error you'd see on a fresh trial; the latter is just the decoder's self-reported posterior width and tends to underestimate the realised error.
 - **`risky_first` means the RISKY option came FIRST.** Defined at `tms_risk/utils/data.py:267` as `p1 == 0.55`; every mapping in the repo is `{True: 'Risky first', False: 'Risky second'}`. Do not re-label it when writing figures or prose.

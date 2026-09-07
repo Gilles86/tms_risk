@@ -83,7 +83,8 @@ from tms_risk.utils.data import get_all_behavior
 
 
 def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
-         backend=None, out_folder=None, group_sd=None, target_accept=None):
+         backend=None, out_folder=None, group_sd=None, target_accept=None,
+         find_init=None):
 
     # Group-SD prior family, applied to every hierarchical node of whatever
     # model follows. HalfNormal clips the fat tail that creates a
@@ -139,6 +140,13 @@ def main(model_label, burnin=None, samples=None, bids_folder='/data/ds-tmsrisk',
     if is_accumulator and backend == 'numpyro':
         # one GPU: vectorized chains run in parallel (bauer fitting brief)
         sample_kwargs['chain_method'] = 'vectorized'
+    # bauer's starting-point finder. 'mapjitter' = MAP centre + prior-scaled
+    # jitter; bauer/notes/ddm_convergence_lessons.md reports it taking a failing
+    # DDM config from 2/16 converged seeds to 16/16. The lfx2 failures are
+    # multimodal (chains in separate modes, few divergences), which is exactly
+    # what a common starting basin addresses.
+    if find_init:
+        sample_kwargs['find_init'] = find_init
     trace = model.sample(burnin, samples, target_accept=target_accept,
                          backend=backend, **sample_kwargs)
 
@@ -279,6 +287,69 @@ def _build_logflex(model_label, df):
     )
     if scalar_mem or tight_only:
         _tighten_noise_hyperpriors(model)
+    return model
+
+
+def _scale_group_sds(model, target_noise=0.3, target_prior=0.5,
+                     payoff_grid=None):
+    """Set each group-SD prior scale from what its parameter actually means.
+
+    bauer ships a single `cauchy_sigma_intercept = cauchy_sigma_regressors =
+    0.25` for every hierarchical node. Under HalfCauchy the fat tail absorbed
+    that; under HalfNormal the scale IS the prior, so it has to be right.
+
+    The trap is that spline COEFFICIENTS do not live on a common scale -- they
+    live on the reciprocal of their basis column's magnitude. A B-spline hat
+    function is O(1), so its coefficient is O(1); the generalized-Weber column is
+    exp(-log payoff) = 1/payoff, which over 7-112 CHF runs 0.14 down to 0.009, so
+    its coefficient has to be ~20x larger to move the noise function by the same
+    amount. Measured on the fits we have, the cTBS-slope group SDs are 0.15-0.63
+    for B-spline coefficients and 4.67 for the generalized-Weber 1/x coefficient.
+    One number cannot cover both, and 0.1 -- which an earlier version of this
+    function used, wrongly reasoning from the spread of DERIVED noise shifts
+    (~0.05, in log-noise units) rather than of the raw pre-transform coefficients
+    -- is roughly 5x too tight for every one of them.
+
+    So the scale is set on the noise FUNCTION and divided through by each basis
+    column's RMS: a group SD of `target_noise` in log-noise units, whatever
+    parameterisation is carrying it. With target 0.3 this reproduces the observed
+    posteriors (B-spline ~0.5, generalized Weber ~6) from first principles rather
+    than by copying them.
+    """
+    if payoff_grid is None:
+        payoff_grid = np.geomspace(7., 112., 40)
+
+    rms_cache = {}
+
+    def column_rms(variable):
+        if variable not in rms_cache:
+            try:
+                dm = np.asarray(model.make_dm(payoff_grid, variable=variable))
+                rms_cache[variable] = np.sqrt((dm ** 2).mean(0))
+            except Exception:
+                rms_cache[variable] = None
+        return rms_cache[variable]
+
+    for key, info in model.free_parameters.items():
+        if key.endswith('_prior_mu'):
+            info['cauchy_sigma_intercept'] = target_prior
+            info['cauchy_sigma_regressors'] = target_prior
+            continue
+        if key.endswith('_prior_sd'):
+            info['cauchy_sigma_intercept'] = 0.25
+            info['cauchy_sigma_regressors'] = 0.25
+            continue
+        # noise: name is '<variable>_spline<j>', so recover both
+        scale = target_noise
+        if '_spline' in key:
+            variable, _, idx = key.rpartition('_spline')
+            rms = column_rms(variable)
+            if rms is not None and idx.isdigit() and int(idx) <= len(rms):
+                r = float(rms[int(idx) - 1])
+                if r > 1e-8:
+                    scale = target_noise / r
+        info['cauchy_sigma_intercept'] = scale
+        info['cauchy_sigma_regressors'] = scale
     return model
 
 
@@ -428,16 +499,52 @@ def _build_lfx_grid(model_label, df):
     for the 2026-08 cluster sweep).
     """
     import re
-    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3)-(fm|sm|m2|m3|w|sd2|sd3|sd5)-(dp|tp)-(null|b|bm|t)'
-                     r'(-op|-sp|-fs|-f1)?(-hn)?', model_label)
+    m = re.fullmatch(r'lfx2-(bs3|bs2|cr3|gw|pl|af)-(fm|sm|m2|m3|w|sd2|sd3|sd5)-(dp|tp)-(null|b|bm|t|m)'
+                     r'(-p[1-5])?(-i)?(-fx)?(-op|-sp|-fs|-f1|-fp)?(-hn|-ts|-hp)?', model_label)
     if not m:
         raise Exception(f'Bad lfx2 grid label: {model_label!r}')
-    basis, mem, hp, tms, pri, hn = m.groups()
+    basis, mem, hp, tms, pdf, ind, fx, pri, hn = m.groups()
     # '-hn': HalfNormal rather than HalfCauchy on every group SD. Set
     # explicitly either way — GROUP_SD_DIST is module-level state, so a
     # script that builds several models in one process must not inherit it.
     from bauer import core as _bauer_core
-    _bauer_core.GROUP_SD_DIST = 'halfnormal' if hn else 'halfcauchy'
+    # A clone that calls pm.HalfCauchy directly (bauer_lfx, and any fresh clone
+    # of it) ignores these module attributes entirely, so '-hn'/'-ts' would be a
+    # SILENT no-op: the fit runs with HalfCauchy under a label that says
+    # HalfNormal, and nothing raises. Fail loudly instead.
+    if hn and not hasattr(_bauer_core, '_group_sd'):
+        raise SystemExit(
+            f"{model_label!r} asks for {hn[1:]} group SDs, but the bauer on "
+            f"PYTHONPATH ({_bauer_core.__file__}) has no _group_sd helper, so "
+            f"the switch would be silently ignored. Patch the clone with "
+            f"scratch/group_sd_patch.py, or use one that already has it.")
+    if hn == '-ts' and not hasattr(_bauer_core, 'GROUP_SD_SCALE'):
+        raise SystemExit(
+            f"{model_label!r} asks for a tightened group-SD scale, but this "
+            f"bauer has no GROUP_SD_SCALE, so only the family would change.")
+    _bauer_core.GROUP_SD_DIST = 'halfnormal' if hn == '-hn' else 'halfcauchy'
+    # '-ts' = tight slope: HalfNormal group SDs throughout AND a much smaller
+    # scale, so subject-level slopes stay in the model but cannot wander into a
+    # separate mode. The middle ground between free random slopes (r-hat 1.3-2.0)
+    # and '-fx' fixed slopes (converges, but costs 31 nats).
+    if hn == '-ts':
+        _bauer_core.GROUP_SD_DIST = 'halfnormal'
+        _bauer_core.GROUP_SD_SCALE = 0.05
+    # '-hp' = HalfNormal with PER-PARAMETER scales (see _scale_group_sds). '-hn'
+    # and '-ts' both inherit bauer's single hardcoded 0.25 for every group SD --
+    # one number for quantities in log-CHF, in pre-softplus log-noise units and
+    # in cTBS-shift units at once. Under HalfCauchy the fat tail absorbed that;
+    # under HalfNormal the scale IS the prior, so it has to be set per parameter.
+    if hn == '-hp':
+        _bauer_core.GROUP_SD_DIST = 'halfnormal'
+        _bauer_core.GROUP_SD_SCALE = 1.0
+    # '-fx': the cTBS coefficient becomes a FIXED effect -- one population
+    # parameter, no per-subject slope. Random slopes can buy a large ELPD gain
+    # with no group-level effect at all (the cTBS-on-prior model gained ~89 nats
+    # while its group shift was +0.010 and subjects split 20/15 in sign), so this
+    # is the variant that tests the population effect directly. Module-level
+    # state, so set it explicitly either way.
+    _bauer_core.RANDOM_SLOPES = not fx
     # memory-spline df ladder: sm=1 (scalar), m2=2 (linear in log n),
     # m3=3 (quadratic), fm=5. spline_order = (memory, perceptual).
     # 'w' = log-space Weber: BOTH noises scalar, so each TMS lever is a
@@ -448,9 +555,17 @@ def _build_lfx_grid(model_label, df):
     # total and split noise instead of perceptual and memory. The digit is
     # the split-function df; total always gets 5.
     sumdiff = mem.startswith('sd')
+    _first, _second = (('n1_evidence_sd', 'n2_evidence_sd') if ind
+                       else ('memory_noise_sd', 'perceptual_noise_sd'))
     mem_df = ({'sm': 1, 'm2': 2, 'm3': 3, 'fm': 5, 'w': 1}[mem] if not sumdiff
               else int(mem[2]))
-    perc_df = 1 if mem == 'w' else 5
+    # '-pN' sets the PERCEPTUAL df independently of the memory token. Without it
+    # the grid only ever offered perceptual = 1 (inside 'w') or 5, so the affine
+    # (2-df: intercept + slope in log payoff) perceptual noise function -- the same
+    # form the memory channel already uses at m2 -- was unreachable. 'lfx2-bs3-m2-
+    # dp-bm-p2' is affine in BOTH channels: four baseline noise parameters, each a
+    # quotable Weber-fraction/slope pair, instead of seven spline coefficients.
+    perc_df = int(pdf[2]) if pdf else (1 if mem == 'w' else 5)
     model = LogFlexibleNoiseRiskRegressionModel(
         df,
         regressors=({} if tms == 'null' else
@@ -458,25 +573,51 @@ def _build_lfx_grid(model_label, df):
                     # one effect function, no channel ambiguity.
                     _stim('total_noise_sd') if tms == 't' else
                     _stim('total_noise_sd', 'split_noise_sd') if sumdiff else
-                    _stim('perceptual_noise_sd') if tms == 'b' else
-                    _stim('perceptual_noise_sd', 'memory_noise_sd')),
+                    # '-i' swaps the memory/perceptual decomposition for the
+                    # independent one, whose terms ARE the first- and
+                    # second-presented option. 'b' is then the second option,
+                    # 'm' the first -- which maps straight onto the paper's
+                    # risky-first / risky-second language.
+                    _stim(_second) if tms == 'b' else
+                    _stim(_first) if tms == 'm' else
+                    _stim(_second, _first)),
         spline_order=(mem_df, perc_df),
-        memory_model='sum_difference' if sumdiff else 'shared_perceptual_noise',
+        memory_model=('sum_difference' if sumdiff else
+                      'independent' if ind else 'shared_perceptual_noise'),
+        # 'af' = genuinely affine: softplus is applied to each spline
+        # COEFFICIENT rather than to their sum, so with the df=2 partition-of-
+        # unity basis sigma is exactly linear in log payoff and the two
+        # coefficients ARE the noise SDs at 7 and 112 CHF. Needs the patched
+        # clone (notes: /scratch/gdehol/bauer_af).
+        **({'noise_link': 'exp'} if basis == 'pl'
+           else {'noise_link': 'affine'} if basis == 'af' else {}),
         # Prior block: 'full' = four free (risky/safe) x (mu/sd) params,
         # each hierarchical. '-sp' = one prior shared across the two roles
         # (2 params, subject variation kept). '-op' = pinned at the
         # log-payoff statistics, no free params and no subject variation --
         # which converges instantly but costs 580 +- 31 ELPD, so it is a
         # diagnostic, not a candidate.
+        # '-fp' = fix_safe_prior_sd: pin ONLY the safe prior SD. Enough to set
+        # the scale and break the prior/noise ridge that puts chains in separate
+        # modes (r-hat 1.3-2.0 in every 'cTBS on both channels' cell), while
+        # leaving the risky prior width free so the risky-vs-safe ratio stays
+        # estimable. Needs bauer >= 6d60f49.
         prior_estimate=({'-op': 'objective', '-sp': 'shared',
+                         '-fp': 'fix_safe_prior_sd',
                          '-fs': 'fix_prior_sd',
                          '-f1': 'fix_safe_prior_sd'}[pri]
                         if pri else 'full'),
-        spline_basis='cr' if basis == 'cr3' else 'bs',
+        # 'pl' = power-law noise: design matrix [1, log payoff] with an EXP link,
+        # so sigma_rel = exp(alpha + beta*log n) = e**alpha * n**beta and beta is
+        # literally the exponent. 'gw' = generalized Weber ([1, 1/n], softplus).
+        spline_basis=('cr' if basis == 'cr3' else basis if basis in ('gw', 'pl')
+                      else 'bs'),
         spline_degree=2 if basis == 'bs2' else 3,
     )
     if hp == 'tp':
         _tighten_noise_hyperpriors(model)
+    if hn == '-hp':
+        _scale_group_sds(model)
     return model
 
 
@@ -792,6 +933,8 @@ if __name__ == '__main__':
                         choices=['halfcauchy', 'halfnormal'],
                         help='prior family for every group SD')
     parser.add_argument('--target_accept', type=float, default=None)
+    parser.add_argument('--find_init', default=None,
+                        help="bauer starting-point finder, e.g. 'mapjitter'")
     parser.add_argument('--out_folder', default=None,
                         help='derivatives subfolder for the trace '
                              '(default: cogmodels)')
@@ -799,4 +942,4 @@ if __name__ == '__main__':
     main(args.model_label, bids_folder=args.bids_folder,
          burnin=args.burnin, samples=args.samples,
          group_sd=args.group_sd, target_accept=args.target_accept,
-         out_folder=args.out_folder)
+         out_folder=args.out_folder, find_init=args.find_init)

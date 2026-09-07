@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-affine-n1n2.klw	log	affine	n1n2	independent	8	-4152.539988760222	47.10529941631357	219.80859514732902	0.0001199760047990402	0.7867501236935096

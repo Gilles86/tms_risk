@@ -64,6 +64,7 @@ def main(bids_folder, roi, models, cv_suffix, out_tsv):
         null = np.nanmean(np.stack(folds), axis=0)[keep]
 
         row = dict(subject=s, n_voxels=int(keep.sum()), null_mean=np.nanmean(null))
+        mvs = {}
         for m in models:
             fn = (deriv / f'encoding_model2.model-{m}.smoothed.cv{cv_suffix}'
                   / f'sub-{sid}' / f'sub-{sid}_desc-cvr2.optim_space-T1w_pars.nii.gz')
@@ -71,9 +72,28 @@ def main(bids_folder, roi, models, cv_suffix, out_tsv):
                 continue
             mv = masker.transform(str(fn)).squeeze()[keep]
             ok = np.isfinite(mv) & np.isfinite(null)
+            mvs[m] = mv
             row[f'm{m}_mean'] = np.nanmean(mv[ok])
             row[f'm{m}_beats_null'] = np.mean(mv[ok] > null[ok])
             row[f'm{m}_gt0'] = np.mean(mv[ok] > 0)
+
+        # --- selected-voxel variants + per-voxel winner (all same held-out folds) ---
+        if len(mvs) > 1:
+            M = np.stack([mvs[m] for m in sorted(mvs)])       # models x voxels
+            ok = np.isfinite(M).all(0) & np.isfinite(null)
+            Mo, no = M[:, ok], null[ok]
+            sel_any = (Mo > no).any(0)                        # union: ANY model beats null
+            sel_m0 = (Mo[0] > no) if 0 in mvs else None       # m0-based (model-neutral
+            row['n_ok'] = int(ok.sum())                       #  for m1..m5 contrasts)
+            row['n_sel_any'] = int(sel_any.sum())
+            winner = Mo.argmax(0)                             # per-voxel best model
+            for i, m in enumerate(sorted(mvs)):
+                row[f'm{m}_selany_mean'] = Mo[i, sel_any].mean() if sel_any.any() else np.nan
+                row[f'm{m}_frac_wins'] = (winner[sel_any] == i).mean() if sel_any.any() else np.nan
+                if sel_m0 is not None:
+                    row[f'm{m}_selm0_mean'] = Mo[i, sel_m0].mean() if sel_m0.any() else np.nan
+            if sel_m0 is not None:
+                row['n_sel_m0'] = int(sel_m0.sum())
         rows.append(row)
         print(f'  sub-{sid} done', flush=True)
 

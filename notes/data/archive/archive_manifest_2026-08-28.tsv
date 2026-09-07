@@ -1,0 +1,127 @@
+label	elpd	rhat	converged	bauer	group_sd	safe_n	dir
+lfx2-bs2-m2-dp-b	-4148.6	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm	-4149.0	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-p2-i	-4152.2	1.27	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-m3-dp-b	-4153.2	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-m3-dp-bm	-4155.0	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+flexible2_noisefix_perception.head	-4157.5	1.01	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-bs3-m3-dp-b	-4158.8	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-p2-i-fp	-4159.1	1.48	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-cr3-m3-dp-b	-4160.7	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+flexible2_noisefix.head	-4161.0	1.19	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-gw-m2-dp-bm-p2-fp	-4162.1	1.0	True	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-sm-tp-b	-4162.6	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-sm-dp-b	-4162.7	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-tp-b	-4163.1	1.72	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-sm-tp-b	-4163.3	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-sm-dp-b	-4163.4	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-sm-dp-bm	-4163.5	1.02	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-p2	-4164.2	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-p2-fp	-4164.6	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+flexible2.4_noisefix.head	-4165.2	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.ladder
+lfx2-bs2-sm-dp-bm	-4165.3	1.05	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-tp-bm	-4167.1	1.56	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-fm-tp-b	-4168.0	1.54	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-f1	-4168.3	1.8	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+logflex1	-4168.8	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-sm-dp-b	-4169.5	1.54	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-bm-f1	-4169.9	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-m2-dp-bm	-4170.1	1.54	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-sm-tp-b	-4171.1	1.74	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-fm-dp-b	-4171.4	2.23	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-gw-m2-dp-bm-p2	-4172.3	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-b	-4173.3	2.4	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-bm-hn	-4173.7	1.74	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+logflex2	-4175.4	2.41	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.logflex
+lfx2-bs3-m3-dp-bm	-4175.6	2.37	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-bm-fs	-4176.1	1.82	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-fm-tp-b	-4177.8	2.41	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-fm-dp-b	-4178.6	2.41	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+flexible2.3_noisefix.head	-4180.9	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.ladder
+flexible1_noisefix_prior.head	-4182.6	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.noisefix
+lfx2-bs3-m2-dp-b-p2-i-fp	-4183.2	1.31	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+flexible1_noisefix.head	-4184.6	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-cr3-m3-dp-bm	-4185.1	2.14	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-fm-dp-b	-4185.7	2.08	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-m-p2-i	-4185.9	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-fm-tp-b	-4189.6	2.48	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-pl-m2-dp-bm-p2-i	-4190.9	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-m-p2-i-fp	-4191.1	1.29	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-pl-m2-dp-b-p2	-4192.6	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-w-dp-bm	-4195.1	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-p2-fx	-4195.1	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-w-dp-b	-4195.8	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-pl-m2-dp-m-p2-i	-4199.6	1.0	True	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+power1_full	-4200.0	1.41	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power1_exp	-4203.8	1.08	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power2	-4206.2	1.01	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power2_full	-4207.0	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+lfx2-pl-m2-dp-bm-p2-i-fx	-4209.0	1.73	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+power2_exp	-4209.0	1.02	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power1	-4209.5	1.18	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+flexible2.6_noisefix.head	-4212.2	1.52	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.ladder
+lfx2-bs3-m3-dp-bm-sp-hn	-4213.6	2.39	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-sp	-4214.0	2.41	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-pl-m2-dp-bm-p2-i-fp	-4214.1	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+flexible2_noisefix_memory.head	-4217.5	1.01	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-bs3-m3-dp-bm-sp	-4218.1	2.42	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-pl-m2-dp-b-p2-i	-4218.5	1.73	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+flexible1_noisefix_first.head	-4222.0	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+flexible1_noisefix_second.head	-4227.5	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-pl-m2-dp-m-p2-i-fp	-4231.8	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-pl-m2-dp-m-p2	-4234.5	2.02	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-sd3-dp-bm	-4243.3	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null	-4245.3	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-tp-null	-4245.3	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null-p2-i	-4249.6	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-m3-dp-null	-4249.8	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null-p2	-4250.1	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-fm-tp-null	-4251.1	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+flexible2.2_noisefix.head	-4251.3	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.ladder
+lfx2-bs3-sd2-dp-t	-4255.1	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-sd3-dp-t	-4255.9	1.56	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null-p2-i-fp	-4256.4	1.01	True	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-pl-m2-dp-m-p2-i-fx	-4258.1	1.54	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-sm-tp-null	-4259.7	1.01	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null-p2-fx	-4259.9	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-sm-dp-null	-4260.4	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-m2-dp-null	-4262.2	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-fm-dp-null	-4262.4	1.73	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-sm-tp-null	-4262.5	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-sm-dp-null	-4262.7	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-sd3-dp-null	-4263.5	2.32	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-w-dp-null	-4264.2	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-sm-dp-null	-4264.9	1.02	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-sm-tp-null	-4265.2	1.01	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-gw-m2-dp-null-p2	-4265.5	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null-p2-fp	-4265.6	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs2-fm-tp-null	-4265.9	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-null	-4267.0	1.87	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-pl-m2-dp-null-p2	-4267.5	1.53	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-null-f1	-4267.8	2.12	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-pl-m2-dp-null-p2-i	-4268.1	1.74	False	34e64a6	HalfCauchy	fixed	cogmodels.lfxgrid
+flexible2_noisefix_null.head	-4271.4	1.02	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-bs2-fm-dp-null	-4271.6	1.74	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-m3-dp-null	-4271.6	1.74	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+flexible1_noisefix_null.head	-4271.8	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.overnight
+lfx2-cr3-fm-dp-null	-4273.8	1.55	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-cr3-fm-tp-null	-4274.9	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+power1_null	-4287.8	1.05	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power2_null	-4293.1	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+lfx2-bs3-m3-dp-null-sp-hn	-4302.8	1.53	False	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs2-m3-dp-bm-op	-4724.8	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-bm-op	-4732.5	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-bm-op	-4732.5	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-b-op	-4733.5	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-bm-op-hn	-4756.8	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m2-dp-null-op	-4786.9	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+lfx2-bs3-m3-dp-null-op-hn	-4806.3	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid
+power2_flat	-4934.6	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power2_flat_exp	-4935.0	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power2_flat_full	-4935.4	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power1_flat_exp	-4968.0	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power1_flat_full	-4978.8	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power1_flat	-4979.2	1.01	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power2_flat_null	-4998.5	1.03	False	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+power1_flat_null	-5017.7	1.0	True	e05f73a (0.3.0)	HalfNormal	BUGGY (safe_n = risky_n)	cogmodels.power
+lfx2-bs3-w-dp-bm-op	-5020.5	1.0	True	dd6feab	HalfCauchy	BUGGY (safe_n = risky_n)	cogmodels.lfxgrid

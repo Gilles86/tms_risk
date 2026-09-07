@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-perc.klw	log	power	perc	shared_perceptual_noise	8	-4154.720422825376	46.73329525998771	177.3626239112973	0.0	0.6574676101744255

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-spl5-n2.klw	log	spl5	n2	independent	14	-4207.791437530278	47.029970098629505	255.9404244486691	0.0002399520095980804	0.796889663416746

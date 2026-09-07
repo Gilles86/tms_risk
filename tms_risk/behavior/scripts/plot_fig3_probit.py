@@ -85,18 +85,23 @@ XT = [1.5, 2, 2.5, 3]
 # n_risky/n_safe = 1/0.55. Left of it choosing risky is risk-seeking, right of it
 # choosing safe is risk-averse, so it turns the axis from arbitrary into
 # interpretable. The fitted indifference points (1/RNP) straddle it.
-RISK_NEUTRAL = 1 / .55
+P_RISKY = .55
+RISK_NEUTRAL = 1 / P_RISKY
 
 # One column of block B per probit parameter. The anchors say which way the cTBS
 # effect points, so the direction of the shift needs no caption.
 SPECS = [
     dict(par='slope', xlabel='Δ Psychometric slope', ticks=[-1., -.5, 0., .5],
+         abs_xlabel='Psychometric slope',
+         col_title='Choice consistency',
          anchors=('Less consistent', 'More consistent')),
     # "More risk-averse"/"More risk-seeking" would be the exact reading of a Δ axis,
     # but the pair does not fit the column at a legible size; the published figure's
     # shorter wording is unambiguous next to a marked zero.
     dict(par='rnp', xlabel='Δ Risk-neutral probability',
          ticks=[-.05, 0., .05, .10, .15],
+         abs_xlabel='Risk-neutral probability',
+         col_title='Risk attitude',
          anchors=('Risk-averse', 'Risk-seeking')),
 ]
 
@@ -135,11 +140,13 @@ def main(data_dir, label, out_stem):
     # the top row, "Risky second" always the bottom, labelled once at the far left.
     # So the cTBS effect reads as a displacement away from zero in B in the same rows
     # where the two psychometric functions separate in A.
-    fig = plt.figure(figsize=(7.25, 3.4))
-    outer = fig.add_gridspec(1, 2, width_ratios=[1.02, 2.], wspace=.22,
-                             left=.15, right=.985, top=.885, bottom=.15)
+    # narrower than the published version: block B no longer needs room for a
+    # density, only for two intervals on a common axis
+    fig = plt.figure(figsize=(6.3, 3.6))
+    outer = fig.add_gridspec(1, 2, width_ratios=[1.05, 1.35], wspace=.28,
+                             left=.155, right=.985, top=.885, bottom=.16)
     gsA = outer[0].subgridspec(2, 1, hspace=.14)
-    gsB = outer[1].subgridspec(2, 2, hspace=.14, wspace=.16)
+    gsB = outer[1].subgridspec(2, 2, hspace=.20, wspace=.55)
 
     # --- A: psychometric functions, observed proportions over the probit fit
     lefts = []
@@ -155,8 +162,8 @@ def main(data_dir, label, out_stem):
                             r.loc[g.bin, f'probit_{stim}_hi'].values,
                             color=colr, alpha=.22, lw=0, zorder=1)
             ax.plot(g.frac, r.loc[g.bin, f'probit_{stim}'].values, color=colr,
-                    lw=1.4, zorder=2)
-            ax.plot(g.frac, g.observed, mk, color=colr, ms=3.7, lw=0, zorder=4)
+                    lw=2.0, zorder=2)
+            ax.plot(g.frac, g.observed, mk, color=colr, ms=4.4, lw=0, zorder=4)
         ax.set_xscale('log')
         ax.set_xticks(XT)
         ax.get_xaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
@@ -167,7 +174,7 @@ def main(data_dir, label, out_stem):
         ax.set_ylim(.20, .90); ax.set_yticks([.25, .5, .75])
         if row == 0:
             ax.set_xticklabels([])
-            ax.text(RISK_NEUTRAL * 1.04, .89, 'Risk-neutral', fontsize=7.5,
+            ax.text(RISK_NEUTRAL * 1.012, .89, 'Risk-neutral', fontsize=7.5,
                     color='.45', ha='left', va='top', style='italic')
         else:
             ax.set_xlabel('Risky/safe payoff ratio')
@@ -176,69 +183,91 @@ def main(data_dir, label, out_stem):
     sns.despine(ax=lefts[1], offset=3)
 
     # The two curves run too close together to direct-label without collision, so
-    # this is one of the cases where a legend earns its place. Frameless, off the data.
-    lefts[0].plot([], [], color=VERTEX, marker='o', ms=3.7, lw=1.4, label='Vertex')
-    lefts[0].plot([], [], color=IPS, marker='s', ms=3.7, lw=1.4, label='IPS')
-    lefts[0].legend(loc='lower right', fontsize=8, handlelength=1.5, borderpad=.2,
-                    labelspacing=.2, borderaxespad=.2)
+    # direct labels on the curves themselves: a legend in the corner makes the
+    # reader carry a colour->condition mapping across the panel (skill rule 4).
+    # Placed on the RISKY-SECOND row, where the two curves separate.
+    _lab_ax = lefts[1] if len(lefts) > 1 else lefts[0]
+    for cond, ccol, dy in [('ips', IPS, +.055), ('vertex', VERTEX, -.055)]:
+        gg = obs[(obs.order == ORDERS[-1]) & (obs.stim == cond)]
+        gg = gg.sort_values('frac')
+        if not len(gg):
+            continue
+        # IPS above its own first point; vertex BELOW the curve further along,
+        # where the empty wedge under the sigmoid is widest. Anchoring vertex
+        # at the first point puts it on the bottom spine.
+        # IPS above its own curve and LEFT of the risk-neutral rule; anchoring
+        # it at the first point put the label on the P = 0.5 gridline. Vertex
+        # below the curve, in the empty wedge under the sigmoid.
+        # IPS just RIGHT of the risk-neutral rule and just above its own curve;
+        # vertex below the green curve, in the empty wedge under the sigmoid
+        k = 1 if cond == 'ips' else 2
+        _lab_ax.annotate(cond.upper() if cond == 'ips' else 'Vertex',
+                         (gg.frac.iloc[k], gg.observed.iloc[k]),
+                         xytext=(4, 13) if cond == 'ips' else (-2, -17),
+                         textcoords='offset points', color=ccol, fontsize=8,
+                         ha='left' if cond == 'ips' else 'center',
+                         va='center', fontweight='bold')
 
-    # --- B: the paired difference posterior per parameter. One x-range and one
-    # density scale per column, shared by both rows, so the top-vs-bottom contrast
-    # IS the order effect and not an artefact of autoscaling.
+    # --- B: the parameters themselves, as a paired slope graph.
+    # Condition on x, parameter value on y, one line per order. This is the
+    # layout a within-subject two-level contrast wants: the effect is the
+    # DIRECTION of the segment, read the same way as "goes down", and the
+    # absolute values stay on the axis. The earlier version drew horizontal
+    # intervals with an arrow between them, which put the contrast on the same
+    # axis as the values and made neither easy to read.
     stats, rights = {}, {}
     for col, spec in enumerate(SPECS):
         par = spec['par']
-        deltas = {o: paired_delta(post, par, o) for o in ORDERS}
-        allv = np.concatenate(list(deltas.values()))
-        pad = .07 * np.ptp(allv)
-        grid = np.linspace(allv.min() - pad, allv.max() + pad, 512)
-        scale = max(ss.gaussian_kde(d)(grid).max() for d in deltas.values())
+        cell, deltas = {}, {}
+        for order in ORDERS:
+            deltas[order] = paired_delta(post, par, order)
+            for cond in ('vertex', 'ips'):
+                v = post[(post.parameter == par) & (post.order == order)
+                         & (post.stimulation_condition == cond)]['value'].values
+                cell[(order, cond)] = np.quantile(v, [.025, .5, .975])
+        allv = np.concatenate([cell[k] for k in cell])
+        pad = .16 * np.ptp(allv)
+        ylim = (allv.min() - pad, allv.max() + pad)
 
         for row, order in enumerate(ORDERS):
             ax = fig.add_subplot(gsB[row, col]); rights[(par, order)] = ax
             d = deltas[order]
             lo, hi = np.quantile(d, [.025, .975])
-            p = pfmt(d)
-            sig = p.startswith('p <') or float(p.split('=')[-1]) < .05
-            stats[(par, order)] = (d.mean(), lo, hi, p)
-            colr = DIFF if sig else DIFF_NS
+            pv = pfmt(d)
+            sig = pv.startswith('p <') or float(pv.split('=')[-1]) < .05
+            stats[(par, order)] = (d.mean(), lo, hi, pv)
 
-            # the null reference spans the density and its interval, and stops short
-            # of the label band -- a full-height axvline strikes through the anchors
-            ax.plot([0, 0], [-.34, 1.12], color='.6', lw=.7, ls='--', zorder=1)
-            dens = ss.gaussian_kde(d)(grid) / scale
-            ax.fill_between(grid, 0, dens, color=colr, alpha=.32, lw=0, zorder=2)
-            ax.plot(grid, np.where(dens > .01, dens, np.nan), color=colr, lw=.9,
-                    zorder=3)
-            # 95% credible interval below the baseline, in the empty half, so it
-            # never sits on top of the density it summarises
-            ax.plot([lo, hi], [-.22, -.22], color=colr, lw=1.7,
-                    solid_capstyle='round', zorder=4)
-            ax.plot([d.mean()], [-.22], 'o', ms=4.2, color=colr, mec='white',
-                    mew=.8, zorder=5)
-            ax.axhline(0, color='.75', lw=.6, zorder=1)
-
-            ax.text(.98, .99, p, transform=ax.transAxes, ha='right', va='top',
-                    fontsize=8, color='.15' if sig else '.5',
-                    **(BOLD if sig else {}))
-
-            ax.set_xlim(grid[0], grid[-1])
-            # density fills 0..1 above the baseline, the interval sits just below it;
-            # everything past that is dead space, so the limits stop there
-            ax.set_ylim(-.60, 1.15)
-            ax.set_yticks([])
-            for side in ('left', 'top', 'right'):
-                ax.spines[side].set_visible(False)
-            ax.set_xticks(spec['ticks'])
+            xs = {'vertex': 0, 'ips': 1}
+            ax.plot([0, 1], [cell[(order, 'vertex')][1], cell[(order, 'ips')][1]],
+                    color='.2' if sig else '.65', lw=1.4, zorder=2)
+            for cond, ccol, mk in (('vertex', VERTEX, 'o'), ('ips', IPS, 's')):
+                q = cell[(order, cond)]
+                ax.plot([xs[cond]] * 2, q[[0, 2]], color=ccol, lw=1.5,
+                        solid_capstyle='round', zorder=3)
+                ax.plot(xs[cond], q[1], mk, ms=6, color=ccol, mec='white',
+                        mew=.9, zorder=4)
+            fmt = '{:+.2f}' if par == 'slope' else '{:+.3f}'
+            ax.text(.5, .965, f'Δ {fmt.format(d.mean())}   {pv}',
+                    transform=ax.transAxes, ha='center', va='top', fontsize=7,
+                    color='.15' if sig else '.5', **(BOLD if sig else {}))
+            ax.set_xlim(-.55, 1.55)
+            ax.set_ylim(*ylim)
+            ax.set_xticks([0, 1])
             if row == 0:
-                ax.spines['bottom'].set_visible(False)
-                ax.set_xticklabels([]); ax.tick_params(axis='x', length=0)
+                ax.set_xticklabels([])
+                ax.tick_params(axis='x', length=0)
             else:
-                sns.despine(ax=ax, left=True, offset={'bottom': 3})
-                ax.set_xlabel(spec['xlabel'])
-                for x, lab, ha in zip((.02, .98), spec['anchors'], ('left', 'right')):
-                    ax.text(x, .02, lab, transform=ax.transAxes, ha=ha, va='bottom',
-                            fontsize=7.5, color='.35', style='italic')
+                ax.set_xticklabels(['Vertex', 'IPS'])
+            if spec['par'] == 'rnp':
+                # RNP = 0.55 IS risk neutrality; without the line the reader
+                # cannot tell risk-averse from risk-seeking on this axis
+                ax.axhline(P_RISKY, color='.75', lw=.7, ls='--', zorder=0)
+                # No in-panel label: the panel is ~1.5 in wide, both edges
+                # carry a credible interval and the word does not fit between
+                # them at any placement. Panel A names the same reference, and
+                # what a reference line marks is caption bookkeeping anyway.
+            ax.set_ylabel(spec['abs_xlabel'], fontsize=7)
+            sns.despine(ax=ax, offset={'left': 3, 'bottom': 3})
 
     # --- row labels once at the far left, and one title per block
     for ax, order in zip(lefts, ORDERS):
@@ -247,10 +276,13 @@ def main(data_dir, label, out_stem):
                  ha='left', va='center', linespacing=1.25)
 
     y = lefts[0].get_position().y1 + .045
-    blocks = [('A', lefts[0], lefts[0], 'Proportion of risky choices'),
-              ('B', rights[(SPECS[0]['par'], ORDERS[0])],
-               rights[(SPECS[1]['par'], ORDERS[0])],
-               'Psychophysical parameters (IPS − vertex)')]
+    # lowercase panel letters: Nature / Nature Comms house style, and what
+    # every other figure in this paper uses
+    blocks = [('a', lefts[0], lefts[0], 'Proportion of risky choices'),
+              ('b', rights[(SPECS[0]['par'], ORDERS[0])],
+               rights[(SPECS[0]['par'], ORDERS[0])], SPECS[0]['col_title']),
+              ('c', rights[(SPECS[1]['par'], ORDERS[0])],
+               rights[(SPECS[1]['par'], ORDERS[0])], SPECS[1]['col_title'])]
     for letter, first, last, title in blocks:
         x0, x1 = first.get_position().x0, last.get_position().x1
         fig.text(x0 - .048, y, letter, fontsize=11.5, va='baseline', ha='left', **BOLD)

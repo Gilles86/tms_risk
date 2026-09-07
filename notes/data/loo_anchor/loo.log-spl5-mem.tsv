@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-spl5-mem	log	spl5	mem	shared_perceptual_noise	14	-4230.293994439621	46.32596468679505	220.0719654329023	0.0	0.6673455341606136

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-weber-perc.klw	log	weber	perc	shared_perceptual_noise	6	-4193.924265037351	46.5833911945229	154.57950278324233	0.0	0.5075170271688643

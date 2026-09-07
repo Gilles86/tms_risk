@@ -4,8 +4,11 @@ One row per published item. If you want to regenerate something, find it here, r
 command, done. If a row says **stale**, the code has moved on from what the preprint
 shows and the number needs recomputing before it is quoted again.
 
+**Current plan: `notes/PLAN.md`** — read that first.
+
 Paper: *Risk Attitudes Causally Rely on Parietal Magnitude Representations*
-(de Hollander, Moisa & Ruff). Current draft: `notes/paper/TMS_paper_v8_with_CR_comments.pdf`
+(de Hollander, Moisa & Ruff). Current draft: `notes/paper/TMS_paper_v9.pdf`
+(v9 audit and open items: `notes/v9_plan.md`)
 (not in git — 260 MB of PDFs and figures are ignored; see `.gitignore`).
 
 ---
@@ -41,9 +44,35 @@ usual here, see [Which fit is which](#which-fit-is-which).
 
 ## Main figures
 
+### Current set (2026-09, anchor parameterisation)
+
+**These are the rows that matter.** Everything below this block is the history of
+how the figures got here; read it only to resolve an older `<label>`.
+
 | Item | Produced by | Reads | Writes |
 |---|---|---|---|
-| **Fig. 2** — nPRF preferred numerosity, amplitude, stimulation site | `tms_risk/notebooks/figure2.ipynb` | `derivatives/encoding_model2.model-1.smoothed/` | `notes/figures/figure2{a,b,c}.pdf`, `figure2_legend.pdf` |
+| **Fig. 3** — psychophysics: what cTBS did to choices, with cell means | `behavior/scripts/plot_fig3_probit.py` | `localnoise_{group_posterior,delta_by_ratio}.tsv`, `ppc_fig3a.<label>.tsv` | `notes/figures/fig3_probit.*` |
+| **Fig. 4** — noise grows with magnitude; Weber fails. Baseline session only, all 73 participants | `behavior/scripts/fit_baseline_weber.py` → `behavior/scripts/plot_fig4_weber.py` | `get_all_behavior()` (fit step); `probit_baseline_*.tsv`, `anchor_curves_baseline.tsv` (plot step) | `notes/figures/fig4_weber.*` |
+| **Fig. 5** — the cTBS effect on that noise and its consequences; 3x3, `log-power-n1n2` | `behavior/scripts/plot_fig4_big.py --model_label <label>` | `anchor_{curves,priors,priors_by_condition,payoffs}.tsv`, `anchor_mechanism.<label>.tsv`, `ppc_anchor.*.<label>.tsv`, `loo_anchor/` | `notes/figures/fig5_<label>.*` |
+| **Fig. 5 panels f/g** — the mechanism traces. **Draw-integrated**, on the real trials, subject-MEAN. Do NOT rebuild these from the per-subject median tables or over a uniform ratio grid: both flip the sign of the risky-first effect (`notes/analyses/aggregation_check.md`) | `behavior/scripts/extract_anchor_mechanism.py` (on the fitting node) | the **trace** | `notes/data/anchor_mechanism.<label>.tsv` |
+| **Aggregation diagnostic** — scores every plug-in/grid/median shortcut against the model's own PPC. Not a paper figure; the provenance check behind the row above | `behavior/scripts/extract_anchor_agg_variants.py` → `behavior/scripts/plot_agg_diag.py` | the **trace**; `notes/data/agg_variants/` | `notes/figures/diag_agg_<label>.*` |
+| **Model comparison / ELPD** | `behavior/scripts/extract_anchor_loo.py` (per trace) → `behavior/scripts/model_comparison_table.py` | the **trace** `log_likelihood` group | `notes/data/loo_anchor/loo.<label>.tsv`, `looi.<label>.npy` (pointwise, for paired dSE) |
+| **Posterior predictive + discriminating checks** | `behavior/scripts/extract_anchor_ppc.py` | the **trace** | `notes/data/ppc_anchor/ppc_{anchor,stats,subject}.<label>.tsv` |
+| **Convergence gate** — r_hat / ESS / divergences / bauer-commit stamp, one row per trace | `behavior/scripts/summarize_traces.py --trace_dir ... --loo` | every trace in a directory | stdout + `--out_tsv` |
+
+**Traces that must not be quoted.** `log-weber+affine-n1n2.pathfinder`,
+`log-power-n1n2pmusd`, `log-power-n2pmusd` failed the convergence gate; the
+first is superseded by `log-weber+affine-n1n2.mapjitter` (see
+`notes/analyses/weber_affine_convergence.md`). `--sigma_prior_mu` is an opt-in
+per-model flag: 0.4 fixes `weber+affine` and **breaks** `log-power-n1n2`, so it
+must never go into `PRIOR_SPEC`.
+
+### Earlier sets (historical)
+
+| Item | Produced by | Reads | Writes |
+|---|---|---|---|
+| **Fig. 2** — nPRF preferred numerosity, amplitude, stimulation site | `tms_risk/notebooks/figure2.ipynb` | `derivatives/encoding_model2.model-1.smoothed/` | `notes/figures/figure2{a,b,c}.pdf`, `figure2_legend.pdf` — **WARNING: the `figure2{a,b,c}.pdf` on disk (both `paper/` and `imaging/`) are an OLDER behavioral figure, not these panels** |
+| **Fig. 2 (new composite, 2026-08-19)** — surface map, amplitude-by-preferred-numerosity, decoding, + m0–m5 cvR² comparison bottom row (planned to replace Fig. 2, see `notes/v9_plan.md` §B3) | `modeling/scripts/plot_figure2_new.py` | `notes/data/{prf_voxels_oldtree,bb_decoding,cvr2_model_grid}.tsv`, `notes/figures/imaging/figure2a_surface.png` (raster extracted from the v9 PDF), `get_all_behavior()` | `notes/figures/figure2_new.{pdf,png,svg}` |
 | **Fig. 3A** — psychometric curves (observed) | `behavior/notebooks/figure4.ipynb` | `get_all_behavior()` | inline |
 | **Fig. 3B** — preferred numerosity at the stimulation site | `tms_risk/notebooks/figure2.ipynb` | as Fig. 2 | inline |
 | **Fig. 3 (reanalysis)** — psychometric curves + probit parameters, the model-free argument. Supersedes Fig. 3A; block B shows the paired IPS − vertex difference posterior, not the published mirrored marginals (rationale in `reanalysis_handoff.md` §5) | `behavior/scripts/plot_fig3_probit.py` | `localnoise_{group_posterior,delta_by_ratio}.tsv`, `ppc_fig3a.<label>.tsv` | `notes/figures/fig3_probit.*` |
@@ -60,6 +89,7 @@ usual here, see [Which fit is which](#which-fit-is-which).
 
 | Item | Produced by | Writes |
 |---|---|---|
+| **Supp Fig 1 (regenerated 2026-08-20)** — by-stake probit, published trace (`model-probit_average_n_full`, decision v9_plan §B(i)): columns A indifference point (RNP = exp(β0/β1)), B Δ RNP, C slope, D Δ slope, one row per (order × stake) cell. Replaces the old notebook raster, whose panel-D p-values were **transposed between the order columns** (printed 0.204 on risky-first/low and 0.111 on risky-second/high; correct is 0.111 / 0.204 — the manuscript text was already right). p-values use the min-direction convention of Fig 3, so the risky-first/high slope cell prints 0.248 where the old figure printed 0.752 (same posterior mass). Cross-checks itself against `probit_stake_cells_published.tsv` and aborts on disagreement | `behavior/scripts/plot_supp_fig1_stake.py` | `notes/figures/supp_fig1_stake.*` |
 | **S1.1–S1.4** — perceptual-distortion heatmaps | `behavior/scripts/plot_perceptual_heatmaps.py` | `notes/figures/` |
 | **S1.5** — P(risky) heatmaps | `behavior/scripts/plot_decision_space.py` | `notes/figures/decision_space.*` |
 | All group-level PMC parameters | `behavior/scripts/plot_pmc_parameters.py` | `notes/figures/pmc_parameters.*` |
@@ -230,6 +260,23 @@ reports.
 **Does NOT reproduce:** any usable E(s) slope from the monte-carlo decode — the decoder
 returns ~59–62 for every stimulus from 7 to 111, so E(s) traces the bounded grid.
 
+## Cross-validated R² for the full encoding-model set m0–m5 (2026-08-19)
+
+Write-up: `notes/cvr2_model_set_handoff_2026-08-19.md` (supersedes the m0/m1/m2-only
+`notes/data/cvr2_vs_null.tsv` of 2026-08-06 — the cluster CV trees were rewritten
+2026-08-13→15 and the numbers changed materially).
+
+| Statistic | Script | Reads | Writes |
+|---|---|---|---|
+| Per-subject mean cvR² per model vs the training-mean null (−0.0178), `NPCr2cm-cluster`, 35 subjects | `modeling/scripts/cvr2_vs_null.py --models 0,1,2,3,4,5` (cluster; SLURM 5103983) | `derivatives/encoding_model2.model-{0..5}.smoothed.cv/`, `glm_stim1.denoise.smoothed/`, `ips_masks/` | `notes/data/cvr2_vs_null_m0-5.tsv` |
+| Diagnostic comparison figure (a: Δ vs null, b: fraction beating null, c: paired vs m1) | `modeling/scripts/plot_encoding_model_comparison.py` | `notes/data/cvr2_model_grid.tsv` (long format, derived from the m0-5 TSV; `frac_wins` pending the extractor) | `notes/figures/encoding_model_comparison.*` |
+
+**Headline:** m1 (amplitude-only per session) is the CV-preferred model — +0.0131 over
+the null (t(34) = 2.67, p = 0.011), best in 26/35 subjects, beats all five alternatives
+pairwise (p ≤ 0.003). m4 (tuning free) and m5 (magnitude free) do not separate
+(Δ = +0.0010, p = 0.27): CV cannot adjudicate tuning vs magnitude; that claim rests on
+the parameter-level result. Do not quote raw cvR² against zero — the null is −0.0178.
+
 ## Three checks against existing outputs (2026-08-03)
 
 Write-up: `notes/checks_20260803.md`.
@@ -249,6 +296,16 @@ Write-up: `notes/checks_20260803.md`.
 **Does not reproduce:** the manuscript's stake × stimulation `pBayesian = 0.0153`. The
 stored `probit_average_n_full` trace gives 0.0532 for the interaction and 0.0556 for the
 low-stake cell collapsed over order, under the contrast the source notebook itself uses.
+
+**UPDATE 2026-08-19:** the scratchpad checks above are superseded by the permanent
+`behavior/scripts/reproduce_stake_probit.py` (reads the stored trace, writes
+`notes/data/probit_stake_cells_published.tsv`). It confirms the manuscript's by-stake
+numbers cell by cell: 3.02→2.33 p=0.0002 (low-stake safe-first), 1.74→1.59 p=0.204
+(**high-stake safe-first** — the v9 text mislabels this cell as "risky first"; see
+`notes/v9_plan.md` §A.4b), and p=0.0153 as the named coefficient
+`x:stimulation_condition:C(average_n_bin)`, which is the stake × stimulation
+interaction *within safe-first trials* (risky_first = 0 is the reference). The actual
+risky-first low-stake cell is 2.83→2.60, p = 0.111.
 
 **Now stale:** `notes/reanalysis_handoff.md` §3.2 and `notes/v8_stats_check.md` §3 claim
 the manuscript swaps the two split-correlation labels. The current manuscript text

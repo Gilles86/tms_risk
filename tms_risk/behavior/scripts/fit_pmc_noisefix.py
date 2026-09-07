@@ -273,6 +273,13 @@ def main():
                              'wherever eta_memory < 0. "additive" is nu_2 + '
                              'softplus(eta_memory), so holding an option in '
                              'memory can only add noise. Family 2 + flexible only.')
+    parser.add_argument('--group_sd', default=None, choices=['hp'],
+                        help="'hp' = HalfNormal group SDs with per-parameter "
+                             "scales, identical to the lfx2 '-hp' token. Use it "
+                             "to put a natural-space fit on the SAME prior as a "
+                             "log-space one; without it the two families differ "
+                             "in prior as well as in scale, and their credible "
+                             "intervals are not comparable.")
     parser.add_argument('--constrain', action='store_true',
                         help='use payoff-scale priors instead of bauer defaults')
     parser.add_argument('--backend', default='pymc',
@@ -354,6 +361,29 @@ def main():
         constrain_priors(model, df)
     if args.prior_estimate == 'objective':
         pin_objective_prior(model, df)
+    if args.group_sd == 'hp':
+        # Two different mechanisms exist in the wild and neither raises if you
+        # use the wrong one. bauer >= 0.3.0 (the GPU boxes' HEAD) reads a
+        # PER-INSTANCE `group_sd_dist`, and already DEFAULTS it to 'halfnormal';
+        # the patched older clones read module-level GROUP_SD_DIST /
+        # GROUP_SD_SCALE. Set whichever is present, and refuse if neither is.
+        from bauer import core as _bauer_core
+        if hasattr(model, 'group_sd_dist'):
+            model.group_sd_dist = 'halfnormal'
+            how = 'per-instance group_sd_dist'
+        elif hasattr(_bauer_core, '_group_sd'):
+            _bauer_core.GROUP_SD_DIST = 'halfnormal'
+            _bauer_core.GROUP_SD_SCALE = 1.0
+            how = 'module-level GROUP_SD_DIST'
+        else:
+            raise SystemExit(
+                f'--group_sd hp: {_bauer_core.__file__} has neither a '
+                f'per-instance group_sd_dist nor a _group_sd helper, so the '
+                f'request would be silently ignored.')
+        from tms_risk.behavior.fit_model import _scale_group_sds
+        _scale_group_sds(model)
+        print(f'group SDs: HalfNormal via {how}, per-parameter scales '
+              f'(matching lfx2 -hp)')
     model.build_estimation_model()
     print(f'sampling  {args.chains} chains, {args.tune} tune + {args.draws} draws, '
           f'target_accept={args.target_accept}, backend={args.backend}, '
@@ -406,6 +436,7 @@ def main():
     trace.posterior.attrs['tms_risk_find_init'] = str(args.find_init)
     trace.posterior.attrs['tms_risk_backend'] = args.backend
     trace.posterior.attrs['tms_risk_constrained'] = str(args.constrain)
+    trace.posterior.attrs['tms_risk_group_sd'] = str(args.group_sd)
     az.to_netcdf(trace, str(out))
     print(f'wrote {out}')
 

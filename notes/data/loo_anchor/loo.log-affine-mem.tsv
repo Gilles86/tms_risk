@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-affine-mem	log	affine	mem	shared_perceptual_noise	8	-4202.344094362085	46.58194040881957	189.17167927744458	0.0	0.6602569147922321

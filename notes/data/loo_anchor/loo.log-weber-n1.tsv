@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-weber-n1	log	weber	n1	independent	6	-4208.69948152642	46.50360273451801	164.34752514706815	0.0	0.4272762959110219

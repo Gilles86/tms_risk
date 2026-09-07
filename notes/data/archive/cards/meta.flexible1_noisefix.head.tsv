@@ -1,0 +1,2 @@
+label	elpd	p_loo	rhat	ess	divergences	grand_mean_gap	by_ratio	by_ratio_order	by_stake	by_safe	by_stim	by_stake_stim	by_stake_stim_order
+flexible1_noisefix.head	-4184.606097170723	254.18245679117763	1.0014984419549466	3696.393182559842	10	-0.0004391121775644269	6/6	12/12	10/10	5/5	4/4	6/6	12/12

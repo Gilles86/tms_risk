@@ -1,0 +1,2113 @@
+order	stake_grp	rung	label	where	variant	over_subjects	quantity	value	n_safe
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.013112983258500088	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.011589475378439911	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.008692996152780033	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.006302852911699074	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.005568810284855858	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.005026047595136193	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.01355201310853771	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.00802384198810544	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.0009261020327786285	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.010591498163375195	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.01789153460555679	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.02643428711052286	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.02012816188767489	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.02179741978812345	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.015926568882971632	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.008440808430997433	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.007899249431925697	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.004760883472196997	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.004690445127819672	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	dp	-0.0006342160995010899	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.005961817915046543	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.018312901974557906	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.029547955389174086	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	dp	0.04064777084091657	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.012681160131270776	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.011338749512547965	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.008285483613798519	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.0064647435644333345	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.005600590528461775	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.005368066720063812	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.013297790733653753	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.00837950144862755	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	dp	0.0005699173110285739	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	dp	0.010071624806452902	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	dp	0.017850164544877194	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	dp	0.026231545226722944	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	dp	0.0203052016036912	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	dp	0.021922143998714665	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	dp	0.01551100919639696	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	dp	0.008216291172311575	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	dp	0.007622108135750821	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	dp	0.004970520570963151	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.004680854244341341	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	dp	-0.0010931338685331734	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	dp	0.005335497615851771	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	dp	0.01808798633340691	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	dp	0.02999184124450125	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	dp	0.0420416266484087	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.0005863117469133058	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.00041162143604946556	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	dp	0.00079913613450486	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.0011041555903164625	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.0018485812583591754	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.004219211613828774	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	dp	0.0036435064382063496	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	dp	0.006843421797234477	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	dp	0.009859240327904126	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	dp	0.014818260022078302	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	dp	0.013752616765171352	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	dp	0.012568220908488017	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	dp	0.013300689675827346	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	dp	0.013847644306314617	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	dp	0.014263819999789646	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	dp	0.012116468468415157	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	dp	0.006729895481913563	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	dp	0.0007373037847248755	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.0036580016703983732	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	dp	-0.00016149054880449078	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	dp	0.004274603336860871	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	dp	0.009672502891448354	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	dp	0.014579859416616428	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	dp	0.015426912983268048	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	median	dp	0.0004953263898695159	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	median	dp	-0.00038009716473806166	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	median	dp	0.0007217681477994712	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	median	dp	-0.0013194294797783945	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	median	dp	-0.001884443932603829	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	median	dp	-0.004028829158992081	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	median	dp	0.002334980444161574	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	median	dp	0.005772558912411123	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	median	dp	0.008897349123035539	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	median	dp	0.01419644156844126	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	median	dp	0.013640122621715739	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	median	dp	0.01075202447833849	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	median	dp	0.01266977437245656	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	median	dp	0.012515699007975738	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	median	dp	0.013059907182610325	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	median	dp	0.010966702975657236	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	median	dp	0.005509868767878512	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	median	dp	0.000291038064994531	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	median	dp	-0.002807248039538697	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	median	dp	-0.0007185414380146693	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	median	dp	0.0036073643095018704	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	median	dp	0.008589706353622995	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	median	dp	0.014199716707787727	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	median	dp	0.015036600790896432	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	-0.01781239205254229	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	-0.016849064167951164	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	-0.012904152167109644	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	-0.012495053258147926	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	-0.01097969841818894	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	-0.007355609105280727	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.010436272302111686	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.015674762618702456	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.024860164869464206	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.029121150695874384	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.03724248134531624	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.04677013782303357	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.01843671728419919	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.01683017103017067	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.014102749955398739	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.011056104712400679	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.012914583279324323	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.014107122051858096	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.009513365055505141	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.01639744195314571	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.026364181956589593	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.030879730467362254	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.04402964208915172	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	num_shift	0.0590746750915775	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	num_shift	-0.017253524943203633	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	num_shift	-0.016304979224081584	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	num_shift	-0.012170682551903168	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	num_shift	-0.01170212943598842	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	num_shift	-0.010090804605888171	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	num_shift	-0.007436241968416123	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.010357179084573532	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.015520293125563646	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.02447813523029442	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.028693584183278945	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.03679174281881208	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.04558659420178739	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.01797688484323604	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.01632081482739635	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.013855502175851863	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.011135971656224864	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.01243777697340363	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.013738494209131327	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.010088361442477312	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.016257022412341754	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.025197248586249343	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.029992772575678964	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.04337302319385596	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	num_shift	0.05885586741828203	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.0017845131503824124	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.0008446475808361461	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.0005213567675170717	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.000774537042520405	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.0007986841910736166	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.0014379820408183558	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.009969196383181039	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.011677795913036828	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.014645044398604225	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.014716750036565772	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.01616971258822573	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.019098227466775572	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.015095604342176206	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.014150522212678606	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.012007428789269376	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.010652951279793035	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.010961819945819254	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.008230813979619422	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.002873624591907251	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	num_shift	-0.0012375539803771041	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.0010716171747836992	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.004372200977277853	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.008296539990285876	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	num_shift	0.0141075524905096	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	median	num_shift	-0.0016662869997329799	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	median	num_shift	-4.0920989499371174e-05	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.0004926253480904882	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	median	num_shift	-0.000745910021682513	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	median	num_shift	-0.000816804584133024	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	median	num_shift	-0.0010869167466510121	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.008820739195572039	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.010679085263476454	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.013928264157440515	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.013797000198782874	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.015949477639590037	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.018419046073026264	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.014009814721618219	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.012766424977852343	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.011615070886182105	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.01020674306637434	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.010043529591101164	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.007436696077735991	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	median	num_shift	-0.0024286445363170817	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	median	num_shift	-0.0018055768861437171	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.0009385093565716651	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.0035479792253251263	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.007883997633440016	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	median	num_shift	0.012962803134257794	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0853383159770167	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0828951960952202	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0763394578924874	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0760681361944804	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0728665345391786	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0672336674160565	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0291988884405023	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0295133937747993	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0261649901150438	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0287020562196205	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0288370772780053	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0264705681215245	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.08538966551302	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0833933248274081	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0755163123330909	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0771502009651852	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0715118914743484	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0615910801881905	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0163513581184336	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0120767466072418	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.0029872517727785	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	1.002686085225023	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	0.9971416174924511	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	den_ratio	0.9880912583840269	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0839035215727963	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0816701871498444	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0759788764060183	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0753241482028275	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.071092842634555	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0663471739095254	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0281088781521706	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0277357019949547	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0236961083902378	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0267067454795447	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.027089766011784	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0241368214378952	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0834946075345682	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0820445419929996	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0750359807030754	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0766787521183891	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.071509784549232	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0606394917537785	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0164223165346822	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0116597146355897	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0020411618057947	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	1.0015536332737465	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	0.9967460678073703	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	den_ratio	0.9869299390155646	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.052264766138161	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.05094886944701	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0454621273615523	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.042224774509629	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0378616334601893	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0307852571721476	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0021643701686862	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0030017076554167	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9997071317910914	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0027675052343477	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0041559237397797	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0001144427609636	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0598475623645358	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0583758203814775	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0522645377270388	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.052728186529942	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0479645756577716	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	1.0384183052141793	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9938837954314991	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9919828123848784	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9839948917041761	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9847056851176137	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9806146361628041	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	den_ratio	0.9720149589911753	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0514751832555895	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0499965484749338	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0451542666382645	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0421555921072665	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0383210382035184	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0314020053815303	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.001242850636223	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.002454238644017	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9973890961311955	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9997443682189258	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.002690890912604	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9969410854813106	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0603903797917602	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0569427012143784	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0535586327845974	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0523379553783214	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0474398973156278	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	median	den_ratio	1.0358048663427204	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9947540808106212	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.992609813432396	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.982860801919149	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9832330481862315	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9779251719876019	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	median	den_ratio	0.9703549606623669	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	-0.01305041382185428	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	-0.01167886677454289	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	-0.0076750864125303235	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	-0.005759583668632566	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	-0.0020169759137889454	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.00251752329270188	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.006075449310996958	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.010969471757620934	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.020201031440726554	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.024828453858633023	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.03344704586167255	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.04325344689694113	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.007171054655341573	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.004547499897091477	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.0019199528236098346	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	-5.905785824267249e-05	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.0006151130690641402	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.0017809544035020713	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.0039048113808542563	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.009278888716172074	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.01927165437699032	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.02348837850601277	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.03515478300982577	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postR	0.048974967834341195	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postR	-0.012619882544305079	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postR	-0.011005875296243625	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postR	-0.007492407595860569	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postR	-0.005737314071021058	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postR	-0.0019499172588944259	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.0028060471852257712	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.0060906959472947185	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.011063369525819787	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.020268843572410288	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.02427343343057824	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.03244031442589738	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.041946168877379564	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.007004855042391738	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.004502436698880389	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.002481093097078728	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.00026767226047548064	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.0008532618261650499	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.0019457838577057447	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.0034309050504873796	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.008738305357820123	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.018003768782470293	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.02257571242185428	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.03414793634173301	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postR	0.048261340784125945	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0006327746560343435	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0013361289866664033	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.001645681477797728	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0015865337963167326	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.001754030138567577	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.00162841602503222	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0013830376670650047	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.001601857091976278	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.003060070283003016	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.004386663629394001	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.006152890907256515	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.009168991581314822	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0035821180841812948	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.002753192699292763	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0021266838690730643	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.00117391037602788	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0009422074933684419	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.00035892938504105245	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postR	-0.0007041148215648379	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postR	-0.0008126507373118238	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postR	-0.0005332116346421618	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.0012348100571781472	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.002377482733756331	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postR	0.004713213196931114	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0009476738736159026	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0011768559380732992	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0014237089147772775	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0016040455670786047	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0014370125067150186	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0014751521308073445	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0011597045377013115	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.001395693561901834	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0025852133676381728	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.003213522535447118	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.004645187645051877	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.007309211684757585	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.003166254837214444	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.00223865288423893	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.002005716997803238	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.001060184985499979	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0007705228036231082	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0004007542427633126	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postR	-0.00031400500808720366	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postR	-0.0005096926146151981	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postR	-0.0003977692551719869	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0009950339941186361	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.001794839173009303	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postR	0.0034053070185466883	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	0.004761978230688011	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	0.005170197393408276	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	0.005229065754579321	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	0.006735469589515359	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	0.008962722504399993	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	0.009873132397982605	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.004360822991114728	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.004705290861081521	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.004659133428737655	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.0042926968372413625	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.0037954354836436956	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.003516690926092426	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.011265662628857616	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.012282671133079192	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.012182797131788905	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.011115162570643352	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.012299470210260184	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.012326167648356026	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.005608553674650888	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.007118553236973635	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.00709252757959927	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.007391351961349485	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.008874859079325953	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	d_postS	-0.010099707257236301	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postS	0.004775106852949681	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postS	0.004805581317087479	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postS	0.00488015798435989	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postS	0.006355173796431623	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postS	0.00842302218405322	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postS	0.009693649475039607	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.003970033082296005	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.004194298131434871	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.00417617558516962	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.0037011693906164695	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.0031713468479416347	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.0030630530151445562	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.011414915072844749	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.01241467393527561	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.012353149414009324	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.010836339252148993	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.011702723731982147	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.011660630362656486	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.0055620851217208596	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.007050264115279481	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.007049132064423062	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.007394887595156701	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.008690790399855715	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	d_postS	-0.009958925882779314	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.0011874299255898156	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.0013052549112441913	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.001292183538088032	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.0020442599151614753	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.0023775455473672145	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.0025560927541442434	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.003453341692819904	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.003437927899871325	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.003425703203467442	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.0027728545048381604	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.0021190918695434347	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.002102186912149423	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.0037523456472636817	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.0041966065587321355	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.00417292297462454	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.004901348201848949	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.005539614183603313	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.0048406668181957555	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	d_postS	0.00020752574159798697	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	d_postS	2.8396355213289705e-05	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	d_postS	3.640899521728968e-05	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-7.940224630810912e-05	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.00027008848678490333	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	d_postS	-0.0006347168501191384	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.0006825137749932875	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.0007154979489811437	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.0007072943052690572	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.0012517334627386578	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.001607778463396159	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.0018644792211260364	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.002552418511301502	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0026257999773713347	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0026144594824862866	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0019368487632864806	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0014348520073547513	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0014230957772272865	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0022724841230113606	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0027260461964884186	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0027260461964884186	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.0031214296740615932	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.003804244841254205	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.003143716360711424	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.00035227673696591744	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.00019515004566217353	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	median	d_postS	0.00020055174245803276	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	median	d_postS	3.4911522381960346e-05	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.00015794688161456055	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	median	d_postS	-0.00021512443444682283	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.31695332637189827	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.42008933639056695	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.5409857703576815	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.6884031360109634	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.7881143512014458	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.8710190778999081	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.23524489313035418	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.3130527759423305	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.40534105823547717	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.5271016594599169	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.6268605309894135	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.7150149095772825	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.27628862726074854	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.3923701971319921	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.5415865414157852	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.6852303087197492	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.786181989988445	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.8688563305932786	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.3279409120611996	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.429369809190146	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.535463475477166	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.645931767555449	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.7223138931965124	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	mean	p_vertex	0.7829131618181076	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.31702165433924767	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.4209033422098115	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.54141679213961	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.6889662362978528	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.7876275585143311	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.8709576011940615	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.23529310002207493	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.3125402908222151	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.405177720803809	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.5265369802975746	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.6258454668622022	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.7134215191565683	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.27616162123436294	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.39251760377761924	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.5412604823270115	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.6851822721259953	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.7863321899317959	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.8682605065220472	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.3283419273089272	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.42915730484167824	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.5353378922418528	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.6471078094400777	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.7228254857418226	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	mean	p_vertex	0.7831164382320104	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.2632937214034682	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.40286345766910664	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.5527428658194057	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.7153058753502333	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.8261324998836019	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.9114750997880336	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.16969303807995267	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.2942851707838757	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.4292669960711743	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.579565112673525	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.6968409513765201	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.788302459389246	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.22476832450187664	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.3635906388775611	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.537655272026521	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.7104397370357014	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.8236393030932838	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.9128215442812193	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.2883649971550006	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.4293179975616204	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.5828055912721346	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.7110693782524273	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.8074934976271865	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/mean	median	p_vertex	0.8745824045416309	
+Risky first	0.0	1.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.26405581807213124	
+Risky first	0.0	2.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.40255284509806216	
+Risky first	0.0	3.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.5526428485147384	
+Risky first	0.0	4.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.7159901332175469	
+Risky first	0.0	5.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.826999943442903	
+Risky first	0.0	6.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.910881209406579	
+Risky first	1.0	1.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.16738113086198986	
+Risky first	1.0	2.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.29424128671181554	
+Risky first	1.0	3.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.42973474490715946	
+Risky first	1.0	4.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.580072838378028	
+Risky first	1.0	5.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.6962966024668831	
+Risky first	1.0	6.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.7897579734462428	
+Risky second	0.0	1.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.22487026911814292	
+Risky second	0.0	2.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.3623256193251879	
+Risky second	0.0	3.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.5383227439457038	
+Risky second	0.0	4.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.7119673680691676	
+Risky second	0.0	5.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.8234534561395424	
+Risky second	0.0	6.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.9133579465438104	
+Risky second	1.0	1.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.2885245058863832	
+Risky second	1.0	2.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.4289906404915374	
+Risky second	1.0	3.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.5832648815890349	
+Risky second	1.0	4.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.710579968949641	
+Risky second	1.0	5.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.8087609969770538	
+Risky second	1.0	6.0	log-power-n1n2	trials	integrate/median	median	p_vertex	0.8752302660374667	
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	dp	-0.012403244919999277	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	dp	-0.005336935311549459	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	dp	-0.001715171682275291	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.003787679076160986	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.013247294965436782	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.01851008574048597	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.015426300516934575	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.015599881475737362	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.016773768192629258	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	dp	0.01852499012465671	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	dp	-0.012041973203718626	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	dp	-0.00480237105784517	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	dp	-0.0018105166460368148	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.0035959481605156527	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.013771658536569337	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.016974736451311624	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.015308124959607858	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.015440771651689396	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.01658408488763454	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	dp	0.019192960261338328	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	dp	-0.0013915621372543607	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.0035522873507632465	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.008334732624519663	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.013607312703519501	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.013363058774103846	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.01817572336059846	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.014294554829426232	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.009673989610498965	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.006563715327815138	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	dp	0.012954861046814975	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	dp	-0.0010408562078554643	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	dp	0.0035195734398116895	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	dp	0.007919246601010066	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	dp	0.013064916731467596	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	dp	0.0136409365673929	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	dp	0.016943866274556234	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	dp	0.013188095795070756	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	dp	0.009182159597607287	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	dp	0.006348414660976187	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	dp	0.012172343675114	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	-0.023210847595205742	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	-0.009840567989140278	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.005541903411969093	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.02343814926158413	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.040395120589559505	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.020249956557892385	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.014373172801504377	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.015928705449929522	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.027028951861338767	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	num_shift	0.04708141935318234	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	-0.0224616640177634	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	-0.00920669036346378	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.005874515444331326	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.023402796444570842	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.04033571257306799	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.019315911109319205	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.014370852012526712	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.015663899044067602	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.026404724630612313	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	num_shift	0.046591688880824426	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	-0.004674246751700353	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.0018332042442330875	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.005517776073176065	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.012983763982153418	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.021024731727020192	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.01848593833332501	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.012093971438946678	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.0070518847264773995	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.004239612313095485	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	num_shift	0.008524570287795795	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	num_shift	-0.0035757599093732178	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.0014396310252976984	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.0045804838445316345	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.012099089809013936	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.02085094865719342	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.01660040588886095	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.01129376350752746	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.00625341381513741	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.003815715728485704	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	num_shift	0.007728897627785655	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.0960831205888277	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.0724835254109921	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.0527879979765535	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.0337906422724172	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.016182675249286	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.1018738528332874	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.067990515684717	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.0389473543112195	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	1.010209406970956	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	den_ratio	0.9843420743711825	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.094853280216474	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.0708303092580316	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.0536570882808771	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.03183843602661	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.0148507473088397	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.099723411552644	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.067714629589139	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.0389331251959644	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	1.0095390414584315	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	den_ratio	0.9832730473274431	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.0584822361352924	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.041689932705314	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.0232082026636977	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.0073924745635778	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	0.9901679277839059	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.0726764429080893	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.047249175439436	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	1.0202931035765461	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	0.9915741250298379	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	den_ratio	0.9648317444314455	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.0563140543521898	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.041323616206741	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.0227327806775486	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.006186933195977	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	0.987534544183946	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.0740245744100965	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.0484119423162563	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	1.0176865930059922	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	0.9909247166875355	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	den_ratio	0.9647343223049439	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	-0.009893040736648076	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	-0.0052167970479702185	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.0036352222115191356	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.017886094306841235	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.03659808337426357	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.00873122209336769	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.0016126610923105197	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.003316350214807772	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.017024327071422544	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postR	0.04290098898390001	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	-0.009713479346367286	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	-0.005255327088011916	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.0034384484548509228	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.017834622135023306	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.035342549275260704	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.008489260055980233	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.0018289682371787617	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.0029651482611504133	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.016196013665975076	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postR	0.0422286218961932	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0012574911699971742	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0018693518969539425	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0010264638055329852	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0020821310463847104	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.00805361478079508	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.003451118506165378	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0016644661268256098	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0004686578859813424	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.00026087435054648146	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postR	0.0040018443022551255	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.001255430825036393	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.0016391989861632705	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.0008285782365486568	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.0017815481186253348	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.006519932800912047	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.0030511153273020675	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.001179672718210814	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.0003919358926040376	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.0001292884807318669	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postR	0.002624272955048671	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	0.013317806858557666	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	0.004623770941170061	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.0019066812004499584	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.005552054954742896	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.003797037215295939	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.011518734464524696	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.012760511709193859	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.012612355235121752	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.010004624789916216	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	d_postS	-0.004180430369282325	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	0.013063442832684784	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	0.0044413092628084825	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.00163186617528723	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.004839485149225459	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.0029810369888482657	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.010872944536680518	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.012551364120608689	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.01174157636615946	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.009602901597085146	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	d_postS	-0.0047354924247153506	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	0.0034728650626735026	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	0.0011157597675211517	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.0009626350251746318	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.0029220577873786124	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.004501477917562574	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.005961777039799377	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.004455580487144471	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.002592364785558323	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	-0.0008540375800697908	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	d_postS	0.0004461552728718299	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postS	0.002671969667896068	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postS	0.000588057916847573	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.0005292064072199842	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.0021123459413645573	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.003174497835517043	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.004028367410966904	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.0030161828371855215	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.0017060650280917855	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postS	-0.00033974326486041484	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	d_postS	0.0004918060084657672	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.6508912590941293	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5839065748465257	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5233842408014311	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.4729239899387619	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.4360477650965526	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5722525900616704	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5925896462595276	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5922682358466468	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5766104688390216	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	mean	p_vertex	0.5456489215064031	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.6506825170592304	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5841885475953851	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5238446926573112	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.47259678848866615	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.4363528431860816	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5726447075195716	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5926488432112564	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5924265394165331	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5762712561071248	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	mean	p_vertex	0.5451184551277883	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.6697778704390653	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.5994909861653309	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.5342760030936115	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.5210585457342909	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.4642861275518546	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.5745555801271832	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.5914011564786541	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.6159478458466632	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.6272324298071872	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/mean	median	p_vertex	0.6105002908177071	28.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.6695487694527438	7.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.5996142930009085	10.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.5336782148821294	14.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.5215693012570293	20.0
+Risky first			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.4637962145397053	28.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.5768804442138371	7.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.5918517275539922	10.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.6156226227140613	14.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.6284176523034645	20.0
+Risky second			log-power-n1n2	trials_safe	integrate/median	median	p_vertex	0.6095949715757302	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	dp	-0.012452314069429786	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	dp	-0.0034980601565717485	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	dp	0.00479961011951611	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	dp	0.012923713661585989	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	dp	0.01873258994437936	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	dp	0.01736140434133379	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	dp	0.013355833402911662	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	dp	0.012323173115818556	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	dp	0.012287759443548122	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	dp	0.013428655872735342	28.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	dp	-0.012325991153715837	7.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	dp	-0.003435279513866617	10.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	dp	0.004826690573606195	14.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	dp	0.012882522927861972	20.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	dp	0.018993140524483948	28.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	dp	0.01674189581707456	7.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	dp	0.012581797419846708	10.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	dp	0.012081472169764292	14.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	dp	0.01210983428767585	20.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	dp	0.013036225864403787	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	dp	-0.004012395637067515	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	dp	0.00020298710573830894	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	dp	0.004461849754021768	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	dp	0.009774743175161272	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	dp	0.01151102209611984	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	dp	0.014918506878420551	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	dp	0.009486990100280604	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	dp	0.007227199520778844	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	dp	0.004954074950011506	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	dp	0.008353014838559669	28.0
+Risky first			log-power-n1n2	grid	integrate/median	median	dp	-0.003432496654332881	7.0
+Risky first			log-power-n1n2	grid	integrate/median	median	dp	0.00010160311572775276	10.0
+Risky first			log-power-n1n2	grid	integrate/median	median	dp	0.004032703618224458	14.0
+Risky first			log-power-n1n2	grid	integrate/median	median	dp	0.008877186810198855	20.0
+Risky first			log-power-n1n2	grid	integrate/median	median	dp	0.010844325361451508	28.0
+Risky second			log-power-n1n2	grid	integrate/median	median	dp	0.013822309821255954	7.0
+Risky second			log-power-n1n2	grid	integrate/median	median	dp	0.008739267822731477	10.0
+Risky second			log-power-n1n2	grid	integrate/median	median	dp	0.006349721500914739	14.0
+Risky second			log-power-n1n2	grid	integrate/median	median	dp	0.004336387715736054	20.0
+Risky second			log-power-n1n2	grid	integrate/median	median	dp	0.007597943391981299	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	num_shift	-0.022125828875376438	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	num_shift	-0.01035030305693626	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.003110569785391686	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.019251511695039844	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.03464801865810029	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.023570559730276126	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.015012018693889524	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.013098673884620689	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.02005030752241553	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	num_shift	0.036567214520554496	28.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	num_shift	-0.02111312392469438	7.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	num_shift	-0.009331371814454932	10.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	num_shift	0.0035935262816301906	14.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	num_shift	0.01888072022211022	20.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	num_shift	0.033572244913014124	28.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	num_shift	0.022701759705097344	7.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	num_shift	0.014758166843746139	10.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	num_shift	0.012533989747666726	14.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	num_shift	0.019589996753149277	20.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	num_shift	0.03547187712830331	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	num_shift	-0.007288117290482117	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	num_shift	-0.0013740039258789939	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	num_shift	0.004281904872768958	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	num_shift	0.012030949622128998	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	num_shift	0.02100942956240112	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	num_shift	0.017307339901570386	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	num_shift	0.01018023210164262	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	num_shift	0.005552188307884096	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	num_shift	0.0022392823603081587	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	num_shift	0.004325251620859456	28.0
+Risky first			log-power-n1n2	grid	integrate/median	median	num_shift	-0.005907822355892715	7.0
+Risky first			log-power-n1n2	grid	integrate/median	median	num_shift	-0.0010872043491421935	10.0
+Risky first			log-power-n1n2	grid	integrate/median	median	num_shift	0.004055703899638961	14.0
+Risky first			log-power-n1n2	grid	integrate/median	median	num_shift	0.010654025227154258	20.0
+Risky first			log-power-n1n2	grid	integrate/median	median	num_shift	0.022070315886957556	28.0
+Risky second			log-power-n1n2	grid	integrate/median	median	num_shift	0.01618112443154611	7.0
+Risky second			log-power-n1n2	grid	integrate/median	median	num_shift	0.009208097186721324	10.0
+Risky second			log-power-n1n2	grid	integrate/median	median	num_shift	0.005233665536933218	14.0
+Risky second			log-power-n1n2	grid	integrate/median	median	num_shift	0.0017478744162956516	20.0
+Risky second			log-power-n1n2	grid	integrate/median	median	num_shift	0.0029708231039264786	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.1005506449749727	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.076411699509825	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.0563347265802343	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.0366279441496276	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.0182730795479935	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.1058181109010012	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.0720568720819201	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.0429694969792112	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	den_ratio	1.0141280359214369	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	den_ratio	0.9881353647832899	28.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.100613229791771	7.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.0757466005556047	10.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.0573630318442588	14.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.0346857474716695	20.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.01603227473671	28.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.1035112979715342	7.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.0711051412820842	10.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.043868640472855	14.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	den_ratio	1.013865860991999	20.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	den_ratio	0.986740945036316	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.0642639323582366	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.04234725456349	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.0199428052033976	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.0044221716023063	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	den_ratio	0.988813048044846	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.0742383723360407	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.0470440265680658	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	den_ratio	1.018375150240264	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	den_ratio	0.9921224670144688	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	den_ratio	0.9649125428847455	28.0
+Risky first			log-power-n1n2	grid	integrate/median	median	den_ratio	1.064182977056252	7.0
+Risky first			log-power-n1n2	grid	integrate/median	median	den_ratio	1.042140657232024	10.0
+Risky first			log-power-n1n2	grid	integrate/median	median	den_ratio	1.0185338247461528	14.0
+Risky first			log-power-n1n2	grid	integrate/median	median	den_ratio	1.002857149943582	20.0
+Risky first			log-power-n1n2	grid	integrate/median	median	den_ratio	0.9854953321262714	28.0
+Risky second			log-power-n1n2	grid	integrate/median	median	den_ratio	1.0721007647786767	7.0
+Risky second			log-power-n1n2	grid	integrate/median	median	den_ratio	1.0477447629587342	10.0
+Risky second			log-power-n1n2	grid	integrate/median	median	den_ratio	1.0179447118314755	14.0
+Risky second			log-power-n1n2	grid	integrate/median	median	den_ratio	0.9905684468467029	20.0
+Risky second			log-power-n1n2	grid	integrate/median	median	den_ratio	0.9649020784483708	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postR	-0.008808022016818772	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postR	-0.005726532115766198	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.001203888584941728	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.013699456740296947	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.030850981442804352	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.012051825265751432	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.0022515069846956648	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.0004863186494989387	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.010045682732499313	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postR	0.03238678415127218	28.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postR	-0.00821004450758838	7.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postR	-0.005683887160818501	10.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postR	0.001303800580708695	14.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postR	0.013610277173963462	20.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postR	0.029429515005782017	28.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postR	0.01138822923051859	7.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postR	0.002345109712199281	10.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postR	3.161110621096554e-05	14.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postR	0.009683980333160935	20.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postR	0.03173100156189712	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postR	-0.0007183246856051803	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postR	-0.00015049269372076755	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postR	0.00022762288987871572	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postR	0.002805505066652538	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postR	0.011525179812958935	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postR	0.003850521406755989	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postR	0.001168745489130714	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postR	0.0005850322118750319	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postR	0.0007111127703913161	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postR	0.0052127468060481205	28.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postR	-0.0001734699633622494	7.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postR	-0.00025769424756186157	10.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postR	2.7506869523215017e-05	14.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postR	0.001958175745842361	20.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postR	0.0094321826077557	28.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postR	0.0032249156028777383	7.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postR	0.00125139350433205	10.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postR	0.0007403313913805665	14.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postR	0.0007514370470143916	20.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postR	0.00409454177460809	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postS	0.013317806858557666	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postS	0.00462377094117006	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.0019066812004499584	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.005552054954742896	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.0037970372152959396	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.011518734464524696	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.012760511709193859	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.012612355235121752	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.010004624789916216	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	d_postS	-0.004180430369282325	28.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postS	0.013063442832684784	7.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postS	0.0044413092628084825	10.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.00163186617528723	14.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.004839485149225459	20.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.002981036988848265	28.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.010872944536680518	7.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.012551364120608689	10.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.01174157636615946	14.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.009602901597085146	20.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	d_postS	-0.0047354924247153506	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postS	0.0034728650626735026	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postS	0.0011157597675211517	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.0009626350251746318	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.0029220577873786124	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.004501477917562574	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.005961777039799377	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.004455580487144471	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.002592364785558323	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postS	-0.0008540375800697908	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	d_postS	0.0004461552728718299	28.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postS	0.002671969667896068	7.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postS	0.000588057916847573	10.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postS	-0.0005292064072199842	14.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postS	-0.0021123459413645573	20.0
+Risky first			log-power-n1n2	grid	integrate/median	median	d_postS	-0.003174497835517043	28.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postS	-0.004028367410966904	7.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postS	-0.0030161828371855215	10.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postS	-0.0017060650280917855	14.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postS	-0.00033974326486041484	20.0
+Risky second			log-power-n1n2	grid	integrate/median	median	d_postS	0.0004918060084657672	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.6323316008714035	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.5568107834363673	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.4922888323059965	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.44053130771816384	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.40892603073082834	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.550324817428739	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.555884149443502	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.5499816330442795	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.534031833029589	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	mean	p_vertex	0.5099090688898342	28.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.631379699139507	7.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.556772219787222	10.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.4924854999572374	14.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.4406373802332612	20.0
+Risky first			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.4097090494813189	28.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.5504888015563016	7.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.5560251688987157	10.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.5498019949073756	14.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.5339278242265137	20.0
+Risky second			log-power-n1n2	grid	integrate/median	mean	p_vertex	0.5098607921217133	28.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.6533348434058663	7.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5760574316946248	10.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5115662009711118	14.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.4627853336385377	20.0
+Risky first			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.42893726319838055	28.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5708928573341236	7.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5790554956167823	10.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5816382351289421	14.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5690039141760842	20.0
+Risky second			log-power-n1n2	grid	integrate/mean	median	p_vertex	0.5667782134879558	28.0
+Risky first			log-power-n1n2	grid	integrate/median	median	p_vertex	0.6538620061800162	7.0
+Risky first			log-power-n1n2	grid	integrate/median	median	p_vertex	0.577525162939462	10.0
+Risky first			log-power-n1n2	grid	integrate/median	median	p_vertex	0.513471851628084	14.0
+Risky first			log-power-n1n2	grid	integrate/median	median	p_vertex	0.46364000674235634	20.0
+Risky first			log-power-n1n2	grid	integrate/median	median	p_vertex	0.4288987226321692	28.0
+Risky second			log-power-n1n2	grid	integrate/median	median	p_vertex	0.5729185774637172	7.0
+Risky second			log-power-n1n2	grid	integrate/median	median	p_vertex	0.5798502255852835	10.0
+Risky second			log-power-n1n2	grid	integrate/median	median	p_vertex	0.5825325484979172	14.0
+Risky second			log-power-n1n2	grid	integrate/median	median	p_vertex	0.5693718463271931	20.0
+Risky second			log-power-n1n2	grid	integrate/median	median	p_vertex	0.56920252111476	28.0
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.009626405891887232	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.007947571494522698	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.004728587469954738	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.0019663057316989738	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.0015820571647225834	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.0019035549508628297	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.010765801910214307	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.004576785511180503	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.005058708296079364	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.015095339327050754	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.022659288134823957	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.03182444246897977	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.017966922815631576	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.01962400421426855	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.013746213240317334	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.006459788084954386	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.00654442348426524	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.0044084750414587915	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.00838673672115892	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.0063105337858617265	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	dp	-0.0009555318205610333	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.012080307308989598	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.024198319279786516	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	dp	0.03595666738646774	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	dp	0.001300593592367098	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	dp	0.0010290737151278189	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	dp	0.0018632668856056929	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.000837421478757594	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	dp	0.0013796575032127834	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.0023011931931576912	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	dp	0.009584079699514476	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	dp	0.014659705159564178	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	dp	0.013635496798751461	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	dp	0.024272514641559478	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	dp	0.02247766954736789	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	dp	0.020207213929478978	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	dp	0.014283734057878418	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	dp	0.016980427107032736	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	dp	0.011888174783328634	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	dp	0.008028952057069253	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	dp	0.0010317509280945198	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.0014476144372529698	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.006581311486056729	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.009471370980806386	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.011481036958106372	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	dp	-0.006831364584600467	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	dp	0.008809357779006452	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	dp	0.009863324174999985	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	-0.013752047332124135	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	-0.012711222585320103	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	-0.008665938027192807	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	-0.008028224063356635	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	-0.006145534216238196	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	-0.002459893185070649	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.014594867930227313	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.019781135243583898	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.029158550800394614	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.03330506051517197	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.0417065216865441	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.05143066739151641	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.015177628815322069	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.01350979828966924	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.010766073660963537	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.007550799994509112	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.009519559787300942	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.010593965773929844	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.006759171712401619	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.013329346281903062	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.023084536520184374	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.02728456985367872	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.04051850959571399	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	num_shift	0.055176928463923476	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.0010722572143712084	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.005559020016011107	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.003017769816158237	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.0027712973403162255	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.001268616556211355	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.00010917834213555744	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.01730482458239202	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.017811518528674852	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.019825983109993395	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.014810678168804955	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.02344307892901772	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.0310906090262885	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.021766266072270946	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.02206424991000396	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.015353612774051839	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.010549006758962753	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.013779540489826825	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	num_shift	0.00684519604305886	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.01637719773049129	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.01159565242075869	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.012890712924210734	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.008708318747414215	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.0053808182710899785	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	num_shift	-0.003931748054120591	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0745531562623039	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0723866706084602	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0664740217916826	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0661471846541872	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0627101437702107	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0568686429445766	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0240186320714824	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0238394005135638	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.020033306424451	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.022062254861661	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0213329824637458	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0180787532950268	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0750136267232584	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0734462095199968	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.066575733036012	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0680970403878638	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0625504101698189	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0531695639671486	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.013324432226395	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0094259822204892	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0008676860130783	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	1.0006384725984048	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	0.9950382746967358	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	den_ratio	0.98615704255739	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0170753840804927	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0184674487642311	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9997721205789478	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9956141877864854	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9999606623662964	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.001233473834517	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9658593011434762	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9621363316075583	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9590034459671516	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9764964097956988	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.972043517706226	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9654559732229359	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0419354013105788	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0401994128071244	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0349013646983658	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0361936921207686	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0237445829962093	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	1.0288273731258144	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9925357100569958	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9955384703749611	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.988560464627028	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9871191745304297	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9785167211515553	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	den_ratio	0.9708752982001448	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	-0.010895493823900258	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	-0.009453729175480215	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	-0.005342978972546019	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	-0.003482252100979982	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.0004448964950342261	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.005195443474444511	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.009283941866682457	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.014314253570231975	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.023713601399303088	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.028244420379203043	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.03709560751860191	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.04711711870092688	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.0060108965662451575	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.0034504749492339976	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.0007953620576516413	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	-0.0013232633470101028	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	-0.0005525573002460912	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.0008062003965702786	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.003403387612716527	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.00864260501196914	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.018422753823422854	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.022303685199033186	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.034004959751531165	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postR	0.04760475139673619	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.004649384203187908	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0078067618407295924	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.004821010328259471	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0023254628482753947	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.005811450149438624	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0015111813327720286	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.003074225455669932	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0015292867725067438	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0021990929874213805	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.003329127980083483	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.004342098345436825	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.008591609996195496	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.007197626369608967	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0052419962127311	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0033184816196708544	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0007929923379071643	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0007805035426313722	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postR	-3.113757218353719e-05	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postR	-0.0016795842679331319	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postR	-0.0016043571984143412	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postR	-0.002977383328348182	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postR	-0.0013579582858724848	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postR	-0.00015667348844653853	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postR	0.0011600826284459131	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	0.0028565535082238705	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	0.0032574934098398875	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	0.0033229590546467805	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	0.0045459719623766595	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	0.006590430711272429	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	0.007655336659515197	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.005310926063544853	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.005466881673351921	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.005444949401091521	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.005060640135968934	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.004610914167942217	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.004313548690589545	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.009166732249076945	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.010059323340435265	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.009970711603311925	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.008874063341519243	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.01007211708754706	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.009787765377359595	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.0033557840996850693	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.0046867412699338985	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.004661782696761499	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.004980884654645519	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.006513549844182818	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	d_postS	-0.0075721770671872725	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.0014237445691155741	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.0014237445691155741	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.0014237445691155741	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.002565937579723343	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.002565937579723343	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.003304126120869777	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.005146571035463898	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.0045667894504743956	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.0045667894504743956	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.0033617548050290935	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.0027402239086269375	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.0027402239086269375	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.002921785468857981	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.002921785468857981	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.002921785468857981	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.005452297702875919	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.005452297702875919	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postS	-0.0031592843439625096	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.004006187840532416	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.0040260605436952535	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.0040260605436952535	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.004200372898828538	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.004200372898828538	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	d_postS	0.004200372898828538	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.31005850905724713	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.41576977935880766	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.5392558950655684	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.6909559727348691	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.7941703332271182	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.8784499771656769	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.22548825561006278	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.3026099451431655	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.39429210678709253	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.5166727180216929	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.6177372411663251	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.7081700183441544	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.27302597525016575	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.3922403629454068	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.545931493475896	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.6945851522436985	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.7973719503466346	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.8791197882208144	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.3273948531937079	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.43106669177948104	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.5390627330901931	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.6514294418673147	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.7282680343135031	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	mean	p_vertex	0.790371850573416	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.2597863029711698	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.4034993507686678	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.5541723783844592	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.7264676910728034	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.8375951360223968	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.9206008356508815	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.1679092708671372	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.2772010396456015	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.42922660206345337	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.5778247034455966	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.7099296273898111	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.7903205238996409	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.21237023670246452	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.35026446932033756	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.5060734226720226	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.6979832355013733	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.8450555198336592	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.9273187007346835	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.255851280749666	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.4134397148671566	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.5934865658597228	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.7137334134294061	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.8159162782092643	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_mean	median	p_vertex	0.8804464795024528	
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	dp	-0.008417604634795836	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	dp	-0.0014914450150629382	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.0016488350850598417	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.007658830347359805	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.01831253228186937	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.017065316249571073	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.013978483363943302	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.012935543505771738	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.011907848901904085	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	dp	0.010891824894854641	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.001868375877447102	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.01272115654158093	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.014608664970884144	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.021195718747892212	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.019369892227652865	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.017314508171528565	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.010956565027325879	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	dp	0.003945664553901042	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	dp	-0.0029263619964971788	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	dp	-0.006430638619977808	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	-0.018097488865964715	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	-0.005626672883349624	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.009380406866783899	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.027389689183942988	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.045176546076953344	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.016499502199426797	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.01121648695571162	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.012941341550481694	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.023798452468727156	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	num_shift	0.0434350269737117	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	-0.0006562249352388324	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	0.0039058171317294756	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	0.014240014359046519	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	0.015066139333875267	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	0.029549169790462355	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	0.022186159696276537	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	0.012549519495986816	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	-0.0003511328145670382	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	-0.0032213601990237115	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	num_shift	-0.011708180055756967	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.082923963077591	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0631450315107298	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0453003631728313	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.027049506991937	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0096689188046863	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0888072382039624	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0600258817394377	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0342131648383301	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	1.0076365550899569	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	den_ratio	0.9828587247579277	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	1.0142622422155785	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	1.003843863775465	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	1.018663267779719	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	0.9766699790044053	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	0.9629612883418059	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	1.0517824353294751	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	1.0205255208826485	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	1.00910752901512	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	0.9985514338726306	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	den_ratio	0.9543167189401123	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	-0.007802556544327831	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	-0.002796696026662277	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.0065772649092126455	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.021341869188485275	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.040323201102302246	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.007291477534652061	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.0005683743055590452	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.0026047431567042495	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.01628470782236384	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postR	0.04162520622655197	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.003976228936971688	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.003797146848925746	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.004828598514254656	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.0010962247375032597	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.005851416829125118	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.008192489759868785	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.0021063993331722486	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	-0.00042201323960600057	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	-0.0008474230357264171	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postR	0.0002826638048735545	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	0.01029493232163691	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	0.002829976856687352	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.0028031419575712947	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.00604781999545769	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.004853344974651108	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.00920802466477476	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.010648112650152614	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.010336598393777471	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.007513744646363271	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	d_postS	-0.0018098207471597277	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	0.00471367512723897	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	0.0008352340539454772	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	-0.002007198796160292	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	-0.0028817921562644955	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	-0.006028720673067145	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	-0.00342406761123204	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	-0.0028723295683703576	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	0.00016936922825783185	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	0.003888044805909985	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	d_postS	0.006218254493207898	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.6557857792915897	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5820523527657812	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5175973818015402	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.46377828213971223	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.423514720748162	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5780704189576978	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5970033072619151	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5956621796925974	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5799073791794498	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	mean	p_vertex	0.5499960158814758	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.6606874747880682	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.6046566499484581	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.5427770925105135	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.49558634599909235	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.47226159122876266	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.5708422502208539	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.5979742398710494	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.620301635880477	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.6256026118860449	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_mean	median	p_vertex	0.6231243420164482	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	dp	-0.009684049760989046	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	dp	-0.0007306883819832947	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	dp	0.007421561241863774	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	dp	0.015622027337755582	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	dp	0.021949689120313438	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	dp	0.014804856118059855	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	dp	0.010199643064681055	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	dp	0.008135136614772153	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	dp	0.006310090436972678	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	dp	0.005256370364804609	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	dp	-0.005347598748977661	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	dp	0.0020629692484908668	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	dp	0.010531697650207877	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	dp	0.01072059559233816	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	dp	0.018638167543463348	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	dp	0.01846860832733743	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	dp	0.009826687049145001	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	dp	0.002091358678222419	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	dp	-0.005403394532162804	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	dp	-0.008002471577211267	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	num_shift	-0.016884222572489962	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	num_shift	-0.006140466988190106	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.006784022568488667	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.022769402864533314	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.0386454699459584	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.019648312931842753	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.011584506322845918	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.00960906509628216	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.01594743140787282	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	num_shift	0.0315336522139689	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	num_shift	-0.008700054544503993	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	num_shift	0.001639921898349721	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	num_shift	0.011200464925028823	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	num_shift	0.015139496631514348	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	num_shift	0.021562902361539488	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	num_shift	0.021345874435794908	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	num_shift	0.010698393883756641	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	num_shift	-0.0008488754125790754	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	num_shift	-0.00824062894908773	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	num_shift	-0.011950313853285299	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0871240633873087	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0668272541598567	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0486766402168164	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0298710121873114	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0119173384203382	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0925578098655113	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.0639867878185565	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.03819485613956	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	den_ratio	1.011553645500007	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	den_ratio	0.9866276062893043	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	den_ratio	1.0503875425499734	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	den_ratio	1.0008967038800847	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	den_ratio	0.9916729154509148	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	den_ratio	0.9681824719438267	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	den_ratio	0.9681186222898209	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	den_ratio	1.0517437535358243	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	den_ratio	1.0248947046575523	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	den_ratio	1.011274852241819	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	den_ratio	0.9993281830585694	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	den_ratio	0.9520629102167807	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postR	-0.006589290250853082	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postR	-0.003310490131502758	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.003980880610917413	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.016721582869075605	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.03379212497130731	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.010440288267068021	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.000936393672693342	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postR	-0.0007275332974952851	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.008433686761509511	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postR	0.02972383146680917	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postR	-0.0011211074028624778	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postR	8.480844820390133e-05	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postR	0.001623110159414125	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postR	0.0026072081745138398	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postR	0.011971830000300976	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postR	0.0038785286880737325	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postR	0.0009436945923046558	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postR	0.0003865921811068773	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postR	-0.00035654184029267457	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postR	0.003605309070293021	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postS	0.01029493232163691	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postS	0.002829976856687352	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.0028031419575712947	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.00604781999545769	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.004853344974651108	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.00920802466477476	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.010648112650152614	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.010336598393777471	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.007513744646363271	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	d_postS	-0.0018098207471597277	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postS	0.00471367512723897	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postS	0.0008352340539454772	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postS	-0.002007198796160292	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postS	-0.0028817921562644955	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	d_postS	-0.006028720673067145	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postS	-0.00342406761123204	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postS	-0.0028723295683703576	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postS	0.00016936922825783185	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postS	0.003888044805909985	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	d_postS	0.006218254493207898	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.6350958059724889	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.5535169161327884	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.48610877393064605	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.4325134604524614	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.3990556920040014	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.5535402554362809	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.5582563320682424	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.5516325056889988	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.5361736996904051	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	mean	p_vertex	0.514263918415011	28.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.6531526755556598	7.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.5778392933677992	10.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.5217548519273514	14.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.46074491077488766	20.0
+Risky first			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.4238086066356949	28.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.5684636913510492	7.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.5767211539091602	10.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.586997716574406	14.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.5611817089131942	20.0
+Risky second			log-power-n1n2	grid	plugin_mean	median	p_vertex	0.5835776596028162	28.0
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.010647097548858052	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.00915944721466802	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.0062553835458560095	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.0040519296638481484	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.00417753993024258	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.00480341268146131	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.010382121236199538	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.004513648710309872	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	dp	0.004798678599789982	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	dp	0.014648908933707011	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	dp	0.021704805833949976	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	dp	0.029708590058572692	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	dp	0.018360372330577142	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	dp	0.0198772934303803	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	dp	0.013977919297398602	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	dp	0.006226355742669035	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	dp	0.005981551173262384	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	dp	0.0033427705157766893	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.007772116893036062	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	dp	-0.004989044165524199	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	dp	0.0012070322974470139	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	dp	0.014039773424368822	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	dp	0.026197603609320656	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	dp	0.03721261061370509	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	median	dp	0.0008236739605076426	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	median	dp	-2.684705728839276e-05	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	median	dp	0.0013780945708231445	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	median	dp	-0.001861279105255742	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	median	dp	0.0008863230478063922	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	median	dp	-0.0028975305308888977	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	median	dp	0.008614304042787374	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	median	dp	0.016151699402596236	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	median	dp	0.014484584854255352	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	median	dp	0.021788106628859032	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	median	dp	0.022173507592838888	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	median	dp	0.020142928910988938	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	median	dp	0.017508658191346768	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	median	dp	0.016097701484675948	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	median	dp	0.0152264274150579	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	median	dp	0.009265377279352468	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	median	dp	0.0004952155837630867	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	median	dp	0.00024291400234832672	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	median	dp	-0.003907975131655338	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	median	dp	-0.008752357178400838	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	median	dp	-0.00845672974234668	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	median	dp	-0.002602852801038169	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	median	dp	0.009736636022015096	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	median	dp	0.012161264227237992	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	num_shift	-0.014839807948176178	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	num_shift	-0.01402384288346846	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	num_shift	-0.01031417101367456	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	num_shift	-0.009795393409245914	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	num_shift	-0.008493882639909618	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	num_shift	-0.005277925393674577	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.012920998378058981	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.017878535163993268	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.026699515766278093	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.03069406555043766	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.03836477945542428	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.047559598076332005	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.01536119105611723	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.013452146246071781	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.010509893778504633	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.007023397874074923	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.008942865846084494	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.009926377204102003	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.0067604926426081185	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.013143824200908412	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.02268802751204133	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.02668692695043389	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.03974825039229864	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	num_shift	0.054145976798198436	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.000615040410586872	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.0034093272129469	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.0018348284737024212	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.0013659126562508006	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.001494741108530817	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.00011269305239838823	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.015554892986200997	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.017586475767210175	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.019097847722376438	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.015410348998488513	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.0231872140725851	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.030256080554589615	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.02009616028866316	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.020890506913322282	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.016804837472851997	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.0139464907515649	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.012640540766424013	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	median	num_shift	0.008998691423227206	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.016018155749984775	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.009290943074413083	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.010563828956682259	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.004402036469353998	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.0013722989931871747	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	median	num_shift	-0.0021065480180189797	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0748612601636933	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0728669884545081	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0671897415180183	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0669411257910095	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0638500078188167	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0580879425206429	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0246522122849668	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0245115600294348	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.020810089034519	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.022881042445603	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0223359284917592	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.019195881313516	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.074446318399018	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0727313949965434	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0658165041143959	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.067069336859864	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0616561455542948	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0520375111577014	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0134982580811316	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0094837318375889	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.000941892873048	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	1.0005854975909363	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	0.9951015071775414	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	den_ratio	0.9862666831490041	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.024991967264272	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0247518713695911	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0197734364824849	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0120436636926278	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0206347435125387	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0077704239351313	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9708339008245974	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9673869958404702	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9627397552360769	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9850355310674956	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9805110512080666	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9702050366638274	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0438225657758244	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.036907576692074	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0387054531705568	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0365193611091241	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0266101708227744	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0320653471282966	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.998310620516631	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	median	den_ratio	1.0008554545365895	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9854022924848757	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9968553373063704	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9694579362491856	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	median	den_ratio	0.9689452137537901	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.010841850023132324	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.009585517433364207	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.005811485704628964	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.003904419611861613	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.00032266861190279647	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.004057445084466296	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.007134772644224682	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.011855631269524249	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.020707011468469004	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.02520153524569174	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.033483873242749804	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.04300786953983598	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.006739069512576115	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.003955114103218005	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.0011040501911436648	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.001103942583759997	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postR	-0.00037444939367890686	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.000751519110854353	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.002872280349241877	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.007909434762949306	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.01748012294155134	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.02133336484052788	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.03289332015787852	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postR	0.046239568282976456	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.003952297733179251	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0070308874976411735	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.005324190317134085	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.003369270904848348	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.007451161353859703	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0017834569882507914	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0011945999482643188	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0008748406369043504	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0011839124528476574	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0012057447719238112	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0041322877120851505	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.008664589749545351	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.006647789565836486	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.005649849977540662	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0044472502366662186	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.00089052560248426	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0010054179339369362	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postR	8.98686192605247e-05	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postR	-0.0016361318694424476	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postR	-0.0018489880432166483	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postR	-0.0038776750662370407	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postR	-0.000600726374754205	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0016981081934555793	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postR	0.0021109344365395355	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postS	0.003997957925043826	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postS	0.00443832545010423	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postS	0.004502685309045577	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postS	0.005890973797384282	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postS	0.008171214028006793	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postS	0.009335370478140868	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.005786225733834322	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.006022903894469052	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.005992504297809121	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.00549253030474596	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.004880906212674505	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.004551728536496061	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.008622121543541096	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.009497032142853747	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.00940584358736094	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.0081273404578349	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.009317315239763393	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.009174858093247643	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.003888212293366219	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.005234389437959094	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.005207904570489972	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.005353562109905986	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.006854930234420092	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	d_postS	-0.007906408515221966	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.0005389834571909446	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.0015050650002184824	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.0015050650002184824	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.003562211332179895	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.00375278322184025	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.004093563929443544	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.004699158168286255	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.004699158168286255	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.004699158168286255	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.0038000186076675804	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.0032580102739057835	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.0032580102739057835	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.0027380649585643604	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.0027380649585643604	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.0027380649585643604	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.004821567602342425	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.004821567602342425	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postS	-0.004315847985883248	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.001294279240119156	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.004984133920749256	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.004984133920749256	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.005028217068770324	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.002914038045659447	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	median	d_postS	0.002914038045659447	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.31177495084408163	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.4179547866937547	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.5417092430357491	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.6933411286640755	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.7964361608801903	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.8814388639867643	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.22413168876699324	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.30192102634135737	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.3942530262872836	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.5176923372295642	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.6201536360770612	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.7121205624181705	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.26979558925662805	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.3889340280574946	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.542393770417363	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.6907129625323739	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.7946030139544925	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.8786911837590702	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.3248740983539572	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.42864685434424676	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.5368152995056761	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.6499164560536212	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.727828601755263	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	mean	p_vertex	0.7914111934179039	
+Risky first	0.0	1.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.2564201269347347	
+Risky first	0.0	2.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.39470054773743074	
+Risky first	0.0	3.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.5822363144523325	
+Risky first	0.0	4.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.7283888068334841	
+Risky first	0.0	5.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.8361421512893706	
+Risky first	0.0	6.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.9176421155116359	
+Risky first	1.0	1.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.16892834155676256	
+Risky first	1.0	2.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.28663012665694354	
+Risky first	1.0	3.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.4300610619903649	
+Risky first	1.0	4.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.5798947338089746	
+Risky first	1.0	5.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.6919786659638397	
+Risky first	1.0	6.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.7826325413754961	
+Risky second	0.0	1.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.19869306778562928	
+Risky second	0.0	2.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.3360884067174253	
+Risky second	0.0	3.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.5154030395780436	
+Risky second	0.0	4.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.7223892081077605	
+Risky second	0.0	5.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.8315807513274381	
+Risky second	0.0	6.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.9264642440118619	
+Risky second	1.0	1.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.2611908495787515	
+Risky second	1.0	2.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.421895542389432	
+Risky second	1.0	3.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.5957161805956417	
+Risky second	1.0	4.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.7151749234729465	
+Risky second	1.0	5.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.8155262748380746	
+Risky second	1.0	6.0	log-power-n1n2	trials	plugin_median	median	p_vertex	0.8839552615321461	
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	dp	-0.011065891734876522	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	dp	-0.0033107851543405418	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.0011084357508147436	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.007329454466658472	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.017587048282103772	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.01669303072573584	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.01359386955190723	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.013428946338602138	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.013378036862433256	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	dp	0.01357102075489596	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	dp	0.0030008678225338682	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	dp	0.01139260221025066	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	dp	0.015307767212793874	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	dp	0.01971514845191866	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	dp	0.014508110048513575	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	dp	0.018759645372761053	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	dp	0.011286303991517808	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	dp	0.004356614458085208	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	dp	-0.0017553368806493552	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	dp	-0.0039512664078218684	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	-0.020081166699698182	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	-0.007412811786251283	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.007488409713387826	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.025003623494091704	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.04189500593840305	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.016160983450994253	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.01091138196952577	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.012594354600478726	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.023349566344703268	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	num_shift	0.042852567252170175	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	num_shift	-0.0018452278471497534	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.0031840061433093536	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.011887822574183712	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.015257664754146508	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.024301970857919793	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.020932579972324155	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.014619614889423352	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	num_shift	0.0009762229768780958	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	num_shift	-0.0020545501680243974	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	num_shift	-0.010017305618342354	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0835652293489597	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0639981951451145	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.046229062774038	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0279100602710345	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0104223012480762	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0875462362007056	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0594256572036163	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0340276703851485	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	1.0077010038452932	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	den_ratio	0.9830614154098116	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	1.0239030852289828	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	1.0245583290629998	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	1.0244583412869561	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	0.9853211144625287	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	0.9686536200679638	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	1.0512891161336555	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	1.0259725931964543	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	1.000999914529504	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	0.9961898279610162	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	den_ratio	0.9625735858638849	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	-0.007682772994638516	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	-0.003472388775636167	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.004996043947196201	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.018605896583850718	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.03628943733687156	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.008021992172722304	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.0007671990226124565	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.0023125684385736102	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.015472813948944886	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postR	0.0403135105069486	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.0033201730640217116	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.0054558364707419345	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.004854523162650078	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postR	7.178948707897703e-05	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.006146880515014737	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.008159676845190367	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.00222009787729	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postR	-0.0007397088762460443	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postR	-3.342318336607697e-05	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postR	0.0011215777705051444	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	0.01239839370505965	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	0.003940423010615086	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.0024923657661916412	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.006397726910241046	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.005605568601531503	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.008138991278271947	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.010144182946913296	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.010281786161905058	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.007876752395758376	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	d_postS	-0.0025390567452215685	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postS	0.006672880073137932	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postS	0.000832686370542568	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postS	-0.002001739486430232	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postS	-0.002977784364029734	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	d_postS	-0.005877524640243603	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postS	-0.005703624402519036	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postS	-0.003624344955788228	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postS	0.00041427335784804953	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postS	0.004056027479688584	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	d_postS	0.005387600879315002	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.6579273571664493	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5848907226767287	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5193879590643556	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.4646332037075708	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.42442868243598936	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5745779554522914	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5944274447863512	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5935197626102166	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5785027075999482	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	mean	p_vertex	0.5490289886605763	28.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.6746238105542298	7.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.6105305626894585	10.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.5308568607159257	14.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.48820385305133374	20.0
+Risky first			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.45221842517291994	28.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.567860366014746	7.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.59011670792505	10.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.6137308393293159	14.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.6266821859695987	20.0
+Risky second			log-power-n1n2	trials_safe	plugin_median	median	p_vertex	0.6293836088278528	28.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	dp	-0.011887260850272766	7.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	dp	-0.0021501253717382054	10.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	dp	0.00672620503346177	14.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	dp	0.015119225557032129	20.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	dp	0.021433580576632624	28.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	dp	0.014899333705461102	7.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	dp	0.010464291240309988	10.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	dp	0.008815571588655497	14.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	dp	0.007545735222705379	20.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	dp	0.007108971147742064	28.0
+Risky first			log-power-n1n2	grid	plugin_median	median	dp	-0.005772716950701278	7.0
+Risky first			log-power-n1n2	grid	plugin_median	median	dp	0.002095195310438216	10.0
+Risky first			log-power-n1n2	grid	plugin_median	median	dp	0.01073849722845719	14.0
+Risky first			log-power-n1n2	grid	plugin_median	median	dp	0.0133748811924033	20.0
+Risky first			log-power-n1n2	grid	plugin_median	median	dp	0.018870391011504416	28.0
+Risky second			log-power-n1n2	grid	plugin_median	median	dp	0.019490130943551322	7.0
+Risky second			log-power-n1n2	grid	plugin_median	median	dp	0.011093624243931077	10.0
+Risky second			log-power-n1n2	grid	plugin_median	median	dp	0.0031075210047539505	14.0
+Risky second			log-power-n1n2	grid	plugin_median	median	dp	-0.004620046259469024	20.0
+Risky second			log-power-n1n2	grid	plugin_median	median	dp	-0.00542570123338224	28.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	num_shift	-0.01884780925450481	7.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	num_shift	-0.007710727897885745	10.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	num_shift	0.005306199709765889	14.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	num_shift	0.021012262408224364	20.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	num_shift	0.03619940280547895	28.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	num_shift	0.019392076339157644	7.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	num_shift	0.011430085799210279	10.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	num_shift	0.00955713088462148	14.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	num_shift	0.015958357132675908	20.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	num_shift	0.031535258202782995	28.0
+Risky first			log-power-n1n2	grid	plugin_median	median	num_shift	-0.0073869959062134736	7.0
+Risky first			log-power-n1n2	grid	plugin_median	median	num_shift	0.0004062135500074993	10.0
+Risky first			log-power-n1n2	grid	plugin_median	median	num_shift	0.011577164250599008	14.0
+Risky first			log-power-n1n2	grid	plugin_median	median	num_shift	0.014004232663428847	20.0
+Risky first			log-power-n1n2	grid	plugin_median	median	num_shift	0.01861787468757383	28.0
+Risky second			log-power-n1n2	grid	plugin_median	median	num_shift	0.020055198053577094	7.0
+Risky second			log-power-n1n2	grid	plugin_median	median	num_shift	0.012143054144698549	10.0
+Risky second			log-power-n1n2	grid	plugin_median	median	num_shift	-0.0008718006316341853	14.0
+Risky second			log-power-n1n2	grid	plugin_median	median	num_shift	-0.007224462041221402	20.0
+Risky second			log-power-n1n2	grid	plugin_median	median	num_shift	-0.006874871638953186	28.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0870518084616083	7.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0670209262717283	10.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0489676503515937	14.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0301542475049417	20.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0121553079425762	28.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.091025586606094	7.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0631550791798752	10.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.037820807353658	14.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	den_ratio	1.0115022986724134	20.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	den_ratio	0.9867881852440202	28.0
+Risky first			log-power-n1n2	grid	plugin_median	median	den_ratio	1.0468117034258848	7.0
+Risky first			log-power-n1n2	grid	plugin_median	median	den_ratio	0.9979272218707202	10.0
+Risky first			log-power-n1n2	grid	plugin_median	median	den_ratio	0.9988183045011456	14.0
+Risky first			log-power-n1n2	grid	plugin_median	median	den_ratio	0.9617695357990147	20.0
+Risky first			log-power-n1n2	grid	plugin_median	median	den_ratio	0.9682931844690928	28.0
+Risky second			log-power-n1n2	grid	plugin_median	median	den_ratio	1.0543345135953712	7.0
+Risky second			log-power-n1n2	grid	plugin_median	median	den_ratio	1.0305295193581558	10.0
+Risky second			log-power-n1n2	grid	plugin_median	median	den_ratio	1.005147251687496	14.0
+Risky second			log-power-n1n2	grid	plugin_median	median	den_ratio	0.9935850058577729	20.0
+Risky second			log-power-n1n2	grid	plugin_median	median	den_ratio	0.9604002047039276	28.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postR	-0.006449415549445142	7.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postR	-0.003770304887270629	10.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postR	0.0028138339435742656	14.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postR	0.01461453549798337	20.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postR	0.030593834203947467	28.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postR	0.011253085060885697	7.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postR	0.0012859028522969659	10.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postR	-0.0007246552772836353	14.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postR	0.008081604736917523	20.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postR	0.028996201457561405	28.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postR	-0.00063502521282091	7.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postR	0.00020976259899477156	10.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postR	0.0007330382221637777	14.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postR	0.001583993136997215	20.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postR	0.009648016662952336	28.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postR	0.004733127823149132	7.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postR	0.0016037576698674804	10.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postR	0.0005305202784112239	14.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postR	-0.00031342364047715066	20.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postR	0.003187806761892773	28.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postS	0.01239839370505965	7.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postS	0.003940423010615086	10.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.0024923657661916412	14.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.006397726910241046	20.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.005605568601531503	28.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.008138991278271949	7.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.010144182946913296	10.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.010281786161905058	14.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.007876752395758376	20.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	d_postS	-0.0025390567452215694	28.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postS	0.006672880073137932	7.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postS	0.000832686370542568	10.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postS	-0.002001739486430232	14.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postS	-0.002977784364029734	20.0
+Risky first			log-power-n1n2	grid	plugin_median	median	d_postS	-0.005877524640243603	28.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postS	-0.005703624402519036	7.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postS	-0.003624344955788228	10.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postS	0.00041427335784804953	14.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postS	0.004056027479688584	20.0
+Risky second			log-power-n1n2	grid	plugin_median	median	d_postS	0.005387600879315002	28.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.6375612583064906	7.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.556237261095068	10.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.4881702928897455	14.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.43389382535837223	20.0
+Risky first			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.4001034340480034	28.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.5512295189176227	7.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.5566768541137591	10.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.5504922277087092	14.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.5352350026171014	20.0
+Risky second			log-power-n1n2	grid	plugin_median	mean	p_vertex	0.5132168506791728	28.0
+Risky first			log-power-n1n2	grid	plugin_median	median	p_vertex	0.661854681469367	7.0
+Risky first			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5781959031326176	10.0
+Risky first			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5192572918986723	14.0
+Risky first			log-power-n1n2	grid	plugin_median	median	p_vertex	0.4559399989501246	20.0
+Risky first			log-power-n1n2	grid	plugin_median	median	p_vertex	0.41502401038501846	28.0
+Risky second			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5662046161660781	7.0
+Risky second			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5745817212514168	10.0
+Risky second			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5910420687194978	14.0
+Risky second			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5658751891967474	20.0
+Risky second			log-power-n1n2	grid	plugin_median	median	p_vertex	0.5820278038279387	28.0

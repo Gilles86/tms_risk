@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-affine-n1.pathfinder	log	affine	n1	independent	8	-4176.168825452423	46.847378385121985	210.06783420940837	0.0	0.6494614899941292

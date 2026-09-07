@@ -1,0 +1,43 @@
+{
+    "trial_nr": {
+        "LongName": "Trial number",
+        "Description": "Trial index within the run (1-20). Each trial spans three rows sharing this number: 'stimulus 1', 'stimulus 2' and 'choice'."
+    },
+    "onset": {
+        "Description": "Onset of the event, relative to the first (non-dummy) volume of the run.",
+        "Units": "s"
+    },
+    "trial_type": {
+        "Description": "Which of the three events of a trial this row describes.",
+        "Levels": {
+            "stimulus 1": "Onset of the first-presented payoff option (a cloud of dots).",
+            "stimulus 2": "Onset of the second-presented payoff option.",
+            "choice": "Onset of the participant's button press."
+        }
+    },
+    "prob1": {
+        "LongName": "Win probability of the first-presented option",
+        "Description": "Probability that the first-presented option pays out: 1.0 for the safe option, 0.55 for the risky option. Only filled on the stimulus rows. The repository's 'risky_first' variable is defined as prob1 == 0.55."
+    },
+    "prob2": {
+        "LongName": "Win probability of the second-presented option",
+        "Description": "Probability that the second-presented option pays out: 1.0 for the safe option, 0.55 for the risky option. Only filled on the stimulus rows."
+    },
+    "n1": {
+        "LongName": "Payoff of the first-presented option",
+        "Description": "Number of dots shown for the first-presented option, which is also the payoff in Swiss francs if that option is chosen and pays out. Only filled on the stimulus rows.",
+        "Units": "CHF"
+    },
+    "n2": {
+        "LongName": "Payoff of the second-presented option",
+        "Description": "Number of dots shown for the second-presented option, which is also the payoff in Swiss francs if that option is chosen and pays out. Only filled on the stimulus rows.",
+        "Units": "CHF"
+    },
+    "choice": {
+        "Description": "Which option the participant chose. Only filled on the 'choice' row; an empty value there means no response was given within the response window.",
+        "Levels": {
+            "1": "Chose the first-presented option.",
+            "2": "Chose the second-presented option."
+        }
+    }
+}

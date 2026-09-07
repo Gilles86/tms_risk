@@ -73,10 +73,56 @@ def get_all_behavior(bids_folder='/data/ds-tmsrisk', drop_no_responses=True, all
     behavior = [s.get_behavior(drop_no_responses=drop_no_responses) for s in subjects]
     return pd.concat(behavior)
 
-def get_tms_conditions():
+def get_tms_conditions(bids_folder=None):
+    """Which session each subject received which cTBS stimulation site in.
+
+    Returns ``{'01': {2: 'vertex', 3: 'ips'}, ...}`` (subject as a zero-padded
+    string, session as an int).
+
+    By default this reads the packaged ``tms_risk/data/tms_keys.yml``, which is
+    the authoritative source. Pass ``bids_folder`` to read the same mapping out
+    of the dataset itself (the ``sub-XX/sub-XX_sessions.tsv`` tables written by
+    ``tms_risk.prepare.write_sessions_tsv``), which is what you want when you
+    only have the BIDS folder and no checkout of this repo.
+    """
+
+    if bids_folder is not None:
+        sessions = get_sessions_info(bids_folder)
+        sessions = sessions[sessions['stimulation'].isin(['ips', 'vertex'])]
+
+        return {subject: dict(zip(d.index.get_level_values('session'), d['stimulation']))
+                for subject, d in sessions.groupby('subject')}
+
     resource_path = files('tms_risk').joinpath('data/tms_keys.yml')
     with resource_path.open('r') as stream:
         return yaml.safe_load(stream)
+
+
+def get_sessions_info(bids_folder='/data/ds-tmsrisk'):
+    """Read the BIDS session tables of the dataset itself.
+
+    Concatenates every ``sub-XX/sub-XX_sessions.tsv`` into one DataFrame indexed
+    by ``(subject, session)`` (subject a zero-padded string, session an int),
+    with a ``stimulation`` column taking values ``baseline`` (session 1, no TMS),
+    ``ips`` or ``vertex``. See ``<bids_folder>/sessions.json`` for the sidecar
+    describing that column; ``tms_risk.prepare.write_sessions_tsv`` writes both.
+    """
+
+    bids_folder = Path(bids_folder)
+
+    df = []
+    for fn in sorted(bids_folder.glob('sub-*/sub-*_sessions.tsv')):
+        d = pd.read_csv(fn, sep='\t', keep_default_na=False)
+        d['subject'] = fn.parent.name.split('-')[1]
+        d['session'] = d['session_id'].str.split('-').str[1].astype(int)
+        df.append(d.drop(columns='session_id'))
+
+    if len(df) == 0:
+        raise FileNotFoundError(f'No sub-XX_sessions.tsv files under {bids_folder}. '
+                                'Create them with `python -m tms_risk.prepare.write_sessions_tsv '
+                                f'--bids_folder {bids_folder}`.')
+
+    return pd.concat(df).set_index(['subject', 'session']).sort_index()
 
 
 def get_participant_info(bids_folder='/data/ds-tmsrisk'):

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-genweber-n2.klw	log	genweber	n2	independent	8	-4191.469506415743	47.0974343287928	198.66625817440718	0.0	0.6275506069020027
