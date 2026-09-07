@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-n1.klw	log	power	n1	independent	8	-4174.379119029937	46.939075751064046	203.23119075604018	0.0016796640671865627	1.3572614997226518

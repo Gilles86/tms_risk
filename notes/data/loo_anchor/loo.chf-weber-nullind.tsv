@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+chf-weber-nullind	chf	weber	nullind	independent	6	-4445.883397813142	46.650036847366756	149.11997919959322	0.0005998800239952009	1.0833623183073142

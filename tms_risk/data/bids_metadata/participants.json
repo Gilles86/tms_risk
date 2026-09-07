@@ -1,0 +1,34 @@
+{
+    "species": {
+        "Description": "Species of the participant.",
+        "Levels": {
+            "homo sapiens": "Human."
+        }
+    },
+    "age": {
+        "Description": "Age of the participant at the first session.",
+        "Units": "years"
+    },
+    "sex": {
+        "Description": "Sex of the participant as reported by the participant.",
+        "Levels": {
+            "M": "male",
+            "F": "female"
+        }
+    },
+    "handedness": {
+        "Description": "Handedness of the participant as reported by the participant.",
+        "Levels": {
+            "right": "right-handed",
+            "left": "left-handed"
+        }
+    },
+    "tms_subject": {
+        "LongName": "Included in the TMS analyses",
+        "Description": "Whether this participant is part of the 35-subject sample the paper analyses. This is NOT the same as having received cTBS: sub-22 and sub-49 completed both cTBS sessions but are false here because they were excluded as behavioural outliers. To ask whether a participant was stimulated, look for ses-2/ses-3 rows in sub-<label>/sub-<label>_sessions.tsv instead.",
+        "Levels": {
+            "true": "Completed both cTBS sessions and is included in the reported analyses.",
+            "false": "Session 1 only, or a cTBS participant excluded as a behavioural outlier."
+        }
+    }
+}

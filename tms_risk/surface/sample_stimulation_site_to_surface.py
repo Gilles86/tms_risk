@@ -3,7 +3,7 @@ import os.path as op
 from tms_risk.utils.data import Subject
 from nilearn import surface
 import nibabel as nb
-from tms_risk.encoding_model.fit_nprf import get_key_target_dir
+from tms_risk.modeling.fit_nprf import get_key_target_dir
 from tqdm import tqdm
 from nipype.interfaces.freesurfer import SurfaceTransform
 import numpy as np

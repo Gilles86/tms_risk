@@ -1,0 +1,59 @@
+# nPRF / decoding env for the ScienceCloud GPU VMs (Tesla T4, no SLURM).
+#
+# Backend: **Keras 3 on JAX**, not TensorFlow. The braincoder checkout in
+# libs/ (branch `keras-backend`) is backend-agnostic — it talks to
+# `keras.ops` and picks TF / JAX / torch at import time — so the backend is
+# a free choice. JAX wins on these boxes because its CUDA plugin wheels are
+# already proven there (the numpyro fits in `tms_risk_gpu` run on the T4),
+# whereas TF's bundled CUDA is version-sensitive and much heavier.
+#
+# Select the backend with KERAS_BACKEND=jax. The build script also writes
+# ~/.keras/keras.json so that a bare `python -m tms_risk.modeling...` (no
+# conda activate, as in a nohup launch) still lands on JAX.
+#
+# Build:  bash create_env/create_sciencecloud_prf_env.sh
+# (must run ON a GPU VM — the CUDA plugin wheels need the driver present)
+name: tms_risk_prf
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # Scientific stack. numpy 2.x throughout — jax 0.7 and keras 3.15 are
+  # numpy-2 native, and there is no TensorFlow here to cap it.
+  - numpy>=2.0,<2.5
+  - scipy>=1.13
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - patsy
+  - tqdm
+  - pyyaml
+  # tms_risk.modeling.decode / decode_select_voxels_cv import it at module level.
+  - pingouin
+  # Neuroimaging — tms_risk.utils.data imports both at module level.
+  - nibabel
+  # nilearn is CAPPED AT <0.13 on purpose: `nilearn.input_data` (the pre-0.9
+  # name for `nilearn.maskers`) was finally deleted in 0.13, and
+  # modeling/{fit_nprf,fit_regression_nprf,fit_regression_nprf_cv}.py still
+  # import `from nilearn.input_data import NiftiMasker`. 0.12.x keeps the
+  # deprecated shim. Lift the cap once those three imports are updated to
+  # `from nilearn.maskers import NiftiMasker`.
+  - nilearn>=0.11,<0.13
+  # Notebook / IO
+  - ipykernel
+  - h5netcdf
+  - pip:
+      # Keras 3 + the JAX CUDA 12 backend. `jax[cuda12]` pulls the
+      # nvidia-*-cu12 wheels (~3 GB); driver 580.x runs them via forward
+      # compatibility.
+      - keras>=3.13
+      - jax[cuda12]>=0.7,<0.9
+      # In-house library — editable, path relative to THIS yml's directory
+      # (create_env/), matching the convention in environment_cuda.yml.
+      # libs/braincoder must be on branch `keras-backend`.
+      - -e ../libs/braincoder
+      - -e ..
+      # braincoder dependency not on conda-forge under this name.
+      - pandas_flavor

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-spl3-nullind	log	spl3	nullind	independent	10	-4251.241375364155	46.33950184511462	170.66628415419427	0.0001199760047990402	0.7010753811689473

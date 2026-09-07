@@ -1,0 +1,110 @@
+# Numerosity, TMS and risky decision-making (ds-tmsrisk)
+
+Combined continuous theta-burst stimulation (cTBS) and fMRI dataset for the study
+**"Risk attitudes causally rely on parietal magnitude representations"**
+(de Hollander, Moisa & Ruff). The experiment tests whether perturbing
+numerosity-tuned right parietal cortex changes how people represent payoff
+magnitudes, and whether that in turn changes their risky choices.
+
+## Design
+
+Every participant performed the same risky-choice task in up to three sessions:
+
+| Session | Stimulation | Purpose |
+|---------|-------------|---------|
+| `ses-1` | none (`baseline`) | Numerosity-PRF mapping; screening for a targetable IPS cluster; anatomical scan |
+| `ses-2` | `ips` or `vertex` | First cTBS session |
+| `ses-3` | the other site | Second cTBS session |
+
+Seventy-eight participants completed session 1. Thirty-seven of them have data
+from both cTBS sessions; the paper reports 35 of these, two having been excluded
+as behavioural outliers (see "Known quirks" below).
+Which site was stimulated in `ses-2` versus `ses-3` was counterbalanced across
+participants.
+
+**The per-session stimulation site is stored in
+`sub-<label>/sub-<label>_sessions.tsv`, column `stimulation`**, with values
+`baseline` (session 1, no stimulation), `ips` (experimental site: the
+individually localized numerosity-tuned right intraparietal sulcus) and `vertex`
+(control site). `sessions.json` at the root of the dataset describes that column.
+This is the only place in the dataset that records the stimulation assignment, so
+read it rather than assuming any fixed session-to-site mapping.
+
+## Task
+
+On each trial participants chose between two sequentially presented payoff
+options, each a cloud of dots whose numerosity was the payoff in Swiss francs.
+One option was safe (p = 1.0), the other risky (p = 0.55); which of the two came
+first was counterbalanced within a session. Six runs of 20 trials each give 120
+trials per session. The exact payoff pairs were tailored per participant from a
+pre-scan calibration block so that predicted risky-choice proportions spanned
+20-80%.
+
+`task-task_events.json` documents the columns of the `_events.tsv` files. Note
+that a trial spans three rows (`stimulus 1`, `stimulus 2`, `choice`) sharing one
+`trial_nr`; the payoff and probability columns are filled on the stimulus rows,
+the response only on the `choice` row.
+
+## Acquisition
+
+Philips Achieva 3T with a 32-channel head coil (SNS-Lab, Zurich Center for
+Neuroeconomics). Six T2*-weighted GR-EPI runs per session (130 volumes + 5
+dummies, TR = 2286 ms, TE = 30 ms, 2.5 mm in-plane, 39 slices of 2.5 mm with
+0.5 mm gap, flip angle 90 degrees, SENSE 1.5 in the left-right phase-encoding
+direction). A 1 mm isotropic T1-weighted MPRAGE and a FLAIR were acquired in
+session 1 only. Reversed phase-encoding EPI images for susceptibility distortion
+correction are in `fmap/`.
+
+cTBS was delivered offline, immediately before scanning, with a MagPro X100
+stimulator and an MRi-B91 coil (MagVenture, Farum, Denmark): 600 pulses as
+bursts of three 50 Hz pulses repeated at 5 Hz for 40 s, at 80% of the individual
+active motor threshold. The IPS target came from that participant's own
+session-1 numerosity-PRF map via neuronavigation; the vertex control site was
+defined as the intersection of the left and right central sulci at the
+interhemispheric fissure.
+
+## Known quirks and deviations from BIDS
+
+Validated with `bids-validator` (schema 1.2.1). The list below is exhaustive for
+the errors it reports; everything else validates cleanly.
+
+- **`_events.tsv` files have no `duration` column**, which BIDS requires, and put
+  `trial_nr` before `onset` where BIDS wants `onset` and `duration` as the first
+  two columns. Event durations were not logged per event; `onset` is accurate.
+  Rows are one event each (`stimulus 1`, `stimulus 2`, `choice`).
+- **Missing values in `_events.tsv` are empty rather than `n/a`**, contrary to the
+  BIDS convention. An empty `choice` on a `choice` row means the participant did
+  not respond in time.
+- **`_physio.log` files** are raw Philips physiological logs, not the BIDS
+  `_physio.tsv.gz` + `_physio.json` format. They are kept as acquired.
+- **`sub-<label>_ses-1_desc-*.optim_space-T1w_pars.nii.gz` files sit inside
+  `ses-1/func/`.** These are derived numerosity-PRF parameter maps (amplitude,
+  baseline, mu, sd, r2) that predate the `derivatives/` layout; they are not raw
+  data.
+- `sub-10/ses-1` has 5 runs instead of 6, and `sub-10/ses-1` run 6 plus
+  `sub-33/ses-1` runs 1, 3, 4 and 5 have BOLD data without an `_events.tsv`.
+- `sub-32/ses-2` and `sub-72/ses-4` are empty leftover directories and are
+  deliberately absent from the session tables.
+- **`sub-32/` also contains a stray FreeSurfer subject tree** (`mri/`, `surf/`,
+  `label/`, `scripts/`, `stats/`, `tmp/`, `touch/`, `trash/`) at the subject
+  level, and `sub-09/behavior/` holds non-BIDS behavioural logs. Neither belongs
+  in a raw BIDS tree.
+- `sub-01/ses-1/fmap/sub-01_ses-1_dir-left_run-5_epi.json` has no corresponding
+  image.
+- `participants.tsv`'s `tms_subject` column is `true` for the 35 participants the
+  paper analyses. It is **not** simply "has cTBS sessions": `sub-22` and `sub-49`
+  completed both cTBS sessions but are flagged `false` because they were excluded
+  as behavioural outliers. Use the presence of a `ses-2`/`ses-3` row in the
+  session table to ask "was this participant stimulated".
+- `dataset_description.json` declares `BIDSVersion` 1.0.0, has no `Authors`
+  field, and its `License` field is inherited OpenfMRI boilerplate that does not
+  reflect a deliberate licensing decision for this dataset.
+
+## Derivatives and code
+
+`derivatives/` holds fMRIPrep 20.2.3 output, FreeSurfer surfaces, GLMsingle
+single-trial betas, numerosity-PRF/encoding-model fits, Bayesian decoding
+posteriors, TMS targeting coordinates and the cognitive-model traces. The
+analysis code that produced all of it is at https://github.com/Gilles86/tms_risk;
+`notes/PROVENANCE.md` in that repository maps each published figure and statistic
+onto the script and derivative that produced it.

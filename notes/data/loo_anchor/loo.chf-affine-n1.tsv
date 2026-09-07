@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+chf-affine-n1	chf	affine	n1	independent	8	-4194.59870600042	47.00825401177563	213.6898982054513	0.0021595680863827236	1.2827422335339311

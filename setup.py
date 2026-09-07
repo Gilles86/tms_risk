@@ -8,5 +8,6 @@ setup(
     author_email='gilles.de.holander@gmail.com',
     description='Description of my package',
     packages=find_packages(),
+    package_data={'tms_risk': ['data/*.yml', 'data/bids_metadata/*']},
     install_requires=[],
 )

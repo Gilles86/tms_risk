@@ -1,0 +1,15 @@
+term	payoff	delta	lo	hi	p_increase
+memory_noise_sd	7	0.0	0.0	0.0	0.0
+memory_noise_sd	10	0.0	0.0	0.0	0.0
+memory_noise_sd	14	0.0	0.0	0.0	0.0
+memory_noise_sd	20	0.0	0.0	0.0	0.0
+memory_noise_sd	28	0.0	0.0	0.0	0.0
+memory_noise_sd	56	0.0	0.0	0.0	0.0
+memory_noise_sd	112	0.0	0.0	0.0	0.0
+perceptual_noise_sd	7	0.0	0.0	0.0	0.0
+perceptual_noise_sd	10	0.0	0.0	0.0	0.0
+perceptual_noise_sd	14	0.0	0.0	0.0	0.0
+perceptual_noise_sd	20	0.0	0.0	0.0	0.0
+perceptual_noise_sd	28	0.0	0.0	0.0	0.0
+perceptual_noise_sd	56	0.0	0.0	0.0	0.0
+perceptual_noise_sd	112	0.0	0.0	0.0	0.0

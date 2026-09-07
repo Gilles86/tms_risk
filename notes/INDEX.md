@@ -1,0 +1,66 @@
+# Notes index
+
+Manually curated entry point into the `notes/` directory. Treat as
+durable text — update when adding a new analysis writeup or figure.
+
+## Paper
+
+- [`paper/TMS paper -v7.pdf`](paper/) — current manuscript draft
+  (de Hollander, Moisa & Ruff). Six figures, one table.
+- [`reanalysis_handoff.md`](reanalysis_handoff.md) — **start here.** What the
+  2026-08 reanalysis changed, the four bugs behind it, the list of manuscript
+  edits it forces, the current figure plan, and the open decisions.
+- [`analysis_status_2026-08-03.md`](analysis_status_2026-08-03.md) — short status:
+  what is settled, what does not reproduce, what is queued behind GPU.
+- [`checks_20260803.md`](checks_20260803.md) — three checks against existing outputs:
+  the stake/ratio confound, the Fig 5a sign reversal, and the split-correlation labels.
+- [`encoding_model_choice.md`](encoding_model_choice.md) — m1 vs m2, settled on
+  out-of-sample encoding fit. Verdict: m1.
+- [`encoding_model_set_2026-08.md`](encoding_model_set_2026-08.md) — the full m0–m5 set,
+  what each tests, and the central finding: do NOT threshold on functional fit.
+- [`tuning_width_by_preference.md`](tuning_width_by_preference.md) — tuning width vs
+  preferred numerosity, the preferred-numerosity distribution, and why the
+  decoding-precision analysis is blocked.
+- [`supplementary_brain_behavior_link.md`](supplementary_brain_behavior_link.md) — draft
+  supplementary note: the robustness checks behind the *r* = .53 correlation, in paper voice.
+- [`brain_behavior_link.md`](brain_behavior_link.md) — the per-subject link between the
+  neural and behavioural cTBS effects, under m1 and the latest PMC refits. Gain loss at
+  the stimulation site tracks the loss of choice consistency on safe-first trials
+  (r = .53); site- and order-specific; not carried by ΔP(chose risky) or by the PMC ν.
+
+## Figure ↔ notebook map
+
+| Figure | What it shows | Notebook (re-derives from saved traces) |
+|--------|---------------|------------------------------------------|
+| Fig. 1 | Experimental paradigm, nPRF maps, stimulation sites | hand-composed in Illustrator from `tms_risk/visualize/` outputs |
+| Fig. 2A | nPRF tuning in a representative subject | `tms_risk/modeling/notebooks/analyze_encoding_model.ipynb` |
+| Fig. 2B | Group nPRF amplitude × stimulation condition | `tms_risk/modeling/notebooks/analyze_encoding_model.ipynb` |
+| Fig. 2C | Trial-by-trial decoding accuracy | `tms_risk/modeling/notebooks/analyze_decoding.ipynb` |
+| Fig. 3  | Psychometric curves + slopes / RNP (paper labels this Fig 3; notebook is misnamed `figure2.ipynb` from an earlier draft). **Superseded by** `tms_risk/behavior/scripts/plot_fig3_probit.py`, which rebuilds it from `notes/data/*.tsv` | `tms_risk/notebooks/figure2.ipynb` |
+| Fig. 4A | Posterior predictive checks, Weber vs. Flexible PMC | `tms_risk/behavior/notebooks/figure4.ipynb` |
+| Fig. 4B | Noise as a function of magnitude (`sd_curves.pdf`) | `tms_risk/behavior/notebooks/figure4.ipynb` |
+| Fig. 4C | cTBS effect on noise vs. magnitude (`sd_curves_diff.pdf`) | `tms_risk/behavior/notebooks/figure4.ipynb` |
+| Table 1 | ELPD model comparison (Flexible PMC variants × null) | `tms_risk/behavior/notebooks/comprehensive_model_comparison.ipynb` |
+| "Linking Neural and Behavioral TMS Effects" (correlations) | brain–behavior bridge: amplitude drop ↔ behavioral noise increase | `tms_risk/behavior/notebooks/analyze_nlc.ipynb` + `tms_risk/modeling/individual_brain_behavior.ipynb` |
+| (new) Phase 5 ELPD: DDM/RDM × Flexible PMC | extends Table 1 with accumulator-model variants | `tms_risk/behavior/notebooks/ddm_rdm_model_comparison.ipynb` |
+| (new) Predicted decoding (Fisher + MC) | supplement / addition to Fig 2B–C | `tms_risk/modeling/notebooks/fisher_and_mc_decode.ipynb` |
+| Figs. S1.1–S1.4 | Perceptual-distortion / total-noise heatmaps (Supplementary Text 1) | `tms_risk/behavior/scripts/plot_perceptual_heatmaps.py` (port of `behavior/notebooks/nov25/2d_distortion_curces.ipynb`) |
+
+**S1.1–S1.3 right column is a RATIO (IPS / vertex), not a difference.** The
+published v8 panels titled it "IPS - Vertex" while computing `ips / vertex`
+(colour scales 0.90–1.10 / 0.95–1.05, centred on 1). Only S1.4 is a genuine
+subtraction (`noise_ips − noise_vertex`, ±0.75). The regenerated figures in
+`figures/sfig_s1_*.{pdf,png}` label this correctly; the S1.1 and S1.3 captions
+in the manuscript still say "difference" and need the same fix.
+
+## Working data
+
+- `data/` (planned) — small TSVs aggregated on the cluster, rsync'd
+  back for local plotting.
+
+## See also
+
+- Top-level [`CLAUDE.md`](../CLAUDE.md) — developer-facing recipes,
+  module layout, model-label conventions.
+- [`STATUS.md`](STATUS.md) — what's done / in progress / blocked.
+- [`create_env/README.md`](../create_env/README.md) — conda envs.

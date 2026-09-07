@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-n2psd.mapjitter.ti0.15	log	power	n2psd	shared_perceptual_noise	8	-4135.860862985656	46.74448101269733	205.65771176909402	0.0	0.5051549717127978

@@ -6,7 +6,7 @@ import nipype.interfaces.utility as niu
 from nipype.interfaces.io import ExportFile
 from itertools import product
 from nipype.utils.misc import flatten
-from tms_risk.encoding_model.fit_nprf import get_key_target_dir
+from tms_risk.modeling.fit_nprf import get_key_target_dir
 
 
 def main(subject, session, bids_folder='/data', smoothed=False):

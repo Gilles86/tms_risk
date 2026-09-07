@@ -1,0 +1,38 @@
+name: tms_risk_ddm
+# Sequential-sampling models env. Use this for:
+#   - DDM/RDM hierarchical fits (cluster: see slurm_jobs/fit_model.sh)
+#   - PPC generation / forward simulation locally (needs ssm-simulators,
+#     which conflicts with the TF 2.18 + numpy 1.26 stack in tms_risk_cpu /
+#     environment_apple_silicon.yml)
+# Doesn't have tensorflow / braincoder — encoding-model work stays on
+# tms_risk / tms_risk_cpu.
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # Scientific stack (no numpy pin — hssm + ssm-simulators want numpy 2.x).
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - jupyter
+  - ipywidgets
+  - tqdm
+  # Required by tms_risk.utils.data — imported at package init, so this env
+  # needs it even though DDM/RDM fits don't read NIfTI data themselves.
+  - nibabel
+  - nilearn
+  - pip:
+      # bauer (editable, from submodule) — DDM/RDM live here.
+      - -e ../libs/bauer
+      - -e ..
+      # DDM/RDM likelihood backend.
+      - hssm>=0.2
+      # Forward simulators for DDM PPC / posterior-predictive RT generation.
+      # hssm depends on this transitively, but pinning it explicitly so the
+      # env still satisfies ssm-simulators's `numpy >= 2.0` even if hssm's
+      # dep tree changes.
+      - ssm-simulators
+      - patsy

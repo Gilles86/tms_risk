@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-spl5-null.klw	log	spl5	null	shared_perceptual_noise	14	-4276.819352993897	46.22238121649666	168.45482895996156	0.0	0.6841911933085345

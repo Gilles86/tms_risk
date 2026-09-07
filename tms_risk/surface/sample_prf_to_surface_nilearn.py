@@ -3,7 +3,7 @@ import os.path as op
 from tms_risk.utils.data import Subject
 from nilearn import surface
 import nibabel as nb
-from tms_risk.encoding_model.fit_nprf import get_key_target_dir
+from tms_risk.modeling.fit_nprf import get_key_target_dir
 from tqdm import tqdm
 from nipype.interfaces.freesurfer import SurfaceTransform
 
@@ -29,8 +29,16 @@ def main(subject, session, bids_folder, smoothed):
 
     par_keys = ['mu', 'sd', 'amplitude', 'baseline', 'cvr2', 'r2']
 
-    prf_pars_volume = sub.get_prf_parameters_volume(session, smoothed=smoothed, denoise=True, keys=par_keys, natural_space=True, retroicor=False, pca_confounds=False,
-                                                    return_image=True, cross_validated=False)
+    # TODO: get_prf_parameters returns a DataFrame; this script expects a
+    # NIfTI image (return_image=True on the old API). Inverse-transform via
+    # the volume masker below if you re-enable this script.
+    raise NotImplementedError(
+        'sample_prf_to_surface_nilearn.py needs return_image support. '
+        'Add a return_image=True path to Subject.get_prf_parameters before '
+        'using this script. The old get_prf_parameters_volume() was retired '
+        'in favour of the unified encoding_model2-only loader.'
+    )
+    prf_pars = sub.get_prf_parameters(model_label=1, session=session)  # noqa: F841
 
     _, target_dir = get_key_target_dir(f'{int(subject):02d}', session, bids_folder, smoothed, denoise=True, pca_confounds=False, retroicor=False, natural_space=True)    
 

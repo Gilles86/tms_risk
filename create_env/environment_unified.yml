@@ -1,0 +1,60 @@
+name: tms_risk_unified
+# Unified env: TF 2.20 + braincoder (encoding-model side) AND pymc 5.28 +
+# bauer + hssm + ssm-simulators (SSM side) in one env.
+#
+# Why this works (the historical conflict was TF<=2.18 needing numpy<2.1
+# while pytensor>=2.25 needed numpy<2 and ssm-simulators needing
+# numpy>=2.0 — irreconcilable). The conflict dissolves once:
+#   - TF 2.20 drops the numpy<2.1 cap (only requires >=1.26),
+#   - pytensor 2.38 + pymc 5.28 are numpy-2 native,
+#   - ssm-simulators happily takes numpy 2.x.
+#
+# This env replaces the previous tms_risk_cuda + tms_risk_ddm split and
+# unblocks DDM PPCs locally + cluster-wide. The older `environment_cpu.yml`,
+# `environment_cuda.yml`, and `environment_ddm.yml` are kept as rollback
+# targets and for any in-flight fits still pinning the old TF 2.14 stack.
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # Scientific stack — let solver pick numpy 2.x.
+  - numpy>=2.0,<2.5
+  - scipy>=1.13
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - jupyter
+  - ipywidgets
+  - pingouin
+  - tqdm
+  # Neuroimaging
+  - nibabel
+  - nilearn
+  - mne
+  # Bayesian — newer pymc/pytensor that supports numpy 2.x.
+  - pymc>=5.28
+  - bambi>=0.15
+  - arviz>=0.20
+  # CPU performance
+  - compilers
+  - pip:
+      # In-house libraries — editable, paths relative to this yml's
+      # directory (create_env/), matching the convention in
+      # environment_cuda.yml.
+      - -e ../libs/braincoder
+      - -e ../libs/bauer
+      - -e ..
+      # Braincoder backend — TF 2.20 is the first version with numpy>=2
+      # support. TF bundles its own CUDA wheels, so the env must be built
+      # on a GPU compute node so the NVIDIA driver is visible to pip.
+      - tensorflow==2.20.0
+      - tensorflow-probability==0.25.0
+      - tf-keras
+      # SSM side.
+      - hssm>=0.3
+      - ssm-simulators
+      - patsy
+      # GLMsingle for single-trial betas.
+      - git+https://github.com/cvnlab/GLMsingle.git

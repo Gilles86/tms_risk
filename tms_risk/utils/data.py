@@ -73,10 +73,56 @@ def get_all_behavior(bids_folder='/data/ds-tmsrisk', drop_no_responses=True, all
     behavior = [s.get_behavior(drop_no_responses=drop_no_responses) for s in subjects]
     return pd.concat(behavior)
 
-def get_tms_conditions():
+def get_tms_conditions(bids_folder=None):
+    """Which session each subject received which cTBS stimulation site in.
+
+    Returns ``{'01': {2: 'vertex', 3: 'ips'}, ...}`` (subject as a zero-padded
+    string, session as an int).
+
+    By default this reads the packaged ``tms_risk/data/tms_keys.yml``, which is
+    the authoritative source. Pass ``bids_folder`` to read the same mapping out
+    of the dataset itself (the ``sub-XX/sub-XX_sessions.tsv`` tables written by
+    ``tms_risk.prepare.write_sessions_tsv``), which is what you want when you
+    only have the BIDS folder and no checkout of this repo.
+    """
+
+    if bids_folder is not None:
+        sessions = get_sessions_info(bids_folder)
+        sessions = sessions[sessions['stimulation'].isin(['ips', 'vertex'])]
+
+        return {subject: dict(zip(d.index.get_level_values('session'), d['stimulation']))
+                for subject, d in sessions.groupby('subject')}
+
     resource_path = files('tms_risk').joinpath('data/tms_keys.yml')
     with resource_path.open('r') as stream:
         return yaml.safe_load(stream)
+
+
+def get_sessions_info(bids_folder='/data/ds-tmsrisk'):
+    """Read the BIDS session tables of the dataset itself.
+
+    Concatenates every ``sub-XX/sub-XX_sessions.tsv`` into one DataFrame indexed
+    by ``(subject, session)`` (subject a zero-padded string, session an int),
+    with a ``stimulation`` column taking values ``baseline`` (session 1, no TMS),
+    ``ips`` or ``vertex``. See ``<bids_folder>/sessions.json`` for the sidecar
+    describing that column; ``tms_risk.prepare.write_sessions_tsv`` writes both.
+    """
+
+    bids_folder = Path(bids_folder)
+
+    df = []
+    for fn in sorted(bids_folder.glob('sub-*/sub-*_sessions.tsv')):
+        d = pd.read_csv(fn, sep='\t', keep_default_na=False)
+        d['subject'] = fn.parent.name.split('-')[1]
+        d['session'] = d['session_id'].str.split('-').str[1].astype(int)
+        df.append(d.drop(columns='session_id'))
+
+    if len(df) == 0:
+        raise FileNotFoundError(f'No sub-XX_sessions.tsv files under {bids_folder}. '
+                                'Create them with `python -m tms_risk.prepare.write_sessions_tsv '
+                                f'--bids_folder {bids_folder}`.')
+
+    return pd.concat(df).set_index(['subject', 'session']).sort_index()
 
 
 def get_participant_info(bids_folder='/data/ds-tmsrisk'):
@@ -446,113 +492,78 @@ class Subject(object):
 
         return image.load_img(str(mask), dtype='int32')
     
-    def get_prf_parameters_volume(self, session, 
-            run=None,
-            smoothed=False,
-            pca_confounds=False,
-            denoise=False,
-            retroicor=False,
-            cross_validated=True,
-            natural_space=False,
-            keys=None,
-            roi=None,
-            new_parameterisation=False,
-            return_image=False):
+    def get_prf_parameters(self, model_label=1, session=None, roi=None,
+                            sessions=(1, 2, 3)):
+        """Read RegressionGaussianPRF parameter maps from
+        ``derivatives/encoding_model2.model-{N}.smoothed[.cv]/``.
 
-        dir = 'encoding_model'
+        This is the canonical PRF-parameter loader for the paper. Single
+        consolidated API replacing ``get_prf_parameters_volume`` (which
+        read from the abandoned ``encoding_model.*`` tree — only 1–3
+        subjects on disk) and ``get_prf_parameters2``.
 
-        if cross_validated:
-            if run is None:
-                raise Exception('Give run')
+        ``model_label`` selects the regression variant produced by
+        ``modeling/fit_regression_nprf.py``:
 
-            dir += '.cv'
+        - **0** — pooled across sessions (one set of params per voxel)
+        - **1** — amplitude varies per session (the paper's Fig 2 fits)
+        - **2** — full session interaction on μ, σ, amplitude, baseline
 
-        if denoise:
-            dir += '.denoise'
-            
-        if (retroicor) and (not denoise):
-            raise Exception("When not using GLMSingle RETROICOR is *always* used!")
+        Returns a DataFrame indexed by voxel.
 
-        if retroicor:
-            dir += '.retroicor'
+        - ``session=None``: columns are MultiIndex ``(parameter, session)``
+          with ``r2`` and ``cvr2`` carrying ``NaN`` on the session axis
+          (they're session-agnostic in the regression PRF) plus
+          ``(mu, sd, amplitude, baseline)`` for every session whose
+          per-session files exist on disk.
+        - ``session=<int>``: returns a per-session flat DataFrame with
+          columns ``r2 / cvr2 / mu / sd / amplitude / baseline``.
+        """
 
-        if smoothed:
-            dir += '.smoothed'
-
-        if pca_confounds:
-            dir += '.pca_confounds'
-
-        if natural_space:
-            dir += '.natural_space'
-
-        if new_parameterisation:
-            dir += '.new_parameterisation'
-
-        parameters = []
-
-        if keys is None:
-
-            if new_parameterisation:
-                keys = ['mode', 'fwhm', 'amplitude', 'baseline', 'r2', 'cvr2']
-            else:
-                keys = ['mu', 'sd', 'amplitude', 'baseline', 'r2', 'cvr2']
-
-        mask = self.get_volume_mask(session=session, roi=roi, epi_space=True)
-        masker = NiftiMasker(mask)
-
-        for parameter_key in keys:
-            if cross_validated:
-                fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_run-{run}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz'
-            else:
-                if parameter_key == 'cvr2':
-                    fn = Path(self.bids_folder) / 'derivatives' / dir.replace('encoding_model', 'encoding_model.cv') / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz'
-                else:
-                    fn = Path(self.bids_folder) / 'derivatives' / dir / f'sub-{self.subject}' / f'ses-{session}' / 'func' / f'sub-{self.subject}_ses-{session}_desc-{parameter_key}.optim_space-T1w_pars.nii.gz'
-            
-            pars = pd.Series(masker.fit_transform(str(fn)).ravel())
-            parameters.append(pars)
-
-        parameters =  pd.concat(parameters, axis=1, keys=keys, names=['parameter'])
-
-        if return_image:
-            return masker.inverse_transform(parameters.T)
-
-        return parameters
-
-    def get_prf_parameters2(self, model_label=0, roi=None, return_image=False):
-
-        if return_image:
-            raise NotImplementedError("Return image not implemented for get_prf_parameters2")
+        deriv_root = Path(self.bids_folder) / 'derivatives'
+        smoothed_dir = deriv_root / f'encoding_model2.model-{model_label}.smoothed'
+        cv_dir = deriv_root / f'encoding_model2.model-{model_label}.smoothed.cv'
 
         mask = self.get_volume_mask(session=1, roi=roi, epi_space=True)
-        masker = NiftiMasker(mask) 
+        masker = NiftiMasker(mask)
 
         pars = []
 
-        r2_fn = Path(self.bids_folder) / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed' / f'sub-{self.subject}' /  f'sub-{self.subject}_desc-r2.optim_space-T1w_pars.nii.gz'
-        r2 = pd.Series(masker.fit_transform(str(r2_fn)).squeeze(), name=('r2', None))
-        pars.append(r2)
+        # Session-agnostic columns
+        r2_fn = smoothed_dir / f'sub-{self.subject}' / f'sub-{self.subject}_desc-r2.optim_space-T1w_pars.nii.gz'
+        pars.append(pd.Series(masker.fit_transform(str(r2_fn)).squeeze(),
+                              name=('r2', None)))
 
+        cvr2_fn = cv_dir / f'sub-{self.subject}' / f'sub-{self.subject}_desc-cvr2.optim_space-T1w_pars.nii.gz'
+        if cvr2_fn.exists():
+            pars.append(pd.Series(masker.fit_transform(str(cvr2_fn)).squeeze(),
+                                  name=('cvr2', None)))
+        else:
+            logging.warning(f'No cvr2 for sub-{self.subject}: {cvr2_fn}')
 
-        try:
-            cvr2_fn = Path(self.bids_folder) / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed.cv' / f'sub-{self.subject}' / f'sub-{self.subject}_desc-cvr2.optim_space-T1w_pars.nii.gz'
-            cvr2 = pd.Series(masker.fit_transform(str(cvr2_fn)).squeeze(), name=('cvr2', None))
-            pars.append(cvr2)
-        except Exception as e:
-            logging.warning(f'Could not load cvr2 for subject {self.subject}: {e}')
-
-        parameter_labels = ['mu', 'sd', 'amplitude', 'baseline']
-
-        for par_label in parameter_labels:
-            for session in [2, 3]:
-                fn = Path(self.bids_folder) / 'derivatives' / f'encoding_model2.model-{model_label}.smoothed' / f'sub-{self.subject}' / f'ses-{session}' / f'sub-{self.subject}_ses-{session}_desc-{par_label}.optim_space-T1w_pars.nii.gz'
-                p = pd.Series(masker.fit_transform(str(fn)).squeeze(), name=(par_label, session))
-                pars.append(p)
+        # Per-session columns
+        for ses in sessions:
+            for par in ['mu', 'sd', 'amplitude', 'baseline']:
+                fn = (smoothed_dir / f'sub-{self.subject}' / f'ses-{ses}'
+                      / f'sub-{self.subject}_ses-{ses}_desc-{par}.optim_space-T1w_pars.nii.gz')
+                if not fn.exists():
+                    continue
+                pars.append(pd.Series(masker.fit_transform(str(fn)).squeeze(),
+                                      name=(par, ses)))
 
         pars = pd.concat(pars, axis=1)
         pars.columns.set_names(['parameter', 'session'], inplace=True)
 
-        return pars
+        if session is None:
+            return pars
+
+        # Caller asked for one session: keep that session's per-session
+        # columns plus the session-agnostic r2 / cvr2; flatten columns.
+        keep = (pars.columns.get_level_values('session') == session) | \
+               (pars.columns.get_level_values('session').isnull())
+        out = pars.loc[:, keep]
+        out.columns = out.columns.get_level_values('parameter')
+        return out
 
     def get_prf_parameters_surf(self, session, run=None, smoothed=False, cross_validated=False, hemi=None, mask=None, space='fsnative', parameters=None, key=None, nilearn=False):
 

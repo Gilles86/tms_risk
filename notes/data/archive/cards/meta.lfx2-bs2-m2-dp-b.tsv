@@ -1,0 +1,2 @@
+label	elpd	p_loo	rhat	ess	divergences	by_ratio	by_ratio_order	by_stake	by_safe	by_stim	by_stake_stim	by_stake_stim_order
+lfx2-bs2-m2-dp-b	-4148.562173320028	250.3932556937093	1.0015740872860734	2654.1713204409593	0	6/6	12/12	10/10	5/5	4/4	6/6	10/12

@@ -1,0 +1,14 @@
+{
+    "session_id": {
+        "Description": "BIDS session label."
+    },
+    "stimulation": {
+        "LongName": "cTBS stimulation site",
+        "Description": "Site targeted by continuous theta-burst stimulation (cTBS) immediately before this scan session. Site order was counterbalanced across subjects.",
+        "Levels": {
+            "baseline": "No stimulation. Session 1 is the pre-TMS baseline session used for numerosity-PRF mapping and baseline behaviour.",
+            "ips": "cTBS over the individually localized numerosity-tuned right intraparietal sulcus (experimental site).",
+            "vertex": "cTBS over the vertex (control site)."
+        }
+    }
+}

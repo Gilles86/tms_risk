@@ -61,3 +61,10 @@ batch.m
 .DS_Store
 
 crash-*.pklz
+
+# Regenerable outputs. Every figure here is rebuilt from notes/data/*.tsv by a
+# script listed in notes/PROVENANCE.md, so the PNG/PDF/SVG themselves are not
+# worth 260 MB of history. The source-data TSVs *are* tracked.
+notes/figures/
+notes/paper/
+._*

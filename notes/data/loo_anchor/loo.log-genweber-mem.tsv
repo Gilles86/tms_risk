@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-genweber-mem	log	genweber	mem	shared_perceptual_noise	8	-4187.405843530683	46.61636158422749	182.15608729009637	0.0	0.6866480795672172

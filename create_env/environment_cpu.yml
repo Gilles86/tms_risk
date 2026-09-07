@@ -1,0 +1,43 @@
+name: tms_risk_cpu
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  # Scientific stack
+  - numpy=1.26.4
+  - scipy>=1.13
+  - pandas
+  - matplotlib
+  - seaborn
+  - scikit-learn=1.7.2
+  - jupyter
+  - ipywidgets
+  - pingouin
+  # Neuroimaging
+  - nibabel
+  - nilearn
+  - mne
+  # Bayesian behavioral modeling (PMC / Flexible PMC fits)
+  - pymc=5.17
+  - bambi=0.13
+  - arviz=0.20
+  # CPU performance
+  - mkl
+  - mkl-include
+  - compilers
+  - tqdm
+  - pip:
+      # In-house libraries — installed editably from libs/ submodules.
+      # NOTE paths are relative to this yml's directory (create_env/),
+      # not the project root, because that's where pip's cwd lands
+      # during `conda env create -f create_env/environment_cpu.yml`.
+      - -e ../libs/braincoder
+      - -e ../libs/bauer
+      - -e ..
+      # Braincoder backend (TF; CPU build)
+      - tensorflow==2.18.0
+      - tensorflow-probability
+      - tf-keras
+      # GLMsingle — used by tms_risk/glm/ for single-trial β estimation
+      - git+https://github.com/cvnlab/GLMsingle.git
