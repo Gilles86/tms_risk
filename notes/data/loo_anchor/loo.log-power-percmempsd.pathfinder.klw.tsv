@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-percmempsd.pathfinder.klw	log	power	percmempsd	shared_perceptual_noise	8	-4138.614376889544	46.763446325763525	194.3922533380055	0.0	0.624997529541156

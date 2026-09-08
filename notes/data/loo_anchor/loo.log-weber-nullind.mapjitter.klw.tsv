@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-weber-nullind.mapjitter.klw	log	weber	nullind	independent	6	-4262.695583340974	46.287039361881206	135.21979427359292	0.0	0.5054665272298214

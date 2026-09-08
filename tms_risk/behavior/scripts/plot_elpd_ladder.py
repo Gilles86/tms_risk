@@ -33,7 +33,7 @@ import seaborn as sns
 
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
 REPO = Path(__file__).resolve().parents[3]
-REF = 'log-power-n1n2'
+REF = 'log-power-perc'
 GOOD, BAD, DEAD = '0.25', '#C44E52', '0.72'
 
 mpl.rcParams.update({
@@ -72,21 +72,58 @@ PANELS = [
 ]
 
 
+#: Preference order over the sampler/init variants of one model. A bare label
+#: like `log-power-perc` names a MODEL; on disk there may be several fits of it
+#: differing only in init or in a convergence-prior override, and the ladder
+#: must pick one deterministically. Converged variants win, then this order.
+VARIANTS = ['.mapjitter.klw', '.pathfinder.klw', '.klw',
+            '.mapjitter.klw.sps0.15', '.mapjitter.klw.ti0.15']
+
+
+def resolve(base, ld, chk):
+    """Bare model label -> the KLW trace to plot, or None.
+
+    Raises rather than silently falling back to a NON-KLW file: the raw-rule
+    fits normalise a shrunken numerator by an unshrunken denominator, so their
+    ELPD is not on the same footing as a KLW fit and a ladder mixing the two is
+    meaningless. That is exactly what happened once -- a KLW reference against
+    raw-rule comparators -- and it looked completely plausible.
+    """
+    cands = [base + v for v in VARIANTS
+             if (ld / f'looi.{base + v}.npy').exists()]
+    if not cands:
+        if (ld / f'looi.{base}.npy').exists():
+            raise SystemExit(
+                f'{base}: only a non-KLW fit is available. Refusing to mix '
+                f'choice rules in one ladder.')
+        return None
+    ok = [c for c in cands
+          if bool(chk.loc[c, 'ok']) if c in chk.index]
+    return (ok or cands)[0]
+
+
 def main(data_dir, out_stem, ref):
     dd = Path(data_dir)
     ld = dd / 'loo_anchor'
-    chk = pd.read_csv(dd / 'all_anchor_check.tsv', **READ).set_index('trace')
+    _chkf = dd / 'all_klw_check.tsv'
+    chk = pd.read_csv(_chkf if _chkf.exists() else dd / 'all_anchor_check.tsv',
+                      **READ).set_index('trace')
     piw = lambda l: (np.load(ld / f'looi.{l}.npy')
                      if (ld / f'looi.{l}.npy').exists() else None)
+    ref = resolve(ref, ld, chk) or ref
     a = piw(ref)
+    if a is None:
+        raise SystemExit(f'no pointwise LOO for the reference {ref}')
+    print(f'reference: {ref}')
 
     fig, AX = plt.subplots(1, 2, figsize=(7.2, 2.6), constrained_layout=True,
                            sharex=True)
     for ax, (title, rows) in zip(AX, PANELS):
         ys, seen = [], []
-        for k, (lab, nm) in enumerate(rows):
-            f = ld / f'loo.{lab}.tsv'
-            if not f.exists():
+        for k, (base, nm) in enumerate(rows):
+            lab = resolve(base, ld, chk)
+            if lab is None:
+                print(f'  no KLW fit for {base}, skipped')
                 continue
             b = piw(lab)
             if lab == ref:
@@ -100,6 +137,9 @@ def main(data_dir, out_stem, ref):
             ok = bool(chk.loc[lab, 'ok']) if lab in chk.index else True
             seen.append((nm, d, se, lab == ref, ok))
         y = np.arange(len(seen))[::-1]
+        # names sit clear of the longest POSITIVE bar+whisker, so a model that
+        # beats the reference does not draw its bar through its own label
+        xn = max([d + se for _, d, se, _, _ in seen] + [0]) + 5
         for yy, (nm, d, se, is_ref, ok) in zip(y, seen):
             col = GOOD if is_ref else (DEAD if not ok else BAD)
             ax.barh(yy, d, height=.62, color=col, alpha=.30 if not ok else .85,
@@ -108,16 +148,16 @@ def main(data_dir, out_stem, ref):
                 ax.plot([d - se, d + se], [yy] * 2, color='0.2' if ok else DEAD,
                         lw=1.0, zorder=3, solid_capstyle='butt')
             txt = 'reference' if is_ref else f'{d:+.0f}'
-            ax.text(min(d - se, 0) - 3, yy, txt, ha='right', va='center',
+            ax.text(min(d - se, 0) - 4, yy, txt, ha='right', va='center',
                     fontsize=7.5, color=col,
                     fontweight='bold' if is_ref else 'normal')
-            ax.text(4, yy, nm + ('' if ok else '  (did not converge)'),
+            ax.text(xn, yy, nm + ('' if ok else '  (did not converge)'),
                     fontsize=7.5, va='center',
                     color='0.2' if ok else DEAD)
         ax.axvline(0, color='0.4', lw=.9, zorder=1)
         ax.set_yticks([])
         ax.set_ylim(-1.5, len(seen) - .35)
-        ax.set_xlim(-120, 78)
+        ax.set_xlim(-125, 100)
         ax.set_xticks([-100, -50, 0])
         ax.set_title(title, fontsize=9)
         ax.set_xlabel('ELPD relative to the reported model (nats)')

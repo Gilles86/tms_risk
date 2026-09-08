@@ -1,2 +1,2 @@
 label	space	form	placement	grand_mean_gap	rmse_stake	n_draws
-log-power-percpsd.pathfinder.klw	log	power	percpsd	-0.007884905804505293	0.026646891576175898	400
+log-power-percx.pathfinder.klw	log	power	percx	-0.007549402785340331	0.028258153991270817	400

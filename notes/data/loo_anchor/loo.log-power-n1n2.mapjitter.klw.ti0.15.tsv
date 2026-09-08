@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-n1n2.mapjitter.klw.ti0.15	log	power	n1n2	independent	8	-4161.048888811107	46.994122960505194	211.12292505334972	0.0	0.5607924399583183

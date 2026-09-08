@@ -240,6 +240,16 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         pp, XKEY, XLAB = None, 'n_safe', 'Safe payoff (CHF)'
     if ppc_kind.startswith('psychometric') and psy is None:
         ppc_kind = 'safe'
+    # 'ratio' plots the psychometric function itself -- P(risky) against the
+    # payoff ratio, exactly Figure 3a's x-axis -- rather than collapsing the
+    # ladder into one number per safe payoff. The collapsed version hides where
+    # a misfit lives along the curve, and the misfit here is real: every model
+    # in the family is about 1.7x worse on risky-SECOND trials than on
+    # risky-first (RMSE .032-.035 vs .019-.023).
+    rungf = dd / f'ppc_anchor/ppc_anchor.rung.{label}.tsv'
+    rung = pd.read_csv(rungf, **READ) if rungf.exists() else None
+    if ppc_kind == 'ratio' and rung is None:
+        ppc_kind = 'safe'
     loo = pd.concat([pd.read_csv(f, **READ)
                      for f in glob.glob(str(dd / 'loo_anchor/loo.*.tsv'))],
                     ignore_index=True)
@@ -648,7 +658,47 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                           labelspacing=.35, borderaxespad=.15)
 
     # -- h(,i): the consequence for choice -------------------------------
-    if ppc_kind.startswith('psychometric'):
+    if ppc_kind == 'ratio':
+        xs = np.sort(rung.frac.unique())
+        for k, order in zip(('h', 'i'), ORDERS):
+            ax = AX[k]
+            o_ = rung[rung.order == order]
+            for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
+                q = o_[o_.stim == stim].sort_values('frac')
+                ax.fill_between(q.frac, q.lo, q.hi, color=col, alpha=.20, lw=0,
+                                zorder=1)
+                ax.plot(q.frac, q.model, color=col, lw=1.3, zorder=2)
+                ax.plot(q.frac, q.observed, 'o', ms=3.6, color=col, zorder=4)
+            ax.axvline(1 / P_RISKY, color='0.75', lw=.7, ls=':', zorder=0)
+            ax.axhline(.5, color='0.88', lw=.7, ls='--', zorder=0)
+            ax.set_xscale('log')
+            # the ladder only spans ~1.4-3.2x, so matplotlib's log locator
+            # gives '2' and '3 x 10^0'. Label the rungs themselves.
+            tk = [t for t in (1.5, 2, 2.5, 3) if xs.min() <= t <= xs.max()]
+            ax.set_xticks(tk)
+            ax.set_xticklabels([f'{t:g}' for t in tk])
+            ax.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+            ax.set_xlim(xs.min() * .93, xs.max() * 1.07)
+            ax.set_ylim(.15, .95)
+            ax.set_xlabel('Risky / safe payoff')
+            ax.set_title(order, fontsize=7.5)
+            # a RISING psychometric leaves the top-left and bottom-right empty
+            if k == 'h':
+                ax.set_ylabel('P(chose risky)')
+                ax.text(.05, .95, 'IPS', transform=ax.transAxes, color=IPS,
+                        fontsize=7, va='top')
+                ax.text(.05, .86, 'Vertex', transform=ax.transAxes,
+                        color=VERTEX, fontsize=7, va='top')
+                ax.text(1 / P_RISKY, .935, 'Risk neutral', fontsize=6,
+                        color='0.45', ha='center', va='top',
+                        rotation=90, rotation_mode='anchor')
+            else:
+                ax.set_yticklabels([])
+                glyph_key(ax, [('Observed', '.25', 'marker', dict(ms=3.6)),
+                               ('95% predictive', '.45', 'band',
+                                dict(alpha=.20))],
+                          x=.52, y=.16, dy=.10)
+    elif ppc_kind.startswith('psychometric'):
         slab = psy.groupby('stake_grp')['stake_chf'].mean().round(0).astype(int)
         xs = np.sort(psy.frac.unique())
         for r, order in enumerate(ORDERS):
@@ -868,8 +918,10 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'psychometric', 'psychometric2'],
+                    choices=['safe', 'ratio', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
+                         "'ratio' shows the psychometric function itself, on "
+                         "Figure 3a's x-axis, one panel per order; "
                          "'psychometric' shows the full curve in three stake "
                          'terciles (supplement)')
     ap.add_argument('--with_probit', action='store_true',

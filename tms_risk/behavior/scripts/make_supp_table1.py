@@ -48,14 +48,28 @@ ROWS = [
 
 
 def main(data_dir, reference, out_stem):
+    # `resolve` maps a bare model label to the KLW fit of it, and REFUSES to
+    # fall back to a raw-rule file -- the two choice rules are not on the same
+    # footing and a table mixing them is meaningless. Shared with the ladder so
+    # the figure and the table can never disagree about which fit is "the"
+    # power/n1n2 model.
+    from tms_risk.behavior.scripts.plot_elpd_ladder import resolve
     dd = Path(data_dir)
-    chk = pd.read_csv(dd / 'all_anchor_check.tsv', **READ).set_index('trace')
+    _c = dd / 'all_klw_check.tsv'
+    chk = pd.read_csv(_c if _c.exists() else dd / 'all_anchor_check.tsv',
+                      **READ).set_index('trace')
     ld = dd / 'loo_anchor'
     piw = lambda l: (np.load(ld / f'looi.{l}.npy')
                      if (ld / f'looi.{l}.npy').exists() else None)
+    reference = resolve(reference.split('.')[0], ld, chk) or reference
+    print(f'reference: {reference}')
     ref = piw(reference)
     out, excluded = [], []
-    for lab, form, what in ROWS:
+    for base, form, what in ROWS:
+        lab = resolve(base, ld, chk)
+        if lab is None:
+            print(f'  no KLW fit for {base}, skipped')
+            continue
         f = ld / f'loo.{lab}.tsv'
         if not f.exists():
             continue

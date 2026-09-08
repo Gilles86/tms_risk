@@ -4,15 +4,14 @@ Expected log predictive density (ELPD, leave-one-out; Vehtari et al., 2017) for 
 
 | Noise function | cTBS affects | ELPD | ΔELPD (dSE) | p_loo | PPC | r̂ | ESS |
 |---|---|---:|---:|---:|:---:|---:|---:|
-| **Power** | Noise on both options | -4154.5 | reference | 223 | 5/7 | 1.000 | 1727 |
-| Power | Perceptual + memory noise | -4158.9 | -4.4 (7.5) | 194 | 5/7 | 1.000 | 2549 |
-| Power | Perceptual noise only | -4159.4 | -5.0 (8.1) | 186 | 4/7 | 1.000 | 3346 |
-| Spline, 5 knots | Noise on both options | -4163.0 | -8.5 (9.7) | 293 | 6/7 | 1.000 | 1237 |
-| Power | Noise on 1st-presented option | -4185.1 | -30.6 (6.4) | 204 | 6/7 | 1.010 | 1204 |
-| Weber, constant ν | Noise on both options | -4190.1 | -35.6 (8.8) | 182 | 5/7 | 1.000 | 3450 |
-| Power | Memory noise only | -4211.6 | -57.2 (9.8) | 175 | 6/7 | 1.000 | 3543 |
-| Power | No cTBS effect | -4248.9 | -94.5 (12.4) | 156 | 5/7 | 1.000 | 2327 |
-| Spline, 3 knots | No cTBS effect | -4251.2 | -96.8 (12.9) | 171 | 4/7 | 1.010 | 1952 |
-| Weber, constant ν | No cTBS effect | -4260.2 | -105.7 (13.9) | 134 | 4/7 | 1.000 | 2901 |
+| Power | Perceptual + memory noise | -4153.9 | +1.3 (1.5) | 183 | 6/7 | 1.000 | 4873 |
+| **Power** | Perceptual noise only | -4155.2 | reference | 177 | 5/7 | 1.000 | 5179 |
+| Spline, 5 knots | Noise on both options | -4170.5 | -15.3 (12.1) | 283 | 6/7 | 1.000 | 2822 |
+| Power | Noise on 1st-presented option | -4173.1 | -17.9 (10.4) | 204 | -- | 1.010 | 1585 |
+| Weber, constant ν | Noise on both options | -4184.4 | -29.2 (12.0) | 179 | -- | 1.000 | 9083 |
+| Power | Memory noise only | -4195.0 | -39.8 (9.5) | 168 | -- | 1.000 | 3778 |
+| Power | No cTBS effect | -4250.6 | -95.5 (14.1) | 154 | -- | 1.000 | 1419 |
+| Spline, 3 knots | No cTBS effect | -4254.5 | -99.3 (15.0) | 174 | 5/7 | 1.010 | 1235 |
+| Weber, constant ν | No cTBS effect | -4262.7 | -107.5 (15.0) | 135 | -- | 1.000 | 5350 |
 
-**Excluded for non-convergence.** These models were fitted but did not meet the criterion above, so their ELPD is not interpretable and they are not ranked: `log-power-n2` (r̂ = 1.10), `log-spl3-n1n2` (r̂ = 1.07), `log-genweber-n1n2` (r̂ = 1.03).
+**Excluded for non-convergence.** These models were fitted but did not meet the criterion above, so their ELPD is not interpretable and they are not ranked: `log-power-n1n2.mapjitter.klw` (r̂ = 1.12), `log-power-n2.mapjitter.klw` (r̂ = 1.05), `log-spl3-n1n2.mapjitter.klw` (r̂ = 1.06), `log-genweber-n1n2.klw` (r̂ = 1.14).

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-weber+affine-n1n2.pathfinder	log	weber+affine	n1n2	independent	7	-4173.647766896658	46.87024545661243	205.5760636852783	0.0	0.6855127625498882

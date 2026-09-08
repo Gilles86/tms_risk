@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-spl3-n1n2pmu	log	spl3	n1n2pmu	shared_perceptual_noise	10	-4142.664734763306	47.06989207343715	258.75616446626464	0.0001199760047990402	0.858930322457276

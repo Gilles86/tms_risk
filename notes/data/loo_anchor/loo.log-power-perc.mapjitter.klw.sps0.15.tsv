@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-perc.mapjitter.klw.sps0.15	log	power	perc	shared_perceptual_noise	8	-4154.823442508524	46.67504289376637	176.88203735282104	0.0	0.5581571997127552

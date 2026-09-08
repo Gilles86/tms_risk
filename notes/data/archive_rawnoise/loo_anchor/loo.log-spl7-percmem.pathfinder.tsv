@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-spl7-percmem.pathfinder	log	spl7	percmem	shared_perceptual_noise	18	-4190.75705717308	46.32145249557972	272.16434621680855	0.0002399520095980804	0.7973114736269055

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+chf-weber-perc	chf	weber	perc	shared_perceptual_noise	6	-4369.921323568765	46.49682217042031	182.77249102430505	0.0023995200959808036	1.8927099323654308

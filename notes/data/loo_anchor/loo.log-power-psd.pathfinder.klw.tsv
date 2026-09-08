@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-psd.pathfinder.klw	log	power	psd	shared_perceptual_noise	8	-4127.903897336631	47.14318002168188	198.1083278510946	0.0	0.6662270729931429

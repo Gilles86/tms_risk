@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-n1n2.pathfinder.klw.free	log	power	n1n2	independent	9	-4151.169742423692	47.08557002820665	218.5338171089261	0.0	0.6819927628691321
