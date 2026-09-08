@@ -43,7 +43,9 @@ import seaborn as sns
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
 REPO = Path(__file__).resolve().parents[3]
 IPS, VERTEX = '#d62728', '#2ca02c'
-RATIO_C, NOISE_C, RISKY_C, SAFE_C = '0.15', '#3B5BA5', '#8172B2', '0.55'
+# only two encodings survive in this figure: stimulation (red/green) and
+# the numerator/denominator pair in the mechanism panels
+RATIO_C, NOISE_C = '0.15', '#3B5BA5'
 ORDERS = ['Risky first', 'Risky second']
 TICKS = [7, 14, 28, 56, 112]
 
@@ -72,7 +74,8 @@ def glyph_key(ax, entries, x=.04, y=.96, dy=.085, seg=.07, fs=6.5):
                                        lw=0, clip_on=False))
         elif kind == 'marker':
             ax.plot(x + seg / 2, yy, o.get('marker', 'o'), transform=tf,
-                    ms=o.get('ms', 3.6), color=col, clip_on=False, mew=0)
+                    ms=o.get('ms', 3.6), color=col, clip_on=False,
+                    mec=o.get('mec', col), mew=o.get('mew', 0))
         else:
             ax.plot([x, x + seg], [yy, yy], transform=tf, color=col,
                     ls=o.get('ls', '-'), lw=o.get('lw', 1.4),
@@ -204,31 +207,39 @@ def main(data_dir, out_stem, label, mech_level, bids_folder):
     # CrI on the prior's mean, which is the uncertainty the old panel omitted.
     ax = A['c']
     emp = empirical_payoffs(bids_folder)
-    for k, (which, col) in enumerate((('risky', RISKY_C), ('safe', SAFE_C))):
+    # Colour encodes ONE thing here: fitted prior versus payoffs actually
+    # shown. The option's role is already encoded by ROW, so colouring it too
+    # made grey mean "safe option" in one mark and "empirical distribution" in
+    # another, in the same panel. Role by position, quantity by ink.
+    # pale-and-wide = what was shown, dark-and-narrow = what was fitted. The
+    # first version had both at an effective 0.70 grey and they were
+    # indistinguishable; the contrast has to be in VALUE and WIDTH, not hue.
+    EMP, FIT = '0.80', '0.25'
+    for k, which in enumerate(('risky', 'safe')):
         r = pri[pri.which == which]
         if not len(r):
             continue
         r = r.iloc[0]
         y = 1 - k
         lo_e, hi_e, gm = emp[which]
-        ax.plot([lo_e, hi_e], [y + .30] * 2, color='0.72', lw=5,
+        ax.plot([lo_e, hi_e], [y] * 2, color=EMP, lw=11,
                 solid_capstyle='butt', zorder=1)
-        ax.plot(gm, y + .30, 'v', ms=4, color='0.55', zorder=2)
-        ax.plot([np.exp(r.mu - r.sd), np.exp(r.mu + r.sd)], [y, y], color=col,
-                lw=5, alpha=.45, solid_capstyle='butt', zorder=2)
-        ax.plot([np.exp(r.mu_lo), np.exp(r.mu_hi)], [y, y], color=col, lw=1.2,
-                zorder=3)
-        ax.plot(np.exp(r.mu), y, 'o', ms=5, color=col, zorder=4)
+        ax.plot([np.exp(r.mu - r.sd), np.exp(r.mu + r.sd)], [y, y], color=FIT,
+                lw=3.6, solid_capstyle='butt', zorder=3)
+        ax.plot([np.exp(r.mu_lo), np.exp(r.mu_hi)], [y, y], color='w', lw=1.1,
+                zorder=4)
+        ax.plot(np.exp(r.mu), y, 'o', ms=3.6, color='w', mec=FIT, mew=.8,
+                zorder=5)
     logx(ax)
     ax.set_yticks([1, 0])
     ax.set_yticklabels(['Risky', 'Safe'], fontsize=7)
-    ax.set_ylim(-.55, 2.35)
+    ax.set_ylim(-.7, 2.1)
     ax.set_xlabel('Payoff (CHF)')
     ax.set_title('Priors vs payoffs shown', fontsize=8)
-    glyph_key(ax, [('Payoffs shown, ±1 SD', '0.72', 'bar', dict(lw=5)),
-                   ('Fitted prior, ±1σ', RISKY_C, 'bar',
-                    dict(lw=5, alpha=.45)),
-                   ('95% CrI on its mean', RISKY_C, 'line', dict(lw=1.2))],
+    glyph_key(ax, [('Payoffs shown, ±1 SD', EMP, 'bar', dict(lw=8)),
+                   ('Fitted prior, ±1σ', FIT, 'bar', dict(lw=3.6)),
+                   ('95% CrI on its mean', 'w', 'marker',
+                    dict(ms=3.6, mec=FIT, mew=.8, tc='0.3'))],
               x=.04, y=.97, dy=.085, seg=.10, fs=6.2)
 
     # -- d, e: the mechanism, one panel per presentation order -------------
