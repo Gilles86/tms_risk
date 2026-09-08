@@ -319,7 +319,7 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
     ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
-    ap.add_argument('--mechanism_level', default='subject',
+    ap.add_argument('--mechanism_level', default='group',
                     choices=['subject', 'group'])
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
