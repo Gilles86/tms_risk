@@ -266,6 +266,63 @@ def main(labels, bids_folder, trace_dir, out_dir, n_draws, max_gap):
             out.to_csv(out_dir / f'ppc_anchor.delta_{name}.{label}.tsv',
                        sep='\t', index=False)
 
+        # Psychometric SLOPE per posterior draw. The pooled P(risky) curves
+        # for the two stimulation conditions overlap almost exactly, which is
+        # an accurate picture of a one-percentage-point separation and an
+        # unreadable one; and pooled over stake the slope contrast even comes
+        # out with the WRONG SIGN, because the fitted cTBS effect rotates the
+        # noise function (up at low payoffs, down at high) and the high-stake
+        # trials dominate. Split by stake and expressed as a slope, the model
+        # and the observed probit are finally the same quantity on the same
+        # axis. Slope is fitted per draw, so what comes out is a posterior.
+        sg2 = ['order', 'stake_bin', 'stim']
+        X = np.column_stack([np.ones(len(d)), np.log(d['frac'].values)])
+        rows = []
+        for gk, gi in d.groupby(sg2).indices.items():
+            Xg, S = X[gi], sim[gi]                    # (n, 2), (n, n_draw)
+            # logit slope by IRLS is overkill on 3-point-per-cell data; a
+            # linear probability fit on the same design has the same sign and
+            # is stable, and it is only ever compared LIKE FOR LIKE (model
+            # against model, and against the probit's own slope contrast).
+            beta = np.linalg.lstsq(Xg, S, rcond=None)[0][1]     # (n_draw,)
+            yg = d['chose_risky'].values[gi].astype(float)
+            b_obs = float(np.linalg.lstsq(Xg, yg, rcond=None)[0][1])
+            rows.append(dict(zip(sg2, gk)) | dict(
+                slope=float(beta.mean()),
+                lo=float(np.quantile(beta, .025)),
+                hi=float(np.quantile(beta, .975)),
+                observed=b_obs,
+                stake_chf=float(d['stake'].values[gi].mean()),
+                n_trials=len(gi)))
+        sl = pd.DataFrame(rows)
+        # the contrast, per draw, so it is not a difference of summaries
+        crows = []
+        for gk, gi in d.groupby(['order', 'stake_bin']).indices.items():
+            sub = d.iloc[gi]
+            b = {}
+            for st in ('ips', 'vertex'):
+                ii = gi[(sub['stim'] == st).values]
+                b[st] = np.linalg.lstsq(X[ii], sim[ii], rcond=None)[0][1]
+            dd_ = b['ips'] - b['vertex']
+            bo = {}
+            for st in ('ips', 'vertex'):
+                ii = gi[(sub['stim'] == st).values]
+                bo[st] = float(np.linalg.lstsq(
+                    X[ii], d['chose_risky'].values[ii].astype(float),
+                    rcond=None)[0][1])
+            crows.append(dict(order=gk[0], stake_bin=gk[1],
+                              d_slope_observed=bo['ips'] - bo['vertex'],
+                              d_slope=float(dd_.mean()),
+                              lo=float(np.quantile(dd_, .025)),
+                              hi=float(np.quantile(dd_, .975)),
+                              p_lt0=float((dd_ < 0).mean()),
+                              stake_chf=float(sub['stake'].mean())))
+        sl = sl.merge(pd.DataFrame(crows), on=['order', 'stake_bin'],
+                      suffixes=('', '_contrast'), how='left')
+        sl.insert(0, 'label', label)
+        sl.to_csv(out_dir / f'ppc_anchor.slope.{label}.tsv', sep='\t',
+                  index=False)
+
         # Also aggregate by the SAFE payoff. Stake terciles are the paper's
         # convention, but the model's perceived-value panels are indexed by safe
         # payoff, and a causal-chain figure has to put the consequence on the

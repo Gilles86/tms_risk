@@ -254,6 +254,10 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     dlt = pd.read_csv(dltf, **READ) if dltf.exists() else None
     if ppc_kind == 'delta' and dlt is None:
         ppc_kind = 'safe'
+    slpf = dd / f'ppc_anchor/ppc_anchor.slope.{label}.tsv'
+    slp = pd.read_csv(slpf, **READ) if slpf.exists() else None
+    if ppc_kind == 'slope' and slp is None:
+        ppc_kind = 'safe'
     loo = pd.concat([pd.read_csv(f, **READ)
                      for f in glob.glob(str(dd / 'loo_anchor/loo.*.tsv'))],
                     ignore_index=True)
@@ -662,7 +666,44 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                           labelspacing=.35, borderaxespad=.15)
 
     # -- h(,i): the consequence for choice -------------------------------
-    if ppc_kind == 'delta':
+    if ppc_kind == 'slope':
+        # The psychometric SLOPE, split by stake -- the quantity Figure 3
+        # reports, so the model and the data are finally the same thing on the
+        # same axis. Pooled over stake the slope contrast comes out with the
+        # wrong sign, because the fitted cTBS effect ROTATES the noise function
+        # (up at low payoffs, down at high) and the high-stake trials dominate.
+        # Both sides are the same statistic: a linear-probability slope on
+        # log(risky/safe), computed on each posterior draw's simulated choices
+        # for the band and on the real choices for the points.
+        for k, order in zip(('h', 'i'), ORDERS):
+            ax = AX[k]
+            o_ = slp[slp.order == order]
+            xs = np.arange(o_.stake_bin.nunique())
+            for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
+                q = o_[o_.stim == stim].sort_values('stake_chf')
+                ax.fill_between(xs, q.lo, q.hi, color=col, alpha=.18, lw=0,
+                                zorder=1)
+                ax.plot(xs, q.slope, color=col, lw=1.4, zorder=3)
+                ax.plot(xs, q.observed, 'o', ms=4.4, color=col, zorder=5)
+            ax.set_xticks(xs)
+            ax.set_xticklabels([f'{v:.0f}' for v in
+                                o_.groupby('stake_bin').stake_chf.mean()])
+            ax.set_xlim(-.35, len(xs) - .65)
+            ax.set_xlabel('Stake (CHF)')
+            ax.set_title(order, fontsize=7.5)
+            if k == 'h':
+                ax.set_ylabel('Psychometric slope\n(ΔP per log ratio)')
+                ax.text(.05, .12, 'IPS', transform=ax.transAxes, color=IPS,
+                        fontsize=7)
+                ax.text(.05, .03, 'Vertex', transform=ax.transAxes,
+                        color=VERTEX, fontsize=7)
+            else:
+                ax.set_yticklabels([])
+                glyph_key(ax, [('Observed', '.25', 'marker', dict(ms=4.4)),
+                               ('95% predictive', '.5', 'band',
+                                dict(alpha=.18))],
+                          x=.05, y=.14, dy=.095)
+    elif ppc_kind == 'delta':
         # Two overlapping psychometric curves are an accurate picture of a
         # model that predicts a ~1-percentage-point separation, and a useless
         # one. The difference, with its own predictive band, is the same
@@ -726,8 +767,8 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                         fontsize=7, va='top')
                 ax.text(.05, .86, 'Vertex', transform=ax.transAxes,
                         color=VERTEX, fontsize=7, va='top')
-                ax.text(1 / P_RISKY, .935, 'Risk neutral', fontsize=6,
-                        color='0.45', ha='center', va='top',
+                ax.text(1 / P_RISKY, .40, 'Risk neutral', fontsize=6,
+                        color='0.45', ha='center', va='bottom',
                         rotation=90, rotation_mode='anchor')
             else:
                 ax.set_yticklabels([])
@@ -955,7 +996,7 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'ratio', 'delta', 'psychometric', 'psychometric2'],
+                    choices=['safe', 'ratio', 'delta', 'slope', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "
                          "Figure 3a's x-axis, one panel per order; 'delta' "
