@@ -102,7 +102,7 @@ def main(data_dir, out_stem, label, split):
                     textcoords='offset points', color=col, fontsize=8,
                     ha='left' if stim == 'ips' else 'center', va='center',
                     fontweight='bold')
-    AX[0, 0].text(.04, .96, 'Risk-neutral →', transform=AX[0, 0].transAxes,
+    AX[0, 0].text(.04, .96, 'Risk-neutral', transform=AX[0, 0].transAxes,
                   fontsize=6.5, color='.5', va='top')
     for letter, ax in zip('ab', AX[:, 0]):
         ax.text(-.30, 1.04, letter, transform=ax.transAxes, fontsize=9,
