@@ -61,12 +61,45 @@ middle rungs — **job 5656293** refits `n1`, `n2` (and `nullind`, `perc` for a
 like-for-like prior spec) under both structural levers, so the ladder is ready
 the moment a winner is known.
 
-Note `n1n2x` — the cTBS × presentation-order interaction — samples cleanly under
-KLW where every additive position model fails. That is not a coincidence worth
-ignoring: the observed effect is confined to risky-second trials, and a channel
-indexed by position alone has to compromise across both orders, which is exactly
-the tension the sampler is stuck in. Worth pricing into the ELPD ladder before
-settling on `perc`.
+### What `n1n2x` actually says (checked, not assumed)
+
+`n1n2x` is a strict SUPERSET of `n1n2`: identical everywhere except that the
+four noise anchors carry `stimulation_condition*risky_first` (4 regressor
+columns) instead of `stimulation_condition` (2). The bigger model samples
+(r̂ 1.010 / ESS 956); the smaller one does not (1.120 / 42).
+
+The tempting story — that a position-indexed channel has to compromise across
+orders and the interaction relieves that tension — is **wrong**, and the trace
+says so. Group-level cTBS contrasts (log units, IPS − vertex):
+
+| | risky SECOND | risky FIRST | difference |
+|---|---|---|---|
+| ν₂ @ 7 | **+0.321 [+0.060, +0.574]**, P = 0.992 | +0.289 [−0.058, +0.682], P = 0.947 | +0.028 [−0.340, +0.378], P = 0.56 |
+| ν₁ @ 7 | +0.023 | −0.022 | +0.044, P = 0.64 |
+| ν₂ @ 112 | −0.086 | +0.109 | −0.195, P = 0.18 |
+| ν₁ @ 112 | +0.136 | −0.035 | +0.172, P = 0.86 |
+
+The interaction is null on every anchor, and so is the `risky_first` main
+effect on baseline noise (−0.02 to −0.21, every CrI crossing 0). Given the
+freedom to make the cTBS effect order-specific, the model declines to use it.
+**Why the larger model mixes and the smaller one does not is unexplained** —
+it is not the init (`n1n2.pathfinder.klw` is r̂ 1.15).
+
+Two things this is genuinely worth:
+
+1. **It corroborates the headline from a model that converges.** `n1n2x` puts
+   Δν₂ @ 7 CHF at +0.321 [+0.060, +0.574], P = 0.992; the non-converged `n1n2`
+   puts it at +0.315 [+0.052, +0.564], P = 0.991. Near-identical. So the effect
+   is not an artefact of `n1n2`'s bad sampling — which is the main worry about
+   reporting it.
+2. **It is evidence against an order-specific noise mechanism**, which is worth
+   one sentence given how much the model-free result leans on risky-second
+   trials. The behavioural asymmetry is not because cTBS raises noise more when
+   the risky option comes second; it is because raising the noise on whichever
+   option came second has an asymmetric behavioural consequence.
+
+LOO for the whole `*x` family is extracting (job 5656327) so the ladder can
+include it.
 
 ## Blocked on that decision
 
