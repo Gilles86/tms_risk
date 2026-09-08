@@ -321,3 +321,50 @@ Two things survive:
   | **`spl3` [7, 28, 112]** | **0.327** |
 
   `log-spl3-n1n2.klw` is already fitted; its convergence is the direct test.
+
+## There IS a converged position-indexed model: `spl5-n1n2`
+
+Checking the spline placements settles the "is there nothing to do with n1n2"
+question. Under KLW:
+
+| Model | r̂ | ESS | |
+|---|---|---|---|
+| `power-n1n2` (2 anchors) | 1.120 | 42 | fails |
+| `spl3-n1n2` (3 anchors) | 1.040–1.100 | 48–122 | fails |
+| **`spl5-n1n2` (5 anchors)** | **1.000** | **2822** | **passes** |
+| `spl3-n1n2x` | 1.000 | 2430 | passes |
+| `spl3-perc` / `spl3-percmem` / `spl3-null(ind)` | 1.000 | 1235–2361 | pass |
+
+The *more* flexible position model samples cleanly and the 2-anchor one does
+not — which is the anchor-correlation story again, from the other side: `spl5`'s
+non-adjacent hat functions do not overlap at all, so most of its parameter pairs
+have design correlation exactly 0.000 and the worst is 0.398, against `power`'s
+single pair at 0.595.
+
+So the position-indexed question is answerable. The answer is just weaker:
+
+| | Δν @ 7 CHF | P(Δν > 0) | ELPD vs `power-n1n2x` |
+|---|---|---|---|
+| `power-n1n2` (fails) | +0.047 | 0.991 | −5.5 ± 3.8 |
+| `spl5-n1n2` (converges) | +0.025 | **0.819** | −25.7 ± 10.0 |
+
+`spl5-n1n2` is 2.6 SE worse than the best model and 1.3 SE worse than
+`power-perc`. **The large, credible position-indexed effect exists only in the
+parameterisation whose sampler does not converge.** When the noise function is
+flexible enough for the position channels to be identified, the effect drops
+below the 0.95 threshold. That is worth one supplementary sentence, and it is
+another reason to report `perc`.
+
+Full KLW ladder, paired against the best converged model:
+
+| Model | ELPD | Δ | dSE |
+|---|---|---|---|
+| `power-n1n2x` | −4144.8 | — | — |
+| `power-n1n2` *(fails)* | −4150.3 | −5.5 | 3.8 |
+| `spl3-percmem` | −4151.4 | −6.6 | 10.1 |
+| `spl3-perc` | −4151.5 | −6.7 | 10.4 |
+| `power-percmem` | −4153.9 | −9.1 | 8.7 |
+| `power-perc` | −4155.2 | −10.4 | 9.2 |
+| `spl5-n1n2` | −4170.5 | −25.7 | 10.0 |
+| `power-mem` | −4195.0 | −50.2 | 10.9 |
+| `power-nullind` | −4250.6 | −105.8 | 13.7 |
