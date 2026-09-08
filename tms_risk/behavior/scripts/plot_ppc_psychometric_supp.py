@@ -116,7 +116,7 @@ def main(data_dir, out_stem, label, split):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--model_label', default='log-power-n1n2')
+    ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--split', default='stake', choices=['none', 'stake'])
     ap.add_argument('--out_stem', default=None)
     a = ap.parse_args()

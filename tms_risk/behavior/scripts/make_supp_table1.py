@@ -142,7 +142,7 @@ def main(data_dir, reference, out_stem):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--reference', default='log-power-n1n2')
+    ap.add_argument('--reference', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--out_stem', default=str(REPO / 'notes/supp_table1'))
     a = ap.parse_args()
     main(a.data_dir, a.reference, a.out_stem)

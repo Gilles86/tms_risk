@@ -341,8 +341,12 @@ if __name__ == '__main__':
     REPO = Path(__file__).resolve().parents[2].parent
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--model_label', default='log-power-n2psd')
-    ap.add_argument('--weber_label', default='log-weber-n1n2')
+    # KLW labels. The old defaults -- log-power-n2psd and log-weber-n1n2 --
+    # were raw-choice-rule fits, which have been archived, so this figure would
+    # silently have found no curves. n2psd was also a prior-shift model, and
+    # those are out of the paper.
+    ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
+    ap.add_argument('--weber_label', default='log-weber-n1n2.mapjitter.klw')
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=str(REPO / 'notes/figures/fig4_weber'))
     ap.add_argument('--panels', default='abde',

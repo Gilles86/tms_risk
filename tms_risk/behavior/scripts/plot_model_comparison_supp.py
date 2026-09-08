@@ -169,7 +169,7 @@ if __name__ == '__main__':
     REPO = Path(__file__).resolve().parents[2].parent
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--model_label', default='log-power-n2psd')
+    ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--out_stem',
                     default=str(REPO / 'notes/figures/supp_model_comparison'))
     a = ap.parse_args()

@@ -152,8 +152,8 @@ def main(data_dir, out_stem, weber_label, power_label):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--weber_label', default='log-weber-n1n2')
-    ap.add_argument('--power_label', default='log-power-n1n2')
+    ap.add_argument('--weber_label', default='log-weber-n1n2.mapjitter.klw')
+    ap.add_argument('--power_label', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--out_stem',
                     default=str(REPO / 'notes/figures/supp_weber_misfit'))
     a = ap.parse_args()

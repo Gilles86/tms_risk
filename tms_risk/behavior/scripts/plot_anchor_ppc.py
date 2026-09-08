@@ -133,6 +133,6 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data/ppc_anchor'))
     ap.add_argument('--out_stem', default=str(REPO / 'notes/figures/anchor_ppc'))
-    ap.add_argument('--model_label', default='log-affine-n1n2')
+    ap.add_argument('--model_label', default='log-affine-n1n2.klw')
     a = ap.parse_args()
     main(a.data_dir, a.out_stem, a.model_label)

@@ -1105,7 +1105,7 @@ if __name__ == '__main__':
     REPO = Path(__file__).resolve().parents[2].parent
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--model_label', default='log-power-n1n2')
+    ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--observed_tsv', default=None)
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
