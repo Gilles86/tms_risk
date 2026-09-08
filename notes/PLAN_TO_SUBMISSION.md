@@ -112,3 +112,43 @@ The script reports three estimators and the variance-subtraction one is
 biased — see the CLAUDE.md convention. The headline: **the perceptual channel
 is reliable enough to correlate (ceiling 0.71); the memory channel is not
 (0.36).** That is itself a result worth one sentence.
+
+## Stop: the r = 0.31 has the wrong sign
+
+The writing chat wants the "nominally largest correlation, r = 0.31 on ν at
+7 CHF" reported. It should not be. Both quantities are IPS − vertex:
+
+* `d_amp` = amplitude(IPS) − amplitude(vertex), so **negative = amplitude lost**
+  (`modeling/scripts/extract_brain_behavior_table.py:77`)
+* Δν = IPS − vertex on log noise, so **positive = noise increased**
+  (`behavior/scripts/extract_anchor_subject_params.py:44`)
+
+The hypothesis therefore predicts **r < 0**. The model-free result obeys it
+(Δamp × Δconsistency on risky-second trials = +0.53: lose amplitude, lose
+consistency). The model parameters do not:
+
+| Pair | r | sign |
+|---|---|---|
+| Δamp × Δconsistency (risky second) | +0.53 | as predicted |
+| Δν_perc @ 112 × Δconsistency | −0.35 | as predicted |
+| Δν_perc @ 112 × Δamp | −0.19 | as predicted, weak |
+| Δν_perc @ 7 × Δconsistency | −0.01 | nothing |
+| **Δν_perc @ 7 × Δamp** | **+0.31** | **opposite** |
+
+And it is opposite in every mask, including the controls that the model-free
+analysis showed the effect falls off in: left parietal +0.27, occipito-temporal
++0.26, frontal +0.11 — flat with distance from the coil, which is what a
+non-specific artefact looks like, not a causal link.
+
+**Report nothing from the model-parameter correlations.** One sentence: the
+model-free consistency link (Fig. 3) does not reappear in the model's
+per-participant noise parameters, and the per-participant reliability of those
+parameters — ceiling 0.71 for the perceptual channel — is high enough that low
+reliability is not the explanation. Better to say that than to report a
+wrong-signed r at p = 0.07.
+
+`behavior/scripts/anchor_brain_behavior_posterior.py` computes these the right
+way: the correlation is recomputed **per posterior draw**, so the interval
+contains the per-participant measurement error and no bootstrap is involved
+(the draft's "bootstrap 95% CI [0.37, 0.67]" on the model-free correlation is
+the last maximum-likelihood interval left in the paper — replace it).
