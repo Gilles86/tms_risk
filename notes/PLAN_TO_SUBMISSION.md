@@ -41,6 +41,33 @@ the filename.
 
 Check with `summarize_traces.py` on `cogmodels.anchor`; ~6–14 h from 09:50.
 
+### It is the whole position-indexed family, not just n1n2
+
+Convergence of the KLW `log-power-*` set (25/40 pass):
+
+| Model | r̂ | ESS | |
+|---|---|---|---|
+| `nullind` | 1.000 | 1419 | passes |
+| `n1` | 1.020 | 247 | fails |
+| `n2` | 1.050 | 109 | fails |
+| `n1n2` | 1.120 | 42 | fails |
+| `perc` / `mem` / `percmem` / `null` | 1.000 | 1765–5179 | all pass |
+| **`n1n2x`** (cTBS × order) | **1.010** | **956** | **passes** |
+
+`nullind` mixes and every model with a cTBS regressor on a position-indexed
+channel does not, so it is the regressor-on-a-position that breaks the sampler.
+Fixing `n1n2` alone would therefore still leave the nested ladder without its
+middle rungs — **job 5656293** refits `n1`, `n2` (and `nullind`, `perc` for a
+like-for-like prior spec) under both structural levers, so the ladder is ready
+the moment a winner is known.
+
+Note `n1n2x` — the cTBS × presentation-order interaction — samples cleanly under
+KLW where every additive position model fails. That is not a coincidence worth
+ignoring: the observed effect is confined to risky-second trials, and a channel
+indexed by position alone has to compromise across both orders, which is exactly
+the tension the sampler is stuck in. Worth pricing into the ELPD ladder before
+settling on `perc`.
+
 ## Blocked on that decision
 
 1. **Figure 5** — rerun `plot_fig4_big.py` for the chosen label.
