@@ -1,6 +1,14 @@
 # Plan to submission — v12
 
-Written 2026-09-08. Ordered by what blocks what, not by size.
+Written 2026-09-08.
+
+> **DECIDED (2026-09-08, evening).** `log-power-n1n2` cannot be made to sample
+> under the consistent choice rule — seven levers, all fail. The paper reports
+> **`log-power-perc.mapjitter.klw`**, with `log-power-n1n2x` as corroboration.
+> ELPD cannot tell them apart (10.4 ± 9.2, 1.1 SE), so the choice is made on
+> convergence, parsimony and per-participant reliability, all of which favour
+> `perc`. Details in the two sections below; the rest of this file is the
+> reasoning that got there and is kept for the record. Ordered by what blocks what, not by size.
 
 ## The one open scientific decision
 
@@ -212,3 +220,64 @@ way: the correlation is recomputed **per posterior draw**, so the interval
 contains the per-participant measurement error and no bootstrap is involved
 (the draft's "bootstrap 95% CI [0.37, 0.67]" on the model-free correlation is
 the last maximum-likelihood interval left in the paper — replace it).
+
+
+## Verdict on n1n2.klw: it does not sample, and that is final
+
+Seven levers, all measured on the same model, gate = r̂ ≤ 1.01 / ESS ≥ 400:
+
+| Lever | r̂ | ESS |
+|---|---|---|
+| none (mapjitter) | 1.120 | 42 |
+| **τ_intercept 0.15** | **1.050** | **102** ← best, still fails |
+| σ_prior_sd 0.25 | 1.110 | 47 |
+| σ_prior_sd 0.15 | 1.150 | 34 |
+| σ_prior_sd 0.15 + σ_prior_mu 0.4 | 1.170 | 31 |
+| `fix_prior_sd` | 1.270 | 21 |
+| σ_prior_sd 0.15 + τ 0.15 | 1.730 | 12 |
+
+Two things worth keeping from the sweep:
+
+* **`fix_prior_sd` is a dead lever** — it made every model worse, and it broke
+  `nullind` (1.000/1419 → 1.290/21), which had converged fine. Pinning the prior
+  width does not identify ν here; the free prior SD was absorbing something the
+  noise anchors then have to absorb instead. Do not use it.
+* **`--sigma_prior_sd 0.15` rescues the rest of the family**: `n1`
+  1.010/1585 ✓, `nullind` 1.010/1387 ✓, `perc` 1.000/2770 ✓. Only `n2`
+  (1.060/87) and `n1n2` still fail. So the ladder's lower rungs are available;
+  its top rung is not.
+
+## ELPD cannot separate the candidates
+
+KLW, `log-power` family, prior-shift placements excluded per the v11 decision.
+Paired against `n1n2x`, which is the best converged model:
+
+| Model | ELPD | Δ vs n1n2x | dSE | |
+|---|---|---|---|---|
+| `n1n2x` | −4144.8 | — | — | converged |
+| `n1n2` | −4150.3 | −5.5 | 3.8 | **fails to sample** |
+| `percmemx` | −4152.7 | −7.9 | 7.0 | converged |
+| `percx` | −4153.5 | −8.7 | 7.4 | converged |
+| `percmem` | −4153.9 | −9.1 | 8.7 | converged |
+| `perc` | −4155.2 | −10.4 | 9.2 | converged |
+| `mem` | −4195.0 | −50.2 | 10.9 | 4.6 SE worse |
+| `nullind` | −4250.6 | −105.8 | 13.7 | 7.8 SE worse |
+
+Everything from `n1n2x` down to `perc` sits inside 1.2 SE — **predictively
+indistinguishable**. What ELPD *does* say, decisively, is that cTBS moves the
+noise function at all (`nullind` is 7.8 SE worse) and that it is not the memory
+channel alone (`mem` 4.6 SE worse).
+
+So the reported model is chosen on convergence, parsimony and reliability:
+
+| | `perc` | `n1n2x` | `n1n2` |
+|---|---|---|---|
+| r̂ / ESS | 1.000 / 5179 | 1.010 / 956 | 1.120 / 42 |
+| free parameters | 6 | 8 (×4 regressor cols) | 8 |
+| rank stability of the reported ν | **0.50** | — | 0.20 |
+| Δν @ 7 CHF | +0.031, P = 0.971 | +0.321 log, P = 0.992 | +0.315 log, P = 0.991 |
+
+**Report `perc`.** Use `n1n2x` in the supplement for two jobs: it shows the
+position-indexed reading gives the same answer from a model that converges, and
+its null interaction shows the behavioural order-asymmetry is not cTBS acting
+differently by order.
