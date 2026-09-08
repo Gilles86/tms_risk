@@ -277,33 +277,71 @@ def main(data_dir, out_stem, label, mech_level, bids_folder):
             pass
 
     # -- f: the behavioural consequence ------------------------------------
-    ax = A['f']
-    ax.axhline(0, color='0.45', lw=1.0, zorder=0)
-    for order, mk, ls in zip(ORDERS, ('o', 'o'), ((0, (3, 1.6)), '-')):
-        q = dlt[dlt.order == order].sort_values('stake_chf')
-        x = np.arange(len(q))
-        col = '0.62' if order == ORDERS[0] else '0.12'
-        ax.fill_between(x, 100 * q.lo, 100 * q.hi, color=col, alpha=.14, lw=0)
-        ax.plot(x, 100 * q.model, color=col, ls=ls, lw=1.4)
-        # NO error bar on the observed point. This is a posterior predictive
-        # check: the observed value is a STATISTIC and the band is the model's
-        # predictive distribution for it, which already contains the sampling
-        # noise an s.e.m. would draw. Putting both on one axis draws the same
-        # uncertainty twice and invites the reader to compare two intervals
-        # that mean different things.
-        ax.plot(x, 100 * q.observed, mk, ms=4.6, color=col, zorder=5)
-        ax.annotate(order, (x[-1], 100 * q.observed.iloc[-1]),
-                    xytext=(4, 0), textcoords='offset points', color=col,
-                    fontsize=6.6, va='center', annotation_clip=False)
-    q0 = dlt[dlt.order == ORDERS[0]].sort_values('stake_chf')
-    ax.set_xticks(np.arange(len(q0)))
-    ax.set_xticklabels([f'{v:.0f}' for v in q0.stake_chf])
-    ax.set_xlim(-.4, len(q0) - .35)
-    ax.set_xlabel('Stake (CHF)')
-    ax.set_ylabel('Δ P(chose risky), points')
-    glyph_key(ax, [('Observed', '0.12', 'marker', dict(ms=4.6)),
-                   ('Model, 95% predictive', '0.5', 'band', dict(alpha=.14))],
-              x=.04, y=.14, dy=.085)
+    # The cTBS effect itself -- IPS minus vertex on P(chose risky) -- along the
+    # payoff-ratio axis the reader already knows from Figure 3a, one row per
+    # presentation order. The PATTERN is the row contrast: risky-first dots
+    # scatter around the model line, risky-second dots all sit above it. The
+    # SIZE shortfall is the dot-to-line gap, about four-fold.
+    #
+    # The marginal column at the right is what makes this honest. Each rung's
+    # predictive band is 2.3x wider than the band for the MEAN, so five of six
+    # rungs are individually covered and a reader could conclude "one outlier
+    # rung, otherwise fine". The mean is the statistic the check turns on, and
+    # it is the one that fails.
+    rng_ = pd.read_csv(dd / f'ppc_anchor/ppc_anchor.delta_rung.{label}.tsv',
+                       **READ)
+    sta = pd.read_csv(dd / f'ppc_anchor/ppc_stats.{label}.tsv', **READ)
+    MEANS = {'Risky first': 'dp_first_mean', 'Risky second': 'dp_second_mean'}
+    gsF = A['f'].get_subplotspec().subgridspec(2, 1, hspace=.16)
+    A['f'].set_visible(False)
+    fx = None
+    for r, order in enumerate(ORDERS):
+        ax = fig.add_subplot(gsF[r], sharey=fx, sharex=fx)
+        fx = fx or ax
+        if r == 0:
+            A['f'] = ax                       # the panel letter hangs here
+        q = rng_[rng_.order == order].sort_values('frac')
+        x = np.log(q.frac.values)
+        xm = x.max() + .55 * (x.max() - x.min()) / (len(x) - 1)
+        ax.axhline(0, color='0.45', lw=.9, zorder=0)
+        ax.fill_between(x, 100 * q.lo, 100 * q.hi, color='0.6', alpha=.20,
+                        lw=0, zorder=1)
+        ax.plot(x, 100 * q.model, color='0.35', lw=1.2, zorder=2)
+        ax.plot(x, 100 * q.observed, 'o', ms=3.8, color='0.1', zorder=4)
+        m = sta[sta.statistic == MEANS[order]]
+        if len(m):
+            m = m.iloc[0]
+            ax.plot([xm] * 2, [100 * m.lo, 100 * m.hi], color='0.6', lw=5,
+                    alpha=.55, solid_capstyle='butt', zorder=2)
+            ax.plot(xm, 100 * m.model_median, '_', ms=7, color='0.35', mew=1.3,
+                    zorder=3)
+            ax.plot(xm, 100 * m.observed, 'o', ms=5.2, zorder=5,
+                    color='0.1' if m.covered else IPS)
+            ax.annotate(f'p = {m.ppp:.3f}', (xm, 100 * m.observed),
+                        xytext=(0, 8), textcoords='offset points',
+                        ha='center', fontsize=6.2,
+                        color='0.45' if m.covered else IPS,
+                        annotation_clip=False)
+        ax.axvline((x.max() + xm) / 2, color='0.85', lw=.7, zorder=0)
+        ax.set_xticks(list(np.log([1.5, 2, 2.5, 3])) + [xm])
+        ax.set_xticklabels(['1.5', '2', '2.5', '3', 'Mean'], fontsize=6.6)
+        ax.set_xlim(x.min() - .04, xm + .06)
+        ax.set_ylim(-9.5, 17)
+        ax.text(.98, .04, order, transform=ax.transAxes, fontsize=7,
+                ha='right', va='bottom', color='0.25')
+        if r == 0:
+            ax.tick_params(labelbottom=False)
+            glyph_key(ax, [('Observed', '0.1', 'marker', dict(ms=3.8)),
+                           ('Model, 95% predictive', '0.6', 'band',
+                            dict(alpha=.20))],
+                      x=.03, y=.95, dy=.115, seg=.09, fs=6.2)
+        else:
+            ax.set_xlabel('Risky / safe payoff ratio')
+        # the same quantity in both rows, so label it once, centred
+        if r == 1:
+            ax.set_ylabel('Δ P(chose risky), points')
+            ax.yaxis.set_label_coords(-.19, 1.06)
+        sns.despine(ax=ax, offset=3)
 
     for letter, k in zip('abcdef', 'abcdef'):
         A[k].text(-.16 if k in 'ad' else -.13, 1.05, letter,

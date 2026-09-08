@@ -151,6 +151,11 @@ def main(labels, bids_folder, trace_dir, out_dir, n_draws, max_gap):
             return {
                 'dp_second_high': hi_s,
                 'dp_second_mean': mean_s,
+                # the risky-FIRST mean was computed and then dropped, so any
+                # panel wanting it had to derive it from the tercile intervals
+                # under independence. It is the control condition for the
+                # statistic the check turns on; return it.
+                'dp_first_mean': mean_f,
                 'order_contrast': mean_s - mean_f,
                 'stake_slope_second': hi_s - lo_s,
                 'three_way': (hi_s - lo_s) - (hi_f - lo_f),
