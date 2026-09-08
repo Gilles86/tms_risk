@@ -198,6 +198,14 @@ def probit_panel(ax, mod, obs, par, order, show_y):
         ax.set_yticklabels([])
 
 
+def _two_panel_span(fig, ax_left, ax_right):
+    """Bounding box covering two side-by-side axes, for a single wide panel."""
+    fig.canvas.draw()
+    a, b = ax_left.get_position(), ax_right.get_position()
+    from matplotlib.transforms import Bbox
+    return Bbox.from_extents(a.x0 + .012, a.y0, b.x1, a.y1)
+
+
 def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
          ppc_kind='safe', bids_folder='/data/ds-tmsrisk'):
     dd = Path(data_dir)
@@ -257,6 +265,10 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # 'slope'  pools participants inside a cell (attenuated, see the extractor)
     # 'slope2' fits the slope per participant and averages (not attenuated)
     _sk = 'slope2' if ppc_kind == 'slope2' else 'slope'
+    stf = dd / f'ppc_anchor/ppc_stats.{label}.tsv'
+    sta = pd.read_csv(stf, **READ) if stf.exists() else None
+    if ppc_kind == 'stats' and sta is None:
+        ppc_kind = 'safe'
     slpf = dd / f'ppc_anchor/ppc_anchor.{_sk}.{label}.tsv'
     slp = pd.read_csv(slpf, **READ) if slpf.exists() else None
     if ppc_kind.startswith('slope') and slp is None:
@@ -669,7 +681,58 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                           labelspacing=.35, borderaxespad=.15)
 
     # -- h(,i): the consequence for choice -------------------------------
-    if ppc_kind.startswith('slope'):
+    if ppc_kind == 'stats':
+        # Targeted posterior predictive checks. Every other PPC in this figure
+        # plots cells of 12-20 trials per participant, where the point's own
+        # standard error is as wide as the model's band and the eye reads
+        # sampling noise as misfit. These statistics aggregate over the whole
+        # design instead, so each one is a single number with little noise
+        # left, and each asks a specific question the paper actually makes a
+        # claim about -- rather than asking whether the bulk choice curve is
+        # right, which every model in the grid gets right.
+        NAMES = {
+            'dp_second_mean':   'cTBS effect, risky second',
+            'dp_second_high':   '… at the largest stakes',
+            'order_contrast':   'Effect is bigger when risky is second',
+            'stake_slope_second': 'Effect grows with stake (risky second)',
+            'three_way':        'Stake dependence differs by order',
+            'slope_contrast':   'cTBS flattens the psychometric curve',
+            'slope_second_ctbs': '… on risky-second trials',
+        }
+        q = [r for r in sta.to_dict('records') if r['statistic'] in NAMES]
+        q = sorted(q, key=lambda r: list(NAMES).index(r['statistic']))
+        AX['i'].set_visible(False)
+        ax = AX['h']
+        ax.set_position(_two_panel_span(fig, AX['h'], AX['i']))
+        # names go INSIDE the panel, so the axes can start flush against the
+        # panel to its left instead of reserving a gutter for tick labels
+        y = np.arange(len(q))[::-1]
+        xl = min(r['lo'] for r in q) - .012
+        xr = max(r['hi'] for r in q) + .075
+        for yy, r in zip(y, q):
+            ok = bool(r['covered'])
+            col = '0.25' if ok else IPS
+            ax.plot([r['lo'], r['hi']], [yy, yy], color='0.62', lw=4.0,
+                    alpha=.40, solid_capstyle='butt', zorder=1)
+            ax.plot(r['model_median'], yy, '|', ms=10, color='0.30', mew=1.5,
+                    zorder=2)
+            ax.plot(r['observed'], yy, 'o', ms=5.4, color=col, zorder=4)
+            ax.text(xl + .004, yy + .30, NAMES[r['statistic']], fontsize=6.6,
+                    va='bottom', ha='left', color='0.2')
+            ax.text(xr - .004, yy, f"p = {r['ppp']:.3f}", ha='right',
+                    va='center', fontsize=6.6,
+                    color='0.45' if ok else IPS)
+        ax.axvline(0, color='0.45', lw=.9, zorder=0)
+        ax.set_yticks([])
+        ax.set_xlim(xl, xr)
+        ax.set_ylim(-1.5, len(q) - .25)
+        ax.set_xlabel('Effect on P(chose risky)')
+        ax.set_title('Does the model produce what was measured?', fontsize=8)
+        glyph_key(ax, [('Observed', '.25', 'marker', dict(ms=5.4)),
+                       ('Model, 95% predictive', '0.62', 'bar',
+                        dict(lw=4.0, alpha=.40))],
+                  x=.02, y=.10, dy=.075, seg=.055)
+    elif ppc_kind.startswith('slope'):
         # The psychometric SLOPE, split by stake -- the quantity Figure 3
         # reports, so the model and the data are finally the same thing on the
         # same axis. Pooled over stake the slope contrast comes out with the
@@ -982,8 +1045,13 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
 
     keys = list(ROW1) + ['e', 'f', 'g', 'p', 'h', 'i']
     for letter, k in zip('abcdefghi', keys):
-        if k in AX:
-            AX[k].text(-.22 if k not in ('e', 'p') else -.34, 1.06, letter,
+        if k in AX and AX[k].get_visible():
+            # the 'stats' panel spans h+i and carries its labels inside, so it
+            # has no tick gutter for the letter to sit in
+            dx = (-.22 if k not in ('e', 'p') else -.34)
+            if ppc_kind == 'stats' and k == 'h':
+                dx = -.02
+            AX[k].text(dx, 1.06, letter,
                        transform=AX[k].transAxes, fontsize=8.5,
                        fontweight='bold', family='Arial', va='bottom')
     sns.despine(fig=fig, offset=3)
@@ -1001,7 +1069,7 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'ratio', 'delta', 'slope', 'slope2',
+                    choices=['safe', 'ratio', 'delta', 'slope', 'slope2', 'stats',
                              'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "
