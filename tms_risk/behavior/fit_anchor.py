@@ -180,7 +180,8 @@ def parse_label(label):
     return m.groups()
 
 
-def build_model(label, df, role_scale=None, prior_estimate='full'):
+def build_model(label, df, role_scale=None, prior_estimate='full',
+                anchors=None):
     """Construct the model and install PRIOR_SPEC on it."""
     import bauer.models as bm
     space, form, placement = parse_label(label)
@@ -194,6 +195,8 @@ def build_model(label, df, role_scale=None, prior_estimate='full'):
     # noise; pass it only when asked for, so the same fit_anchor works against
     # both checkouts instead of failing on the default value.
     kw = {} if role_scale is None else dict(role_scale=role_scale)
+    if anchors is not None:
+        kw['anchors'] = list(anchors)
     model = cls(df, noise_form=form, memory_model=memory_model,
                 regressors={t: formula for t in targets},
                 prior_estimate=prior_estimate, **kw)
@@ -362,6 +365,23 @@ def main():
                          'roughly one chain in eight (measured over 32 chains x '
                          '4 inits on log-weber+affine-n1n2). 0.4 puts a 2.2x '
                          'displacement at 2 SD and closes it.')
+    ap.add_argument('--anchors', default=None,
+                    help='comma-separated anchor payoffs, e.g. "14,40". For '
+                         '`power` this is a PURE REPARAMETERISATION -- log '
+                         'sigma is linear in log x through any two anchors, so '
+                         'the model family is identical and only the '
+                         'coordinates (and hence the priors and the geometry '
+                         'NUTS sees) change. It matters because the default '
+                         'places anchors at the extremes of the payoff range, '
+                         'where the payoff distribution is thinnest: the '
+                         'design correlation between the two anchor parameters '
+                         'is 0.595 at [7, 112] against 0.228 at [14, 40] '
+                         '(`model.anchor_correlation()`, a property of the '
+                         'design available before any fitting). A correlation '
+                         'that high is a diagonal ridge for the sampler to '
+                         'walk. Note nu at 7 CHF then becomes a derived '
+                         'extrapolation rather than a free parameter, with a '
+                         'correspondingly wider interval.')
     ap.add_argument('--sigma_prior_sd', default=None, type=float,
                     help='group-mean prior SD on *_prior_sd -- the SOFT version '
                          'of --prior_estimate fix_prior_sd. PRIOR_SPEC sets '
@@ -413,8 +433,10 @@ def main():
         df = get_data(args.bids_folder,
                       model_label=getattr(args, 'data_label', None)
                       or 'lfx2-bs3-m2-dp-bm')
+    anchors = (None if args.anchors is None
+               else [float(a) for a in args.anchors.split(',')])
     model = build_model(args.label, df, role_scale=args.role_scale,
-                        prior_estimate=args.prior_estimate)
+                        prior_estimate=args.prior_estimate, anchors=anchors)
     # The KLW-consistent decision noise is the DEFAULT since 2026-09-08. The
     # raw rule normalises a shrunken numerator by an unshrunken denominator, so
     # nu is not the same quantity across models with different prior widths --
@@ -434,7 +456,10 @@ def main():
           f'choice noise '
           f'{"raw (INCONSISTENT)" if args.raw_choice_noise else "consistent (KLW)"}')
     print(f'  bauer {bauer_commit()[:9]} | prior spec {PRIOR_SPEC}')
-    print(f'  anchors {np.round(model.anchors, 1)}')
+    print(f'  anchors {np.round(model.anchors, 1)}  '
+          f'design correlation {model.anchor_correlation()[0, 1]:.3f}'
+          if len(model.anchors) == 2 else
+          f'  anchors {np.round(model.anchors, 1)}')
     print(f'  {len(model.free_parameters)} free parameters:')
     for k, v in model.free_parameters.items():
         print(f'    {k:32s} mu={v.get("mu_intercept")!s:>8.8s} '
@@ -461,6 +486,8 @@ def main():
         ap_suffix += f'.ti{args.tau_intercept:g}'
     if args.prior_estimate != 'full':
         ap_suffix += f'.{args.prior_estimate}'
+    if anchors is not None:
+        ap_suffix += '.a' + '-'.join(f'{a:g}' for a in model.anchors)
     out = Path(args.bids_folder) / 'derivatives' / args.out_folder
     out.mkdir(parents=True, exist_ok=True)
     model.build_estimation_model()
