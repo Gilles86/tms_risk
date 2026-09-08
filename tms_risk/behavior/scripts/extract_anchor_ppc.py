@@ -323,6 +323,71 @@ def main(labels, bids_folder, trace_dir, out_dir, n_draws, max_gap):
         sl.to_csv(out_dir / f'ppc_anchor.slope.{label}.tsv', sep='\t',
                   index=False)
 
+        # -- the same slope, but formed WITHIN participant first -----------
+        # Pooling participants inside a cell flattens the psychometric function,
+        # because they sit at different indifference points (CLAUDE.md). That
+        # does not invalidate the pooled version -- the same statistic hits the
+        # observed and the simulated choices, so it is a like-for-like check --
+        # but the pooled y-values are attenuated and should not be read as "the"
+        # psychometric slope. Here the slope is fitted per participant and then
+        # averaged, which removes the attenuation.
+        #
+        # It stays a LINEAR-PROBABILITY slope rather than a probit one. Each
+        # participant contributes a median of 20 trials to a cell and 3.6% of
+        # the 420 participant-cells are perfectly separable (every choice the
+        # same), where a probit slope is infinite; quasi-separation would
+        # distort many more. A hierarchical probit is the right estimator for
+        # the OBSERVED data and Figure 3 uses one -- but fitting it to simulated
+        # data would put an estimator's shrinkage between the model and its own
+        # prediction. So: same simple statistic on both sides, and the numbers
+        # are not comparable to Figure 3's probit slopes.
+        sk3 = ['subject', 'order', 'stake_bin', 'stim']
+        idx = d.groupby(sk3).indices
+        keys = list(idx)
+        Bm = np.zeros((len(keys), sim.shape[1]))
+        Bo = np.zeros(len(keys))
+        for i, kk in enumerate(keys):
+            ii = idx[kk]
+            Xg = X[ii]
+            Bm[i] = np.linalg.lstsq(Xg, sim[ii], rcond=None)[0][1]
+            Bo[i] = np.linalg.lstsq(
+                Xg, d['chose_risky'].values[ii].astype(float), rcond=None)[0][1]
+        km = pd.MultiIndex.from_tuples(keys, names=sk3)
+        Bm = pd.DataFrame(Bm, index=km)
+        Bo = pd.Series(Bo, index=km)
+        g3 = ['order', 'stake_bin', 'stim']
+        rows2 = []
+        for gk, gg in Bm.groupby(level=g3):
+            b = gg.mean(axis=0).values                     # (n_draw,)
+            rows2.append(dict(zip(g3, gk)) | dict(
+                slope=float(b.mean()),
+                lo=float(np.quantile(b, .025)),
+                hi=float(np.quantile(b, .975)),
+                observed=float(Bo.groupby(level=g3).mean().loc[gk]),
+                n_subjects=int(gg.shape[0])))
+        sl2 = pd.DataFrame(rows2)
+        crows2 = []
+        for gk, gg in Bm.groupby(level=['order', 'stake_bin']):
+            bb = {st: gg.xs(st, level='stim').mean(axis=0).values
+                  for st in ('ips', 'vertex')}
+            oo = {st: Bo.xs(st, level='stim').groupby(
+                      level=['order', 'stake_bin']).mean().loc[gk]
+                  for st in ('ips', 'vertex')}
+            dd2 = bb['ips'] - bb['vertex']
+            crows2.append(dict(order=gk[0], stake_bin=gk[1],
+                               d_slope=float(dd2.mean()),
+                               lo_contrast=float(np.quantile(dd2, .025)),
+                               hi_contrast=float(np.quantile(dd2, .975)),
+                               p_lt0=float((dd2 < 0).mean()),
+                               d_slope_observed=float(oo['ips'] - oo['vertex'])))
+        sl2 = sl2.merge(pd.DataFrame(crows2), on=['order', 'stake_bin'],
+                        how='left')
+        sl2 = sl2.merge(d.groupby(g3)['stake'].mean().rename('stake_chf')
+                        .reset_index(), on=g3, how='left')
+        sl2.insert(0, 'label', label)
+        sl2.to_csv(out_dir / f'ppc_anchor.slope2.{label}.tsv', sep='\t',
+                   index=False)
+
         # Also aggregate by the SAFE payoff. Stake terciles are the paper's
         # convention, but the model's perceived-value panels are indexed by safe
         # payoff, and a causal-chain figure has to put the consequence on the

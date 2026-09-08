@@ -254,9 +254,12 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     dlt = pd.read_csv(dltf, **READ) if dltf.exists() else None
     if ppc_kind == 'delta' and dlt is None:
         ppc_kind = 'safe'
-    slpf = dd / f'ppc_anchor/ppc_anchor.slope.{label}.tsv'
+    # 'slope'  pools participants inside a cell (attenuated, see the extractor)
+    # 'slope2' fits the slope per participant and averages (not attenuated)
+    _sk = 'slope2' if ppc_kind == 'slope2' else 'slope'
+    slpf = dd / f'ppc_anchor/ppc_anchor.{_sk}.{label}.tsv'
     slp = pd.read_csv(slpf, **READ) if slpf.exists() else None
-    if ppc_kind == 'slope' and slp is None:
+    if ppc_kind.startswith('slope') and slp is None:
         ppc_kind = 'safe'
     loo = pd.concat([pd.read_csv(f, **READ)
                      for f in glob.glob(str(dd / 'loo_anchor/loo.*.tsv'))],
@@ -666,7 +669,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                           labelspacing=.35, borderaxespad=.15)
 
     # -- h(,i): the consequence for choice -------------------------------
-    if ppc_kind == 'slope':
+    if ppc_kind.startswith('slope'):
         # The psychometric SLOPE, split by stake -- the quantity Figure 3
         # reports, so the model and the data are finally the same thing on the
         # same axis. Pooled over stake the slope contrast comes out with the
@@ -692,7 +695,9 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             ax.set_xlabel('Stake (CHF)')
             ax.set_title(order, fontsize=7.5)
             if k == 'h':
-                ax.set_ylabel('Psychometric slope\n(ΔP per log ratio)')
+                ax.set_ylabel('Psychometric slope\n(ΔP per log ratio'
+                              + (', per participant)' if ppc_kind == 'slope2'
+                                 else ', pooled)'))
                 ax.text(.05, .12, 'IPS', transform=ax.transAxes, color=IPS,
                         fontsize=7)
                 ax.text(.05, .03, 'Vertex', transform=ax.transAxes,
@@ -996,7 +1001,8 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'ratio', 'delta', 'slope', 'psychometric', 'psychometric2'],
+                    choices=['safe', 'ratio', 'delta', 'slope', 'slope2',
+                             'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "
                          "Figure 3a's x-axis, one panel per order; 'delta' "
