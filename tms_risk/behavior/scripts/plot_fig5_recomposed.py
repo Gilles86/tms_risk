@@ -112,7 +112,65 @@ def logx(ax):
     ax.set_xlim(6.5, 122)
 
 
-def main(data_dir, out_stem, label, mech_level, bids_folder):
+def _panel_f_delta(fig, A, dd, label):
+    """The searching version: the cTBS difference along the ratio ladder, with
+    the marginal MEAN. Fails -- observed +0.053 against a predictive interval of
+    [-0.014, +0.044], p = 0.005 -- because the model predicts a flattening while
+    the observed effect is mostly a bias shift. Supplement, not main text."""
+    rng_ = pd.read_csv(dd / f'ppc_anchor/ppc_anchor.delta_rung.{label}.tsv', **READ)
+    sta = pd.read_csv(dd / f'ppc_anchor/ppc_stats.{label}.tsv', **READ)
+    MEANS = {'Risky first': 'dp_first_mean', 'Risky second': 'dp_second_mean'}
+    gsF = A['f'].get_subplotspec().subgridspec(2, 1, hspace=.16)
+    A['f'].set_visible(False)
+    fx = None
+    for r, order in enumerate(ORDERS):
+        ax = fig.add_subplot(gsF[r], sharey=fx, sharex=fx)
+        fx = fx or ax
+        if r == 0:
+            A['f'] = ax
+        q = rng_[rng_.order == order].sort_values('frac')
+        x = np.log(q.frac.values)
+        xm = x.max() + .55 * (x.max() - x.min()) / (len(x) - 1)
+        ax.axhline(0, color='0.45', lw=.9, zorder=0)
+        ax.fill_between(x, 100 * q.lo, 100 * q.hi, color='0.6', alpha=.20,
+                        lw=0, zorder=1)
+        ax.plot(x, 100 * q.model, color='0.35', lw=1.2, zorder=2)
+        ax.plot(x, 100 * q.observed, 'o', ms=3.8, color='0.1', zorder=4)
+        m = sta[sta.statistic == MEANS[order]]
+        if len(m):
+            m = m.iloc[0]
+            ax.plot([xm] * 2, [100 * m.lo, 100 * m.hi], color='0.6', lw=5,
+                    alpha=.55, solid_capstyle='butt', zorder=2)
+            ax.plot(xm, 100 * m.model_median, '_', ms=7, color='0.35',
+                    mew=1.3, zorder=3)
+            ax.plot(xm, 100 * m.observed, 'o', ms=5.2, zorder=5,
+                    color='0.1' if m.covered else IPS)
+            ax.annotate(f'p = {m.ppp:.3f}', (xm, 100 * m.observed),
+                        xytext=(0, 8), textcoords='offset points',
+                        ha='center', fontsize=6.2,
+                        color='0.45' if m.covered else IPS,
+                        annotation_clip=False)
+        ax.axvline((x.max() + xm) / 2, color='0.85', lw=.7, zorder=0)
+        ax.set_xticks(list(np.log([1.5, 2, 2.5, 3])) + [xm])
+        ax.set_xticklabels(['1.5', '2', '2.5', '3', 'Mean'], fontsize=6.6)
+        ax.set_xlim(x.min() - .04, xm + .06)
+        ax.set_ylim(-9.5, 17)
+        ax.text(.98, .04, order, transform=ax.transAxes, fontsize=7,
+                ha='right', va='bottom', color='0.25')
+        if r == 0:
+            ax.tick_params(labelbottom=False)
+            glyph_key(ax, [('Observed', '0.1', 'marker', dict(ms=3.8)),
+                           ('Model, 95% predictive', '0.6', 'band',
+                            dict(alpha=.20))],
+                      x=.03, y=.95, dy=.115, seg=.09, fs=6.2)
+        else:
+            ax.set_xlabel('Risky / safe payoff ratio')
+            ax.set_ylabel('Δ P(chose risky), points')
+            ax.yaxis.set_label_coords(-.19, 1.06)
+        sns.despine(ax=ax, offset=3)
+
+
+def main(data_dir, out_stem, label, mech_level, bids_folder, panel_f='slope'):
     dd = Path(data_dir)
     c = pd.read_csv(dd / 'anchor_curves.tsv', **READ)
     c = c[c.label == label]
@@ -277,71 +335,56 @@ def main(data_dir, out_stem, label, mech_level, bids_folder):
             pass
 
     # -- f: the behavioural consequence ------------------------------------
-    # The cTBS effect itself -- IPS minus vertex on P(chose risky) -- along the
-    # payoff-ratio axis the reader already knows from Figure 3a, one row per
-    # presentation order. The PATTERN is the row contrast: risky-first dots
-    # scatter around the model line, risky-second dots all sit above it. The
-    # SIZE shortfall is the dot-to-line gap, about four-fold.
+    # The psychometric SLOPE by stake, per presentation order and stimulation.
+    # This is the one view where the effect is legible: the model's IPS band
+    # sits below its vertex band at the low and middle stakes on risky-second
+    # trials, and the observed slopes do the same, converging by 42 CHF.
     #
-    # The marginal column at the right is what makes this honest. Each rung's
-    # predictive band is 2.3x wider than the band for the MEAN, so five of six
-    # rungs are individually covered and a reader could conclude "one outlier
-    # rung, otherwise fine". The mean is the statistic the check turns on, and
-    # it is the one that fails.
-    rng_ = pd.read_csv(dd / f'ppc_anchor/ppc_anchor.delta_rung.{label}.tsv',
-                       **READ)
-    sta = pd.read_csv(dd / f'ppc_anchor/ppc_stats.{label}.tsv', **READ)
-    MEANS = {'Risky first': 'dp_first_mean', 'Risky second': 'dp_second_mean'}
-    gsF = A['f'].get_subplotspec().subgridspec(2, 1, hspace=.16)
-    A['f'].set_visible(False)
-    fx = None
-    for r, order in enumerate(ORDERS):
-        ax = fig.add_subplot(gsF[r], sharey=fx, sharex=fx)
-        fx = fx or ax
-        if r == 0:
-            A['f'] = ax                       # the panel letter hangs here
-        q = rng_[rng_.order == order].sort_values('frac')
-        x = np.log(q.frac.values)
-        xm = x.max() + .55 * (x.max() - x.min()) / (len(x) - 1)
-        ax.axhline(0, color='0.45', lw=.9, zorder=0)
-        ax.fill_between(x, 100 * q.lo, 100 * q.hi, color='0.6', alpha=.20,
-                        lw=0, zorder=1)
-        ax.plot(x, 100 * q.model, color='0.35', lw=1.2, zorder=2)
-        ax.plot(x, 100 * q.observed, 'o', ms=3.8, color='0.1', zorder=4)
-        m = sta[sta.statistic == MEANS[order]]
-        if len(m):
-            m = m.iloc[0]
-            ax.plot([xm] * 2, [100 * m.lo, 100 * m.hi], color='0.6', lw=5,
-                    alpha=.55, solid_capstyle='butt', zorder=2)
-            ax.plot(xm, 100 * m.model_median, '_', ms=7, color='0.35', mew=1.3,
-                    zorder=3)
-            ax.plot(xm, 100 * m.observed, 'o', ms=5.2, zorder=5,
-                    color='0.1' if m.covered else IPS)
-            ax.annotate(f'p = {m.ppp:.3f}', (xm, 100 * m.observed),
-                        xytext=(0, 8), textcoords='offset points',
-                        ha='center', fontsize=6.2,
-                        color='0.45' if m.covered else IPS,
-                        annotation_clip=False)
-        ax.axvline((x.max() + xm) / 2, color='0.85', lw=.7, zorder=0)
-        ax.set_xticks(list(np.log([1.5, 2, 2.5, 3])) + [xm])
-        ax.set_xticklabels(['1.5', '2', '2.5', '3', 'Mean'], fontsize=6.6)
-        ax.set_xlim(x.min() - .04, xm + .06)
-        ax.set_ylim(-9.5, 17)
-        ax.text(.98, .04, order, transform=ax.transAxes, fontsize=7,
-                ha='right', va='bottom', color='0.25')
-        if r == 0:
-            ax.tick_params(labelbottom=False)
-            glyph_key(ax, [('Observed', '0.1', 'marker', dict(ms=3.8)),
-                           ('Model, 95% predictive', '0.6', 'band',
-                            dict(alpha=.20))],
-                      x=.03, y=.95, dy=.115, seg=.09, fs=6.2)
-        else:
-            ax.set_xlabel('Risky / safe payoff ratio')
-        # the same quantity in both rows, so label it once, centred
-        if r == 1:
-            ax.set_ylabel('Δ P(chose risky), points')
-            ax.yaxis.set_label_coords(-.19, 1.06)
-        sns.despine(ax=ax, offset=3)
+    # The alternative -- the cTBS difference in P(chose risky) along the ratio
+    # ladder -- is the more searching check and it fails (the model predicts a
+    # flattening, the data are mostly a bias shift). It is `--panel_f delta`,
+    # and it belongs in the supplement rather than here.
+    if panel_f == 'delta':
+        _panel_f_delta(fig, A, dd, label)
+    else:
+        slp = pd.read_csv(dd / f'ppc_anchor/ppc_anchor.slope.{label}.tsv', **READ)
+        gsF = A['f'].get_subplotspec().subgridspec(2, 1, hspace=.16)
+        A['f'].set_visible(False)
+        fx = None
+        for r, order in enumerate(ORDERS):
+            ax = fig.add_subplot(gsF[r], sharey=fx, sharex=fx)
+            fx = fx or ax
+            if r == 0:
+                A['f'] = ax
+            o_ = slp[slp.order == order]
+            xs = np.arange(o_.stake_bin.nunique())
+            for stim, col in (('vertex', VERTEX), ('ips', IPS)):
+                q = o_[o_.stim == stim].sort_values('stake_chf')
+                ax.fill_between(xs, q.lo, q.hi, color=col, alpha=.18, lw=0,
+                                zorder=1)
+                ax.plot(xs, q.slope, color=col, lw=1.4, zorder=3)
+                ax.plot(xs, q.observed, 'o', ms=4.4, color=col, zorder=5)
+            ax.set_xticks(xs)
+            ax.set_xticklabels([f'{v:.0f}' for v in
+                                o_.groupby('stake_bin').stake_chf.mean()])
+            ax.set_xlim(-.30, len(xs) - .70)
+            ax.text(.97, .93, order, transform=ax.transAxes, fontsize=7,
+                    ha='right', va='top', color='0.25')
+            if r == 0:
+                ax.tick_params(labelbottom=False)
+                ax.text(.05, .18, 'IPS', transform=ax.transAxes, color=IPS,
+                        fontsize=7)
+                ax.text(.05, .05, 'Vertex', transform=ax.transAxes,
+                        color=VERTEX, fontsize=7)
+            else:
+                ax.set_xlabel('Stake (CHF)')
+                ax.set_ylabel('Psychometric slope')
+                ax.yaxis.set_label_coords(-.19, 1.06)
+                glyph_key(ax, [('Observed', '.25', 'marker', dict(ms=4.4)),
+                               ('95% predictive', '.5', 'band',
+                                dict(alpha=.18))],
+                          x=.04, y=.30, dy=.11, seg=.09, fs=6.2)
+            sns.despine(ax=ax, offset=3)
 
     for letter, k in zip('abcdef', 'abcdef'):
         A[k].text(-.16 if k in 'ad' else -.13, 1.05, letter,
@@ -359,8 +402,9 @@ if __name__ == '__main__':
     ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--mechanism_level', default='group',
                     choices=['subject', 'group'])
+    ap.add_argument('--panel_f', default='slope', choices=['slope', 'delta'])
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     a = ap.parse_args()
     main(a.data_dir, a.out_stem or str(REPO / 'notes/figures/fig5_recomposed'),
-         a.model_label, a.mechanism_level, a.bids_folder)
+         a.model_label, a.mechanism_level, a.bids_folder, a.panel_f)
