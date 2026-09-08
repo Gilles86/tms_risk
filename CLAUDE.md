@@ -125,6 +125,31 @@ group-level parameters only (per-subject offsets would swamp the table).
 Then `plot_pmc_explained` rebuilds the whole mechanism figure from the pulled TSVs
 alone — no trace, no bauer, no GPU. See `notes/pmc_refit_results.md`.
 
+## The choice rule is KLW-consistent, and there is only one model set
+
+Since 2026-09-08 `fit_anchor.py` fits the **KLW-consistent decision noise by
+default**: the decision variable is the noisy posterior mean, so its SD is
+`w·nu` with `w = sd_prior^2/(sd_prior^2 + nu^2)`, and the comparison is
+normalised by `sqrt((w1 nu1)^2 + (w2 nu2)^2)` (`bauer/core.py:169-197`, via
+`posterior_mean_sd` at `bauer/utils/bayes.py:26-47`). bauer's historical rule
+shrinks the numerator by `w` and leaves the denominator raw, which makes the
+prior width change the psychometric SLOPE as a pure artefact of the
+normalisation — so `nu` does not denote the same quantity in two models with
+different prior widths, and the model set is not comparable within itself.
+
+`--raw_choice_noise` still fits the old rule, but it prints a `RuntimeWarning`
+banner and tags its output `.rawnoise`. **Never mix `.rawnoise` into an ELPD
+ladder, a Supp table or a figure.** KLW outputs keep the historical `.klw`
+suffix so nothing fitted before the switch had to be renamed.
+
+Everything fitted under the old rule was moved aside, not deleted:
+
+| What | Where it went |
+|---|---|
+| 157 traces (143 GB) | `<bids>/derivatives/cogmodels.anchor.rawnoise/` |
+| 992 derived TSV/NPY | `notes/data/archive_rawnoise/` |
+| 36 figures | `notes/figures/archive_rawnoise/` |
+
 ## Cognitive-model traces are bauer-version-sensitive
 
 **A stored PMC trace only means something against the bauer commit that produced
@@ -216,6 +241,20 @@ exceeds 0.02, so a wrong pin cannot pass unnoticed.
   stimulation) or `fit_baseline_probit_hier.py` (session 1, n = 73, cells are
   order × stake), never `statsmodels.GLM`. Report contrasts computed **per
   draw**, not as differences of summaries.
+
+- **Reliability of per-participant estimates: use the draw-pair estimator, not
+  variance subtraction.** `behavior/scripts/anchor_subject_reliability.py`
+  reports all three. The classical
+  `(Var_s[E_d] - median_s Var_d) / Var_s[E_d]` correction subtracts the
+  within-subject variance from the spread of the POSTERIOR MEANS, which partial
+  pooling has already shrunk — it double-counts shrinkage, and returns exactly
+  0.00 for most parameters here. `reliability_draw` / `rank_stability`, the
+  correlation between two independent posterior draws of the whole subject
+  vector, cannot go negative and equals the reliability directly. On a synthetic
+  case with true reliability 0.5 the variance estimator gives 0.00 and the
+  draw-pair estimator 0.39 (the sampled between-SD's own value). Run it with
+  `--trace_dir` on the cluster; without a trace only the biased form is
+  available.
 
 - Scripts take a positional `subject` arg and `--bids_folder` kwarg, and are submitted as SLURM arrays from `*/slurm_jobs/`. Each analysis submodule keeps its SLURM wrappers in its own `slurm_jobs/` subfolder.
 - Cognitive model traces are written to `<bids>/derivatives/cogmodels/model-<label>_trace.netcdf` as ArviZ NetCDF. The directory name `cogmodels` is historical (kept on disk so existing traces remain loadable).

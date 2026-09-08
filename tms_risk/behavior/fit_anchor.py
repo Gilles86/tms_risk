@@ -30,6 +30,7 @@ way for two fits to differ without the label saying so.
 import argparse
 import re
 import subprocess
+import warnings
 import sys
 from pathlib import Path
 
@@ -179,7 +180,7 @@ def parse_label(label):
     return m.groups()
 
 
-def build_model(label, df, role_scale=None):
+def build_model(label, df, role_scale=None, prior_estimate='full'):
     """Construct the model and install PRIOR_SPEC on it."""
     import bauer.models as bm
     space, form, placement = parse_label(label)
@@ -195,7 +196,7 @@ def build_model(label, df, role_scale=None):
     kw = {} if role_scale is None else dict(role_scale=role_scale)
     model = cls(df, noise_form=form, memory_model=memory_model,
                 regressors={t: formula for t in targets},
-                prior_estimate='full', **kw)
+                prior_estimate=prior_estimate, **kw)
     apply_priors(model, df, space)
     return model
 
@@ -315,19 +316,32 @@ def main():
                          "noisier than safe ones because their payoffs are "
                          "larger; nothing in the grid was indexed by ROLE.")
     ap.add_argument('--consistent_choice_noise', action='store_true',
-                    help='use the KLW-consistent decision noise, '
-                         'sqrt((p1 w1 nu1)^2 + (p2 w2 nu2)^2), instead of '
-                         'bauer\'s back-compat sqrt(nu1^2 + nu2^2). See '
-                         'notes/klw_variance_analysis.md: the default shrinks '
-                         'the numerator by w and leaves the denominator raw, so '
-                         'the prior width changes the psychometric SLOPE as an '
-                         'artefact of the normalisation. Under the consistent '
-                         'rule w scales both and largely cancels.')
+                    help=argparse.SUPPRESS)   # now the default; kept as a no-op
+    ap.add_argument('--raw_choice_noise', action='store_true',
+                    help='OPT OUT of the KLW-consistent decision noise and use '
+                         "bauer's back-compat sqrt(nu1^2 + nu2^2) instead. This "
+                         'is INCONSISTENT: the numerator shrinks each option by '
+                         'w = sd^2/(sd^2+nu^2) while the denominator stays raw, '
+                         'so the prior width changes the psychometric slope as '
+                         'an artefact of the normalisation '
+                         '(notes/klw_variance_analysis.md). Only for '
+                         'reproducing a pre-2026-09 fit; prints a warning and '
+                         'tags the output `.rawnoise`.')
     ap.add_argument('--find_init', default=None,
                     choices=['mapjitter', 'priorjitter', 'pathfinder'],
                     help='starting-point strategy; pathfinder seeds each chain '
                          'from a variational draw in the typical set, which is '
                          'what a chain trapped in a secondary mode needs')
+    ap.add_argument('--prior_estimate', default='full',
+                    choices=['full', 'shared', 'objective', 'fix_prior_sd',
+                             'fix_safe_prior_sd'],
+                    help='what the magnitude priors are free to do. The '
+                         'shrinkage weight is sd^2/(sd^2 + nu^2), so a free '
+                         'prior SD trades off directly against the noise '
+                         'function; pinning it at the empirical spread of log '
+                         'payoffs identifies nu and removes the ridge, while '
+                         'leaving the interpretable question -- where is the '
+                         'prior centred -- to the data.')
     ap.add_argument('--tau_intercept', default=None, type=float,
                     help='scale of the HalfNormal on the GROUP SD of every '
                          'intercept (PRIOR_SPEC: 0.30 noise / 0.75 prior_mu / '
@@ -348,6 +362,18 @@ def main():
                          'roughly one chain in eight (measured over 32 chains x '
                          '4 inits on log-weber+affine-n1n2). 0.4 puts a 2.2x '
                          'displacement at 2 SD and closes it.')
+    ap.add_argument('--sigma_prior_sd', default=None, type=float,
+                    help='group-mean prior SD on *_prior_sd -- the SOFT version '
+                         'of --prior_estimate fix_prior_sd. PRIOR_SPEC sets '
+                         '0.50 around the empirical spread of log payoffs, '
+                         'which on a log scale lets the group prior width sit a '
+                         'factor of 2.7 either side of it at 2 SD. Since the '
+                         'shrinkage weight is sd^2/(sd^2+nu^2), that width '
+                         'trades off directly against the noise anchors and '
+                         'opens the ridge that stops n1n2 mixing. 0.15 keeps '
+                         'the prior width within +/-35%% of empirical at 2 SD '
+                         'while still letting the data move it -- unlike '
+                         'fix_prior_sd, which removes the parameter outright.')
     ap.add_argument('--data_label', default=None,
                     help="'baseline_all' = session 1, all 73 participants")
     ap.add_argument('--dry_run', action='store_true',
@@ -362,6 +388,8 @@ def main():
             PRIORS[key]['tau_slope'] = args.tau_slope
     if args.sigma_prior_mu is not None:
         PRIORS['prior_mu']['sigma_intercept'] = args.sigma_prior_mu
+    if args.sigma_prior_sd is not None:
+        PRIORS['prior_sd']['sigma_intercept'] = args.sigma_prior_sd
     if args.tau_intercept is not None:
         for key in ('noise', 'prior_mu', 'prior_sd'):
             PRIORS[key]['tau_intercept'] = args.tau_intercept
@@ -385,13 +413,26 @@ def main():
         df = get_data(args.bids_folder,
                       model_label=getattr(args, 'data_label', None)
                       or 'lfx2-bs3-m2-dp-bm')
-    model = build_model(args.label, df, role_scale=args.role_scale)
-    if args.consistent_choice_noise:
-        model.consistent_choice_noise = True
+    model = build_model(args.label, df, role_scale=args.role_scale,
+                        prior_estimate=args.prior_estimate)
+    # The KLW-consistent decision noise is the DEFAULT since 2026-09-08. The
+    # raw rule normalises a shrunken numerator by an unshrunken denominator, so
+    # nu is not the same quantity across models with different prior widths --
+    # which is exactly what made the model set unreadable. Opting out is still
+    # possible, but only loudly and with a distinct filename.
+    model.consistent_choice_noise = not args.raw_choice_noise
+    if args.raw_choice_noise:
+        warnings.warn(
+            '\n' + '!' * 72 +
+            '\n  --raw_choice_noise: fitting with the INCONSISTENT choice rule'
+            '\n  diff_sd = sqrt(nu1^2 + nu2^2) over posterior means shrunk by w.'
+            '\n  nu is then not comparable to any KLW fit. Output is tagged'
+            '\n  `.rawnoise` and must never be mixed into the model comparison.'
+            '\n' + '!' * 72, RuntimeWarning, stacklevel=1)
 
     print(f'{args.label}: {space} space, {form} noise, cTBS on {placement}, '
           f'choice noise '
-          f'{"consistent (KLW)" if args.consistent_choice_noise else "raw"}')
+          f'{"raw (INCONSISTENT)" if args.raw_choice_noise else "consistent (KLW)"}')
     print(f'  bauer {bauer_commit()[:9]} | prior spec {PRIOR_SPEC}')
     print(f'  anchors {np.round(model.anchors, 1)}')
     print(f'  {len(model.free_parameters)} free parameters:')
@@ -404,8 +445,9 @@ def main():
         return
 
     ap_suffix = '' if args.find_init is None else f'.{args.find_init}'
-    if args.consistent_choice_noise:
-        ap_suffix += '.klw'
+    # `.klw` stays on the KLW filenames even though it is now the default, so
+    # every trace fitted before the switch keeps its name.
+    ap_suffix += '.rawnoise' if args.raw_choice_noise else '.klw'
     if args.role_scale:
         ap_suffix += f'.{args.role_scale}'
     if args.sigma_slope is not None or args.tau_slope is not None:
@@ -413,8 +455,12 @@ def main():
                       f'-ts{args.tau_slope or 0.30:g}')
     if args.sigma_prior_mu is not None:
         ap_suffix += f'.spm{args.sigma_prior_mu:g}'
+    if args.sigma_prior_sd is not None:
+        ap_suffix += f'.sps{args.sigma_prior_sd:g}'
     if args.tau_intercept is not None:
         ap_suffix += f'.ti{args.tau_intercept:g}'
+    if args.prior_estimate != 'full':
+        ap_suffix += f'.{args.prior_estimate}'
     out = Path(args.bids_folder) / 'derivatives' / args.out_folder
     out.mkdir(parents=True, exist_ok=True)
     model.build_estimation_model()
@@ -435,6 +481,7 @@ def main():
     a['tms_risk_space'] = space
     a['tms_risk_noise_form'] = form
     a['tms_risk_placement'] = placement
+    a['tms_risk_prior_estimate'] = args.prior_estimate
     a['tms_risk_prior_spec'] = PRIOR_SPEC + (
         '' if args.sigma_prior_mu is None else f'+spm{args.sigma_prior_mu:g}') + (
         '' if args.tau_intercept is None else f'+ti{args.tau_intercept:g}')

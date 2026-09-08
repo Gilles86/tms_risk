@@ -140,7 +140,11 @@ def sig_strip(ax, s, col=None):
     # degenerate and would mark the whole range as 'credible'
     if float(np.abs(s['mid']).max()) < 1e-9:
         return
-    m = ((s.p_gt0 > .975) | (s.p_gt0 < .025)).values
+    # ONE-SIDED. cTBS is a disruption protocol, so the hypothesis is
+    # directional: noise goes up, and a credible DECREASE would have no
+    # interpretation. p_gt0 is already the posterior mass above zero, so
+    # the directional criterion is simply P(delta > 0) > .95.
+    m = (s.p_gt0 > .95).values
     if not m.any():
         return
     x = s.x.values
@@ -369,7 +373,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     ax.set_ylabel('Δν, IPS − vertex')
     # the interval type stays here: the BAR's meaning is the statistical claim,
     # so naming the interval is part of naming the mark, not caption bookkeeping
-    glyph_key(ax, [('95% CrI excludes 0', 'k', 'bar', dict(lw=3.0))],
+    glyph_key(ax, [('P(Δν > 0) > 0.95', 'k', 'bar', dict(lw=3.0))],
         x=.04, y=.06, fs=5.8)
 
     # -- e: where the priors sit -----------------------------------------
@@ -798,13 +802,13 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             continue
         j = int(np.argmin(np.abs(dsel_.x.values - float(anch))))
         pg = float(dsel_.p_gt0.values[j])
-        sig = pg > .975 or pg < .025
+        sig = pg > .95          # one-sided; see the note on panel c
         # a dedicated strip INSIDE the axis, not the axis edge: flush right the
         # labels sat in the gutter against the next panel's y-axis
         ax.text(.985, (yy[i] + yy[i + 1]) / 2,
                 '', transform=ax.get_yaxis_transform())
         ax.text(.985, (yy[i] + yy[i + 1]) / 2,
-                f'p = {min(pg, 1 - pg):.3f}' if sig else f'p = {min(pg, 1 - pg):.2f}',
+                f'p = {1 - pg:.3f}' if sig else f'p = {1 - pg:.2f}',
                 transform=ax.get_yaxis_transform(),
                 ha='right', va='center', fontsize=5.6,
                 color='0.15' if sig else '0.5',
