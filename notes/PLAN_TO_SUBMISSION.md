@@ -281,3 +281,43 @@ So the reported model is chosen on convergence, parsimony and reliability:
 position-indexed reading gives the same answer from a model that converges, and
 its null interaction shows the behavioural order-asymmetry is not cTBS acting
 differently by order.
+
+## Correction: moving the anchors inward is NOT a reparameterisation
+
+I claimed `--anchors 14,40` was a pure reparameterisation of `log-power`,
+because log σ is linear in log x through any two anchors. That is true of the
+interpolation *between* the anchors and false outside them.
+`anchor_noise.py:260` clamps:
+
+```python
+c = min(max(c, k.min()), k.max())        # clamp: flat extrapolation
+```
+
+So the noise function is **constant below the first anchor and above the last**.
+Verified on the presented payoffs, with θ set to the same nominal values:
+
+| payoff | 7 | 10 | 14 | 20 | 28 | 40 | 56 | 80 | 112 |
+|---|---|---|---|---|---|---|---|---|---|
+| anchors [7, 112] | .300 | .274 | .252 | .231 | .212 | .194 | .178 | .163 | .150 |
+| anchors [14, 40] | .300 | .300 | .300 | .237 | .190 | .150 | .150 | .150 | .150 |
+
+**41.9% of presented payoffs fall outside [14, 40]** and would be clamped. Worse,
+the whole result is Δν at 7 CHF, which under [14, 40] is *identical to Δν at 14
+CHF by construction* — the model cannot express the quantity the paper reports.
+Job 5658265 was cancelled.
+
+Two things survive:
+
+* The diagnosis is still right. `anchor_correlation` = 0.595 at [7, 112] is
+  real, it is a design property, and it is untouched by every prior lever tried.
+* The only clamp-free way to reduce it is **more anchors spanning the same
+  range** — which is a richer model, not a reparameterisation:
+
+  | Placement | max off-diagonal correlation |
+  |---|---|
+  | `power` / `affine` [7, 112] | 0.595 (forced — no 2-anchor alternative) |
+  | `genweber` [7, 112] | 0.480 |
+  | `spl5` [7, 13, 20, 30, 112] | 0.398 |
+  | **`spl3` [7, 28, 112]** | **0.327** |
+
+  `log-spl3-n1n2.klw` is already fitted; its convergence is the direct test.
