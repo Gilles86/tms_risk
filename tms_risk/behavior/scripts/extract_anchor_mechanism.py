@@ -81,7 +81,7 @@ def channel_curve(names, chan):
     return _Curve([a for a, _ in pairs], form), [n for _, n in pairs]
 
 
-def main(label, trace_dir, bids_folder, out_dir, n_draws):
+def main(label, trace_dir, bids_folder, out_dir, n_draws, level='subject'):
     ds = xr.open_dataset(Path(trace_dir) / f'model-{label}_trace.netcdf',
                          group='posterior')
     a = ds.attrs
@@ -94,9 +94,21 @@ def main(label, trace_dir, bids_folder, out_dir, n_draws):
     keep = np.linspace(0, S - 1, min(n_draws, S)).astype(int)
     par = {}
     for p in set(names):
-        par[p] = (ds[p].stack(sample=('chain', 'draw'))
-                  .transpose('subject', 'sample', f'{p}_regressors')
-                  .values[:, keep, :])
+        if level == 'group':
+            # The GROUP-level coefficient (the hyper-mean), broadcast to every
+            # participant. Panels c and g plot this; averaging the 35 SAMPLED
+            # participants' own coefficients instead gives a narrower interval
+            # -- it is the posterior of this sample's mean, not of the
+            # population -- and the two disagreed inside one figure: c said the
+            # first-presented option was unaffected while e showed a credible
+            # effect on it. One estimand, everywhere.
+            g = (ds[p + '_mu'].stack(sample=('chain', 'draw'))
+                 .transpose('sample', f'{p}_regressors').values[keep, :])
+            par[p] = np.broadcast_to(g[None], (len(subj),) + g.shape).copy()
+        else:
+            par[p] = (ds[p].stack(sample=('chain', 'draw'))
+                      .transpose('subject', 'sample', f'{p}_regressors')
+                      .values[:, keep, :])
     ds.close()
     print(f'{label}: {len(subj)} subjects, {S} draws -> {len(keep)} kept, '
           f'shared={shared} consistent={consistent}')
@@ -191,7 +203,8 @@ def main(label, trace_dir, bids_folder, out_dir, n_draws):
     out = pd.DataFrame(list(rows.values())).sort_values(['order', 'n_safe'])
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    f = out_dir / f'anchor_mechanism.{label}.tsv'
+    f = out_dir / (f'anchor_mechanism.{label}'
+                   + ('.group' if level == 'group' else '') + '.tsv')
     out.to_csv(f, sep='\t', index=False)
     print(f'wrote {f} ({len(out)} rows)')
     print(out[['order', 'n_safe'] + list(QUANTITIES)].round(2).to_string(index=False))
@@ -204,5 +217,13 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/shares/zne.uzh/gdehol/ds-tmsrisk')
     ap.add_argument('--out_dir', default='notes/data')
     ap.add_argument('--n_draws', default=800, type=int)
+    ap.add_argument('--level', default='subject',
+                    choices=['subject', 'group'],
+                    help="'group' evaluates the mechanism at the GROUP-level "
+                         'parameters, which is the estimand panels c and g '
+                         'plot. The default averages the 35 sampled '
+                         "participants' own coefficients, whose interval is "
+                         'the posterior of this sample\'s mean and is '
+                         'narrower. Output is tagged `.group`.')
     a = ap.parse_args()
-    main(a.label, a.trace_dir, a.bids_folder, a.out_dir, a.n_draws)
+    main(a.label, a.trace_dir, a.bids_folder, a.out_dir, a.n_draws, a.level)
