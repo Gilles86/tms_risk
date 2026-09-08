@@ -435,6 +435,21 @@ def main():
                          'roughly one chain in eight (measured over 32 chains x '
                          '4 inits on log-weber+affine-n1n2). 0.4 puts a 2.2x '
                          'displacement at 2 SD and closes it.')
+    ap.add_argument('--tau_noise', default=None, type=float,
+                    help='like --tau_intercept but applied to the NOISE '
+                         'anchors ONLY, leaving prior_mu and prior_sd alone. '
+                         'This is the version to use. --tau_intercept hits all '
+                         'three, and PRIORS says of prior_mu: "tau is LOOSE: '
+                         'measured tau is 0.60-0.72 and subject estimates use '
+                         '85-87%% of it, so this is the best-identified '
+                         'parameter in the model and must not be shrunk". '
+                         'Measured: --tau_intercept 0.10 takes '
+                         'log_risky_prior_mu_sd from 0.80 to 0.35 and '
+                         'log_safe_prior_mu_sd from 0.91 to 0.38, and the '
+                         'posterior predictive gets WORSE on every metric '
+                         '(RMSE .053 -> .063, coverage 88%% -> 81%%). It buys '
+                         'convergence by removing the individual differences '
+                         'the model is meant to estimate.')
     ap.add_argument('--level_slope', action='store_true',
                     help='sample (level, slope) instead of the two anchor '
                          'VALUES: log sigma = alpha + beta*(u - ubar), with '
@@ -503,6 +518,8 @@ def main():
     if args.tau_intercept is not None:
         for key in ('noise', 'prior_mu', 'prior_sd'):
             PRIORS[key]['tau_intercept'] = args.tau_intercept
+    if args.tau_noise is not None:
+        PRIORS['noise']['tau_intercept'] = args.tau_noise
 
     from tms_risk.behavior.fit_model import get_data
     space, form, placement = parse_label(args.label)
@@ -581,6 +598,8 @@ def main():
         ap_suffix += f'.sps{args.sigma_prior_sd:g}'
     if args.tau_intercept is not None:
         ap_suffix += f'.ti{args.tau_intercept:g}'
+    if args.tau_noise is not None:
+        ap_suffix += f'.tn{args.tau_noise:g}'
     if args.prior_estimate != 'full':
         ap_suffix += f'.{args.prior_estimate}'
     if anchors is not None:
@@ -612,7 +631,8 @@ def main():
     a['tms_risk_prior_estimate'] = args.prior_estimate
     a['tms_risk_prior_spec'] = PRIOR_SPEC + (
         '' if args.sigma_prior_mu is None else f'+spm{args.sigma_prior_mu:g}') + (
-        '' if args.tau_intercept is None else f'+ti{args.tau_intercept:g}')
+        '' if args.tau_intercept is None else f'+ti{args.tau_intercept:g}') + (
+        '' if args.tau_noise is None else f'+tn{args.tau_noise:g}')
     a['tms_risk_bauer_commit'] = bauer_commit()
     a['tms_risk_anchors'] = ','.join(f'{v:.0f}' for v in model.anchors)
     a['tms_risk_choice_noise'] = ('consistent' if args.consistent_choice_noise
