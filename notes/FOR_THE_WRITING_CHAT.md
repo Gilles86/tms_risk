@@ -206,3 +206,113 @@ Do not claim the model reproduces the magnitude of the behavioural effect.
 `n1n2` under the consistent rule. Three jobs are running; if any converges the
 reported model may switch back and §2–3 change. **Do not write §2 as final until
 told.** Everything else above is settled.
+
+
+---
+
+# Section-by-section revision plan for TMS_paper_v11
+
+Line numbers are from `notes/paper/TMS_paper_v11.txt`. Work top to bottom; only
+the sections listed need touching.
+
+## Abstract (l. 14)
+
+One change. Whatever it currently claims about the cognitive model, the claim
+that survives is **where in payoff space the noise moves**, not the size of the
+behavioural effect the model reproduces. If the abstract says the model
+"explains" or "accounts for" the choice effect, weaken to "localises": cTBS
+increased representational noise on the second-presented option at small
+payoffs. See §10 — the model underpredicts the effect size four-fold.
+
+## Results § Experimental approach (l. 242)
+
+No change.
+
+## Results § the stake-size / choice section (from l. 634)
+
+* The model-comparison paragraph gets the new ELPD numbers (§3 and
+  `notes/supp_table1.md`). Two claims are decisive and should be stated as
+  such: cTBS moves the noise function at all (`nullind` 7.8 dSE worse) and it
+  is not the memory channel alone (`mem` 4.6 dSE worse). The claim that is NOT
+  supported is which channel carries it — the top five models are within
+  1.2 dSE, so say the comparison does not resolve it and that the reported
+  model is chosen on convergence and parsimony.
+* Delete any sentence implying the model set was compared under one choice rule
+  in v11; it was not (§1). The refit is the reason the numbers changed.
+* Add the sensitivity sentence for the reported model's prior (§11).
+
+## Results § Linking Neural and Behavioral cTBS Effects (l. 788–822)
+
+The heaviest edit in the paper.
+
+* **Keep** the model-free result: Δ nPRF amplitude × Δ choice consistency on
+  risky-second trials, and the site-specificity that follows it. Unaffected.
+* **Replace** `bootstrap 95% CI [0.37, 0.67]` (l. 810) with the per-draw
+  posterior interval — §4. It is the last maximum-likelihood interval in the
+  manuscript.
+* **Delete** the model-parameter correlation entirely and replace with one
+  sentence: the model-free link does not reappear in the model's
+  per-participant noise parameters. Do **not** report r = 0.31; it has the
+  wrong sign and is not site-specific (§4).
+* **Add** one sentence on why that is not a reliability failure: the perceptual
+  channel's attenuation ceiling is 0.71, the memory channel's 0.36 (§5).
+
+## Discussion (l. 823)
+
+* The limitation sentence about the psychometric function being ~7% too flat
+  (§10).
+* The sentence about underpredicting the effect size (§10). Better volunteered
+  than found by a reviewer.
+* If the Discussion currently leans on individual differences in the model
+  parameters, cut that — §4 and the per-participant PPC say the model's
+  predicted contrasts are compressed (SD 0.09 against 0.20 observed).
+
+## Methods § Participants (l. 1048)
+
+The 75 / 73 / 37 / 35 paragraph and the exclusion criteria, both written out in
+full in §7. v11 has an arithmetic slip here.
+
+## Methods § Cognitive computational modeling (l. 1227)
+
+* The choice equation in its consistent form — §1. This is TODO 1 and the code
+  changed, so the equation in the text must change with it.
+* The payoff means stay as they are (§6), but check they are not in the same
+  sentence as the priors' centres.
+
+## Methods § The flexible PMC model (l. 1374)
+
+* "spline 3 to 9 free parameters" → only 3, 5 and 7 were fitted.
+* The basis is **piecewise-linear through anchor payoffs**, not a B-spline, and
+  the free parameters are the noise SD's own values at those payoffs. §8.
+
+## Methods § Model estimation (l. 1423)
+
+* The sampler settings must be the reported model's actual stamp from
+  `trace.posterior.attrs`, not generic ones.
+* State the convergence criterion (r̂ ≤ 1.01 and ESS ≥ 400 on group-level
+  parameters) and that models failing it are excluded from the comparison and
+  listed in Supp Table 1.
+* State the prior on the between-subject SDs and the sensitivity (§11).
+
+## Methods § Different priors (l. 1330)
+
+Add the one-sentence justification for excluding prior-shift models, with the
+supplementary figure — §9. Currently the exclusion is asserted; now there is
+evidence for it.
+
+## Figure and table captions
+
+* Figure 5: name the estimand. Panels c and g are population-level; e and f are
+  the posterior of the mean over the 35 sampled participants, which is
+  narrower. A reader comparing them will otherwise see a contradiction.
+* Figure 5 h/i: "slope of a linear-probability fit within each cell,
+  participants pooled; the same statistic is applied to the observed and to
+  each posterior draw's simulated choices, so absolute values are attenuated
+  equally on both sides."
+* Supp Table 1: the caption already states the convergence criterion and lists
+  the excluded models. Keep that — it is the part a reviewer will look for.
+
+## Do not touch
+
+Figures 1–4 and their text. The nPRF, decoding and model-free psychophysics
+results are unchanged by any of this.
