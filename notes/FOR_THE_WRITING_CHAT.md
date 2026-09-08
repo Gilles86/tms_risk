@@ -169,7 +169,39 @@ shows why: **neither** the noise effect **nor** the prior shift is credible
 quantity — it is an identifiability failure, not a competing explanation.
 Supplementary figure S6.
 
-## 10. What is still open
+## 10. Model fit — what to say, and what not to
+
+The posterior predictive panels look scattered. They are not misfitting; they
+are plotted at a resolution where sampling noise dominates. Audited:
+
+* Median |residual| divided by the observed point's **own standard error** is
+  **0.97** (`ppc_anchor.rung`) and **0.73** (`stake3rung`). A ratio of 1.0 means
+  the residuals are entirely explained by sampling noise in the observed
+  proportions. Each point is a subject-averaged proportion over 12-20 trials per
+  participant.
+* At full ladder resolution (48 rungs, ranking every trial within participant x
+  safe payoff) the residual trend is **+0.0005 per rung**, and the same computed
+  WITHIN participant and then averaged, so it is not an aggregation artefact.
+* Per participant: indifference point SD **0.312 observed vs 0.319 model**
+  (the model spreads participants correctly); psychometric slope **0.810
+  observed vs 0.756 model**, r = **0.92**.
+* Cell-level coverage of the 95% predictive band: **95%**, with r = 0.92 between
+  observed and predicted choice proportions across 420 participant-cells.
+
+**One sentence for limitations:** the model's psychometric function is about 7%
+too flat (slope 0.756 against 0.810), which is why predictive coverage runs
+79-88% rather than 95% on the ladder-rung tables.
+
+**One sentence that must be in Results, not buried:** the model reproduces the
+PATTERN of the cTBS effect but underpredicts its SIZE. On the targeted
+posterior predictive check for the mean cTBS effect on risky-second trials the
+observed value is +0.053 against a predictive interval of [-0.014, +0.044],
+posterior predictive p = 0.005 -- roughly a four-fold underprediction. Six of
+the seven targeted statistics are covered, including the order contrast
+(p = 0.09) and the three-way stake x order x stimulation interaction (p = 0.51).
+Do not claim the model reproduces the magnitude of the behavioural effect.
+
+## 11. What is still open
 
 `n1n2` under the consistent rule. Three jobs are running; if any converges the
 reported model may switch back and §2–3 change. **Do not write §2 as final until
