@@ -250,6 +250,10 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     rung = pd.read_csv(rungf, **READ) if rungf.exists() else None
     if ppc_kind == 'ratio' and rung is None:
         ppc_kind = 'safe'
+    dltf = dd / f'ppc_anchor/ppc_anchor.delta_stake.{label}.tsv'
+    dlt = pd.read_csv(dltf, **READ) if dltf.exists() else None
+    if ppc_kind == 'delta' and dlt is None:
+        ppc_kind = 'safe'
     loo = pd.concat([pd.read_csv(f, **READ)
                      for f in glob.glob(str(dd / 'loo_anchor/loo.*.tsv'))],
                     ignore_index=True)
@@ -658,7 +662,40 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                           labelspacing=.35, borderaxespad=.15)
 
     # -- h(,i): the consequence for choice -------------------------------
-    if ppc_kind == 'ratio':
+    if ppc_kind == 'delta':
+        # Two overlapping psychometric curves are an accurate picture of a
+        # model that predicts a ~1-percentage-point separation, and a useless
+        # one. The difference, with its own predictive band, is the same
+        # information at a resolution where it can be read -- and it shows
+        # plainly where the observed effect exceeds what the model predicts.
+        for k, order in zip(('h', 'i'), ORDERS):
+            ax, o_ = AX[k], dlt[dlt.order == order].sort_values('stake_chf')
+            x = np.arange(len(o_))
+            ax.axhline(0, color='0.45', lw=.9, zorder=1)
+            ax.fill_between(x, 100 * o_.lo, 100 * o_.hi, color='0.55',
+                            alpha=.18, lw=0, zorder=2)
+            ax.plot(x, 100 * o_.model, color='0.2', lw=1.4, zorder=3)
+            ax.errorbar(x, 100 * o_.observed, yerr=100 * o_.observed_sem,
+                        fmt='o', ms=4.2, color=IPS, ecolor=IPS, elinewidth=1.0,
+                        capsize=2, zorder=5)
+            ax.set_xticks(x)
+            ax.set_xticklabels([f'{v:.0f}' for v in o_.stake_chf])
+            ax.set_xlim(-.45, len(o_) - .55)
+            ax.set_ylim(-9, 14)
+            ax.set_xlabel('Stake (CHF)')
+            ax.set_title(order, fontsize=7.5)
+            if k == 'h':
+                ax.set_ylabel('cTBS effect on P(risky)\n(IPS − vertex, %%points)'
+                              .replace('%%', '%'))
+            else:
+                ax.set_yticklabels([])
+                glyph_key(ax, [('Observed ±1 s.e.m.', IPS, 'whisker',
+                                dict(lw=1.0)),
+                               ('Model', '.2', 'line', dict(lw=1.4)),
+                               ('95% predictive', '.55', 'band',
+                                dict(alpha=.18))],
+                          x=.05, y=.95, dy=.095)
+    elif ppc_kind == 'ratio':
         xs = np.sort(rung.frac.unique())
         for k, order in zip(('h', 'i'), ORDERS):
             ax = AX[k]
@@ -918,10 +955,13 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'ratio', 'psychometric', 'psychometric2'],
+                    choices=['safe', 'ratio', 'delta', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "
-                         "Figure 3a's x-axis, one panel per order; "
+                         "Figure 3a's x-axis, one panel per order; 'delta' "
+                         "shows the cTBS DIFFERENCE with its predictive band, "
+                         "which is the only honest way to show an effect the "
+                         "model puts at ~1 percentage point; "
                          "'psychometric' shows the full curve in three stake "
                          'terciles (supplement)')
     ap.add_argument('--with_probit', action='store_true',
