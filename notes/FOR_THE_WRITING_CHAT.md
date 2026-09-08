@@ -201,12 +201,29 @@ the seven targeted statistics are covered, including the order contrast
 (p = 0.09) and the three-way stake x order x stimulation interaction (p = 0.51).
 Do not claim the model reproduces the magnitude of the behavioural effect.
 
-## 11. What is still open
+## 11. What is still open — read this before writing §2, §3 or Figure 5
 
-`n1n2` under the consistent rule. Three jobs are running; if any converges the
-reported model may switch back and §2–3 change. **Do not write §2 as final until
-told.** Everything else above is settled.
+**Which model is reported.** `log-power-n1n2` is the scientifically right model
+— it is the only one that reproduces the order asymmetry the paper is about —
+and under the consistent choice rule it does not yet sample. Status:
 
+| Route | r̂ / ESS | verdict |
+|---|---|---|
+| default prior | 1.120 / 42 | fails |
+| level/slope + sum-to-zero coding | **1.040 / 142** | fails; best legitimate result |
+| `--tau_intercept 0.10` | 1.010 / 1214 | **converges but disqualified** — it shrinks the magnitude prior's between-subject SD by 56%, against the code's own note that it must not be shrunk, and every predictive metric degrades |
+| `--tau_noise` (noise anchors only) | running | the principled attempt |
+
+Gate is r̂ ≤ 1.01 and ESS ≥ 400. The reparameterisations lifted ESS 3.4-fold
+without touching a single prior, which confirms the problem is geometry rather
+than the model — but 142 is still short.
+
+**So:** everything in §1 and §4–§10 is settled and can be written now. §2 (which
+model), §3 (the Δν numbers) and Figure 5's numbers are provisional. If
+`--tau_noise` converges they stand as written with new values; if it does not,
+the choice is between reporting `n1n2` with its diagnostics stated openly and
+falling back to `log-power-perc`, which converges cleanly but cannot express the
+order asymmetry (§2).
 
 ---
 
