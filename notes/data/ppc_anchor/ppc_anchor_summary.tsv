@@ -1,2 +1,2 @@
 label	space	form	placement	grand_mean_gap	rmse_stake	n_draws
-log-power-n1n2.mapjitter.klw.ti0.1	log	power	n1n2	-0.011695939798578303	0.031147777710492278	400
+log-power-n1n2.mapjitter.klw.tn0.1	log	power	n1n2	-0.007287996231441163	0.028152311455409355	400
