@@ -53,6 +53,24 @@ READ = dict(sep='\t', keep_default_na=False, na_values=[''])
 REPO = Path(__file__).resolve().parents[3]
 N_PAIRS = 2000          # draw pairs averaged over; SE of the mean r is <0.005
 
+def ctbs_contrast(coef, colnames):
+    """IPS - vertex from a regressor axis, whatever the contrast coding.
+
+    Treatment coding (`stimulation_condition`) puts the IPS cell in the
+    intercept and vertex - IPS in column 1, so the contrast is -coef[1]. Sum
+    coding (`C(stimulation_condition, Sum)`) puts the grand mean in the
+    intercept and (IPS - grand mean) in column 1, with vertex = -that, so the
+    contrast is 2*coef[1]. Getting this wrong is silent -- same shape, same
+    sign in some models -- so it is read off the column NAME, never assumed.
+    """
+    name = str(colnames[1])
+    if 'Sum)' in name or '[S.' in name:
+        return 2.0 * coef[..., 1]
+    if 'T.vertex' in name:
+        return -coef[..., 1]
+    raise ValueError(f'unrecognised cTBS regressor column {name!r}')
+
+
 
 def _rankdata(a):
     """Average-rank transform along the last axis (avoids a scipy import)."""
@@ -88,7 +106,7 @@ def from_trace(label, trace_dir, rng):
                 .transpose('subject', 'sample', rdim).values)
         # index 0 is the IPS intercept, index 1 the vertex OFFSET, so the
         # IPS - vertex contrast is minus the second coefficient
-        d = -coef[..., 1]                                  # (subject, sample)
+        d = ctbs_contrast(coef, ds[rdim].values)           # (subject, sample)
         rows.append(_reliability(label, p, d, rng))
     ds.close()
     return rows

@@ -214,8 +214,6 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
 
     prior_varies = bool(pcond is not None and len(pcond)
                         and (pcond.varies == 1).any())
-    if prior_varies:
-        AX['e2'] = AX['e'].inset_axes([0.0, 0.02, 1.0, 0.30])
 
     def _logmu(which, cond):
         """Group prior mean in LOG CHF, per condition when the model has one."""
@@ -294,7 +292,12 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # model that holds them fixed the strip was an empty band with a sentence
     # in it, which is dead space plus a note saying what the absence of red and
     # green bars already says.
-    AX['e2'] = None
+    # Created ONLY when the model has per-session priors -- and here, after AX
+    # exists. It used to be built at the top of main(), which raised
+    # UnboundLocalError for exactly the models it was written for; no such model
+    # had been plotted until log-power-percpsd.
+    AX['e2'] = (AX['e'].inset_axes([0.0, 0.02, 1.0, 0.30])
+                if prior_varies else None)
     AX['f'] = fig.add_subplot(gs[1, 4:8])     # mechanism, risky first
     AX['g'] = fig.add_subplot(gs[1, 8:12])    # mechanism, risky second
     AX['p'] = fig.add_subplot(gs[2, 0:4])     # group-level parameters

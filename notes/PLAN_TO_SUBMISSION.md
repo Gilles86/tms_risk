@@ -368,3 +368,61 @@ Full KLW ladder, paired against the best converged model:
 | `spl5-n1n2` | −4170.5 | −25.7 | 10.0 |
 | `power-mem` | −4195.0 | −50.2 | 10.9 |
 | `power-nullind` | −4250.6 | −105.8 | 13.7 |
+---
+
+# What to build now (v12 figure/table plan)
+
+Ordered so nothing waits on the `n1n2` question, which is now a supplement
+either way.
+
+## Main text
+
+| # | Figure | Source | Status |
+|---|---|---|---|
+| 1 | Design / TMS targeting | — | done, unchanged |
+| 2 | nPRF encoding + decoding | `plot_figure2_new.py` | done; fix the default path (`notes/figures/imaging/…` → `archive/imaging/…`) |
+| 3 | Model-free psychophysics | `plot_fig3_probit.py` | done, unchanged |
+| 4 | Weber misfit / why a payoff-dependent noise function | `plot_fig4_weber.py --panels abde` | done, unchanged |
+| **5** | **Mechanism, `log-power-perc.mapjitter.klw`** | `plot_fig4_big.py` | **rebuild on the KLW fit** |
+
+Figure 5 is the only main-text rebuild. Everything it needs is extracted.
+
+## Supplementary
+
+| # | What | Script | Why it earns its place |
+|---|---|---|---|
+| S1 | PPC gallery, 12 models × order × stake | `plot_ppc_gallery_stake.py` | shows every candidate fits the choices; KLW-only now |
+| S2 | PPC in the Fig-3a idiom | `plot_ppc_psychometric_supp.py --split stake` | the misfit question in the reader's own units |
+| S3 | ELPD ladder | `plot_elpd_ladder.py` | **rerun**: KLW-only, one prior spec, `*x` family included |
+| S4 | Supp Table 1 (ELPD, r̂, ESS, params) | `make_supp_table1.py` | **rerun**, converged-only, exclusions listed |
+| S5 | `percmem` — memory and perceptual channels separately | `plot_fig4_big.py` | both channels move at 7 CHF (p = 0.036 each), flat at 112 (p = 0.80) |
+| S6 | `percpsd` — prior free to shift with cTBS | `plot_fig4_big.py` | **the reason prior-shift models are out**: with the prior width free, neither the noise effect nor the prior shift is credible (p 0.39 / 0.22). Degeneracy, not a competing explanation |
+| S7 | Per-participant contrasts + reliability | `plot_subject_params.py`, `anchor_subject_reliability.py` | ceiling 0.71 perceptual, 0.36 memory |
+| S8 | Convergence table for the whole KLW grid | `summarize_traces.py` | states plainly which models are excluded and why |
+
+## Text changes, in order of how blocked they are
+
+1. **Not blocked at all** — Methods: the choice equation (consistent form, `w`
+   not `beta`), the spline count (3/5/7 fitted, piecewise-linear not B-spline),
+   the sampler stamp, the n = 75/73/37/35 participants paragraph, the
+   `bootstrap 95% CI` on the model-free brain–behaviour correlation (replace
+   with the per-draw posterior interval).
+2. **Needs only Fig. 5** — the mechanism paragraph: Δν at 7 CHF, the credible
+   range in payoff, the one-sided P(Δν > 0).
+3. **Needs S3/S4** — the model-comparison paragraph, including "cTBS moves the
+   noise function at all" (`nullind` 7.8 SE worse) and "not the memory channel
+   alone" (`mem` 4.6 SE worse).
+4. **Delete** — the model-parameter brain–behaviour correlation. Wrong sign,
+   not site-specific. One sentence saying the model-free link does not reappear
+   in the model's per-participant noise parameters.
+
+## Still running, and what each can change
+
+| Job | What | If it works |
+|---|---|---|
+| 5655915 (3 arms) | τ_intercept at target_accept 0.99 | `n1n2` becomes reportable; Fig. 5 could switch |
+| 5658266 | `mem`/`percmem`/`null` at `sps0.15` | S3/S4 land on one prior spec |
+| 5658740 (6 arms) | level/slope + sum-to-zero coding | same as above; also the cleanest methods story |
+
+None of them blocks anything above. If all three fail, the paper is complete as
+planned and `n1n2` is one supplementary sentence.

@@ -33,6 +33,24 @@ REPO = Path(__file__).resolve().parents[3]
 #: the same neural measure as the model-free brain-behaviour analysis
 MASK, SELECTION, AMP = 'NPCr2cm-cluster', 'cvr2pos', 'd_amp_median'
 
+def ctbs_contrast(coef, colnames):
+    """IPS - vertex from a regressor axis, whatever the contrast coding.
+
+    Treatment coding (`stimulation_condition`) puts the IPS cell in the
+    intercept and vertex - IPS in column 1, so the contrast is -coef[1]. Sum
+    coding (`C(stimulation_condition, Sum)`) puts the grand mean in the
+    intercept and (IPS - grand mean) in column 1, with vertex = -that, so the
+    contrast is 2*coef[1]. Getting this wrong is silent -- same shape, same
+    sign in some models -- so it is read off the column NAME, never assumed.
+    """
+    name = str(colnames[1])
+    if 'Sum)' in name or '[S.' in name:
+        return 2.0 * coef[..., 1]
+    if 'T.vertex' in name:
+        return -coef[..., 1]
+    raise ValueError(f'unrecognised cTBS regressor column {name!r}')
+
+
 
 def _rank(a):
     order = np.argsort(a, axis=-1, kind='stable')
@@ -69,7 +87,7 @@ def main(label, trace_dir, neural_tsv, mask, selection, amp_col, out_tsv):
             continue
         coef = (ds[p].stack(sample=('chain', 'draw'))
                 .transpose('subject', 'sample', rdim).values)
-        d = (-coef[..., 1])[keep].T                     # (n_draw, n_subject)
+        d = ctbs_contrast(coef, ds[rdim].values)[keep].T  # (n_draw, n_subject)
         for kind, x in (('pearson', d), ('spearman', _rank(d))):
             r = _corr(x, y if kind == 'pearson' else _rank(y[None])[0])
             rows.append(dict(

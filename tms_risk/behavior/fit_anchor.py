@@ -180,8 +180,68 @@ def parse_label(label):
     return m.groups()
 
 
+def _level_slope(cls):
+    """Subclass that samples (level, slope) instead of two anchor VALUES.
+
+    `power` puts log sigma linear in log x, so its two anchor parameters are the
+    curve's values at the two ends of the payoff range. That is a rotated
+    coordinate system for the same 2-D family: with
+
+        u(x) = (log x - log a1) / (log a2 - log a1)
+
+    the anchor coordinates are (theta at u=0, theta at u=1) and the level/slope
+    coordinates are (alpha, beta) with
+
+        log sigma(x) = alpha + beta * (u(x) - ubar)
+
+    where ubar is the mean of u over the payoffs actually presented, so that
+    alpha is the noise at the AVERAGE payoff and is orthogonal to beta by
+    construction. The map between the two is linear and invertible, so the
+    likelihood is untouched -- provided the clamp in `interp_matrix` never
+    fires, which for anchors spanning the full payoff range it cannot.
+
+    Why bother: NUTS adapts a DIAGONAL mass matrix, which is not invariant to
+    rotation. A posterior that is a tilted ellipse in anchor coordinates is
+    axis-aligned in level/slope coordinates, and only the second can be
+    preconditioned away. The priors change too (i.i.d. on alpha/beta is not
+    i.i.d. on the anchor values), so this is not a free lunch -- it is a
+    deliberate, and arguably better-motivated, choice: a prior on "how noisy
+    overall" and "how steeply it falls" rather than on two correlated endpoints.
+    """
+    class LevelSlope(cls):
+        def __init__(self, *a, **kw):
+            super().__init__(*a, **kw)
+            if self.n_anchors != 2 or self.anchor_link != 'log':
+                raise SystemExit('level/slope needs a 2-anchor log-link form '
+                                 f'(power); got {self.noise_form}')
+            pay = np.concatenate([np.asarray(self.paradigm['n1'], float),
+                                  np.asarray(self.paradigm['n2'], float)])
+            lo, hi = float(self.anchors[0]), float(self.anchors[-1])
+            if pay.min() < lo - 1e-9 or pay.max() > hi + 1e-9:
+                raise SystemExit(
+                    f'payoffs span {pay.min():.0f}-{pay.max():.0f} but anchors '
+                    f'are [{lo:.0f}, {hi:.0f}]: interp_matrix would clamp, so '
+                    f'level/slope would NOT be a reparameterisation')
+            self._ubar = float(np.mean(
+                (np.log(pay) - np.log(lo)) / (np.log(hi) - np.log(lo))))
+
+        def interp_matrix(self, x):
+            x = np.asarray(x, dtype=float)
+            lo, hi = float(self.anchors[0]), float(self.anchors[-1])
+            u = (np.log(x) - np.log(lo)) / (np.log(hi) - np.log(lo))
+            return np.column_stack([np.ones_like(u), u - self._ubar])
+
+        def anchor_names(self, key):
+            from bauer.models.anchor_noise import _CHANNEL_TAG
+            tag = _CHANNEL_TAG.get(key, key)
+            return [f'{self.space}_{tag}_{self.noise_form}_level',
+                    f'{self.space}_{tag}_{self.noise_form}_slope']
+    LevelSlope.__name__ = cls.__name__ + 'LevelSlope'
+    return LevelSlope
+
+
 def build_model(label, df, role_scale=None, prior_estimate='full',
-                anchors=None):
+                anchors=None, level_slope=False):
     """Construct the model and install PRIOR_SPEC on it."""
     import bauer.models as bm
     space, form, placement = parse_label(label)
@@ -191,6 +251,8 @@ def build_model(label, df, role_scale=None, prior_estimate='full',
     targets = list(noise_targets) + [f'{space}_{p}' for p in prior_targets]
     cls = (bm.LogAnchorNoiseRiskRegressionModel if space == 'log'
            else bm.AnchorNoiseRiskRegressionModel)
+    if level_slope:
+        cls = _level_slope(cls)
     # `role_scale` only exists in the bauer clone that has the role-indexed
     # noise; pass it only when asked for, so the same fit_anchor works against
     # both checkouts instead of failing on the default value.
@@ -253,6 +315,14 @@ def apply_priors(model, df, space):
             # (payoff-indexing) with sigma 0.5, which puts EV-indexing
             # (b*log 0.55 = -0.20 for the fitted exponent) well inside one SD.
             p = dict(PRIORS['noise'], sigma_intercept=0.5)
+            info['mu_intercept'] = 0.0
+        elif key.endswith('_slope'):
+            # beta is a LOG-SLOPE over the normalised payoff coordinate: the
+            # log-noise difference between the cheapest and the most expensive
+            # payoff. Centred at 0 (no payoff dependence, i.e. Weber) with the
+            # noise prior's width, so the level/slope prior is no tighter than
+            # the anchor prior it replaces.
+            p = PRIORS['noise']
             info['mu_intercept'] = 0.0
         elif any(t in key for t in ('_weber_', '_affine_', '_power_',
                                     '_genweber_', '_spl3_', '_spl5_',
@@ -365,6 +435,26 @@ def main():
                          'roughly one chain in eight (measured over 32 chains x '
                          '4 inits on log-weber+affine-n1n2). 0.4 puts a 2.2x '
                          'displacement at 2 SD and closes it.')
+    ap.add_argument('--level_slope', action='store_true',
+                    help='sample (level, slope) instead of the two anchor '
+                         'VALUES: log sigma = alpha + beta*(u - ubar), with '
+                         'ubar the mean of the normalised log-payoff '
+                         'coordinate over the presented payoffs. A linear, '
+                         'invertible change of coordinates -- the likelihood is '
+                         'identical, which moving the anchors is NOT (that '
+                         'clamps). It can still matter because NUTS adapts a '
+                         'diagonal mass matrix, which no rotation is invariant '
+                         'to. Only for 2-anchor log-link forms (power).')
+    ap.add_argument('--sum_coding', action='store_true',
+                    help='sum-to-zero contrast on stimulation_condition '
+                         'instead of treatment coding. Under treatment coding '
+                         'the intercept IS the IPS cell and the slope is '
+                         'vertex - IPS, so the two are correlated by '
+                         'construction (measured -0.41 on log-power-n1n2). Sum '
+                         'coding makes the intercept the grand mean and '
+                         'orthogonalises it from the contrast. NOTE the '
+                         'contrast changes meaning: IPS - vertex is 2*coef[1], '
+                         'not -coef[1], so extraction must be told.')
     ap.add_argument('--anchors', default=None,
                     help='comma-separated anchor payoffs, e.g. "14,40". For '
                          '`power` this is a PURE REPARAMETERISATION -- log '
@@ -435,8 +525,15 @@ def main():
                       or 'lfx2-bs3-m2-dp-bm')
     anchors = (None if args.anchors is None
                else [float(a) for a in args.anchors.split(',')])
+    if args.sum_coding:
+        global REG, REGX, PLACEMENT
+        REG = 'C(stimulation_condition, Sum)'
+        REGX = 'C(stimulation_condition, Sum)*risky_first'
+        PLACEMENT = {k: (v[:3] + ((REGX,) if len(v) > 3 else ()))
+                     for k, v in PLACEMENT.items()}
     model = build_model(args.label, df, role_scale=args.role_scale,
-                        prior_estimate=args.prior_estimate, anchors=anchors)
+                        prior_estimate=args.prior_estimate, anchors=anchors,
+                        level_slope=args.level_slope)
     # The KLW-consistent decision noise is the DEFAULT since 2026-09-08. The
     # raw rule normalises a shrunken numerator by an unshrunken denominator, so
     # nu is not the same quantity across models with different prior widths --
@@ -488,6 +585,10 @@ def main():
         ap_suffix += f'.{args.prior_estimate}'
     if anchors is not None:
         ap_suffix += '.a' + '-'.join(f'{a:g}' for a in model.anchors)
+    if args.level_slope:
+        ap_suffix += '.ls'
+    if args.sum_coding:
+        ap_suffix += '.sum'
     out = Path(args.bids_folder) / 'derivatives' / args.out_folder
     out.mkdir(parents=True, exist_ok=True)
     model.build_estimation_model()

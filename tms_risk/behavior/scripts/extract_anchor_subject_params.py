@@ -25,6 +25,24 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+def ctbs_contrast(coef, colnames):
+    """IPS - vertex from a regressor axis, whatever the contrast coding.
+
+    Treatment coding (`stimulation_condition`) puts the IPS cell in the
+    intercept and vertex - IPS in column 1, so the contrast is -coef[1]. Sum
+    coding (`C(stimulation_condition, Sum)`) puts the grand mean in the
+    intercept and (IPS - grand mean) in column 1, with vertex = -that, so the
+    contrast is 2*coef[1]. Getting this wrong is silent -- same shape, same
+    sign in some models -- so it is read off the column NAME, never assumed.
+    """
+    name = str(colnames[1])
+    if 'Sum)' in name or '[S.' in name:
+        return 2.0 * coef[..., 1]
+    if 'T.vertex' in name:
+        return -coef[..., 1]
+    raise ValueError(f'unrecognised cTBS regressor column {name!r}')
+
+
 
 def main(label, trace_dir, out_dir):
     ds = xr.open_dataset(Path(trace_dir) / f'model-{label}_trace.netcdf',
@@ -40,7 +58,7 @@ def main(label, trace_dir, out_dir):
                 .transpose('subject', 'sample', rdim).values)
         # IPS is the intercept; the second column is the vertex OFFSET, so the
         # IPS - vertex contrast is its negation
-        delta = -coef[..., 1]                       # (subject, sample)
+        delta = ctbs_contrast(coef, ds[rdim].values)   # (subject, sample)
         grp = delta.mean(axis=0)                    # the group mean, per draw
         for i, sub in enumerate(subj):
             d = delta[i]
