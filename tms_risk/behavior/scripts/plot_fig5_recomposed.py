@@ -82,6 +82,25 @@ def glyph_key(ax, entries, x=.04, y=.96, dy=.085, seg=.07, fs=6.5):
                 fontsize=fs, va='center')
 
 
+def empirical_payoffs(bids_folder):
+    """Geometric mean and +/-1 SD of log payoff, per option role.
+
+    What the observer's prior is an estimate OF. Reported on the same log scale
+    the prior lives on, so the two are directly comparable.
+    """
+    from tms_risk.behavior.fit_model import get_data
+    df = get_data(bids_folder, model_label='lfx2-bs3-m2-dp-bm')
+    rf = (df['p1'] == 0.55).values
+    out = {}
+    for which, v in (('risky', np.where(rf, df.n1, df.n2)),
+                     ('safe', np.where(rf, df.n2, df.n1))):
+        lg = np.log(np.asarray(v, float))
+        out[which] = (float(np.exp(lg.mean() - lg.std())),
+                      float(np.exp(lg.mean() + lg.std())),
+                      float(np.exp(lg.mean())))
+    return out
+
+
 def logx(ax):
     ax.set_xscale('log')
     ax.set_xticks(TICKS)
@@ -90,7 +109,7 @@ def logx(ax):
     ax.set_xlim(6.5, 122)
 
 
-def main(data_dir, out_stem, label, mech_level):
+def main(data_dir, out_stem, label, mech_level, bids_folder):
     dd = Path(data_dir)
     c = pd.read_csv(dd / 'anchor_curves.tsv', **READ)
     c = c[c.label == label]
@@ -167,40 +186,60 @@ def main(data_dir, out_stem, label, mech_level):
                         annotation_clip=False)
     logx(ax)
     ax.set_xlabel('Payoff (CHF)')
-    ax.set_ylabel('Δν,  IPS − vertex')
+    # short label and 2-decimal ticks: the 3-decimal ones were wide enough to
+    # push this label out of its own gutter and into panel a
+    ax.yaxis.set_major_formatter(mpl.ticker.FormatStrFormatter('%.2f'))
+    ax.set_ylabel('Δν  (IPS − vertex)', labelpad=2)
     ax.set_title('cTBS effect on noise', fontsize=8)
     ax.text(.5, 1.14, 'Raised on the second option, at small payoffs',
             transform=ax.transAxes, fontsize=6.8, color='0.35', ha='center')
     glyph_key(ax, [('P(Δν > 0) > 0.95', '0.12', 'line', dict(lw=2.4))],
               x=.04, y=.10, dy=.08)
 
-    # -- c: where the priors sit -------------------------------------------
+    # -- c: the fitted prior against the payoffs actually shown ----------
+    # The observer's prior is an ESTIMATE of the payoff distribution, so the
+    # panel that shows it should show what it is estimating. Pale strip = the
+    # empirical spread of payoffs of that role (geometric mean, +/-1 SD of log
+    # payoff); coloured bar = the fitted prior's +/-1 sigma; whisker = the 95%
+    # CrI on the prior's mean, which is the uncertainty the old panel omitted.
     ax = A['c']
+    emp = empirical_payoffs(bids_folder)
     for k, (which, col) in enumerate((('risky', RISKY_C), ('safe', SAFE_C))):
         r = pri[pri.which == which]
         if not len(r):
             continue
         r = r.iloc[0]
         y = 1 - k
+        lo_e, hi_e, gm = emp[which]
+        ax.plot([lo_e, hi_e], [y + .30] * 2, color='0.72', lw=5,
+                solid_capstyle='butt', zorder=1)
+        ax.plot(gm, y + .30, 'v', ms=4, color='0.55', zorder=2)
         ax.plot([np.exp(r.mu - r.sd), np.exp(r.mu + r.sd)], [y, y], color=col,
-                lw=3.2, alpha=.5, solid_capstyle='butt')
-        ax.plot(np.exp(r.mu), y, 'o', ms=5.5, color=col)
-        ax.text(np.exp(r.mu), y + .22, f'{np.exp(r.mu):.0f} CHF', color=col,
-                fontsize=6.6, ha='center')
+                lw=5, alpha=.45, solid_capstyle='butt', zorder=2)
+        ax.plot([np.exp(r.mu_lo), np.exp(r.mu_hi)], [y, y], color=col, lw=1.2,
+                zorder=3)
+        ax.plot(np.exp(r.mu), y, 'o', ms=5, color=col, zorder=4)
     logx(ax)
     ax.set_yticks([1, 0])
     ax.set_yticklabels(['Risky', 'Safe'], fontsize=7)
-    ax.set_ylim(-.75, 1.75)
+    ax.set_ylim(-.55, 2.35)
     ax.set_xlabel('Payoff (CHF)')
-    ax.set_title('Magnitude priors', fontsize=8)
-    ax.text(.5, .04, 'Bar: ±1σ of the prior', transform=ax.transAxes,
-            fontsize=6.2, color='0.45', ha='center')
+    ax.set_title('Priors vs payoffs shown', fontsize=8)
+    glyph_key(ax, [('Payoffs shown, ±1 SD', '0.72', 'bar', dict(lw=5)),
+                   ('Fitted prior, ±1σ', RISKY_C, 'bar',
+                    dict(lw=5, alpha=.45)),
+                   ('95% CrI on its mean', RISKY_C, 'line', dict(lw=1.2))],
+              x=.04, y=.97, dy=.085, seg=.10, fs=6.2)
 
     # -- d, e: the mechanism, one panel per presentation order -------------
-    TR = [(RISKY_C, 'risky', (0, (2.6, 1.4)), 'Risky option'),
-          (SAFE_C, 'safe', (0, (1.2, 1.2)), 'Safe option'),
-          (RATIO_C, 'ratio', '-', 'Perceived ratio'),
-          (NOISE_C, 'noise', '-', 'Decision noise')]
+    # Two traces, not four. The perceived ratio is the numerator of the
+    # decision variable and the decision noise is its denominator; they are the
+    # two quantities that COMPETE, and that competition is the panel's point.
+    # The risky and safe components were the ratio's own parts -- in risky-second
+    # the ratio and the risky trace differ by 0.1 percentage points at 28 CHF --
+    # so drawing all four put eight bands on two axes to show two things.
+    TR = [(RATIO_C, 'ratio', '-', 'Perceived ratio: more risky choices'),
+          (NOISE_C, 'noise', '-', 'Decision noise: flatter curve')]
     xs = np.sort(mech.n_safe.unique())
     for k, order in zip(('d', 'e'), ORDERS):
         ax, q = A[k], mech[mech.order == order].sort_values('n_safe')
@@ -224,10 +263,7 @@ def main(data_dir, out_stem, label, mech_level):
                       x=.04, y=.96, dy=.078)
         else:
             ax.tick_params(labelleft=False)
-            ax.text(.5, .04, 'Ratio up: more risky choices\n'
-                             'Noise up: flatter curve',
-                    transform=ax.transAxes, fontsize=6.2, color='0.45',
-                    ha='center', va='bottom', linespacing=1.6)
+            pass
 
     # -- f: the behavioural consequence ------------------------------------
     ax = A['f']
@@ -238,9 +274,13 @@ def main(data_dir, out_stem, label, mech_level):
         col = '0.62' if order == ORDERS[0] else '0.12'
         ax.fill_between(x, 100 * q.lo, 100 * q.hi, color=col, alpha=.14, lw=0)
         ax.plot(x, 100 * q.model, color=col, ls=ls, lw=1.4)
-        ax.errorbar(x, 100 * q.observed, yerr=100 * q.observed_sem, fmt=mk,
-                    ms=4.2, color=col, ecolor=col, elinewidth=.9, capsize=2,
-                    zorder=5)
+        # NO error bar on the observed point. This is a posterior predictive
+        # check: the observed value is a STATISTIC and the band is the model's
+        # predictive distribution for it, which already contains the sampling
+        # noise an s.e.m. would draw. Putting both on one axis draws the same
+        # uncertainty twice and invites the reader to compare two intervals
+        # that mean different things.
+        ax.plot(x, 100 * q.observed, mk, ms=4.6, color=col, zorder=5)
         ax.annotate(order, (x[-1], 100 * q.observed.iloc[-1]),
                     xytext=(4, 0), textcoords='offset points', color=col,
                     fontsize=6.6, va='center', annotation_clip=False)
@@ -250,7 +290,7 @@ def main(data_dir, out_stem, label, mech_level):
     ax.set_xlim(-.4, len(q0) - .35)
     ax.set_xlabel('Stake (CHF)')
     ax.set_ylabel('Δ P(chose risky), points')
-    glyph_key(ax, [('Observed ±1 s.e.m.', '0.12', 'marker', dict(ms=4.2)),
+    glyph_key(ax, [('Observed', '0.12', 'marker', dict(ms=4.6)),
                    ('Model, 95% predictive', '0.5', 'band', dict(alpha=.14))],
               x=.04, y=.14, dy=.085)
 
@@ -270,7 +310,8 @@ if __name__ == '__main__':
     ap.add_argument('--model_label', default='log-power-n1n2.mapjitter.klw')
     ap.add_argument('--mechanism_level', default='subject',
                     choices=['subject', 'group'])
+    ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     a = ap.parse_args()
     main(a.data_dir, a.out_stem or str(REPO / 'notes/figures/fig5_recomposed'),
-         a.model_label, a.mechanism_level)
+         a.model_label, a.mechanism_level, a.bids_folder)
