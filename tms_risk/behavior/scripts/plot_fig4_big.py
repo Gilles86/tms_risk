@@ -310,7 +310,13 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     ROW1 = ['a', 'b', 'c']
     AX = {}
     for i, k in enumerate(ROW1):
-        AX[k] = fig.add_subplot(gs[0, i * 4:(i + 1) * 4])
+        # a and b are the SAME quantity (nu, log units) for the two channels,
+        # so they share a scale. Without it the reader cannot see that the
+        # second-presented option is about half as noisy at 7 CHF, which is
+        # what makes the effect there large in relative terms. c is a
+        # difference and keeps its own scale.
+        AX[k] = fig.add_subplot(gs[0, i * 4:(i + 1) * 4],
+                                sharey=AX['a'] if k == 'b' else None)
     # Panel d carries two questions -- WHERE the priors sit on the payoff axis,
     # and WHETHER cTBS moved them -- and cramming both into one axis (pale
     # strip, mu +/- sigma bar, CrI whiskers, split IPS/vertex bars, numbers,
@@ -353,7 +359,11 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         AX['l'] = fig.add_subplot(gs[2:4, NCOL * 3:12])
     P = None
     AX['h'] = fig.add_subplot(gs[2, 4:8])
-    AX['i'] = fig.add_subplot(gs[2, 8:12])
+    # h and i plot the same quantity for the two presentation orders. They MUST
+    # share a scale: with independent limits the largest IPS-vertex gap in the
+    # figure was drawn 15% smaller than on h's scale, while i's blanked tick
+    # labels invited the reader to assume the scales matched.
+    AX['i'] = fig.add_subplot(gs[2, 8:12], sharey=AX['h'])
 
 
     # -- a, b: the two noise terms ---------------------------------------
@@ -382,28 +392,47 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         ax.set_ylabel('Representational noise ν (log units)'
                       if k == 'a' else '')
     key = AX['b'] if unaffected(CH[0][0]) else AX['a']
-    key.text(.04, .12, 'IPS', color=IPS, transform=key.transAxes, fontsize=7)
-    key.text(.04, .02, 'Vertex', color=VERTEX, transform=key.transAxes, fontsize=7)
+    # rising bands leave the UPPER left empty; at (.04, .12) these sat inside
+    # both bands at 7 CHF
+    key.text(.04, .95, 'IPS', color=IPS, transform=key.transAxes, fontsize=7,
+             va='top')
+    key.text(.04, .86, 'Vertex', color=VERTEX, transform=key.transAxes,
+             fontsize=7, va='top')
 
     # -- c, d: the cTBS effect on each term ------------------------------
     dsel = c[c.condition == 'delta']
     dm = 1.15 * max(abs(dsel.lo.min()), abs(dsel.hi.max())) if len(dsel) else .05
     ax = AX['c']
     ax.axhline(0, color='0.45', lw=1.3, zorder=0)
+    strips = []
     for (chan, base), col, ls in zip(CH, (FIRST_C, SECOND_C),
                                      ((0, (3, 1.6)), '-')):
         sd_ = dsel[dsel.channel == chan]
         if not len(sd_) or float(np.abs(sd_['mid']).max()) < 1e-9:
             continue
-        band(ax, sd_, col, ls=ls)
-        sig_strip(ax, sd_)
+        # Draw the non-credible stretch at reduced weight. At full weight the
+        # curve's sign reversal above ~56 CHF reads as a claim; P(dnu > 0) there
+        # is 0.16, so the model has no view on it and the figure should not
+        # imply one.
+        band(ax, sd_, col, ls=ls, lw=1.0)
+        q_ = sd_.sort_values('x')
+        cred = (q_.p_gt0 > .95).values if 'p_gt0' in q_ else np.zeros(len(q_), bool)
+        if cred.any():
+            lo_i, hi_i = np.flatnonzero(cred)[[0, -1]]
+            ax.plot(q_.x.values[lo_i:hi_i + 1], q_['mid'].values[lo_i:hi_i + 1],
+                    color=col, ls=ls, lw=2.0, zorder=6, solid_capstyle='round')
+        strips.append((sd_, col))
         q = sd_.sort_values('x')
         ax.annotate(base.split('-')[0], (q.x.iloc[-1], q['mid'].iloc[-1]),
                     xytext=(4, 0), textcoords='offset points', color=col,
-                    fontsize=6.3, va='center')
+                    fontsize=6.6, va='center', clip_on=False,
+                    annotation_clip=False)
     ax.set_ylim(-dm, dm)
+    # only now is the top of the axis known; sig_strip anchors to it
+    for sd_, col in strips:
+        sig_strip(ax, sd_)
     logx(ax)
-    ax.set_xlim(6.4, 260)
+    ax.set_xlim(6.4, 118)
     ax.set_title('cTBS effect on noise', fontsize=7.5)
     ax.set_xlabel('Payoff (CHF)')
     ax.set_ylabel('Δν, IPS − vertex')
@@ -451,8 +480,8 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                     color=col, lw=3, alpha=.45, solid_capstyle='butt')
             ax.plot(np.exp(r.mu), y, 'o', ms=5, color=col)
         ax.text(.03, y - .34,
-                f'μ {np.exp(r.mu):.0f},  σ {np.exp(r.mu - r.sd):.0f}–'
-                f'{np.exp(r.mu + r.sd):.0f} CHF',
+                f'{np.exp(r.mu):.0f} CHF  (±σ: {np.exp(r.mu - r.sd):.0f}–'
+                f'{np.exp(r.mu + r.sd):.0f})',
                 transform=ax.get_yaxis_transform(), fontsize=5.6, color=col,
                 ha='left', va='center')
     ax.set_yticks([1, 0])
@@ -516,7 +545,11 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # prior that is depends on the order. The safe option's trace crossing zero
     # near 12 CHF -- its prior mean -- is the clearest single sign of that.
     OPT_R, OPT_S = '#8172B2', '0.55'
-    RATIO_C, NOISE_C = '#C44E52', '#3B5BA5'
+    # NOT red: red means IPS in a, b, g, h and i, and '#C44E52' is
+    # indistinguishable from '#d62728' at print size. Near-black for the
+    # perceived ratio (the derived quantity), the paper's model-contrast blue
+    # for decision noise.
+    RATIO_C, NOISE_C = '0.15', '#3B5BA5'
     # These quantities are NONLINEAR in the parameters (perceived value depends
     # on w = sd^2/(sd^2 + nu^2)), so neither the value at the average
     # parameters nor the value at a participant's median parameters is the
@@ -766,7 +799,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 ax.text(.05, .03, 'Vertex', transform=ax.transAxes,
                         color=VERTEX, fontsize=7)
             else:
-                ax.set_yticklabels([])
+                ax.tick_params(labelleft=False)
                 glyph_key(ax, [('Observed', '.25', 'marker', dict(ms=4.4)),
                                ('95% predictive', '.5', 'band',
                                 dict(alpha=.18))],
@@ -1004,12 +1037,14 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         sig = pg > .95          # one-sided; see the note on panel c
         # a dedicated strip INSIDE the axis, not the axis edge: flush right the
         # labels sat in the gutter against the next panel's y-axis
-        ax.text(.985, (yy[i] + yy[i + 1]) / 2,
-                '', transform=ax.get_yaxis_transform())
-        ax.text(.985, (yy[i] + yy[i + 1]) / 2,
-                f'p = {1 - pg:.3f}' if sig else f'p = {1 - pg:.2f}',
-                transform=ax.get_yaxis_transform(),
-                ha='right', va='center', fontsize=5.6,
+        xend = max(hi_, rows[i + 1][3])
+        ax.text(xend + .012, (yy[i] + yy[i + 1]) / 2,
+                # the SAME statistic panel c's key names, in the same
+                # direction: P(IPS - vertex > 0). Printing 1 - that as "p" made
+                # 0.84 read as "no difference" when it means the point estimate
+                # is REVERSED (P = 0.16).
+                f'P = {pg:.3f}' if sig else f'P = {pg:.2f}',
+                clip_on=False, ha='left', va='center', fontsize=6.6,
                 color='0.15' if sig else '0.5',
                 fontweight='bold' if sig else 'normal')
     # separate the two presentation positions, not the noise/prior blocks --
@@ -1023,15 +1058,19 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     mu_rows = []
 
     _l, _r = ax.get_xlim()
-    ax.set_xlim(_l, _r + .34 * (_r - _l))
-    ax.set_yticks(yy)
-    # each stimulated parameter appears twice, once per condition; colour
-    # already separates them, so label the pair once
-    labs, prev = [], None
-    for r_ in rows:
-        labs.append('' if r_[0] == prev else r_[0])
-        prev = r_[0]
-    ax.set_yticklabels(labs, fontsize=6)
+    ax.set_xlim(_l, _r + .13 * (_r - _l))   # just enough for the P labels
+    # each stimulated parameter appears twice, once per condition. Colour
+    # already separates them, so the label belongs to the PAIR -- put the tick
+    # at its midpoint, not on whichever row happens to come first.
+    ticks, labs, i_ = [], [], 0
+    while i_ < len(rows):
+        if i_ + 1 < len(rows) and rows[i_ + 1][0] == rows[i_][0]:
+            ticks.append((yy[i_] + yy[i_ + 1]) / 2); i_ += 2
+        else:
+            ticks.append(yy[i_]); i_ += 1
+        labs.append(rows[i_ - 1][0].replace(' @ ', ', '))
+    ax.set_yticks(ticks)
+    ax.set_yticklabels(labs, fontsize=6.6)
     # extra room at the bottom purely for the footnote, so it never lands on
     # the lowest pair of bars
     ax.set_ylim(-1.75, len(rows) - .3)
@@ -1054,6 +1093,8 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             AX[k].text(dx, 1.06, letter,
                        transform=AX[k].transAxes, fontsize=8.5,
                        fontweight='bold', family='Arial', va='bottom')
+    # NOT trim=True: it re-derives ticks and drops the categorical row
+    # labels in d and g. c's and g's overlong x-spines are fixed at source.
     sns.despine(fig=fig, offset=3)
     for ext in ('pdf', 'png'):
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.02)
