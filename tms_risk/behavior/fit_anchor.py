@@ -49,7 +49,7 @@ LABEL_RE = re.compile(
     r'(?:\+(?:weber|affine|power|genweber|spl3|spl5|spl7|spl9|cspl3|cspl5|cspl7))?)-'
     r'(null|nullind|n1|n2|n1n2|perc|mem|percmem'
     r'|pmu|psd|pmusd|n1n2pmu|n1n2psd|n1psd|n2psd|n2pmusd|n1n2pmusd'
-    r'|spsd|spmusd|percpsd|percmempsd'
+    r'|spsd|spmusd|percpsd|percpmu|percpmusd|percmempsd'
     r'|n2x|n1n2x|percx|percmemx)$')
 
 #: placement -> (memory_model, noise channels carrying the cTBS regressor,
@@ -122,6 +122,15 @@ PLACEMENT = {
     'spsd':       ('shared_perceptual_noise', [], _PSD),
     'spmusd':     ('shared_perceptual_noise', [], _PMU + _PSD),
     'percpsd':    ('shared_perceptual_noise', ['perceptual_noise_sd'], _PSD),
+    # perceptual noise PLUS a cTBS shift in where the priors sit. Unlike
+    # `psd`, a prior MEAN shift is not degenerate with noise -- it moves WHERE
+    # the percept is pulled to rather than HOW HARD -- and it is the one thing
+    # in this family that can produce a BIAS rather than a slope change. The
+    # observed risky-second effect is mostly bias (delta P = +0.053, t = 2.29;
+    # delta consistency -0.35, t = -1.01), which no noise placement reproduces.
+    'percpmu':    ('shared_perceptual_noise', ['perceptual_noise_sd'], _PMU),
+    'percpmusd':  ('shared_perceptual_noise', ['perceptual_noise_sd'],
+                   _PMU + _PSD),
     'percmempsd': ('shared_perceptual_noise',
                    ['perceptual_noise_sd', 'memory_noise_sd'], _PSD),
     # cTBS x presentation-order interaction on the noise channels
