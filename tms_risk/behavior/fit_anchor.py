@@ -45,8 +45,8 @@ PRIOR_SPEC = 'v1-2026-08-28'
 #: is only ever seen through the first-presented option, so it is identified by
 #: far less data and does not warrant the same flexibility.
 LABEL_RE = re.compile(
-    r'^(log|chf)-((?:weber|affine|power|genweber|spl3|spl5|spl7|spl9|cspl3|cspl5|cspl7)'
-    r'(?:\+(?:weber|affine|power|genweber|spl3|spl5|spl7|spl9|cspl3|cspl5|cspl7))?)-'
+    r'^(log|chf)-((?:weber|affine|power|genweber|spl3|spl4|spl5|spl6|spl7|spl9|cspl3|cspl5|cspl7)'
+    r'(?:\+(?:weber|affine|power|genweber|spl3|spl4|spl5|spl6|spl7|spl9|cspl3|cspl5|cspl7))?)-'
     r'(null|nullind|n1|n2|n1n2|perc|mem|percmem'
     r'|pmu|psd|pmusd|n1n2pmu|n1n2psd|n1psd|n2psd|n2pmusd|n1n2pmusd'
     r'|spsd|spmusd|percpsd|percpmu|percpmusd|percmempsd'
@@ -184,7 +184,7 @@ def parse_label(label):
         raise SystemExit(
             f'{label!r} is not a valid label. Grammar: <space>-<form>-'
             f'<placement>, e.g. log-affine-perc. '
-            f'space: log|chf; form: weber|affine|power|genweber|spl3|spl5; '
+            f'space: log|chf; form: weber|affine|power|genweber|spl3..spl7; '
             f'placement: {"|".join(PLACEMENT)}')
     return m.groups()
 
@@ -334,7 +334,8 @@ def apply_priors(model, df, space):
             p = PRIORS['noise']
             info['mu_intercept'] = 0.0
         elif any(t in key for t in ('_weber_', '_affine_', '_power_',
-                                    '_genweber_', '_spl3_', '_spl5_',
+                                    '_genweber_',
+                                    '_spl3_', '_spl4_', '_spl5_', '_spl6_',
                                     '_spl7_', '_spl9_',
                                     '_cspl3_', '_cspl5_', '_cspl7_')):
             p = PRIORS['noise']
