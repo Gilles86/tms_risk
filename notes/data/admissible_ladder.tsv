@@ -1,0 +1,8 @@
+trace	ok	max_rhat	min_ess_bulk	divergences	chains	draws	n_par	worst_par	family	constrained	bauer_commit	size_gb
+log-power-mem.mapjitter.klw	True	1.0	3778.0	0	8	3000	16	log_mem_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.225222415290773
+log-power-null.klw	True	1.0	2422.0	64	4	3000	16	log_mem_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	0.5116530423983932
+log-power-perc.mapjitter.klw	True	1.0	5179.0	0	8	3000	16	log_mem_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.2263157051056623
+log-power-percmem.mapjitter.klw	True	1.0	4873.0	0	8	3000	16	log_mem_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.2512472104281187
+log-power-percmemx.pathfinder.klw	True	1.01	2153.0	0	8	3000	16	log_risky_prior_sd_sd[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.3505473555997014
+log-power-percpmu.mapjitter.klw	True	1.0	11016.0	4	8	9000	16	log_mem_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	3.747936636209488
+log-power-percx.pathfinder.klw	True	1.01	2150.0	0	8	3000	16	log_risky_prior_sd_sd[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.2759285559877753

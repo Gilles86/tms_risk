@@ -203,3 +203,40 @@ reader asks them:
 4. Does it also move the priors? — `perc` vs `percpmu`
 
 and it does so without ever putting a prior-width model on the same axis.
+
+---
+
+# The admissible ladder, paired against `percpmu` (2026-09-09)
+
+`notes/data/admissible_ladder.tsv`. Prior-SD models excluded on the stated
+criterion; all seven remaining traces pass the convergence gate.
+
+| model | cTBS moves | ELPD | ΔELPD | dSE | SE |
+|---|---|---:|---:|---:|---:|
+| **percpmu** | perceptual noise + prior means | −4148.1 | — | — | ref |
+| percmemx | perc + mem noise × order | −4152.7 | 4.6 | 5.8 | 0.8 |
+| percx | perc noise × order | −4153.5 | 5.4 | 5.6 | 1.0 |
+| percmem | perc + mem noise | −4153.9 | 5.8 | 4.1 | 1.4 |
+| perc | perceptual noise only | −4155.2 | 7.1 | 4.1 | 1.7 |
+| mem | memory noise only | −4195.0 | 46.9 | 10.1 | 4.6 |
+| null | nothing | −4259.5 | 111.4 | 13.7 | 8.2 |
+
+**Read this honestly.** The ladder decisively rejects two things and arbitrates
+nothing else:
+
+* **cTBS does something** — `null` is 8.2 SE worse.
+* **It is not the memory stage alone** — `mem` is 4.6 SE worse.
+* **Everything between `perc` and `percpmu` is within 1.7 SE.** ELPD does not
+  establish that the prior mean moves, and it does not establish that the
+  order interaction is needed. `percpmu` is the top rung, but "top by 1.7 SE
+  among five models spanning 7 ELPD points" is not a selection.
+
+So the model paragraph should say: model comparison settles that the cTBS effect
+is real and that it is not confined to the memory stage; it does **not** settle
+which channel carries it, and the choice among the surviving placements rests on
+the posterior predictive checks (where `percpmu` is the only model covering all
+eight targeted statistics and 9/10 design-grid cells) and on parsimony.
+
+`spmu` — prior means only, no noise change — is still fitting (job 5712052).
+That rung is what would let the noise effect be shown to be NECESSARY rather
+than merely sufficient, and it is currently missing from this table.
