@@ -704,10 +704,17 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
               (NOISE_C, 'noise', 1.9, 4.4, '-', 'Decision noise')]
     if mech is not None:
         keys_ = ['risky', 'safe', 'ratio', 'noise']
-        his_ = [k + '_hi' for k in keys_ if k + '_hi' in mech]
-        los_ = [k + '_lo' for k in keys_ if k + '_lo' in mech]
-        hi_ = mech[his_ or keys_].max().max()
-        lo_ = mech[los_ or keys_].min().min()
+        # Every column that actually gets drawn: the band edges where a
+        # channel has one (noise, ratio), and the plain value everywhere,
+        # including the two DASHED option lines, which have no band. Taking
+        # the extent of only the banded columns (the previous form) let the
+        # dashed lines run past the axis limits used to size the legend's
+        # reserved strip below, which is exactly why the legend collided
+        # with them.
+        cols = [k_ for k_ in keys_ if k_ in mech]
+        cols += [k_ + s for k_ in keys_ for s in ('_hi', '_lo') if k_ + s in mech]
+        allv = pd.concat([mech[c_] for c_ in cols])
+        hi_, lo_ = float(allv.max()), float(allv.min())
         rng_ = hi_ - lo_
         # a slim reserved strip for the legend, and just enough headroom to
         # clear the topmost band -- the effects are a few percent, so every
@@ -1208,17 +1215,45 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # y in data coordinates.
 
 
+    # Panel letters sit a fixed distance (in POINTS) left of each axes' own
+    # top-left corner, not a fixed axes-FRACTION -- a fraction lands at a
+    # different absolute distance on every panel because axes widths differ
+    # (they even differ for the same panel between --ppc safe's 3 rows and
+    # --ppc safe_stake's 4, since constrained_layout re-solves the margins).
+    # That is what let panel a's letter collide with its own rotated y-label
+    # in one layout while clearing it in the other. Measuring how far left
+    # each axis' rendered y-tick labels + y-label actually reach and adding a
+    # fixed points-buffer is layout-agnostic by construction.
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+
+    def _letter_dx_pts(ax, buffer=4.0, lo=-42.0, hi=-6.0):
+        x0 = ax.get_window_extent(renderer=renderer).x0
+        left_px = x0
+        for tick in ax.get_yticklabels():
+            if not tick.get_visible() or not tick.get_text():
+                continue
+            bb = tick.get_window_extent(renderer=renderer)
+            if bb.width > 0:
+                left_px = min(left_px, bb.x0)
+        ylab = ax.yaxis.label
+        if ylab.get_visible() and ylab.get_text():
+            bb = ylab.get_window_extent(renderer=renderer)
+            if bb.width > 0:
+                left_px = min(left_px, bb.x0)
+        pts = (x0 - left_px) * 72 / fig.dpi + buffer
+        return float(np.clip(-pts, lo, hi))
+
     keys = list(ROW1) + ['e', 'f', 'g', 'p', 'h', 'i']
     for letter, k in zip('abcdefghi', keys):
         if k in AX and AX[k].get_visible():
-            # the 'stats' panel spans h+i and carries its labels inside, so it
-            # has no tick gutter for the letter to sit in
-            dx = (-.22 if k not in ('e', 'p') else -.34)
-            if ppc_kind == 'stats' and k == 'h':
-                dx = -.02
-            AX[k].text(dx, 1.06, letter,
-                       transform=AX[k].transAxes, fontsize=8.5,
-                       fontweight='bold', family='Arial', va='bottom')
+            ax = AX[k]
+            ann = ax.annotate(letter, xy=(0, 1), xycoords='axes fraction',
+                              xytext=(_letter_dx_pts(ax), 6),
+                              textcoords='offset points', fontsize=8.5,
+                              fontweight='bold', family='Arial', va='bottom',
+                              annotation_clip=False)
+            ann.set_in_layout(False)
     # NOT trim=True: it re-derives ticks and drops the categorical row
     # labels in d and g. c's and g's overlong x-spines are fixed at source.
     sns.despine(fig=fig, offset=3)
