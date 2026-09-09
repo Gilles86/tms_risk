@@ -240,3 +240,64 @@ eight targeted statistics and 9/10 design-grid cells) and on parsimony.
 `spmu` — prior means only, no noise change — is still fitting (job 5712052).
 That rung is what would let the noise effect be shown to be NECESSARY rather
 than merely sufficient, and it is currently missing from this table.
+
+---
+
+# Second exclusion (Gilles, 2026-09-09): the `*x` order-interaction models are out
+
+> "let's also leave out percmemx and percx. This is all too tricky."
+
+Same status as the prior-SD exclusion: an admissibility criterion, declared
+before the comparison. The `*x` models add a cTBS x presentation-order
+interaction to a STAGE-indexed noise channel, which makes the perceptual noise
+of a stimulus depend on where in the trial it happened to be shown. That is not
+a claim about perception, and in the position-indexed family the equivalent
+interaction is null anyway (`n1n2x`: +0.028, P = 0.56). Position-indexing gets
+the same order structure without an interaction term; stage-indexing should not
+buy it with one.
+
+**Admissible ladder after both exclusions** (dSE paired against `percpmu`;
+dropping rungs does not change the pairwise dELPD or dSE between the survivors,
+only the stacking weights):
+
+| model | cTBS moves | ELPD | ΔELPD | dSE | SE |
+|---|---|---:|---:|---:|---:|
+| **percpmu** | perceptual noise + prior means | −4148.1 | — | — | ref |
+| percmem | perc + mem noise | −4153.9 | 5.8 | 4.1 | 1.4 |
+| perc | perceptual noise only | −4155.2 | 7.1 | 4.1 | 1.7 |
+| mem | memory noise only | −4195.0 | 46.9 | 10.1 | 4.6 |
+| null | nothing | −4259.5 | 111.4 | 13.7 | 8.2 |
+
+Five rungs, each a claim a reader would want tested, none of them a
+reparameterisation of another.
+
+# `percmempmu` is missing and should be there
+
+> "and maybe percmempmu *should* be in there?"
+
+Yes — it is the **full model of the admissible set**. `percmem` (both noise
+channels) and `percpmu` (perceptual noise + prior means) are each nested inside
+it, and without it the ladder poses "noise or priors?" as a choice when the
+answer may be "both". Its absence is also why the current top rung is
+`percpmu`: nothing in the set is allowed to move the memory channel *and* the
+priors.
+
+Added to `PLACEMENT` in `fit_anchor.py` and submitted (job 5712320), together
+with its `power+weber` variant (Weber memory by construction, see below).
+
+# Memory noise Weber by construction
+
+> "can we make the memory effect Weber by construction btw?"
+
+Already supported: the `form1+form2` label syntax gives the two channels
+different noise forms, so `log-power+weber-percpmu` is a power law on the
+perceptual channel and a single constant on the memory one — scale-invariant in
+log space by assumption rather than by estimate. Submitted for `percpmu`,
+`perc`, `percmem`, `null` (job 5712084) and `percmempmu` (5712320).
+
+**This is a real test and it may lose.** sigma_n1 = perc + mem. With memory flat
+and perceptual rising, sigma_n1 must rise — but the baseline fit says the
+first-presented option's noise is nearly flat (b 0.081) while the second's rises
+(b 0.357), and it is precisely a FALLING memory term that reconciles those. The
+free fit does show memory falling (0.097 at 7 CHF to 0.046 at 112). So the
+constraint is testable against exactly the fact Figure 4 reports.
