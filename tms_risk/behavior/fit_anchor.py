@@ -49,7 +49,7 @@ LABEL_RE = re.compile(
     r'(?:\+(?:weber|affine|power|genweber|spl3|spl4|spl5|spl6|spl7|spl9|cspl3|cspl5|cspl7))?)-'
     r'(null|nullind|n1|n2|n1n2|perc|mem|percmem'
     r'|pmu|psd|pmusd|n1n2pmu|n1n2psd|n1psd|n2psd|n2pmusd|n1n2pmusd'
-    r'|spmu|spsd|spmusd|percpsd|percpmu|percmempmu|percpmusd|percmempsd'
+    r'|spmu|spsd|spmusd|percpsd|percpmu|percpmuso|percmempmu|percpmusd|percmempsd'
     r'|sd|sdsplit|sdtotal|sdnull|sdpmu|n2x|n1n2x|percx|percmemx)$')
 
 #: placement -> (memory_model, noise channels carrying the cTBS regressor,
@@ -153,6 +153,17 @@ PLACEMENT = {
     # `percpmu`, and therefore the full model of the admissible set (the one
     # every other admissible rung is nested inside). Without it the ladder
     # asks 'noise or priors?' when the answer may be 'both'.
+    # Does a cTBS-induced prior shift depend on WHEN the IPS session came?
+    # If cTBS degrades the evidence the magnitude prior is LEARNED from, a
+    # mis-learned prior persists into the next session, so whoever received IPS
+    # first should show the bigger shift. A NOISE effect should be transient
+    # (cTBS lasts ~30-60 min) and show no such dependence -- the prediction is a
+    # DISSOCIATION. Hence the interaction goes on the prior means ONLY: putting
+    # it on the noise channels too would spend parameters testing something the
+    # hypothesis does not predict, and would blur the contrast that makes it a
+    # dissociation.
+    'percpmuso': ('shared_perceptual_noise', ['perceptual_noise_sd'], _PMU,
+                  REG, 'stimulation_condition*ips_first'),
     'percmempmu': ('shared_perceptual_noise',
                    ['perceptual_noise_sd', 'memory_noise_sd'], _PMU),
     'percpmusd':  ('shared_perceptual_noise', ['perceptual_noise_sd'],
@@ -283,7 +294,10 @@ def build_model(label, df, role_scale=None, prior_estimate='full',
     spec = PLACEMENT[placement]
     memory_model, noise_targets, prior_targets = spec[:3]
     formula = spec[3] if len(spec) > 3 else REG
-    targets = list(noise_targets) + [f'{space}_{p}' for p in prior_targets]
+    prior_formula = spec[4] if len(spec) > 4 else formula
+    noise_t = list(noise_targets)
+    prior_t = [f'{space}_{p}' for p in prior_targets]
+    targets = noise_t + prior_t
     cls = (bm.LogAnchorNoiseRiskRegressionModel if space == 'log'
            else bm.AnchorNoiseRiskRegressionModel)
     if level_slope:
@@ -294,9 +308,22 @@ def build_model(label, df, role_scale=None, prior_estimate='full',
     kw = {} if role_scale is None else dict(role_scale=role_scale)
     if anchors is not None:
         kw['anchors'] = list(anchors)
-    model = cls(df, noise_form=form, memory_model=memory_model,
-                regressors={t: formula for t in targets},
-                prior_estimate=prior_estimate, **kw)
+    # `ips_first` is constant WITHIN a participant, so a per-subject random
+    # effect on it is non-identified (bauer warns about exactly this) and makes
+    # the between-subject variance heteroscedastic. Between-subject terms go in
+    # the population design only; the per-subject design keeps the within-
+    # subject terms it always had.
+    fixed = {t: formula for t in noise_t} | {t: prior_formula for t in prior_t}
+    between = 'ips_first'
+    random = {t: (f.split('*')[0] if between in f else f)
+              for t, f in fixed.items()}
+    if random == fixed:
+        model = cls(df, noise_form=form, memory_model=memory_model,
+                    regressors=fixed, prior_estimate=prior_estimate, **kw)
+    else:
+        model = cls(df, noise_form=form, memory_model=memory_model,
+                    fixed_regressors=fixed, random_regressors=random,
+                    prior_estimate=prior_estimate, **kw)
     apply_priors(model, df, space)
     return model
 
@@ -587,6 +614,14 @@ def main():
         df = get_data(args.bids_folder,
                       model_label=getattr(args, 'data_label', None)
                       or 'lfx2-bs3-m2-dp-bm')
+    # WHICH session carried IPS, as a per-participant covariate, for the
+    # placements that interact the cTBS effect with session order. Read from the
+    # authoritative key rather than inferred from the frame, so a participant
+    # with a missing session cannot silently flip group.
+    from tms_risk.utils.data import get_tms_conditions
+    _keys = get_tms_conditions()
+    df['ips_first'] = [_keys.get(str(s).zfill(2), {}).get(2) == 'ips'
+                       for s in df.index.get_level_values('subject')]
     anchors = (None if args.anchors is None
                else [float(a) for a in args.anchors.split(',')])
     if args.sum_coding:
