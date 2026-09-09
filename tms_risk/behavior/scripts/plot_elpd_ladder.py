@@ -52,6 +52,7 @@ mpl.rcParams.update({
 })
 
 PANELS = [
+    # a  WHERE the cTBS effect acts, noise form held at the power law
     ('Where the cTBS effect acts', [
         ('log-power-n1n2',    'Both options'),
         ('log-power-percmem', 'Perceptual + memory'),
@@ -61,15 +62,41 @@ PANELS = [
         ('log-power-mem',     'Memory only'),
         ('log-power-nullind', 'No cTBS effect'),
     ]),
+    # b  WHAT SHAPE the noise function takes, placement held at both options.
+    # Weber is the constant-nu null the paper argues against; genweber is
+    # Weber plus an additive constant; power is the reported form. The splines
+    # are NOT here -- they answer "is two anchors enough?", a different
+    # question with its own figure, and mixing three-to-five-parameter
+    # channels into a shape comparison invites the reader to read the ranking
+    # as flexibility rather than shape.
     ('Shape of the noise function', [
-        ('log-power-n1n2',     'Power law'),
-        ('log-spl3-n1n2',      'Spline, 3 knots'),
-        ('log-spl5-n1n2',      'Spline, 5 knots'),
-        ('log-genweber-n1n2',  'Generalised Weber'),
-        ('log-weber-n1n2',     "Weber, constant ν"),
-        ('log-weber-nullind',  'Weber, no cTBS effect'),
+        ('log-power-n1n2',    'Power law'),
+        ('log-affine-n1n2',   'Affine'),
+        ('log-genweber-n1n2', 'Generalised Weber'),
+        ('log-weber-n1n2',    'Weber, constant ν'),
+        ('log-weber-nullind', 'Weber, no cTBS effect'),
     ]),
 ]
+
+#: The spline family, plotted separately by `--splines`. These ask whether two
+#: anchors are enough, which is a question about RESOLUTION rather than shape:
+#: spl3 and spl5 place three and five anchors over the same payoff range, so a
+#: flat ladder here says the two-anchor power law already has the resolution
+#: the data support.
+SPLINES = [
+    ('Is two anchors enough?', [
+        ('log-power-n1n2', 'Power law, 2 anchors'),
+        ('log-spl3-n1n2',  'Spline, 3 anchors'),
+        ('log-spl5-n1n2',  'Spline, 5 anchors'),
+    ]),
+    ('… and without a cTBS effect', [
+        ('log-power-nullind', 'Power law, 2 anchors'),
+        ('log-spl3-nullind',  'Spline, 3 anchors'),
+        ('log-spl5-nullind',  'Spline, 5 anchors'),
+    ]),
+]
+
+
 
 
 #: Preference order over the sampler/init variants of one model. A bare label
@@ -102,7 +129,7 @@ def resolve(base, ld, chk):
     return (ok or cands)[0]
 
 
-def main(data_dir, out_stem, ref):
+def main(data_dir, out_stem, ref, panels=None):
     dd = Path(data_dir)
     ld = dd / 'loo_anchor'
     _chkf = dd / 'all_klw_check.tsv'
@@ -118,7 +145,7 @@ def main(data_dir, out_stem, ref):
 
     fig, AX = plt.subplots(1, 2, figsize=(7.2, 2.6), constrained_layout=True,
                            sharex=True)
-    for ax, (title, rows) in zip(AX, PANELS):
+    for ax, (title, rows) in zip(AX, panels or PANELS):
         ys, seen = [], []
         for k, (base, nm) in enumerate(rows):
             lab = resolve(base, ld, chk)
@@ -179,6 +206,10 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
     ap.add_argument('--reference', default=REF)
-    ap.add_argument('--out_stem', default=str(REPO / 'notes/figures/supp_elpd_ladder'))
+    ap.add_argument('--splines', action='store_true',
+                    help='plot the spline-resolution comparison instead')
+    ap.add_argument('--out_stem', default=None)
     a = ap.parse_args()
-    main(a.data_dir, a.out_stem, a.reference)
+    stem = a.out_stem or str(REPO / ('notes/figures/supp_elpd_'
+                                     + ('splines' if a.splines else 'ladder')))
+    main(a.data_dir, stem, a.reference, SPLINES if a.splines else PANELS)
