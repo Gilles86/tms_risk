@@ -264,7 +264,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # risky-first (RMSE .032-.035 vs .019-.023).
     rungf = dd / f'ppc_anchor/ppc_anchor.rung.{label}.tsv'
     rung = pd.read_csv(rungf, **READ) if rungf.exists() else None
-    if ppc_kind == 'ratio' and rung is None:
+    if ppc_kind in ('ratio', 'safe_ratio') and rung is None:
         ppc_kind = 'safe'
     dltf = dd / f'ppc_anchor/ppc_anchor.delta_stake.{label}.tsv'
     dlt = pd.read_csv(dltf, **READ) if dltf.exists() else None
@@ -296,7 +296,13 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # noise curves to be read; squeezing them keeps the page from running long
     hr = [1, 1, 1]
     tight = True
-    fig = plt.figure(figsize=(7.25, (2.15 if tight else 2.42) * len(hr)),
+    # 'safe_ratio' shows the same choices twice -- against the safe payoff and
+    # against the ratio -- so it gets a real fourth ROW rather than a
+    # subgridspec inside the third. Nesting collapsed the sub-axes and left
+    # the parameter panel stretched over dead space.
+    if ppc_kind == 'safe_ratio':
+        nrow, hr = 4, [1, 1, .82, .82]
+    fig = plt.figure(figsize=(7.25, (2.15 if tight else 2.42) * sum(hr)),
                      constrained_layout=True)
     fig.set_constrained_layout_pads(
         w_pad=.02 if tight else .045, h_pad=.03 if tight else .05,
@@ -343,11 +349,11 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # exists. It used to be built at the top of main(), which raised
     # UnboundLocalError for exactly the models it was written for; no such model
     # had been plotted until log-power-percpsd.
-    AX['e2'] = (AX['e'].inset_axes([0.0, 0.02, 1.0, 0.30])
-                if prior_varies else None)
+    # the cTBS effect on the priors is now printed on panel d's own rows
+    AX['e2'] = None
     AX['f'] = fig.add_subplot(gs[1, 4:8])     # mechanism, risky first
     AX['g'] = fig.add_subplot(gs[1, 8:12])    # mechanism, risky second
-    AX['p'] = fig.add_subplot(gs[2, 0:4])     # group-level parameters
+    AX['p'] = fig.add_subplot(gs[2:nrow, 0:4])  # group-level parameters
     # Model comparison and the predictive checks are NOT in this figure. They
     # answer "which model", not "what did cTBS do", and interleaving the two
     # questions made the figure hard to read. They are the supplementary figure
@@ -366,12 +372,23 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         AX['h'] = P[0, 0]
         AX['l'] = fig.add_subplot(gs[2:4, NCOL * 3:12])
     P = None
-    AX['h'] = fig.add_subplot(gs[2, 4:8])
-    # h and i plot the same quantity for the two presentation orders. They MUST
-    # share a scale: with independent limits the largest IPS-vertex gap in the
-    # figure was drawn 15% smaller than on h's scale, while i's blanked tick
-    # labels invited the reader to assume the scales matched.
-    AX['i'] = fig.add_subplot(gs[2, 8:12], sharey=AX['h'])
+    if ppc_kind == 'safe_ratio':
+        # Two views of the same choices, stacked. Against SAFE PAYOFF the
+        # ladder is collapsed, so the cTBS separation is a clean vertical gap
+        # at each of the five design levels; against the RATIO it is the
+        # psychometric function itself, which shows WHERE along the curve a
+        # misfit sits. Neither view alone answers both questions.
+        AX['h'] = fig.add_subplot(gs[2, 4:8])
+        AX['i'] = fig.add_subplot(gs[2, 8:12], sharey=AX['h'])
+        AX['h2'] = fig.add_subplot(gs[3, 4:8])
+        AX['i2'] = fig.add_subplot(gs[3, 8:12], sharey=AX['h2'])
+    else:
+        AX['h'] = fig.add_subplot(gs[2, 4:8])
+        # h and i plot the same quantity for the two presentation orders. They
+        # MUST share a scale: with independent limits the largest IPS-vertex
+        # gap in the figure was drawn 15% smaller than on h's scale, while i's
+        # blanked tick labels invited the reader to assume the scales matched.
+        AX['i'] = fig.add_subplot(gs[2, 8:12], sharey=AX['h'])
 
 
     # -- a, b: the two noise terms ---------------------------------------
@@ -492,9 +509,24 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 f'{np.exp(r.mu + r.sd):.0f})',
                 transform=ax.get_yaxis_transform(), fontsize=5.6, color=col,
                 ha='left', va='center')
+    # the cTBS effect on each prior, printed on the row it belongs to. It used
+    # to be a separate inset forest below, which needed its own axis, its own
+    # x-label and its own tick row to carry two numbers -- far more furniture
+    # than the content justified, and it crowded the panel.
+    if pcond is not None:
+        for i, (which, col) in enumerate([('risky', RISKY), ('safe', SAFE)]):
+            dq = pcond[(pcond.which == which) & (pcond.kind == 'mu')
+                       & (pcond.condition == 'delta')]
+            if len(dq) and float(dq['mid'].iloc[0]) != 0:
+                pv = float(dq['p_gt0'].iloc[0])
+                ax.text(.99, (1 - i) + .20,
+                        f'Δμ {100 * (np.exp(float(dq["mid"].iloc[0])) - 1):+.0f}%'
+                        f'  p {min(pv, 1 - pv):.2f}',
+                        transform=ax.get_yaxis_transform(), fontsize=5.6,
+                        color=col, ha='right', va='center')
     ax.set_yticks([1, 0])
     ax.set_yticklabels(['Risky', 'Safe'], fontsize=7)
-    ax.set_ylim(-3.1 if prior_varies else -.75, 1.55)
+    ax.set_ylim(-.75, 1.55)
     logx(ax)
     ax.set_title('Where the priors sit', fontsize=7.5)
     ax.set_xlabel('Payoff (CHF)')
@@ -708,7 +740,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         if k == 'f':
             ax.set_ylabel('cTBS effect (%)')
         else:
-            ax.set_yticklabels([])
+            ax.tick_params(labelleft=False)
             if mech is not None:
                 from matplotlib.lines import Line2D
                 handles = [Line2D([], [], color=col, ls=ls,
@@ -838,13 +870,71 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 ax.set_ylabel('cTBS effect on P(risky)\n(IPS − vertex, %%points)'
                               .replace('%%', '%'))
             else:
-                ax.set_yticklabels([])
+                ax.tick_params(labelleft=False)
                 glyph_key(ax, [('Observed ±1 s.e.m.', IPS, 'whisker',
                                 dict(lw=1.0)),
                                ('Model', '.2', 'line', dict(lw=1.4)),
                                ('95% predictive', '.55', 'band',
                                 dict(alpha=.18))],
                           x=.05, y=.95, dy=.095)
+    elif ppc_kind == 'safe_ratio':
+        xs = np.sort(rung.frac.unique())
+        for k, order in zip(('h', 'i'), ORDERS):
+            top, bot = AX[k], AX[k + '2']
+            # --- top: collapsed over the ladder, against the safe payoff ---
+            o = pp[pp.order == order]
+            for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
+                q = o[o.stim == stim].sort_values('n_safe')
+                top.fill_between(q.n_safe, q.lo, q.hi, color=col, alpha=.20,
+                                 lw=0, zorder=1)
+                top.plot(q.n_safe, q.model, color=col, lw=1.3, zorder=2)
+                top.plot(q.n_safe, q.observed, 'o', ms=3.6, color=col, zorder=4)
+            top.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
+            top.set_xscale('log')
+            top.set_xticks(sorted(o.n_safe.unique()))
+            top.set_xticklabels([f'{v:.0f}' for v in sorted(o.n_safe.unique())])
+            top.minorticks_off()
+            top.set_ylim(.40, .74)
+            top.set_yticks([.45, .55, .65])
+            top.set_xlabel('Safe payoff (CHF)')
+            top.set_title(order, fontsize=7.5)
+            # --- bottom: the psychometric function, against the ratio ------
+            o_ = rung[rung.order == order]
+            for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
+                q = o_[o_.stim == stim].sort_values('frac')
+                bot.fill_between(q.frac, q.lo, q.hi, color=col, alpha=.20,
+                                 lw=0, zorder=1)
+                bot.plot(q.frac, q.model, color=col, lw=1.3, zorder=2)
+                bot.plot(q.frac, q.observed, 'o', ms=3.6, color=col, zorder=4)
+            bot.axvline(1 / P_RISKY, color='0.75', lw=.7, ls=':', zorder=0)
+            bot.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
+            bot.set_xscale('log')
+            tk = [t for t in (1.5, 2, 2.5, 3) if xs.min() <= t <= xs.max()]
+            bot.set_xticks(tk)
+            bot.set_xticklabels([f'{t:g}' for t in tk])
+            bot.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+            bot.set_xlim(xs.min() * .93, xs.max() * 1.07)
+            bot.set_ylim(.15, .95)
+            bot.set_yticks([.25, .5, .75])
+            bot.set_xlabel('Risky / safe payoff')
+            if k == 'h':
+                top.set_ylabel('P(chose risky)')
+                bot.set_ylabel('P(chose risky)')
+                top.text(.04, .95, 'IPS', color=IPS, transform=top.transAxes,
+                         va='top', fontsize=7)
+                top.text(.04, .78, 'Vertex', color=VERTEX,
+                         transform=top.transAxes, va='top', fontsize=7)
+                # a RISING psychometric leaves the top-left empty
+                bot.text(1 / P_RISKY, .38, 'Risk neutral', fontsize=5.6,
+                         color='0.45', ha='center', va='bottom',
+                         rotation=90, rotation_mode='anchor')
+            else:
+                top.tick_params(labelleft=False)
+                bot.tick_params(labelleft=False)
+                glyph_key(bot, [('Observed', '0.35', 'marker', dict(ms=3.6)),
+                                ('95% predictive', '0.55', 'band',
+                                 dict(alpha=.25))],
+                          x=.55, y=.13, dy=.11, seg=.09, fs=5.6)
     elif ppc_kind == 'ratio':
         xs = np.sort(rung.frac.unique())
         for k, order in zip(('h', 'i'), ORDERS):
@@ -880,7 +970,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                         color='0.45', ha='center', va='bottom',
                         rotation=90, rotation_mode='anchor')
             else:
-                ax.set_yticklabels([])
+                ax.tick_params(labelleft=False)
                 glyph_key(ax, [('Observed', '.25', 'marker', dict(ms=3.6)),
                                ('95% predictive', '.45', 'band',
                                 dict(alpha=.20))],
@@ -971,7 +1061,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 ax.text(.04, .82, 'Vertex', color=VERTEX, transform=ax.transAxes,
                         va='top', fontsize=7)
             else:
-                ax.set_yticklabels([])
+                ax.tick_params(labelleft=False)
                 glyph_key(ax, [('Observed', '0.35', 'marker', dict(ms=3.6)),
                          ('95% predictive', '0.55', 'band', dict(alpha=.25))],
                     x=.60, y=.15, dy=.10, seg=.09, fs=5.6)
@@ -1127,7 +1217,8 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'stake', 'ratio', 'delta', 'slope', 'slope2',
+                    choices=['safe', 'safe_ratio', 'stake', 'ratio', 'delta',
+                             'slope', 'slope2',
                              'stats', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "
