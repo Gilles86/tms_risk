@@ -248,8 +248,15 @@ def main(labels, bids_folder, trace_dir, out_dir, n_draws, max_gap):
             out_sr.to_csv(out_dir / f'ppc_anchor.{fname}.{label}.tsv',
                           sep='\t', index=False)
 
+        # `safe` is the design's own grid: the five safe payoffs the task
+        # actually used, crossed with order. Unlike `rung` and `stake_bin` it
+        # needs no within-participant ranking or binning, so the cells are the
+        # same for every participant and mean exactly what the axis says --
+        # which makes it the natural pre-specified PPC set rather than a
+        # derived one.
         for name, grp in [('rung', ['order', 'rung']),
-                          ('stake', ['order', 'stake_bin'])]:
+                          ('stake', ['order', 'stake_bin']),
+                          ('safe', ['order', 'n_safe'])]:
             keys = ['subject'] + grp
             o = (d.assign(y=d['chose_risky'].astype(float))
                    .groupby(keys + ['stim'])['y'].mean().unstack('stim'))

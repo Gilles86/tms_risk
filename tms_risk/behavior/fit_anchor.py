@@ -49,7 +49,7 @@ LABEL_RE = re.compile(
     r'(?:\+(?:weber|affine|power|genweber|spl3|spl4|spl5|spl6|spl7|spl9|cspl3|cspl5|cspl7))?)-'
     r'(null|nullind|n1|n2|n1n2|perc|mem|percmem'
     r'|pmu|psd|pmusd|n1n2pmu|n1n2psd|n1psd|n2psd|n2pmusd|n1n2pmusd'
-    r'|spsd|spmusd|percpsd|percpmu|percpmusd|percmempsd'
+    r'|spmu|spsd|spmusd|percpsd|percpmu|percpmusd|percmempsd'
     r'|n2x|n1n2x|percx|percmemx)$')
 
 #: placement -> (memory_model, noise channels carrying the cTBS regressor,
@@ -119,6 +119,14 @@ PLACEMENT = {
     # markedly better conditioned (100% of Rule-A fits pass the gate against
     # 50% for the independent family) because sigma_n1 = sigma_perc +
     # sigma_mem makes sigma_n1 > sigma_n2 true by construction
+    # cTBS moves ONLY where the priors sit, with no change to the noise
+    # function. This is the null `percpmu` has to beat: without it, a prior
+    # shift alongside a noise increase cannot be shown to need the noise
+    # increase. `spsd` and `spmusd` are NOT that null -- a prior WIDTH change
+    # is degenerate with noise through the shrinkage weight
+    # sd_prior^2 / (sd_prior^2 + nu^2), so they restate the noise model in
+    # other coordinates rather than competing with it.
+    'spmu':       ('shared_perceptual_noise', [], _PMU),
     'spsd':       ('shared_perceptual_noise', [], _PSD),
     'spmusd':     ('shared_perceptual_noise', [], _PMU + _PSD),
     'percpsd':    ('shared_perceptual_noise', ['perceptual_noise_sd'], _PSD),

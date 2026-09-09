@@ -140,3 +140,66 @@ order-specificity and has to explain a prior it had to tighten to make it sample
 and one that reports a well-conditioned model set and has to explain why it
 holds priors fixed when free-prior models fit better. The second is the easier
 paper to defend at review; the first is closer to the phenomenon.
+
+---
+
+# RULING (Gilles, 2026-09-09): in the perc/mem family, prior-SD models are out
+
+> "I think if we go perc/mem we can leave out all models where the sd of the
+> prior changes."
+
+This is the right call and it should be stated as an **admissibility criterion
+declared before the comparison**, not as a result of it. The shrinkage weight is
+
+    w = sd_prior^2 / (sd_prior^2 + nu^2)
+
+so a wider prior and a lower noise level move the same quantity. A model in
+which cTBS changes the prior WIDTH is therefore not a competing account of the
+data — it is the noise account rewritten in other coordinates, and no amount of
+predictive accuracy can adjudicate between coordinates. Including such models in
+an ELPD ladder and then reporting that they win is a category error.
+
+A prior MEAN shift is different in kind: it moves WHERE the percept is pulled
+to, not HOW HARD, and it can produce a bias rather than a slope change. It stays
+in.
+
+**Excluded on this criterion (5 models):** `percmempsd`, `spmusd`, `percpsd`,
+`percpmusd`, `spsd` — which is ranks 0, 1, 2, 3 and 4 of the full ladder.
+
+**What that does to the ladder:** `percpmu` becomes the top admissible model,
+and the awkward "prior-only models tie for best" problem disappears entirely —
+not by ignoring it, but by ruling those models inadmissible on a stated
+principle. The remaining ladder is:
+
+| model | cTBS moves | ELPD |
+|---|---|---:|
+| **percpmu** | perceptual noise + prior means | **−4148.1** |
+| percmemx | perc + mem noise × order | −4152.7 |
+| percx | perc noise × order | −4153.5 |
+| percmem | perc + mem noise | −4153.9 |
+| perc | perc noise only | −4155.2 |
+| mem | mem noise only | −4195.0 |
+| null | nothing | −4259.5 |
+
+(The dSEs in the table above are paired against the FULL ladder's top model and
+must be recomputed with `percpmu` as the reference — running.)
+
+## One rung is still missing, and it is the important one
+
+Nothing in the admissible set moves the prior means **without** also moving the
+noise. Without that rung, `percpmu`'s noise effect cannot be shown to be
+necessary — a reader can ask whether the prior shift alone would have done it.
+
+`spmu` (shared family, prior means only, no noise term) has been added to
+`PLACEMENT` in `fit_anchor.py` and submitted (job 5712052). The independent
+family's `pmu` cannot serve: it fails the gate badly (r̂ 1.52, ESS 7).
+
+With `spmu` fitted, the ladder answers four questions cleanly, in the order a
+reader asks them:
+
+1. Does cTBS do anything? — `null`
+2. Does it change the noise function? — `spmu` (prior only)
+3. Is it the memory stage? — `mem`
+4. Does it also move the priors? — `perc` vs `percpmu`
+
+and it does so without ever putting a prior-width model on the same axis.
