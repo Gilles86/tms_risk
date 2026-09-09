@@ -378,3 +378,54 @@ stimulation, so putting its posterior on the noise function's SHAPE and letting
 the TMS fit estimate only the cTBS deviations is not double-dipping. It
 constrains exactly the direction the group means slide along (r = 0.97) without
 imposing an inequality the data reject.
+
+---
+
+# The final admissible ladder (2026-09-09) — `percpmu` is the reference
+
+All twelve traces pass the gate. `notes/data/ladder_final.tsv`. dSE is paired
+against rank 0.
+
+| rank | model | cTBS moves | ELPD | ΔELPD | dSE | SE |
+|---:|---|---|---:|---:|---:|---:|
+| 0 | percmempmu | perc + mem noise, prior means | −4148.09 | — | — | — |
+| 1 | **percpmu** | perc noise, prior means | −4148.10 | **0.01** | 1.15 | 0.0 |
+| 2 | power+weber-percpmu | as 1, memory Weber by construction | −4149.69 | 1.60 | 2.94 | 0.5 |
+| 3 | power+weber-percmempmu | as 0, memory Weber | −4150.36 | 2.27 | 2.53 | 0.9 |
+| 4 | percmem | perc + mem noise | −4153.92 | 5.83 | 3.91 | 1.5 |
+| 5 | power+weber-perc | perc noise, memory Weber | −4155.03 | 6.94 | 5.00 | 1.4 |
+| 6 | perc | perc noise only | −4155.19 | 7.10 | 4.24 | 1.7 |
+| 7 | power+weber-percmem | perc + mem noise, memory Weber | −4156.11 | 8.02 | 4.63 | 1.7 |
+| 8 | **spmu** | **priors only, no noise change** | −4173.81 | 25.72 | 6.84 | **3.8** |
+| 9 | mem | memory noise only | −4194.99 | 46.90 | 9.92 | **4.7** |
+| 10 | power+weber-null | nothing | −4259.05 | 110.96 | 13.90 | **8.0** |
+| 11 | null | nothing | −4259.49 | 111.40 | 13.70 | **8.1** |
+
+## What it establishes
+
+* **cTBS changes something** — `null` 8.1 SE.
+* **It is not the memory stage alone** — `mem` 4.7 SE.
+* **It is NOT the priors alone** — `spmu` **3.8 SE**. This is the rung that was
+  missing from every earlier version of the ladder, and it is the one that
+  makes the noise effect NECESSARY rather than merely sufficient. Without it
+  the paper could not rule out "cTBS only moved where the percept is pulled to".
+* **The memory channel's cTBS effect buys nothing** — `percmempmu` beats
+  `percpmu` by 0.01 ELPD (dSE 1.15). `percpmu` is nested inside it and fits
+  identically with two fewer parameters, so **`percpmu` is the reference
+  model**, chosen on parsimony against an exact tie rather than on a margin.
+
+## What it does NOT establish
+
+* **The prior-mean shift is not decisively required.** `percmem` (noise only,
+  both channels) is 5.83 ± 3.91 behind — 1.5 SE. ELPD prefers the prior shift
+  but does not establish it. What carries it is the posterior predictive: it is
+  the only model in either family covering all eight targeted statistics and
+  21 of 22 design-grid cells, and the only one covering `dp_second_mean`, the
+  size of the cTBS effect where it is largest. Report it that way round.
+* **Weber memory is free.** `power+weber-percpmu` is 1.60 ± 2.94 behind with
+  **14 parameters against 16** — indistinguishable. So the memory term's
+  payoff-dependence is not doing measurable work in the TMS cohort, even though
+  it is clearly present in the baseline (falling to 0.41x over the range). Worth
+  one sentence; not worth changing the reported model over.
+* `mem` and `spmu` carry Pareto-k warnings, so read their directions, not their
+  digits.
