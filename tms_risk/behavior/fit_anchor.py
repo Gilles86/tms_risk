@@ -544,6 +544,22 @@ def main():
                          'orthogonalises it from the contrast. NOTE the '
                          'contrast changes meaning: IPS - vertex is 2*coef[1], '
                          'not -coef[1], so extraction must be told.')
+    ap.add_argument('--init', default=None,
+                    help="pymc init scheme. 'jitter+adapt_full' adapts a DENSE "
+                         "mass matrix, which is the right remedy when the "
+                         "posterior is identified but correlated: NUTS's "
+                         "default diagonal metric is not affine-invariant, so "
+                         "a rotated posterior samples badly even though the "
+                         "model is unchanged. Costs memory quadratic in the "
+                         "number of parameters.")
+    ap.add_argument('--prior_mu_sigma', default=None, type=float,
+                    help="override PRIORS['prior_mu'] sigma_intercept and "
+                         "tau_intercept (both set to this). Default 1.00/0.75 "
+                         "in LOG CHF is a factor of 7.4x at 2 SD, and the "
+                         "posterior tau comes back LARGER than the prior "
+                         "scale. safe_prior_mu is the parameter the low noise "
+                         "anchor is confounded with, so tightening it is the "
+                         "targeted alternative to moving the anchor.")
     ap.add_argument('--anchors', default=None,
                     help='comma-separated anchor payoffs, e.g. "14,40". For '
                          '`power` this is a PURE REPARAMETERISATION -- log '
@@ -622,6 +638,10 @@ def main():
     _keys = get_tms_conditions()
     df['ips_first'] = [_keys.get(str(s).zfill(2), {}).get(2) == 'ips'
                        for s in df.index.get_level_values('subject')]
+    if args.prior_mu_sigma is not None:
+        PRIORS['prior_mu'] = dict(PRIORS['prior_mu'],
+                                  sigma_intercept=args.prior_mu_sigma,
+                                  tau_intercept=args.prior_mu_sigma)
     anchors = (None if args.anchors is None
                else [float(a) for a in args.anchors.split(',')])
     if args.sum_coding:
@@ -694,6 +714,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     model.build_estimation_model()
     kw = {} if args.find_init is None else dict(find_init=args.find_init)
+    if args.init is not None:
+        kw['init'] = args.init
     trace = model.sample(draws=args.draws, tune=args.tune, chains=args.chains,
                          target_accept=args.target_accept, **kw)
     # pymc 5.17 does not compute this by default and BaseModel.sample never
