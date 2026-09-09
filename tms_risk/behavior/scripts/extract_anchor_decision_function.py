@@ -110,7 +110,9 @@ def main(label, trace_dir, out_dir, n_ratio, thin):
     curve = _Curve([float(v) for v in a['tms_risk_anchors'].split(',')],
                    a['tms_risk_noise_form'].split('+')[0])
     names = a['tms_risk_parameters'].split(',')
-    shared = placement in SHARED
+    # by parameter names, not by a hardcoded placement list -- the list goes
+    # stale the moment a shared-family placement is added
+    shared = any('_perc_' in n for n in names)
 
     safes = np.array([7., 10., 14., 20., 28.])
     ratios = np.exp(np.linspace(np.log(1.2), np.log(3.5), n_ratio))

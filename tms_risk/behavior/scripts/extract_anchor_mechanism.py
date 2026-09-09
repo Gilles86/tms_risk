@@ -88,7 +88,14 @@ def main(label, trace_dir, bids_folder, out_dir, n_draws, level='subject'):
     space, placement = a['tms_risk_space'], a['tms_risk_placement']
     consistent = a.get('tms_risk_choice_noise', 'raw_evidence_sd') == 'consistent'
     names = a['tms_risk_parameters'].split(',')
-    shared = placement in SHARED
+    # Read the memory model off the PARAMETER NAMES rather than matching the
+    # placement against a hardcoded list. The list went stale the moment a new
+    # shared-family placement was added (`percpmu`), and the failure was an
+    # AttributeError three frames down rather than anything legible.
+    shared = any('_perc_' in n for n in names)
+    if shared != (placement in SHARED):
+        print(f'note: {placement} is {"" if shared else "not "}a shared-noise '
+              f'placement by its parameters; SHARED list says otherwise')
     subj = [str(s) for s in ds['subject'].values]
     S = ds.sizes['chain'] * ds.sizes['draw']
     keep = np.linspace(0, S - 1, min(n_draws, S)).astype(int)

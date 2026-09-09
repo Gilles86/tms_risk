@@ -59,7 +59,9 @@ def main(label, trace_dir, bids_folder, out_tsv, n_draws):
     space, placement = a['tms_risk_space'], a['tms_risk_placement']
     consistent = a.get('tms_risk_choice_noise', 'raw_evidence_sd') == 'consistent'
     names = a['tms_risk_parameters'].split(',')
-    shared = placement in SHARED
+    # by parameter names, not by a hardcoded placement list -- the list goes
+    # stale the moment a shared-family placement is added
+    shared = any('_perc_' in n for n in names)
     subj = [str(s) for s in ds['subject'].values]
     S = ds.sizes['chain'] * ds.sizes['draw']
     keep = np.linspace(0, S - 1, n_draws).astype(int)
