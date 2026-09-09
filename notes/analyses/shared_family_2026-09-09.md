@@ -336,22 +336,27 @@ Baseline fit, n = 73, no stimulation, independent family (`log-power-nullind`):
 | 112 | 0.254 | 0.268 | **−0.014** |
 
 The first-presented option is much noisier at small payoffs and the gap closes
-monotonically, crossing around 100 CHF. The crossing itself is not credible
-(the two CrIs overlap heavily: n1 [0.222, 0.293], n2 [0.232, 0.312]), but that
-is not the point — the point is that **`mem` is pressed against its floor over
-the whole upper half of the range**, and a parameter sitting on a boundary
-distorts everything estimated jointly with it. It also explains the otherwise
-odd shape in Figure 5a: the fitted memory term FALLS with magnitude
-(0.097 at 7 CHF to 0.046 at 112) because it is being squeezed toward zero.
+monotonically, crossing around 100 CHF. **But the crossing is not credible**
+(n1 [0.222, 0.293] against n2 [0.232, 0.312] at 112 CHF), and — checked against
+the fitted figure — **the memory term is nowhere near its floor**:
 
-That is why `percmem` recovers only 22% of the order asymmetry where the
-unconstrained `n1n2` recovers 40%: the constraint that buys the sampling also
-removes the freedom the asymmetry needs.
+| payoff | mem | 95% CrI |
+|---:|---:|---|
+| 7 | 0.096 | [0.064, 0.137] |
+| 28 | 0.066 | [0.049, 0.088] |
+| 112 | 0.045 | [0.026, 0.077] |
 
-**Caveat that cuts the other way:** `n1n2`'s 40% comes from a trace at
-r̂ 1.12 / ESS 42. A posterior that has not converged can produce any predictive
-it likes, so that number is a hint, not a measurement. It needs the tau_noise
-refit before it can be quoted.
+**Retraction.** An earlier version of this section claimed the `mem >= 0`
+constraint was binding over the upper half of the range and that this explained
+`percmem` recovering 22% of the order asymmetry against `n1n2`'s 40%. It is not
+binding — mem is comfortably positive at every payoff — and that explanation is
+withdrawn. The likelier story is the caveat already recorded below: `n1n2`'s 40%
+comes from a trace at r̂ 1.12 / ESS 42, and a posterior that has not converged
+can produce any predictive it likes.
+
+Which leaves the question open, and makes a pure REPARAMETERISATION (below) the
+right next test: it changes the geometry without imposing or removing any
+constraint, so if it samples it gives `n1n2`'s answer with none of the doubt.
 
 ## Proposed fix: a SIGNED memory term
 
