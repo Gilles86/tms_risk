@@ -429,3 +429,98 @@ against rank 0.
   one sentence; not worth changing the reported model over.
 * `mem` and `spmu` carry Pareto-k warnings, so read their directions, not their
   digits.
+
+---
+
+# MAJOR CORRECTION (2026-09-09, adversarial audit): n1n2 DOES fit
+
+I concluded that the position-indexed parameterisation "cannot be fitted to
+these data, in any coordinate system". **That is wrong**, and the refuting
+evidence was already on disk — some of it in a table in this repo that I wrote.
+
+Position-indexed `n1n2` fits **with the cTBS regressor**, TMS cohort, same prior
+spec and bauer commit:
+
+| label | anchors | r̂ | ESS | gate |
+|---|---:|---:|---:|:--:|
+| log-spl7-n1n2 | 7 | 1.000 | **14412** | PASS |
+| log-cspl7-n1n2 | 7 | 1.000 | **13457** | PASS |
+| log-spl6-n1n2 | 6 | 1.000 | **13226** | PASS |
+| log-cspl5-n1n2 | 5 | 1.000 | **10215** | PASS |
+| log-spl5-n1n2 | 5 | 1.000 | **2822** | PASS |
+| log-spl4-n1n2 | 4 | 1.010 | **2424** | PASS |
+| log-weber-n1n2 | 1 | 1.000 | **11129** | PASS |
+| log-power-n1n2 | 2 | 1.12 | 42 | fail |
+| log-affine-n1n2 | 2 | 1.05 | 99 | fail |
+| log-spl3-n1n2 | 3 | 1.06 | 80 | fail |
+| log-cspl3-n1n2 | 3 | 1.10 | 50 | fail |
+
+`spl5-n1n2` (r̂ 1.000 / ESS 2822) is in `notes/supp_table1.md`. It was in front of
+me the whole time.
+
+**It is not the parameterisation. It is the 2-anchor POWER form specifically**,
+and forms adjacent to it. `spl5-n1n2` has 2.5x more noise parameters than
+`power-n1n2` and was run at identical sampler settings; it gets ESS 2822 against
+42. Non-identifiability gets worse with more parameters, not better.
+
+## The failure is the noise/prior ridge, not the two channels
+
+In all ten failing traces a magnitude-prior parameter is among the three
+worst-mixing; in the eight converging `n1n2` traces none is. Per-chain means in
+`log-power-n1n2` are perfectly rank-ordered across all six worst parameters —
+one slow 1-D direction, autocorrelation ~570 draws, not multimodality. The
+direction is **noise level vs magnitude-prior location**, which is mechanical
+from the KLW rule: the posterior mean is `w·log n + (1-w)·prior_mu` with
+`w = s_p²/(s_p²+σ²)`, so raising σ and moving `prior_mu` toward the data are
+near-equivalent. `safe_prior_mu` is the weakest-identified parameter in the
+model because the safe option takes only five distinct values.
+
+Two of my own diagnostics were measuring the wrong thing: the failing fit's
+group-level condition number is **7.2, BETTER than the converging `percmem`
+fit's 10.1**, and the max marginal correlation is 0.41. The slow direction runs
+*between* the noise and prior blocks, which is a subspace the (n1, n2) rotation
+could not touch — which is why `sd` sampled worse, not better.
+
+Also checked and cleared: the anchor family applies **no softplus** (every θ is
+identity, σ = exp(Bθ)), so the softplus-of-sum concern applies only to the older
+spline family; and bauer is **already non-centred** for every group SD
+(`core.py:1486-1489`), so there is no funnel bug to fix.
+
+## The scientific consequence, which matters more than the sampling one
+
+Group cTBS effect on log σ, converged position-indexed fits:
+
+| fit | first-presented | second-presented |
+|---|---|---|
+| spl5-n1n2 | +22.3% @13 CHF (P .97) | +27.4% @13 CHF (P .93) |
+| spl7-n1n2 | +27.0% @14 (P .97) | +22.7% @14 (P .88) |
+| cspl7-n1n2 | +27.3% @14 (P .98) | +21.6% @10 (P .89) |
+| percmem (stage-indexed) | perceptual +18.3% @7 (P .96), memory null | |
+| **power-n1n2 (r̂ 1.12)** | **+3.1% @7** | **+36.7% @7 (P .99)** |
+
+**Every converged fit says a ~20-27% noise increase at low payoffs, on BOTH
+positions roughly equally.** The "the effect is on the second-presented option
+only" reading comes solely from `power-n1n2`, whose `n2_sd7` cTBS coefficient
+ranges from -0.247 to -0.345 across chains — a 40% spread in the reported effect
+size.
+
+**Everything I said in this file about `n1n2` recovering 40% of the order
+asymmetry against `percmem`'s 22% is therefore withdrawn.** That number came
+from the non-converged trace and is not a measurement. The order-asymmetry
+argument for position-indexing collapses with it.
+
+## What this changes
+
+It does not change the reported model — `percpmu` still wins the ladder and the
+PPCs — but it changes the REASON, and for the better:
+
+* **Not** "the position-indexed model cannot be fitted, so we use stages."
+* **But** "position-indexed models fit fine at four or more anchors, and when
+  they do they agree with the stage-indexed one: a ~20-25% noise increase
+  confined to low payoffs, on both presented options. We report the stage
+  parameterisation because it is more parsimonious and because the baseline
+  identifies the two stages, not because the alternative failed."
+
+That is a far stronger position, and it retires the limitation paragraph I was
+about to write. `spl5-n1n2` or `spl7-n1n2` should be reported alongside as the
+position-indexed robustness check.
