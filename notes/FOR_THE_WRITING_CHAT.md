@@ -333,3 +333,60 @@ evidence for it.
 
 Figures 1–4 and their text. The nPRF, decoding and model-free psychophysics
 results are unchanged by any of this.
+
+---
+
+# How we "know" it is perceptual — what was actually tested
+
+This is the paragraph most likely to be over-claimed, so here is exactly what
+the evidence supports. All ΔELPD are PAIRED against the reported model
+(`log-power-perc`), with the standard error of the paired difference.
+
+## Tested, and decisive
+
+| Claim | Evidence |
+|---|---|
+| cTBS moves the noise function at all | no-cTBS model **−95.5 ± 14.1** (6.8 SE) |
+| It is **not** the memory stage | memory-only **−39.8 ± 9.5** (4.2 SE) |
+| … and directly: when both channels are free, only the perceptual one moves | in `percmem`, perceptual **+20%, P = 0.992**; memory **+2%, P = 0.55** |
+| It is not confined to one presentation position | first-presented only **−19.2 ± 10.2**; second-presented only **−22.1 ± 10.5** |
+
+The memory dissociation is the strongest part of the claim and it is supported
+two independent ways: a model comparison and a null posterior on the memory
+term inside the model that contains both.
+
+## NOT resolved — do not claim it
+
+| Comparison | ΔELPD |
+|---|---|
+| perceptual vs perceptual + memory | +1.3 ± 1.5 |
+| perceptual vs both options' noise free | +4.9 ± 8.7 |
+
+The perceptual model and the free-both-options model are predictively
+indistinguishable. They are also nearly the same claim: with
+ν₁ = perceptual + memory and ν₂ = perceptual, raising the perceptual channel
+raises BOTH options and raises the second-presented one proportionally more.
+The perceptual placement is the *constrained* version that the data do not
+reject, not a winner over the free one.
+
+## Suggested wording
+
+> To ask at which stage the stimulation acted, we compared models placing the
+> cTBS effect on the perceptual encoding shared by both options, on the memory
+> trace that only the first-presented option must carry, or on both. The
+> perceptual placement was strongly preferred over the memory placement
+> (ΔELPD = 39.8, dSE 9.5), and when both channels were free to change, only the
+> perceptual one did (+20%, P(Δν > 0) = 0.992; memory +2%, P = 0.55).
+> Restricting the effect to a single presentation position fit worse in either
+> direction (first-presented ΔELPD = 19.2; second-presented 22.1). The
+> comparison does not distinguish the perceptual placement from one in which
+> both options' noise is free to change independently (ΔELPD = 4.9, dSE 8.7);
+> we report the perceptual model as the more constrained account the data do
+> not reject, and note that because σ₁ = σ_perceptual + σ_memory while
+> σ₂ = σ_perceptual, a change in perceptual noise already predicts a larger
+> proportional increase for the second-presented option.
+
+**Do not write** "we localised the effect to perceptual encoding" as though it
+beat the position-indexed alternative. It did not; it was not rejected by it,
+and it is preferred on parsimony and on sampling behaviour. Those are honest
+reasons and they should be given as such.
