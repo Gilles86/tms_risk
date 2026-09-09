@@ -50,6 +50,8 @@ import pandas as pd
 import seaborn as sns
 
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
+#: modes that split h and i into two stacked views of the SAME choices
+SPLIT_PPC = ('safe_ratio', 'safe_stake')
 
 
 def glyph_key(ax, entries, x=.04, y=.96, dy=.085, seg=.075, fs=6.0):
@@ -264,7 +266,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # risky-first (RMSE .032-.035 vs .019-.023).
     rungf = dd / f'ppc_anchor/ppc_anchor.rung.{label}.tsv'
     rung = pd.read_csv(rungf, **READ) if rungf.exists() else None
-    if ppc_kind in ('ratio', 'safe_ratio') and rung is None:
+    if ppc_kind in ('ratio', 'safe_ratio', 'safe_stake') and rung is None:
         ppc_kind = 'safe'
     dltf = dd / f'ppc_anchor/ppc_anchor.delta_stake.{label}.tsv'
     dlt = pd.read_csv(dltf, **READ) if dltf.exists() else None
@@ -300,8 +302,8 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # against the ratio -- so it gets a real fourth ROW rather than a
     # subgridspec inside the third. Nesting collapsed the sub-axes and left
     # the parameter panel stretched over dead space.
-    if ppc_kind == 'safe_ratio':
-        nrow, hr = 4, [1, 1, .82, .82]
+    if ppc_kind in SPLIT_PPC:
+        nrow, hr = 4, [1, 1, .62, .62]
     fig = plt.figure(figsize=(7.25, (2.15 if tight else 2.42) * sum(hr)),
                      constrained_layout=True)
     fig.set_constrained_layout_pads(
@@ -372,7 +374,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         AX['h'] = P[0, 0]
         AX['l'] = fig.add_subplot(gs[2:4, NCOL * 3:12])
     P = None
-    if ppc_kind == 'safe_ratio':
+    if ppc_kind in SPLIT_PPC:
         # Two views of the same choices, stacked. Against SAFE PAYOFF the
         # ladder is collapsed, so the cTBS separation is a clean vertical gap
         # at each of the five design levels; against the RATIO it is the
@@ -877,8 +879,10 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                                ('95% predictive', '.55', 'band',
                                 dict(alpha=.18))],
                           x=.05, y=.95, dy=.095)
-    elif ppc_kind == 'safe_ratio':
-        xs = np.sort(rung.frac.unique())
+    elif ppc_kind in SPLIT_PPC:
+        xs = np.sort(rung.frac.unique()) if rung is not None else np.array([1.])
+        stk = (pd.read_csv(dd / f'ppc_anchor/ppc_anchor.stake.{label}.tsv',
+                           **READ) if absf.exists() else None)
         for k, order in zip(('h', 'i'), ORDERS):
             top, bot = AX[k], AX[k + '2']
             # --- top: collapsed over the ladder, against the safe payoff ---
@@ -898,25 +902,39 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             top.set_yticks([.45, .55, .65])
             top.set_xlabel('Safe payoff (CHF)')
             top.set_title(order, fontsize=7.5)
-            # --- bottom: the psychometric function, against the ratio ------
-            o_ = rung[rung.order == order]
+            # --- bottom: the second view -------------------------------
+            if ppc_kind == 'safe_stake':
+                o_ = stk[stk.order == order].copy()
+                o_['frac'] = o_['stake_bin']
+            else:
+                o_ = rung[rung.order == order]
             for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
                 q = o_[o_.stim == stim].sort_values('frac')
                 bot.fill_between(q.frac, q.lo, q.hi, color=col, alpha=.20,
                                  lw=0, zorder=1)
                 bot.plot(q.frac, q.model, color=col, lw=1.3, zorder=2)
                 bot.plot(q.frac, q.observed, 'o', ms=3.6, color=col, zorder=4)
-            bot.axvline(1 / P_RISKY, color='0.75', lw=.7, ls=':', zorder=0)
             bot.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
-            bot.set_xscale('log')
-            tk = [t for t in (1.5, 2, 2.5, 3) if xs.min() <= t <= xs.max()]
-            bot.set_xticks(tk)
-            bot.set_xticklabels([f'{t:g}' for t in tk])
-            bot.xaxis.set_minor_locator(mpl.ticker.NullLocator())
-            bot.set_xlim(xs.min() * .93, xs.max() * 1.07)
-            bot.set_ylim(.15, .95)
-            bot.set_yticks([.25, .5, .75])
-            bot.set_xlabel('Risky / safe payoff')
+            if ppc_kind == 'safe_stake':
+                lab_ = o_.groupby('stake_bin')['stake_chf'].mean()
+                bot.set_xticks(sorted(o_.stake_bin.unique()))
+                bot.set_xticklabels([f'{lab_[v]:.0f}' for v in
+                                     sorted(o_.stake_bin.unique())])
+                bot.set_xlim(-.35, o_.stake_bin.max() + .35)
+                bot.set_ylim(.40, .74)
+                bot.set_yticks([.45, .55, .65])
+                bot.set_xlabel('Stake (CHF)')
+            else:
+                bot.axvline(1 / P_RISKY, color='0.75', lw=.7, ls=':', zorder=0)
+                bot.set_xscale('log')
+                tk = [t for t in (1.5, 2, 2.5, 3) if xs.min() <= t <= xs.max()]
+                bot.set_xticks(tk)
+                bot.set_xticklabels([f'{t:g}' for t in tk])
+                bot.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+                bot.set_xlim(xs.min() * .93, xs.max() * 1.07)
+                bot.set_ylim(.15, .95)
+                bot.set_yticks([.25, .5, .75])
+                bot.set_xlabel('Risky / safe payoff')
             if k == 'h':
                 top.set_ylabel('P(chose risky)')
                 bot.set_ylabel('P(chose risky)')
@@ -924,10 +942,11 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                          va='top', fontsize=7)
                 top.text(.04, .78, 'Vertex', color=VERTEX,
                          transform=top.transAxes, va='top', fontsize=7)
-                # a RISING psychometric leaves the top-left empty
-                bot.text(1 / P_RISKY, .38, 'Risk neutral', fontsize=5.6,
-                         color='0.45', ha='center', va='bottom',
-                         rotation=90, rotation_mode='anchor')
+                if ppc_kind == 'safe_ratio':   # only the RATIO view has one
+                    # a RISING psychometric leaves the top-left empty
+                    bot.text(1 / P_RISKY, .38, 'Risk neutral', fontsize=5.6,
+                             color='0.45', ha='center', va='bottom',
+                             rotation=90, rotation_mode='anchor')
             else:
                 top.tick_params(labelleft=False)
                 bot.tick_params(labelleft=False)
@@ -1217,8 +1236,8 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'safe_ratio', 'stake', 'ratio', 'delta',
-                             'slope', 'slope2',
+                    choices=['safe', 'safe_ratio', 'safe_stake', 'stake',
+                             'ratio', 'delta', 'slope', 'slope2',
                              'stats', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "

@@ -59,12 +59,27 @@ mpl.rcParams.update({
 })
 
 
-def load(dd, label):
-    lev = dd / f'ppc_anchor.safe.{label}.tsv'
-    dif = dd / f'ppc_anchor.delta_safe.{label}.tsv'
+#: the three complementary slices of the SAME choices. Each is a grid the
+#: design fixes, not a contrast anyone chose, and each answers a different
+#: question -- so a model has to survive all three, and the three together are
+#: much harder to pass by luck than any one of them.
+#:
+#:   safe   P(risky) against the five safe payoffs  -- WHERE in payoff space
+#:   rung   P(risky) against the risky/safe ratio   -- WHERE on the psychometric
+#:          function (the same axis as Figure 3a)
+#:   stake  P(risky) against stake terciles         -- how much is at issue
+VIEWS = {'safe': ('n_safe', 'Safe payoff (CHF)'),
+         'rung': ('frac', 'Risky / safe payoff'),
+         'stake': ('stake_bin', 'Stake tercile')}
+
+
+def load(dd, label, view='safe'):
+    xk = VIEWS[view][0]
+    lev = dd / f'ppc_anchor.{view}.{label}.tsv'
+    dif = dd / f'ppc_anchor.delta_{view}.{label}.tsv'
     if not dif.exists():
         raise SystemExit(
-            f'no delta_safe table for {label}\n  expected {dif}\n'
+            f'no delta_{view} table for {label}\n  expected {dif}\n'
             f'  re-run extract_anchor_ppc for this label -- delta_safe was '
             f'added 2026-09-09 and older extractions do not have it.')
     return (pd.read_csv(lev, **READ) if lev.exists() else None,
@@ -75,14 +90,30 @@ def covered(d):
     return ((d.observed >= d.lo) & (d.observed <= d.hi))
 
 
-def table(labels, names, data_dir):
+def table(labels, names, data_dir, views=('safe', 'rung', 'stake')):
     dd = Path(data_dir) / 'ppc_anchor'
     rows = []
     for lab, nm in zip(labels, names):
-        lev, dif = load(dd, lab)
+        lev, dif = load(dd, lab, 'safe')
         c = covered(dif)
+        # pooled across the three views: 28 cells that the design fixes
+        pooled_ok = pooled_n = 0
+        extra = {}
+        for v in views:
+            try:
+                _, dv = load(dd, lab, v)
+            except SystemExit:
+                extra[v] = '--'
+                continue
+            k = int(covered(dv).sum())
+            extra[v] = f'{k}/{len(dv)}'
+            pooled_ok += k
+            pooled_n += len(dv)
         rows.append(dict(
             model=nm,
+            **{f'{v}_cov': extra.get(v, '--') for v in views},
+            pooled=f'{pooled_ok}/{pooled_n}',
+            pooled_frac=pooled_ok / pooled_n if pooled_n else np.nan,
             delta_covered=f'{int(c.sum())}/{len(dif)}',
             level_covered=(f'{int(covered(lev).sum())}/{len(lev)}'
                            if lev is not None else '--'),
@@ -99,16 +130,17 @@ def table(labels, names, data_dir):
     return pd.DataFrame(rows)
 
 
-def figure(labels, names, data_dir, out_stem):
+def figure(labels, names, data_dir, out_stem, view='safe'):
     dd = Path(data_dir) / 'ppc_anchor'
+    xk, xlab = VIEWS[view]
     n = len(labels)
     fig, AX = plt.subplots(2, n, figsize=(1.9 * n + .8, 3.8), sharex=True,
                            sharey=True, constrained_layout=True, squeeze=False)
     for c, (lab, nm) in enumerate(zip(labels, names)):
-        _, dif = load(dd, lab)
+        _, dif = load(dd, lab, view)
         for r, order in enumerate(ORDERS):
             ax, col = AX[r, c], ROWC[order]
-            o = dif[dif.order == order].sort_values('n_safe')
+            o = dif[dif.order == order].sort_values(xk)
             x = np.arange(len(o))
             ax.axhline(0, color='.8', lw=.7, ls='--', zorder=0)
             for xi, (_, q) in zip(x, o.iterrows()):
@@ -122,12 +154,13 @@ def figure(labels, names, data_dir, out_stem):
             ax.plot(x[~inside], o.observed.values[~inside], 'o', ms=4.4,
                     color='#b2182b', zorder=5)
             ax.set_xticks(x)
-            ax.set_xticklabels([f'{v:.0f}' for v in o.n_safe])
+            ax.set_xticklabels([f'{v:.1f}'.rstrip('0').rstrip('.')
+                                for v in o[xk]])
             ax.set_ylim(-.06, .16)
             if r == 0:
                 ax.set_title(nm, fontsize=8)
             if r == 1:
-                ax.set_xlabel('Safe payoff (CHF)')
+                ax.set_xlabel(xlab)
             if c == 0:
                 ax.set_ylabel(f'{order}\nΔ P(risky), IPS − vertex')
             k = int(covered(o).sum())
@@ -156,8 +189,8 @@ def figure(labels, names, data_dir, out_stem):
     print(f'wrote {out_stem}.pdf / .png')
 
 
-def main(labels, names, data_dir, out_stem, out_tsv):
-    t = table(labels, names, data_dir)
+def main(labels, names, data_dir, out_stem, out_tsv, views):
+    t = table(labels, names, data_dir, views)
     pd.set_option('display.width', 220)
     print(t.to_string(index=False, float_format=lambda v: f'{v:+.4f}'))
     print('\n  delta_covered  of the 10 (order x safe payoff) cTBS contrasts, '
@@ -170,7 +203,11 @@ def main(labels, names, data_dir, out_stem, out_tsv):
         Path(out_tsv).parent.mkdir(parents=True, exist_ok=True)
         t.to_csv(out_tsv, sep='\t', index=False)
         print(f'\nwrote {out_tsv}')
-    figure(labels, names, data_dir, out_stem)
+    for v in views:
+        try:
+            figure(labels, names, data_dir, f'{out_stem}_{v}', v)
+        except SystemExit as e:
+            print(f'skipped {v}: {e}')
 
 
 if __name__ == '__main__':
@@ -182,5 +219,8 @@ if __name__ == '__main__':
                     default=str(REPO / 'notes/figures/ppc_design_grid'))
     ap.add_argument('--out_tsv',
                     default=str(REPO / 'notes/data/ppc_design_grid.tsv'))
+    ap.add_argument('--views', nargs='+', default=['safe', 'rung', 'stake'],
+                    choices=['safe', 'rung', 'stake'])
     a = ap.parse_args()
-    main(a.labels, a.names or a.labels, a.data_dir, a.out_stem, a.out_tsv)
+    main(a.labels, a.names or a.labels, a.data_dir, a.out_stem, a.out_tsv,
+         tuple(a.views))
