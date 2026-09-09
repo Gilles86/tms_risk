@@ -412,6 +412,30 @@ as predicted, and the order asymmetry is the paper's central behavioural fact.
 representation degrades, and does not by itself generate the dependence on
 presentation order, which remains a descriptive feature of the data.
 
+### Why the `*x` models are not the answer, despite fitting it better
+
+`percx` and `n1n2x` do reproduce about 45% of the order asymmetry, converge
+cleanly and cost nothing in ELPD. They should still not be reported, because of
+what they are: `REGX = 'stimulation_condition*risky_first'` puts presentation
+order on the noise channel **as a trial-level covariate**.
+
+For `percx` that is incoherent as a mechanism. The perceptual channel is
+*shared by both options within a trial*, so the model says the encoding noise
+for BOTH options takes one value on risky-first trials and another on
+risky-second trials, and that cTBS moves that shared value differently in the
+two trial types. There is no perceptual process that could do that: the
+observer cannot set a single encoding noise for both magnitudes according to
+which one happens to be risky.
+
+They fit the order effect better because they are handed it — the thing to be
+explained enters as a regressor. `n1_evidence_sd` and `n2_evidence_sd` index
+POSITION, which is structural (the second option must be compared against a
+memory of the first), and `perceptual`/`memory` index STAGE, which is
+structural too. `risky_first` on a shared channel indexes neither.
+
+Keep them in the supplementary table as fitted alternatives; do not build the
+account on one.
+
 **Do not write** "we localised the effect to perceptual encoding" as though it
 beat the position-indexed alternative. It did not; it was not rejected by it,
 and it is preferred on parsimony and on sampling behaviour. Those are honest
