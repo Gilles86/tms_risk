@@ -52,8 +52,12 @@ def main(bids_folder, neural_tsv, out_tsv, draws, tune, chains, seed):
     from tms_risk.behavior.fit_model import get_data
     d = get_data(bids_folder, model_label='lfx2-bs3-m2-dp-bm').reset_index()
     d['order'] = d['risky_first'].map({True: 'Risky first', False: 'Risky second'})
-    d['cell'] = (d['order'] + ' | ' + d['n_safe'].astype(str) + ' | '
-                 + d['stimulation_condition'])
+    # Cells are order x stimulation only. The safe-payoff dimension that
+    # Figure 3 uses is not needed here and made the model 20 cells over 140
+    # offset groups, which would not sample (r-hat 2.7, ESS 5, 2963
+    # divergences). "Consistency" is one slope per participant per condition,
+    # and that is exactly what this parameterisation estimates.
+    d['cell'] = d['order'] + ' | ' + d['stimulation_condition']
     d['grp'] = (d['subject'].astype(str) + ' | ' + d['order'] + ' | '
                 + d['stimulation_condition'])
     cells, groups = sorted(d.cell.unique()), sorted(d.grp.unique())
@@ -77,7 +81,7 @@ def main(bids_folder, neural_tsv, out_tsv, draws, tune, chains, seed):
         import collections
         by_cond = collections.defaultdict(list)
         for j, cc in enumerate(cells):
-            o_, _, st_ = cc.split(' | ')
+            o_, st_ = cc.split(' | ')
             by_cond[(o_, st_)].append(j)
         cond_of_grp = [tuple(g.split(' | ')[1:]) for g in groups]
         M = np.zeros((len(groups), len(cells)))
@@ -89,7 +93,7 @@ def main(bids_folder, neural_tsv, out_tsv, draws, tune, chains, seed):
         eta = a[ci] + sd_a * za[gi] + pm.math.exp(log_b[ci] + sd_b * zb[gi]) * x
         pm.Bernoulli('obs', p=pm.math.invprobit(eta), observed=y)
         idata = pm.sample(draws=draws, tune=tune, chains=chains,
-                          target_accept=.95, random_seed=seed, progressbar=False)
+                          target_accept=.98, random_seed=seed, progressbar=False)
     su = az.summary(idata, var_names=['a', 'b'] if 'b' in idata.posterior
                     else ['a', 'log_b'])
     print(f"max r-hat {su['r_hat'].max():.3f}  min ess {su['ess_bulk'].min():.0f}"
@@ -101,6 +105,23 @@ def main(bids_folder, neural_tsv, out_tsv, draws, tune, chains, seed):
     neu = pd.read_csv(neural_tsv, **READ)
     neu = neu[(neu['mask'] == MASK) & (neu['selection'] == SELECTION)]
     neu = neu.set_index('subject')[AMP].dropna()
+
+    # Sanity gate: the posterior-mean contrast must agree with the raw
+    # per-participant consistency contrast the manuscript used. If it does not,
+    # the alignment is wrong and no correlation below means anything.
+    chk = pd.read_csv(REPO / 'notes/data/bb_behavior.tsv', **READ)
+    w = chk.pivot_table(index='subject', columns='stimulation_condition',
+                        values='consistency_rsecond')
+    raw = (w['ips'] - w['vertex'])
+    _m_i = ((key.order == 'Risky second') & (key.stim == 'ips')).values
+    _m_v = ((key.order == 'Risky second') & (key.stim == 'vertex')).values
+    _si = key.subject[_m_i].values
+    _pos = {s_: j for j, s_ in enumerate(key.subject[_m_v].values)}
+    _d = (ls[_m_i] - ls[_m_v][[_pos[s_] for s_ in _si]]).mean(1)
+    _r = np.corrcoef(_d, raw.loc[[int(s_) for s_ in _si]].values)[0, 1]
+    print(f'ALIGNMENT CHECK: hierarchical vs raw consistency contrast r = {_r:+.3f}')
+    if _r < .5:
+        raise SystemExit('alignment check failed -- refusing to report a correlation')
 
     rows = []
     for order in ('Risky second', 'Risky first'):
@@ -135,8 +156,8 @@ if __name__ == '__main__':
     ap.add_argument('--neural_tsv', default=str(REPO / 'notes/data/bb_neural.tsv'))
     ap.add_argument('--out_tsv',
                     default=str(REPO / 'notes/data/bb_consistency_posterior.tsv'))
-    ap.add_argument('--draws', default=1500, type=int)
-    ap.add_argument('--tune', default=1500, type=int)
+    ap.add_argument('--draws', default=2000, type=int)
+    ap.add_argument('--tune', default=3000, type=int)
     ap.add_argument('--chains', default=4, type=int)
     ap.add_argument('--seed', default=0, type=int)
     a = ap.parse_args()

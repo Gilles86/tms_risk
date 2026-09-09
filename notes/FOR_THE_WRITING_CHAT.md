@@ -386,7 +386,26 @@ reject, not a winner over the free one.
 > σ₂ = σ_perceptual, a change in perceptual noise already predicts a larger
 > proportional increase for the second-presented option.
 
-## The order asymmetry is in the DATA, not in either model
+## The order asymmetry: `n1n2` gets a third of it, `perc` gets none
+
+**On the choice-proportion scale** — the original PPC, and the one a reader
+looks at — averaged over safe payoffs, in percentage points:
+
+| | risky first | risky second | asymmetry |
+|---|---|---|---|
+| **Observed** | +0.55 | +5.29 | **+4.74** |
+| `n1n2` (default prior) | −0.46 | +1.41 | **+1.88** (40%) |
+| `n1n2` (τ_noise 0.10) | −0.25 | +1.31 | +1.55 (33%) |
+| `perc` | +0.37 | +0.62 | **+0.25** (5%) |
+
+So `n1n2` **does** reproduce the asymmetry qualitatively: essentially nothing
+when the risky option comes first, a positive effect when it comes second. It
+is about three times too small, not absent. `perc` produces almost none.
+
+This is the honest headline for the model paragraph, and it is a better one
+than the slope-scale figure below suggests on its own.
+
+## The same thing on the slope scale, where it looks worse
 
 Measured on the psychometric slope contrast (IPS − vertex), averaged over stake
 terciles:
