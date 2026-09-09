@@ -393,11 +393,18 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         # at each of the five design levels; against the RATIO it is the
         # psychometric function itself, which shows WHERE along the curve a
         # misfit sits. Neither view alone answers both questions.
+        # rows in a column share the x-axis when they plot against the same
+        # quantity, so only the bottom row carries ticks and a label
+        _same_x = len(set(SPLIT_ROWS[ppc_kind])) and all(
+            v in ('slope', 'stake') for v in SPLIT_ROWS[ppc_kind])
         for r_ in range(len(SPLIT_ROWS[ppc_kind])):
             kh = 'h' if r_ == 0 else f'h{r_ + 1}'
             ki = 'i' if r_ == 0 else f'i{r_ + 1}'
-            AX[kh] = fig.add_subplot(gs[2 + r_, 4:8])
-            AX[ki] = fig.add_subplot(gs[2 + r_, 8:12], sharey=AX[kh])
+            AX[kh] = fig.add_subplot(
+                gs[2 + r_, 4:8], sharex=AX['h'] if (_same_x and r_) else None)
+            AX[ki] = fig.add_subplot(
+                gs[2 + r_, 8:12], sharey=AX[kh],
+                sharex=AX['i'] if (_same_x and r_) else None)
     else:
         AX['h'] = fig.add_subplot(gs[2, 4:8])
         # h and i plot the same quantity for the two presentation orders. They
@@ -977,16 +984,18 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             for r_, view in enumerate(views):
                 ax = AX[k if r_ == 0 else f'{k}{r_ + 1}']
                 _draw(ax, view, order, first=(k == 'h'))
+                if _same_x and r_ < len(views) - 1:
+                    ax.tick_params(labelbottom=False)
+                    ax.set_xlabel('')
                 if r_ == 0:
                     ax.set_title(order, fontsize=7.5)
                     if k == 'h':
-                        # the slope curves DESCEND, so their empty corner is
-                        # the lower left, not the upper left
-                        yy = .22 if view == 'slope' else .95
-                        ax.text(.04, yy, 'IPS', color=IPS,
-                                transform=ax.transAxes, va='top', fontsize=7)
-                        ax.text(.04, yy - .17, 'Vertex', color=VERTEX,
-                                transform=ax.transAxes, va='top', fontsize=7)
+                        # descending slope curves leave the LOWER left empty;
+                        # a rising/flat P(risky) leaves the UPPER left
+                        yy = .07 if view == 'slope' else .78
+                        glyph_key(ax, [('IPS', IPS, 'line', dict(lw=1.6)),
+                                       ('Vertex', VERTEX, 'line', dict(lw=1.6))],
+                                  x=.04, y=yy, dy=.15, seg=.10, fs=6.5)
                 if r_ == len(views) - 1 and k == 'i':
                     glyph_key(ax, [('Observed', '0.35', 'marker', dict(ms=3.6)),
                                    ('95% predictive', '0.55', 'band',
