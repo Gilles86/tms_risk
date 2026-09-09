@@ -135,11 +135,11 @@ def figure(labels, names, data_dir, out_stem):
                     fontsize=6.5, va='top', ha='left',
                     color='0.3' if k == len(o) else '#b2182b')
     # inline key, drawn as the marks themselves
-    ax = AX[0, 0]
+    ax = AX[0, 0]     # the low-left corner of this panel is empty
     for i, (lab_, kind) in enumerate([('Observed', 'obs'),
                                       ('Model median', 'mod'),
                                       ('95% predictive', 'band')]):
-        yy = .10 + i * .085
+        yy = .06 + i * .085
         if kind == 'band':
             ax.plot([.06, .06], [yy - .03, yy + .03], transform=ax.transAxes,
                     color='.55', lw=4, alpha=.30, solid_capstyle='butt',
