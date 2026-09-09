@@ -57,8 +57,8 @@ PANELS = [
         ('log-power-n1n2',    'Both options'),
         ('log-power-percmem', 'Perceptual + memory'),
         ('log-power-perc',    'Perceptual only'),
-        ('log-power-n2',      'Second-presented only'),
-        ('log-power-n1',      'First-presented only'),
+        ('log-power-n2',      'Second option only'),
+        ('log-power-n1',      'First option only'),
         ('log-power-mem',     'Memory only'),
         ('log-power-nullind', 'No cTBS effect'),
     ]),
@@ -72,7 +72,7 @@ PANELS = [
     ('Shape of the noise function', [
         ('log-power-n1n2',    'Power law'),
         ('log-affine-n1n2',   'Affine'),
-        ('log-genweber-n1n2', 'Generalised Weber'),
+        ('log-genweber-n1n2', 'Gen. Weber'),
         ('log-weber-n1n2',    'Weber, constant ν'),
         ('log-weber-nullind', 'Weber, no cTBS effect'),
     ]),
@@ -103,8 +103,12 @@ SPLINES = [
 #: like `log-power-perc` names a MODEL; on disk there may be several fits of it
 #: differing only in init or in a convergence-prior override, and the ladder
 #: must pick one deterministically. Converged variants win, then this order.
-VARIANTS = ['.mapjitter.klw', '.pathfinder.klw', '.klw',
-            '.mapjitter.klw.sps0.15', '.mapjitter.klw.ti0.15']
+# Sampler/init variants only. Fits under a DIFFERENT PRIOR (tn*, ti*, sps*)
+# are deliberately absent: a ladder must compare models on one prior spec, and
+# swapping in the better-mixing tau_noise fit for a single rung would make its
+# ELPD incommensurable with every other bar. The mixing of the rung that needs
+# it is reported as numbers on the row instead.
+VARIANTS = ['.mapjitter.klw', '.pathfinder.klw', '.klw']
 
 
 def resolve(base, ld, chk):
@@ -124,9 +128,12 @@ def resolve(base, ld, chk):
                 f'{base}: only a non-KLW fit is available. Refusing to mix '
                 f'choice rules in one ladder.')
         return None
-    ok = [c for c in cands
-          if bool(chk.loc[c, 'ok']) if c in chk.index]
-    return (ok or cands)[0]
+    # prefer a variant that passes; otherwise the best-mixing one, so a rung
+    # is never represented by a worse fit than exists at the same prior
+    scored = sorted(cands, key=lambda c: (
+        not (c in chk.index and bool(chk.loc[c, 'ok'])),
+        float(chk.loc[c, 'max_rhat']) if c in chk.index else 9.0))
+    return scored[0]
 
 
 def main(data_dir, out_stem, ref, panels=None):
@@ -161,30 +168,44 @@ def main(data_dir, out_stem, ref, panels=None):
                 se = float(np.std(diff, ddof=1) * np.sqrt(len(diff)))
             else:
                 continue
+            # Diagnostics, not a verdict. r_hat 1.02 / ESS 384 and r_hat 1.12 /
+            # ESS 42 are not the same object, and one label for both is
+            # misleading in whichever direction the reader happens to guess.
+            r_ = float(chk.loc[lab, 'max_rhat']) if lab in chk.index else np.nan
+            e_ = float(chk.loc[lab, 'min_ess_bulk']) if lab in chk.index else np.nan
             ok = bool(chk.loc[lab, 'ok']) if lab in chk.index else True
-            seen.append((nm, d, se, lab == ref, ok))
+            seen.append((nm, d, se, lab == ref, ok, r_, e_))
         y = np.arange(len(seen))[::-1]
         # names sit clear of the longest POSITIVE bar+whisker, so a model that
         # beats the reference does not draw its bar through its own label
-        xn = max([d + se for _, d, se, _, _ in seen] + [0]) + 5
-        for yy, (nm, d, se, is_ref, ok) in zip(y, seen):
-            col = GOOD if is_ref else (DEAD if not ok else BAD)
-            ax.barh(yy, d, height=.62, color=col, alpha=.30 if not ok else .85,
-                    lw=.8 if not ok else 0, edgecolor=col, zorder=2)
+        xn = max([r[1] + r[2] for r in seen] + [0]) + 5
+        for yy, (nm, d, se, is_ref, ok, r_, e_) in zip(y, seen):
+            # grey out only what is genuinely unusable; a near-miss keeps its
+            # ink and carries its numbers
+            poor = (not ok) and (r_ > 1.05 or e_ < 100)
+            col = GOOD if is_ref else (DEAD if poor else BAD)
+            ax.barh(yy, d, height=.62, color=col, alpha=.30 if poor else .85,
+                    lw=.8 if poor else 0, edgecolor=col, zorder=2)
             if se > 0:
-                ax.plot([d - se, d + se], [yy] * 2, color='0.2' if ok else DEAD,
+                ax.plot([d - se, d + se], [yy] * 2,
+                        color=DEAD if poor else '0.2',
                         lw=1.0, zorder=3, solid_capstyle='butt')
             txt = 'reference' if is_ref else f'{d:+.0f}'
             ax.text(min(d - se, 0) - 4, yy, txt, ha='right', va='center',
                     fontsize=7.5, color=col,
                     fontweight='bold' if is_ref else 'normal')
-            ax.text(xn, yy, nm + ('' if ok else '  (did not converge)'),
-                    fontsize=7.5, va='center',
-                    color='0.2' if ok else DEAD)
+            diag = '' if ok else f'r̂ {r_:.2f} · ESS {e_:.0f}'
+            ax.text(xn, yy, nm, fontsize=7.5, va='center',
+                    color=DEAD if poor else '0.2')
+            if diag:
+                # flush right, so it can never run into a model name
+                ax.text(.995, yy, diag.strip(), fontsize=6.4, va='center',
+                        ha='right', transform=ax.get_yaxis_transform(),
+                        color=DEAD if poor else '0.45')
         ax.axvline(0, color='0.4', lw=.9, zorder=1)
         ax.set_yticks([])
         ax.set_ylim(-1.5, len(seen) - .35)
-        ax.set_xlim(-125, 100)
+        ax.set_xlim(-125, 175)
         ax.set_xticks([-100, -50, 0])
         ax.set_title(title, fontsize=9)
         ax.set_xlabel('ELPD relative to the reported model (nats)')
