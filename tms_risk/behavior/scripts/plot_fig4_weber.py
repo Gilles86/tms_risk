@@ -71,9 +71,30 @@ def logx(ax, ticks=(7, 14, 28, 56, 112)):
     ax.xaxis.set_minor_locator(mpl.ticker.NullLocator())
 
 
+#: Which decomposition the model panels (d, e) show.
+#:
+#: 'position' -- the first- and second-presented option, what the participant
+#:     saw. Descriptive, but the fit is poorly identified: on the baseline the
+#:     independent family reaches only r_hat 1.05 / ESS 115.
+#: 'stage' -- perceptual and memory noise, sigma_n2 = perc and
+#:     sigma_n1 = perc + mem. Samples cleanly (ESS 8388) and states the result
+#:     as a claim about PROCESSING rather than serial position: the
+#:     payoff-dependence is in the perceptual stage, and the memory term runs
+#:     the other way. It is also the parameterisation Figure 5 uses, so the two
+#:     figures share coordinates.
+CHANNELS = {
+    'position': [('n1', 'First-presented'), ('n2', 'Second-presented')],
+    'stage':    [('perc', 'Perceptual'), ('mem', 'Memory')],
+}
+#: labels of the baseline fit to read, per decomposition
+BASE_LABELS = {'position': ('log-power-nullind', 'log-weber-nullind', 'nullind'),
+               'stage':    ('log-power-null', 'log-weber-null', 'null')}
+
+
 def main(data_dir, out_stem, label, weber_label, bids_folder,
-         panels='abde'):
+         panels='abde', channels='stage', curves_tsv=None):
     dd = Path(data_dir)
+    CHANS = CHANNELS[channels]
     # Panels c and f are OFF by default. c ("size of the violation") only
     # restates the -22% / -37% already printed in the insets of a and b, and f
     # ("predicted consistency") derives its slopes analytically rather than by
@@ -191,22 +212,30 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
         c_all = pd.read_csv(base, **READ)
         _g = pd.read_csv(dd / 'weber_baseline_slopes_bygroup.ses1.tsv', **READ)
         n_sub = int(_g.loc[_g.group == 'All', 'n_sub'].iloc[0])
-        label, weber_label, place_note = ('log-power-nullind',
-                                          'log-weber-nullind',
-                                          f'n = {n_sub} participants')
+        label, weber_label, _place = BASE_LABELS[channels]
+        place_note = f'n = {n_sub} participants'
     else:                                   # baseline fits not extracted yet
         c_all = pd.read_csv(dd / 'anchor_curves.tsv', **READ)
         place_note = 'TMS cohort, vertex sessions'
+    if curves_tsv:                 # e.g. the shared-family baseline extraction
+        extra = pd.read_csv(curves_tsv, **READ)
+        c_all = pd.concat([c_all[~c_all.label.isin(extra.label.unique())], extra])
+    # the shared-family baseline traces carry the `.mapjitter.klw` stamp
+    if label not in set(c_all.label) and f'{label}.mapjitter.klw' in set(c_all.label):
+        label, weber_label = f'{label}.mapjitter.klw', f'{weber_label}.mapjitter.klw'
     c = c_all[c_all.label == label]
-    lab = {'n1': 'First-presented', 'n2': 'Second-presented'}
-    for chan, col in [('n1', FIRST), ('n2', SECOND)]:
+    lab = dict(CHANS)
+    for chan, col in [(CHANS[0][0], FIRST), (CHANS[1][0], SECOND)]:
         s = c[(c.channel == chan) & (c.condition == 'vertex')].sort_values('x')
         if not len(s):
             continue
         ax.fill_between(s.x, s.lo, s.hi, color=col, alpha=.18, lw=0)
         ax.plot(s.x, s['mid'], color=col, lw=1.4)
         r = s['mid'].iloc[-1] / s['mid'].iloc[0]
-        dy = 17 if chan == 'n1' else -19
+        # both endpoints get the label ABOVE-right: the two curves end far
+        # apart (0.36 vs 0.05), so they cannot collide, and -19 pushed the
+        # falling channel's label off the bottom of the axes
+        dy = 14
         ax.annotate(f'{lab[chan]}\n{r:.2f}× over the range',
                     (s.x.iloc[-1], s['mid'].iloc[-1]),
                     xytext=(4, dy), textcoords='offset points', color=col,
@@ -234,8 +263,8 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
     # six labelled lines: that they are indistinguishable IS the result, and
     # naming each would invite the reader to look for a difference that is not
     # there. Weber is the one that separates, so it is the one that is marked.
-    for chan, ls, nm, ycol in [('n1', (0, (3, 1.8)), 'First-presented', FIRST),
-                               ('n2', '-', 'Second-presented', SECOND)]:
+    for chan, ls, nm, ycol in [(CHANS[0][0], (0, (3, 1.8)), CHANS[0][1], FIRST),
+                               (CHANS[1][0], '-', CHANS[1][1], SECOND)]:
         for f_ in forms:
             q = c_all[(c_all.label == f'log-{f_}-{place}')
                       & (c_all.channel == chan)
@@ -250,7 +279,7 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
                    & (c_all.condition == 'vertex')].sort_values('x')
         if len(q2):
             ax.annotate(nm, (q2.x.iloc[-1], q2['mid'].iloc[-1]),
-                        xytext=(5, 10 if chan == 'n2' else -10),
+                        xytext=(5, 10 if chan == CHANS[1][0] else -10),
                         textcoords='offset points', color=ycol, fontsize=7.8,
                         va='center')
     logx(ax)
@@ -341,6 +370,13 @@ if __name__ == '__main__':
     REPO = Path(__file__).resolve().parents[2].parent
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
+    ap.add_argument('--channels', default='stage', choices=list(CHANNELS),
+                    help="'stage' (perceptual/memory, the default and what "
+                         "Figure 5 uses) or 'position' (n1/n2, which does not "
+                         "sample: baseline r_hat 1.05 / ESS 115)")
+    ap.add_argument('--curves_tsv', default=None,
+                    help='extra anchor_curves TSV to merge in, e.g. the '
+                         'shared-family baseline extraction')
     # KLW labels. The old defaults -- log-power-n2psd and log-weber-n1n2 --
     # were raw-choice-rule fits, which have been archived, so this figure would
     # silently have found no curves. n2psd was also a prior-shift model, and
@@ -355,4 +391,4 @@ if __name__ == '__main__':
                          "predicted-consistency panel")
     a = ap.parse_args()
     main(a.data_dir, a.out_stem, a.model_label, a.weber_label, a.bids_folder,
-         a.panels)
+         a.panels, a.channels, a.curves_tsv)
