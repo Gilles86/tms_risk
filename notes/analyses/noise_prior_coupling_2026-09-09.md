@@ -78,3 +78,56 @@ ladder's τ_noise 0.15 and sampler, for two reasons:
 Rerun both scripts on those traces when they land. If `n1n2pmu` gives the
 safe-prior shift more per-participant reliability than `percpmu` does, the
 coupling test becomes possible; on present evidence, expect it not to.
+
+---
+
+# Convergence audit of the prior-shift family (2026-09-09, after the PPC)
+
+The PPC comparison first quoted `n1n2pmu` at ΔP +0.029 / ppp 0.06 and ELPD
+−4144. **Those numbers come from traces that fail the gate and are retracted.**
+
+| trace | r̂ | ESS | div | passes |
+|---|---:|---:|---:|:--:|
+| log-power-percpmu.mapjitter.klw | 1.000 | 11016 | 4 | **yes** |
+| log-power-percpmusd.mapjitter.klw | 1.000 | 7818 | 7 | **yes** |
+| log-power-percpsd.pathfinder.klw | 1.000 | 3224 | 1 | **yes** |
+| log-power-percmempsd.pathfinder.klw | 1.000 | 3145 | 27 | yes |
+| log-power-spmusd.pathfinder.klw | 1.000 | 3934 | 2 | **yes** |
+| log-power-spsd.pathfinder.klw | 1.000 | 4176 | 4 | **yes** |
+| log-power-pmusd.klw | 1.000 | 1779 | 26 | yes |
+| log-power-psd.klw | 1.000 | 972 | **147** | yes, but |
+| log-power-n1n2pmu.mapjitter.klw | 1.060 | 90 | 3 | **no** |
+| log-power-n1n2pmu.klw | 1.180 | 15 | 4 | **no** |
+| log-power-n1n2pmu.pathfinder.klw | 1.210 | 26 | 1 | **no** |
+| log-power-n1n2psd.klw | 1.200 | 14 | 10 | **no** |
+| log-power-n1n2psd.pathfinder.klw | 1.130 | 38 | 2 | **no** |
+| log-power-pmu.klw | 1.520 | 7 | 6 | **no** |
+
+**The split is perfectly clean along the family, not the placement.** Every
+model in the *shared* perc/mem family samples; every *position*-indexed
+(`n1n2*`) model with prior parameters fails, at every initialisation tried
+(default, mapjitter, pathfinder). The worst parameter is the same one every
+time — `log_n1_power_sd7_sd[Intercept]`, the between-participant SD of the
+first-presented option's noise at the low anchor.
+
+That is the documented geometry of the independent family: σ_n1 = σ_perc +
+σ_mem makes σ_n1 > σ_n2 true by construction in the shared family, and nothing
+enforces it in the independent one. Plain `n1n2` already needs the noise-anchor
+prior to sample (r̂ 1.12 / ESS 42 at defaults); `n1n2pmu` puts two more
+parameters into the same badly conditioned posterior.
+
+## What this leaves standing
+
+* **`percpmu` is the only converged model that both carries a prior-mean shift
+  and passes the gate.** Its PPC is therefore the one that can be quoted:
+  ΔP on risky-second +0.024 predicted against +0.053 observed, ppp 0.040 — a
+  substantial improvement on the noise-only models (n1n2 +0.013 ppp 0.005; perc
+  +0.006 ppp 0.000) but still only just inside the interval, and its
+  `order_contrast` sits exactly on the line at ppp 0.050.
+* **No converged position-indexed prior-shift model exists yet.** Job 5711934
+  fits `n1n2pmu` and `n1n2pmusd` at the ladder's τ_noise 0.15 — the same prior
+  that rescues plain `n1n2`. This is the only route to a like-for-like
+  comparison, and it is not redundant with the traces above.
+* **Do not quote any ELPD from the failing rows**, which removes `n1n2psd`
+  (−4128.3) and `n1n2pmu` (−4144.0) from the ladder. `pmusd` (−4126.2) and
+  `psd` converge but carry 26 and 147 divergences on 4 chains; refit before use.
