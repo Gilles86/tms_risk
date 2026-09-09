@@ -301,3 +301,75 @@ first-presented option's noise is nearly flat (b 0.081) while the second's rises
 (b 0.357), and it is precisely a FALLING memory term that reconciles those. The
 free fit does show memory falling (0.097 at 7 CHF to 0.046 at 112). So the
 constraint is testable against exactly the fact Figure 4 reports.
+
+---
+
+# `percmem` IS `n1n2` plus one constraint — and the constraint binds
+
+> "btw, the percmem model should be able to fit it then right? It also cannot do it."
+
+Right, and this turns out to be the crux.
+
+`bauer/models/risky_choice.py:620-625`:
+
+    sigma_n1 = perceptual_sd + memory_sd
+    sigma_n2 = perceptual_sd
+
+with **both** components softplus-positive (`:644-646`). So the map
+`perc = sigma_n2`, `mem = sigma_n1 - sigma_n2` is a bijection wherever
+`sigma_n1 > sigma_n2`, and the cTBS regressors span the same two dimensions
+(`d_sigma_n2 = d_perc`, `d_sigma_n1 = d_perc + d_mem`).
+
+**`percmem` is therefore exactly `n1n2` restricted to sigma_n1 > sigma_n2 at
+every payoff.** Same model, one inequality.
+
+## The inequality is false in the upper half of the range
+
+Baseline fit, n = 73, no stimulation, independent family (`log-power-nullind`):
+
+| payoff | sigma_n1 | sigma_n2 | n1 − n2 |
+|---:|---:|---:|---:|
+| 7 | 0.203 | 0.100 | **+0.103** |
+| 14 | 0.215 | 0.128 | +0.087 |
+| 28 | 0.227 | 0.161 | +0.066 |
+| 56 | 0.240 | 0.208 | +0.033 |
+| 112 | 0.254 | 0.268 | **−0.014** |
+
+The first-presented option is much noisier at small payoffs and the gap closes
+monotonically, crossing around 100 CHF. The crossing itself is not credible
+(the two CrIs overlap heavily: n1 [0.222, 0.293], n2 [0.232, 0.312]), but that
+is not the point — the point is that **`mem` is pressed against its floor over
+the whole upper half of the range**, and a parameter sitting on a boundary
+distorts everything estimated jointly with it. It also explains the otherwise
+odd shape in Figure 5a: the fitted memory term FALLS with magnitude
+(0.097 at 7 CHF to 0.046 at 112) because it is being squeezed toward zero.
+
+That is why `percmem` recovers only 22% of the order asymmetry where the
+unconstrained `n1n2` recovers 40%: the constraint that buys the sampling also
+removes the freedom the asymmetry needs.
+
+**Caveat that cuts the other way:** `n1n2`'s 40% comes from a trace at
+r̂ 1.12 / ESS 42. A posterior that has not converged can produce any predictive
+it likes, so that number is a hint, not a measurement. It needs the tau_noise
+refit before it can be quoted.
+
+## Proposed fix: a SIGNED memory term
+
+Keep the additive decomposition — sharing `perc` across both options is
+presumably what stabilises sampling — but drop the positivity on `mem`:
+
+    sigma_n1 = softplus(perc) + mem        # mem signed, sigma_n1 kept positive
+    sigma_n2 = softplus(perc)
+
+This sits strictly between `n1n2` (two unconstrained channels, will not sample)
+and `percmem` (ordered, samples, constraint binds). It needs a
+`memory_model='signed_memory'` branch in bauer: currently
+`free_parameters['memory_noise_sd']` carries `'transform': 'softplus'`, and
+this variant needs `'identity'` plus a positivity guard on the sum.
+
+**Alternative, if that will not sample either:** use the baseline fit as an
+informative prior. Session 1 (n = 73) is independent data collected before any
+stimulation, so putting its posterior on the noise function's SHAPE and letting
+the TMS fit estimate only the cTBS deviations is not double-dipping. It
+constrains exactly the direction the group means slide along (r = 0.97) without
+imposing an inequality the data reject.
