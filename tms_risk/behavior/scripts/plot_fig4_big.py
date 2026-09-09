@@ -240,7 +240,15 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     psy = pd.read_csv(psyf, **READ) if psyf.exists() else None
     safef = dd / f'ppc_anchor/ppc_anchor.safe.{label}.tsv'
     absf = dd / f'ppc_anchor/ppc_anchor.stake.{label}.tsv'
-    if safef.exists():
+    # 'stake' asks for the same curve against the trial's STAKE -- the mean of
+    # the two payoffs, binned into within-participant terciles -- rather than
+    # against the safe payoff. Same quantity, a different slice of the design:
+    # the safe payoff moves with the ladder, the stake with how much is at
+    # issue on the trial.
+    if ppc_kind == 'stake' and absf.exists():
+        pp, XKEY, XLAB = pd.read_csv(absf, **READ), 'stake_bin', 'Stake (CHF)'
+        ppc_kind = 'safe'
+    elif safef.exists():
         pp, XKEY, XLAB = pd.read_csv(safef, **READ), 'n_safe', 'Safe payoff (CHF)'
     elif absf.exists():
         pp, XKEY, XLAB = pd.read_csv(absf, **READ), 'stake_chf', 'Stake (CHF)'
@@ -941,10 +949,19 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 ax.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
                 ax.set_ylim(.40, .74)
                 ax.set_yticks([.45, .55, .65])
-                ax.set_xscale('log')
-                ax.set_xticks(sorted(o[XKEY].unique()))
-                ax.set_xticklabels([f'{v:.0f}' for v in sorted(o[XKEY].unique())])
-                ax.minorticks_off()
+                if XKEY == 'stake_bin':
+                    # bins are 0/1/2; label them by the mean stake they hold
+                    lab_ = o.groupby(XKEY)['stake_chf'].mean()
+                    ax.set_xticks(sorted(o[XKEY].unique()))
+                    ax.set_xticklabels([f'{lab_[v]:.0f}' for v in
+                                        sorted(o[XKEY].unique())])
+                    ax.set_xlim(-.3, o[XKEY].max() + .3)
+                else:
+                    ax.set_xscale('log')
+                    ax.set_xticks(sorted(o[XKEY].unique()))
+                    ax.set_xticklabels([f'{v:.0f}' for v in
+                                        sorted(o[XKEY].unique())])
+                    ax.minorticks_off()
             ax.set_xlabel(XLAB)
             ax.set_title(order, fontsize=7.5)
             if k == 'h':
@@ -1110,8 +1127,8 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'ratio', 'delta', 'slope', 'slope2', 'stats',
-                             'psychometric', 'psychometric2'],
+                    choices=['safe', 'stake', 'ratio', 'delta', 'slope', 'slope2',
+                             'stats', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
                          "'ratio' shows the psychometric function itself, on "
                          "Figure 3a's x-axis, one panel per order; 'delta' "
