@@ -412,6 +412,36 @@ as predicted, and the order asymmetry is the paper's central behavioural fact.
 representation degrades, and does not by itself generate the dependence on
 presentation order, which remains a descriptive feature of the data.
 
+### No model in the family does all three things
+
+Searched exhaustively. Ranked by how much of the observed order asymmetry in
+the psychometric slope (−0.094) each model reproduces:
+
+| model | converges | ΔELPD vs `perc` | order asymmetry | mechanism |
+|---|---|---|---|---|
+| `spl5-n1` | ✓ 1.010 / 855 | **−41 ± 13** | 57% | position |
+| `percx` | ✓ 1.010 / 2150 | +2 ± 4 | 45% | **none — see below** |
+| `spl3-n1` | ✓ 1.000 / 1808 | −11 ± 11 | 36% | position |
+| `n1n2` | **✗ 1.120 / 42** | +5 ± 9 | 15% | position |
+| `perc` | ✓ 1.000 / 5179 | reference | **0%** | stage |
+
+There is no model that converges, is mechanistically interpretable, is
+ELPD-competitive **and** produces the order asymmetry. The models that produce
+it either buy it with a covariate (`percx`) or pay 11–41 nats for it (`n1`
+family, which also inverts the narrative — it places the effect on the
+FIRST-presented option).
+
+**That is a result, not a failed search.** No placement of a payoff-dependent
+noise change inside this observer generates the dependence on presentation
+order. Say so.
+
+**And it does not damage the paper**, because the order asymmetry is already
+established model-free in Figure 3 — including the brain–behaviour link at
+r = 0.53, which is the strongest single result in the manuscript. Figure 5
+answers a different question: at which STAGE the representation degrades, and
+WHERE IN PAYOFF SPACE. It does not need to re-derive Figure 3 to do that, and
+claiming it does would be the overreach.
+
 ### Why the `*x` models are not the answer, despite fitting it better
 
 `percx` and `n1n2x` do reproduce about 45% of the order asymmetry, converge
