@@ -50,8 +50,20 @@ import pandas as pd
 import seaborn as sns
 
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
-#: modes that split h and i into two stacked views of the SAME choices
-SPLIT_PPC = ('safe_ratio', 'safe_stake')
+#: modes that stack SEVERAL views of the SAME choices inside h and i. Each
+#: entry lists the rows, top to bottom.
+#:
+#: `slope` is the psychometric SLOPE per stake bin -- the direct signature of a
+#: noise change, because noise is what flattens a psychometric function. The
+#: P(risky) rows show the CONSEQUENCE for choice; only the slope row shows that
+#: what changed is discriminability rather than preference.
+SPLIT_ROWS = {
+    'safe_ratio':       ('safe', 'ratio'),
+    'safe_stake':       ('safe', 'stake'),
+    'slope_stake':      ('slope', 'stake'),
+    'slope_stake_safe': ('slope', 'stake', 'safe'),
+}
+SPLIT_PPC = tuple(SPLIT_ROWS)
 
 
 def glyph_key(ax, entries, x=.04, y=.96, dy=.085, seg=.075, fs=6.0):
@@ -281,7 +293,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         ppc_kind = 'safe'
     slpf = dd / f'ppc_anchor/ppc_anchor.{_sk}.{label}.tsv'
     slp = pd.read_csv(slpf, **READ) if slpf.exists() else None
-    if ppc_kind.startswith('slope') and slp is None:
+    if (ppc_kind.startswith('slope') or ppc_kind in SPLIT_PPC) and slp is None:
         ppc_kind = 'safe'
     loo = pd.concat([pd.read_csv(f, **READ)
                      for f in glob.glob(str(dd / 'loo_anchor/loo.*.tsv'))],
@@ -303,7 +315,8 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     # subgridspec inside the third. Nesting collapsed the sub-axes and left
     # the parameter panel stretched over dead space.
     if ppc_kind in SPLIT_PPC:
-        nrow, hr = 4, [1, 1, .62, .62]
+        _n = len(SPLIT_ROWS[ppc_kind])
+        nrow, hr = 2 + _n, [1, 1] + [.52] * _n
     fig = plt.figure(figsize=(7.25, (2.15 if tight else 2.42) * sum(hr)),
                      constrained_layout=True)
     fig.set_constrained_layout_pads(
@@ -380,10 +393,11 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         # at each of the five design levels; against the RATIO it is the
         # psychometric function itself, which shows WHERE along the curve a
         # misfit sits. Neither view alone answers both questions.
-        AX['h'] = fig.add_subplot(gs[2, 4:8])
-        AX['i'] = fig.add_subplot(gs[2, 8:12], sharey=AX['h'])
-        AX['h2'] = fig.add_subplot(gs[3, 4:8])
-        AX['i2'] = fig.add_subplot(gs[3, 8:12], sharey=AX['h2'])
+        for r_ in range(len(SPLIT_ROWS[ppc_kind])):
+            kh = 'h' if r_ == 0 else f'h{r_ + 1}'
+            ki = 'i' if r_ == 0 else f'i{r_ + 1}'
+            AX[kh] = fig.add_subplot(gs[2 + r_, 4:8])
+            AX[ki] = fig.add_subplot(gs[2 + r_, 8:12], sharey=AX[kh])
     else:
         AX['h'] = fig.add_subplot(gs[2, 4:8])
         # h and i plot the same quantity for the two presentation orders. They
@@ -814,7 +828,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                        ('Model, 95% predictive', '0.62', 'bar',
                         dict(lw=4.0, alpha=.40))],
                   x=.02, y=.10, dy=.075, seg=.055)
-    elif ppc_kind.startswith('slope'):
+    elif ppc_kind in ('slope', 'slope2'):
         # The psychometric SLOPE, split by stake -- the quantity Figure 3
         # reports, so the model and the data are finally the same thing on the
         # same axis. Pooled over stake the slope contrast comes out with the
@@ -890,77 +904,94 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         xs = np.sort(rung.frac.unique()) if rung is not None else np.array([1.])
         stk = (pd.read_csv(dd / f'ppc_anchor/ppc_anchor.stake.{label}.tsv',
                            **READ) if absf.exists() else None)
-        for k, order in zip(('h', 'i'), ORDERS):
-            top, bot = AX[k], AX[k + '2']
-            # --- top: collapsed over the ladder, against the safe payoff ---
-            o = pp[pp.order == order]
+
+        def _draw(ax, view, order, first):
+            """One row of h/i. `view` names the x-axis and the quantity."""
+            if view == 'slope':
+                o_ = slp[slp.order == order]
+                xk, ycols = 'stake_bin', ('slope', 'lo', 'hi', 'observed')
+            elif view == 'stake':
+                o_, xk = stk[stk.order == order], 'stake_bin'
+                ycols = ('model', 'lo', 'hi', 'observed')
+            elif view == 'safe':
+                o_, xk = pp[pp.order == order], 'n_safe'
+                ycols = ('model', 'lo', 'hi', 'observed')
+            else:                                            # 'ratio'
+                o_, xk = rung[rung.order == order], 'frac'
+                ycols = ('model', 'lo', 'hi', 'observed')
+            m_, lo_, hi_, ob_ = ycols
             for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
-                q = o[o.stim == stim].sort_values('n_safe')
-                top.fill_between(q.n_safe, q.lo, q.hi, color=col, alpha=.20,
-                                 lw=0, zorder=1)
-                top.plot(q.n_safe, q.model, color=col, lw=1.3, zorder=2)
-                top.plot(q.n_safe, q.observed, 'o', ms=3.6, color=col, zorder=4)
-            top.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
-            top.set_xscale('log')
-            top.set_xticks(sorted(o.n_safe.unique()))
-            top.set_xticklabels([f'{v:.0f}' for v in sorted(o.n_safe.unique())])
-            top.minorticks_off()
-            top.set_ylim(.40, .74)
-            top.set_yticks([.45, .55, .65])
-            top.set_xlabel('Safe payoff (CHF)')
-            top.set_title(order, fontsize=7.5)
-            # --- bottom: the second view -------------------------------
-            if ppc_kind == 'safe_stake':
-                o_ = stk[stk.order == order].copy()
-                o_['frac'] = o_['stake_bin']
+                q = o_[o_.stim == stim].sort_values(xk)
+                ax.fill_between(q[xk], q[lo_], q[hi_], color=col, alpha=.20,
+                                lw=0, zorder=1)
+                ax.plot(q[xk], q[m_], color=col, lw=1.3, zorder=2)
+                ax.plot(q[xk], q[ob_], 'o', ms=3.6, color=col, zorder=4)
+            if view == 'slope':
+                # a slope of zero is a flat psychometric function: no
+                # discrimination at all. It is the meaningful reference here,
+                # not 0.5.
+                ax.axhline(0, color='0.88', lw=.6, ls='--', zorder=0)
             else:
-                o_ = rung[rung.order == order]
-            for stim, col in [('vertex', VERTEX), ('ips', IPS)]:
-                q = o_[o_.stim == stim].sort_values('frac')
-                bot.fill_between(q.frac, q.lo, q.hi, color=col, alpha=.20,
-                                 lw=0, zorder=1)
-                bot.plot(q.frac, q.model, color=col, lw=1.3, zorder=2)
-                bot.plot(q.frac, q.observed, 'o', ms=3.6, color=col, zorder=4)
-            bot.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
-            if ppc_kind == 'safe_stake':
+                ax.axhline(.5, color='0.88', lw=.6, ls='--', zorder=0)
+            if view in ('slope', 'stake'):
                 lab_ = o_.groupby('stake_bin')['stake_chf'].mean()
-                bot.set_xticks(sorted(o_.stake_bin.unique()))
-                bot.set_xticklabels([f'{lab_[v]:.0f}' for v in
-                                     sorted(o_.stake_bin.unique())])
-                bot.set_xlim(-.35, o_.stake_bin.max() + .35)
-                bot.set_ylim(.40, .74)
-                bot.set_yticks([.45, .55, .65])
-                bot.set_xlabel('Stake (CHF)')
+                xv = sorted(o_.stake_bin.unique())
+                ax.set_xticks(xv)
+                ax.set_xticklabels([f'{lab_[v]:.0f}' for v in xv])
+                ax.set_xlim(-.35, max(xv) + .35)
+                ax.set_xlabel('Stake (CHF)')
+                if view == 'slope':
+                    ax.set_ylim(0, .82)
+                    ax.set_yticks([0, .25, .5, .75])
+                else:
+                    ax.set_ylim(.40, .74)
+                    ax.set_yticks([.45, .55, .65])
+            elif view == 'safe':
+                ax.set_xscale('log')
+                xv = sorted(o_.n_safe.unique())
+                ax.set_xticks(xv)
+                ax.set_xticklabels([f'{v:.0f}' for v in xv])
+                ax.minorticks_off()
+                ax.set_ylim(.40, .74)
+                ax.set_yticks([.45, .55, .65])
+                ax.set_xlabel('Safe payoff (CHF)')
             else:
-                bot.axvline(1 / P_RISKY, color='0.75', lw=.7, ls=':', zorder=0)
-                bot.set_xscale('log')
+                ax.axvline(1 / P_RISKY, color='0.75', lw=.7, ls=':', zorder=0)
+                ax.set_xscale('log')
                 tk = [t for t in (1.5, 2, 2.5, 3) if xs.min() <= t <= xs.max()]
-                bot.set_xticks(tk)
-                bot.set_xticklabels([f'{t:g}' for t in tk])
-                bot.xaxis.set_minor_locator(mpl.ticker.NullLocator())
-                bot.set_xlim(xs.min() * .93, xs.max() * 1.07)
-                bot.set_ylim(.15, .95)
-                bot.set_yticks([.25, .5, .75])
-                bot.set_xlabel('Risky / safe payoff')
-            if k == 'h':
-                top.set_ylabel('P(chose risky)')
-                bot.set_ylabel('P(chose risky)')
-                top.text(.04, .95, 'IPS', color=IPS, transform=top.transAxes,
-                         va='top', fontsize=7)
-                top.text(.04, .78, 'Vertex', color=VERTEX,
-                         transform=top.transAxes, va='top', fontsize=7)
-                if ppc_kind == 'safe_ratio':   # only the RATIO view has one
-                    # a RISING psychometric leaves the top-left empty
-                    bot.text(1 / P_RISKY, .38, 'Risk neutral', fontsize=5.6,
-                             color='0.45', ha='center', va='bottom',
-                             rotation=90, rotation_mode='anchor')
+                ax.set_xticks(tk)
+                ax.set_xticklabels([f'{t:g}' for t in tk])
+                ax.xaxis.set_minor_locator(mpl.ticker.NullLocator())
+                ax.set_xlim(xs.min() * .93, xs.max() * 1.07)
+                ax.set_ylim(.15, .95)
+                ax.set_yticks([.25, .5, .75])
+                ax.set_xlabel('Risky / safe payoff')
+            if first:
+                ax.set_ylabel('Psychometric slope' if view == 'slope'
+                              else 'P(chose risky)')
             else:
-                top.tick_params(labelleft=False)
-                bot.tick_params(labelleft=False)
-                glyph_key(bot, [('Observed', '0.35', 'marker', dict(ms=3.6)),
-                                ('95% predictive', '0.55', 'band',
-                                 dict(alpha=.25))],
-                          x=.55, y=.13, dy=.11, seg=.09, fs=5.6)
+                ax.tick_params(labelleft=False)
+
+        views = SPLIT_ROWS[ppc_kind]
+        for c_, (k, order) in enumerate(zip(('h', 'i'), ORDERS)):
+            for r_, view in enumerate(views):
+                ax = AX[k if r_ == 0 else f'{k}{r_ + 1}']
+                _draw(ax, view, order, first=(k == 'h'))
+                if r_ == 0:
+                    ax.set_title(order, fontsize=7.5)
+                    if k == 'h':
+                        # the slope curves DESCEND, so their empty corner is
+                        # the lower left, not the upper left
+                        yy = .22 if view == 'slope' else .95
+                        ax.text(.04, yy, 'IPS', color=IPS,
+                                transform=ax.transAxes, va='top', fontsize=7)
+                        ax.text(.04, yy - .17, 'Vertex', color=VERTEX,
+                                transform=ax.transAxes, va='top', fontsize=7)
+                if r_ == len(views) - 1 and k == 'i':
+                    glyph_key(ax, [('Observed', '0.35', 'marker', dict(ms=3.6)),
+                                   ('95% predictive', '0.55', 'band',
+                                    dict(alpha=.25))],
+                              x=.55, y=.13, dy=.11, seg=.09, fs=5.6)
     elif ppc_kind == 'ratio':
         xs = np.sort(rung.frac.unique())
         for k, order in zip(('h', 'i'), ORDERS):
@@ -1271,7 +1302,8 @@ if __name__ == '__main__':
     ap.add_argument('--bids_folder', default='/data/ds-tmsrisk')
     ap.add_argument('--out_stem', default=None)
     ap.add_argument('--ppc', default='safe',
-                    choices=['safe', 'safe_ratio', 'safe_stake', 'stake',
+                    choices=['safe', 'safe_ratio', 'safe_stake', 'slope_stake',
+                             'slope_stake_safe', 'stake',
                              'ratio', 'delta', 'slope', 'slope2',
                              'stats', 'psychometric', 'psychometric2'],
                     help="'safe' collapses over the ratio ladder (main text); "
