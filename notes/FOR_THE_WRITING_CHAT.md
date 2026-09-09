@@ -25,52 +25,92 @@ Every model is now fitted with the consistent rule:
 there is no separate scaling coefficient `β_k`. Code: `bauer/core.py:169-197`,
 `bauer/utils/bayes.py:26-47`.
 
-## 2. The reported model changed: `perc`, not `n1n2`
+## 2. The reported model is `log-power-n1n2` — DECIDED 2026-09-09
 
-v11 reported a model with the cTBS effect on the first- and second-*presented*
-options (`n1n2`). **Under the consistent rule that model does not converge**, and
-cannot be made to: r̂ 1.12 / ESS 42, against a gate of r̂ ≤ 1.01 / ESS ≥ 400,
-across seven different remedies (tighter group SDs, three prior widths, pinned
-prior SDs, and combinations).
+**Supersedes an earlier draft of this file that named `log-power-perc`.** That
+was a convergence-driven fallback and it has been reversed on scientific
+grounds. Write `n1n2`.
 
-The reported model is now **`log-power-perc`** — one *perceptual* noise channel
-carrying the cTBS effect, plus a memory channel shared across conditions.
-r̂ 1.000, ESS 5179.
+The reported model is ⟦MODEL_NAME⟧: a power-law noise function with the cTBS
+effect free on **both presented options separately** — ν₁ for the
+first-presented option and ν₂ for the second-presented option. This is the
+*position*-indexed parameterisation.
 
-Three independent reasons this is not a retreat:
+Why this one and not the *stage*-indexed `perc` (one perceptual channel shared
+by both options plus a memory channel):
 
-* **ELPD cannot tell the candidates apart.** `n1n2x`, `percmemx`, `percx`,
-  `percmem` and `perc` all sit within 1.2 dSE of each other, so the choice falls
-  to convergence, parsimony (6 parameters) and reliability, all of which favour
-  `perc`.
-* **A converged superset agrees.** `n1n2x` (same model plus a cTBS × order
-  interaction) does converge and puts the effect in the same place.
-* **A converged flexible version agrees, more weakly.** `spl5-n1n2` (five
-  anchors) converges and gives P(Δν > 0) = 0.82.
+* **It is the only member of the family that can express the paper's central
+  behavioural fact.** The cTBS effect on choices is carried almost entirely by
+  trials where the risky option came *second*. A model whose noise channels are
+  shared across positions has no parameter that can point at one position, so it
+  predicts essentially no order asymmetry (5% of the observed one, against
+  `n1n2`'s 40% — table below). Reporting a model that structurally cannot
+  produce the effect under study, because it samples more easily, is the wrong
+  trade.
+* **ELPD cannot arbitrate.** The surviving placements sit within ⟦ELPD_UNRESOLVED⟧
+  dSE of one another. Model comparison decides that the cTBS effect is real
+  (⟦ELPD_NULL⟧ ± ⟦ELPD_NULL_DSE⟧ against no effect), that the noise function is
+  payoff-dependent (⟦ELPD_WEBER⟧ ± ⟦ELPD_WEBER_DSE⟧ against constant-ν Weber) and
+  that it is not the memory channel alone (⟦ELPD_MEM⟧ ± ⟦ELPD_MEM_DSE⟧). It does
+  **not** decide which channel carries it. Say so explicitly — it is a
+  strength of the reporting, not a gap.
+* **The `*x` interaction family is not the answer.** `percx`, `n1n2x` and
+  friends add a cTBS × presentation-order interaction on a *stage*-indexed
+  noise term. That parameterisation makes the perceptual noise of a stimulus
+  depend on where in the trial it happened to be shown, which is not a
+  perceptual claim; and in `n1n2x` the interaction itself is null (+0.028,
+  P = 0.56). Position-indexing gets the same asymmetry structurally, with no
+  extra parameter.
+
+**Convergence must be reported openly.** Under the consistent choice rule the
+default `n1n2` prior gives r̂ ⟦RHAT⟧ / ESS ⟦ESS⟧ against a gate of r̂ ≤ 1.01 and
+ESS ≥ 400. Two reparameterisations (level/slope coding, sum-to-zero contrasts)
+lifted ESS 3.4-fold without touching a prior, which locates the problem in the
+posterior geometry rather than in the model. A weakly informative half-normal on
+the *noise anchors' between-participant SDs only* (⟦TAU_PRIOR⟧) is the
+principled remedy and is being fitted now; the alternative that shrinks *all*
+group SDs is disqualified (it crushes the magnitude prior's between-subject SD
+by 56% and degrades every predictive metric). Whichever lands, state the final
+r̂/ESS and the prior in Methods. Do not report a model whose diagnostics you do
+not print.
 
 ## 3. Numbers to use
 
-`log-power-perc.mapjitter.klw`, group level, IPS − vertex:
+All tokens are defined in `notes/PLACEHOLDERS.md` with a current best estimate.
+Keep the ⟦…⟧ brackets intact; they are substituted mechanically when the final
+sweep lands.
 
-| Quantity | Value |
+`⟦MODEL_NAME⟧`, group level, IPS − vertex. The effect is on the
+**second-presented option at small payoffs**:
+
+| Quantity | Token |
 |---|---|
-| Δν, perceptual channel @ 7 CHF | **+20%**, P(Δν > 0) = **0.971** (one-sided p = 0.029) |
-| Δν, perceptual channel @ 112 CHF | −8%, P(Δν > 0) = 0.09 (not credible either way) |
-| Credible range | the effect is credible up to ≈ 14 CHF and gone by 56 |
-| Memory channel | shared across conditions in this model |
+| Δν, second-presented option @ 7 CHF | ⟦DNU7⟧, 95% CrI ⟦DNU7_CRI⟧, one-sided p = ⟦DNU7_P⟧ |
+| Δν, second-presented option @ 112 CHF | ⟦DNU_SECOND_HIGH_P⟧ (not credible either way) |
+| Δν, first-presented option | ⟦DNU_FIRST_P1⟧ / ⟦DNU_FIRST_P2⟧ — small, not credible at either anchor |
+| Participants with an increase | ⟦N_INCREASE⟧ |
+| Credible range in payoff | up to ⟦CRED_UPPER⟧ |
+
+The shape of the result is the sentence to write: **cTBS raises the
+representational noise of the option presented second, and only at small
+payoffs.** Both restrictions are informative — a global noise increase and a
+payoff-flat increase are both ruled out by the same posterior.
 
 **Trap:** `subject_params.*.tsv`'s `GROUP` row is the mean over participants of
-the per-participant contrast, which is tighter than the group-level parameter
-(P = 0.997 vs 0.971). **Report the group-level parameter** — that is what the
-figure's panel g shows.
+the per-participant contrast, which is tighter than the group-level parameter.
+**Report the group-level parameter** — that is what Figure 5's parameter panel
+shows.
 
-Model comparison, paired dELPD against the best converged model:
+Model comparison, paired ΔELPD against the reported model (full ladder in
+Supplementary Table 1, Figure S2):
 
-| Claim | Evidence |
+| Claim | Token |
 |---|---|
-| cTBS moves the noise function at all | `nullind` is **7.8 dSE** worse |
-| It is not the memory channel alone | `mem` is **4.6 dSE** worse |
-| Which channel carries it is not resolvable | top five models within **1.2 dSE** |
+| cTBS moves the noise function at all | ⟦ELPD_NULL⟧ (⟦ELPD_NULL_DSE⟧) worse without it |
+| The noise function is payoff-dependent | ⟦ELPD_WEBER⟧ (⟦ELPD_WEBER_DSE⟧) worse for constant ν |
+| It is not the memory channel alone | ⟦ELPD_MEM⟧ (⟦ELPD_MEM_DSE⟧) worse |
+| One presented option is not enough | ⟦ELPD_N1⟧ / ⟦ELPD_N2⟧ worse |
+| *Which channel* carries it is unresolved | top placements within ⟦ELPD_UNRESOLVED⟧ dSE |
 
 ## 4. Delete the model-parameter brain–behaviour correlation
 
@@ -203,27 +243,32 @@ Do not claim the model reproduces the magnitude of the behavioural effect.
 
 ## 11. What is still open — read this before writing §2, §3 or Figure 5
 
-**Which model is reported.** `log-power-n1n2` is the scientifically right model
-— it is the only one that reproduces the order asymmetry the paper is about —
-and under the consistent choice rule it does not yet sample. Status:
+**Which model is reported is settled: `log-power-n1n2` (§2).** What is not yet
+settled is the exact prior it is fitted under, and therefore the second decimal
+of every number in §3.
 
 | Route | r̂ / ESS | verdict |
 |---|---|---|
-| default prior | 1.120 / 42 | fails |
-| level/slope + sum-to-zero coding | **1.040 / 142** | fails; best legitimate result |
-| `--tau_intercept 0.10` | 1.010 / 1214 | **converges but disqualified** — it shrinks the magnitude prior's between-subject SD by 56%, against the code's own note that it must not be shrunk, and every predictive metric degrades |
-| `--tau_noise` (noise anchors only) | running | the principled attempt |
+| default prior | 1.120 / 42 | fails the gate |
+| level/slope + sum-to-zero coding | 1.040 / 142 | fails; best result with no prior change |
+| `--tau_intercept 0.10` (all group SDs) | 1.010 / 1214 | **converges but disqualified** — shrinks the magnitude prior's between-subject SD by 56%, against the code's own note that it must not be shrunk, and every predictive metric degrades |
+| `--tau_noise` (noise anchors only) | fitting | the principled attempt; τ ∈ {0.10, 0.15, 0.20} |
 
-Gate is r̂ ≤ 1.01 and ESS ≥ 400. The reparameterisations lifted ESS 3.4-fold
-without touching a single prior, which confirms the problem is geometry rather
-than the model — but 142 is still short.
+Reassuringly, the effect does not move with τ: Δν on the second-presented
+option at 7 CHF is +40% (default), +28% (τ_noise 0.10), +25% (τ_intercept 0.10),
+with P(Δν > 0) = 0.996 / 0.985 / 0.994. **The prior decision changes the
+magnitude by a few points, not the sign, the position, or the payoff
+localisation.** So §2 and §3 can be written now; only the digits move.
 
-**So:** everything in §1 and §4–§10 is settled and can be written now. §2 (which
-model), §3 (the Δν numbers) and Figure 5's numbers are provisional. If
-`--tau_noise` converges they stand as written with new values; if it does not,
-the choice is between reporting `n1n2` with its diagnostics stated openly and
-falling back to `log-power-perc`, which converges cleanly but cannot express the
-order asymmetry (§2).
+**Also pending, and tokenised:** the full ELPD ladder (11 models refitting under
+one prior and one sampler, so every ΔELPD in Supp. Table 1 is commensurable),
+the spline ladder for Figure S4, and the brain–behaviour posterior interval
+⟦BB_INTERVAL⟧ (its first hierarchical fit did not converge; leave that clause
+tokenised and write no number).
+
+**Settled and writable in full right now:** §1 (the choice rule), §4–§10, all of
+Methods, Participants, the reliability paragraph, the prior-shift justification
+and the two limitation sentences.
 
 ---
 
@@ -340,7 +385,12 @@ results are unchanged by any of this.
 
 This is the paragraph most likely to be over-claimed, so here is exactly what
 the evidence supports. All ΔELPD are PAIRED against the reported model
-(`log-power-perc`), with the standard error of the paired difference.
+(⟦MODEL_NAME⟧ = `log-power-n1n2`, §2), with the standard error of the paired
+difference. NOTE: the numbers in the tables below were computed against
+`log-power-perc`, the earlier candidate; the *directions* and the qualitative
+conclusions carry over unchanged, but every value is re-derived on the final
+one-prior sweep and is tokenised in `notes/PLACEHOLDERS.md`. Write the argument,
+not the digits.
 
 ## Tested, and decisive
 
@@ -381,10 +431,9 @@ reject, not a winner over the free one.
 > direction (first-presented ΔELPD = 19.2; second-presented 22.1). The
 > comparison does not distinguish the perceptual placement from one in which
 > both options' noise is free to change independently (ΔELPD = 4.9, dSE 8.7);
-> we report the perceptual model as the more constrained account the data do
-> not reject, and note that because σ₁ = σ_perceptual + σ_memory while
-> σ₂ = σ_perceptual, a change in perceptual noise already predicts a larger
-> proportional increase for the second-presented option.
+> we therefore report the model in which both presented options' noise is free,
+> which is the account that can express the order dependence, and state that the
+> comparison does not adjudicate between the two.
 
 ## The order asymmetry: `n1n2` gets a third of it, `perc` gets none
 
@@ -427,9 +476,15 @@ order contrast is wide (perc: observed −0.094 against [−0.128, +0.146],
 p = 0.917; n1n2 [−0.158, +0.130], p = 0.840). But not-rejected is not the same
 as predicted, and the order asymmetry is the paper's central behavioural fact.
 
-**Write it as a limitation**: the model localises where in payoff space the
-representation degrades, and does not by itself generate the dependence on
-presentation order, which remains a descriptive feature of the data.
+**Write it as a partial success, then a limitation.** On the scale a reader
+reads — choice proportions — the model gets the *shape* of the order dependence
+right and about ⟦ASYM_FRACTION⟧ of its size: near-zero when the risky option
+comes first, positive when it comes second. It underpredicts the magnitude
+(⟦ASYM_MODEL⟧ against an observed ⟦ASYM_OBS⟧), and on the slope scale the
+asymmetry largely washes out because the decision SD mixes both options. So:
+the model reproduces the pattern and localises it in payoff space, but
+underpredicts how large the behavioural consequence is. Do not write that it
+fails to generate the order dependence — it generates it, too weakly.
 
 ### No model in the family does all three things
 

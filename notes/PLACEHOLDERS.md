@@ -13,7 +13,7 @@ none of them changes a sign or a conclusion.
 
 | token | current | status |
 |---|---|---|
-| ⟦MODEL_NAME⟧ | power-law PMCM with cTBS on both presented options | pending |
+| ⟦MODEL_NAME⟧ | power-law PMCM with cTBS free on both presented options (`log-power-n1n2`) | **FINAL** — the model choice is decided; only its prior is pending |
 | ⟦RHAT⟧ / ⟦ESS⟧ | 1.02 / 384 | pending — must clear 1.01 / 400 or be reported with the prior in Methods |
 | ⟦DNU7⟧ | 0.029 log units | pending |
 | ⟦DNU7_CRI⟧ | [0.002, 0.057] | pending |
@@ -49,6 +49,7 @@ none of them changes a sign or a conclusion.
 | ⟦PPC_FRACTION⟧ | about a quarter | pending |
 | ⟦PPC_CELLS⟧ / ⟦PPC_R⟧ / ⟦PPC_COVERAGE⟧ | 420 / 0.93 / 97% | pending |
 | ⟦ASYM_OBS⟧ / ⟦ASYM_MODEL⟧ | +4.7 / +1.9 percentage points | pending |
+| ⟦ASYM_FRACTION⟧ | 40% (33% under τ_noise 0.10) | pending |
 
 ## Results — brain and behaviour
 

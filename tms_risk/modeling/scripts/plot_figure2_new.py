@@ -10,7 +10,7 @@
        reproduces the published 0.142 vs 0.092, p = 0.032)
     D  Held-out cvR2 per encoding model vs the training-mean null
     E  Fraction of ROI voxels beating the null
-    F  Paired per-subject contrast against the canonical model (m1)
+    F  Paired per-subject contrast against the amplitude model (m1, the canonical fit)
 
 Color semantics: red = IPS (stimulated), green = vertex, everywhere. The bottom-row
 models therefore do NOT use red: canonical near-black, tuning (mu+sd) blue, response
@@ -196,7 +196,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
         grid[grid.model == CANONICAL].set_index('subject').cvr2,
         grid[grid.model == CANONICAL].set_index('subject')['null'])
     axD.set_ylim(top=0.13)
-    axD.text(0.97, 0.97, f'Canonical model best\nt(34) = {tD:.2f}, p = {pD:.3f}',
+    axD.text(0.97, 0.97, f'Amplitude model best\nt(34) = {tD:.2f}, p = {pD:.3f}',
              transform=axD.transAxes, fontsize=7, color='0.3', va='top', ha='right')
     letters['D'] = axD
 
@@ -220,8 +220,8 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
         ptxt = f'{p:.3f}'.lstrip('0') if p >= .001 else '<.001'
         axF.text(i, 1.01, f'p {ptxt}', transform=axF.get_xaxis_transform(),
                  ha='center', va='bottom', fontsize=6.5, color='.35')
-    axF.set_title('Versus the canonical model', pad=16)
-    axF.set_ylabel('Δ cvR² (model − canonical)')
+    axF.set_title('Versus the amplitude model', pad=16)
+    axF.set_ylabel('Δ cvR² (model − amplitude)')
     letters['F'] = axF
 
     # ------------------------------------------------------------- finishing
