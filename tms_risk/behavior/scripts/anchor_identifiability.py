@@ -13,14 +13,24 @@ matters for how the paper words it. Run on `log-power-n1n2.mapjitter.klw`:
     GROUP level (the _mu's)  every pair   r = +0.96 to +0.98
 
 So per participant the two channels are fine -- they are not trading off. The
-ridge is at the GROUP level: the four group means (n1@7, n1@112, n2@7, n2@112)
-slide together almost perfectly, so the data pin the overall noise LEVEL
-tightly and barely say which channel or which anchor carries it. That is why
-the worst-mixing parameter is always a between-participant SD
-(`log_n1_power_sd7_sd[Intercept]`), why a prior on the group SDs (`--tau_noise`)
-rescues sampling, and why the shared family samples unaided: sigma_n1 =
-sigma_perc + sigma_mem with sigma_mem >= 0 makes sigma_n1 > sigma_n2 true by
-construction, which cuts exactly the direction the four means slide along.
+ridge is at the GROUP level: the four group means slide together almost
+perfectly, so the data pin the overall noise LEVEL tightly and barely say which
+channel or which anchor carries it.
+
+BUT that ridge is NOT what separates the two families. Run on
+`log-power-percmem.mapjitter.klw`, which samples without help, every group-mean
+pair correlates at r = 0.97-0.98 as well. So "the group means are collinear" is
+true of both and cannot be the reason one mixes and the other does not.
+
+What actually differs is where the failure lands: in every non-sampling
+independent-family fit the worst parameter is a BETWEEN-PARTICIPANT SD --
+`log_n1_power_sd7_sd[Intercept]`, never a mean. The independent family has
+nothing ordering its two channels, while the shared one has sigma_n1 =
+sigma_perc + sigma_mem with sigma_mem >= 0, so sigma_n1 > sigma_n2 holds by
+construction. That ordering is the leading candidate for the difference, and it
+is consistent with the failure being in a variance component rather than a
+location -- but it has not been demonstrated here, only narrowed to. To settle
+it, compare the posteriors of the *_sd parameters between the two families.
 
     python -m tms_risk.behavior.scripts.anchor_identifiability \\
         <trace_dir>/model-log-power-n1n2.mapjitter.klw_trace.netcdf
