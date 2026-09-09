@@ -386,6 +386,32 @@ reject, not a winner over the free one.
 > σ₂ = σ_perceptual, a change in perceptual noise already predicts a larger
 > proportional increase for the second-presented option.
 
+## The order asymmetry is in the DATA, not in either model
+
+Measured on the psychometric slope contrast (IPS − vertex), averaged over stake
+terciles:
+
+| | risky first | risky second | second − first |
+|---|---|---|---|
+| **Observed** | −0.017 | −0.123 | **−0.106** |
+| `perc` model | −0.053 | −0.045 | **+0.008** |
+| `n1n2` model | −0.031 | −0.047 | −0.016 |
+
+**`perc` predicts no order asymmetry at all**, and `n1n2` predicts about 15% of
+the observed one. The composition argument — that ν₁ = perceptual + memory and
+ν₂ = perceptual should make the second-presented option suffer more — does not
+survive measurement: the decision SD mixes both options, so the proportional
+difference does not reach the slope.
+
+Neither model is *rejected* on this: the posterior predictive interval on the
+order contrast is wide (perc: observed −0.094 against [−0.128, +0.146],
+p = 0.917; n1n2 [−0.158, +0.130], p = 0.840). But not-rejected is not the same
+as predicted, and the order asymmetry is the paper's central behavioural fact.
+
+**Write it as a limitation**: the model localises where in payoff space the
+representation degrades, and does not by itself generate the dependence on
+presentation order, which remains a descriptive feature of the data.
+
 **Do not write** "we localised the effect to perceptual encoding" as though it
 beat the position-indexed alternative. It did not; it was not rejected by it,
 and it is preferred on parsimony and on sampling behaviour. Those are honest
