@@ -174,9 +174,13 @@ def main(data_dir, out_stem, label, mech_level, bids_folder, panel_f='slope'):
     dd = Path(data_dir)
     c = pd.read_csv(dd / 'anchor_curves.tsv', **READ)
     c = c[c.label == label]
-    chans = [ch for ch in ('n1', 'n2', 'perc', 'mem') if ch in set(c.channel)]
-    NAME = {'n1': 'First-presented', 'n2': 'Second-presented',
-            'perc': 'Perceptual', 'mem': 'Memory'}
+    # Plot the two OPTIONS, not the internal channels. The shared
+    # parameterisation writes sigma_n1 = perceptual + memory and
+    # sigma_n2 = perceptual, so a table keyed by channel exposes four curves
+    # where the figure has two things to say, and 'mem' has no cTBS term in the
+    # `perc` model and so appears as a single unpaired line.
+    chans = ['n1', 'n2']
+    NAME = {'n1': 'First-presented', 'n2': 'Second-presented'}
     pri = pd.read_csv(dd / 'anchor_priors.tsv', **READ)
     pri = pri[pri.label == label]
     mf = dd / (f'anchor_mechanism.{label}'
@@ -200,7 +204,9 @@ def main(data_dir, out_stem, label, mech_level, bids_folder, panel_f='slope'):
 
     # -- a: the noise functions, both channels, both conditions ------------
     ax = A['a']
-    LS = {chans[0]: (0, (3, 1.6)), chans[-1]: '-'}
+    # dashed = the channel that carries no cTBS term (memory, or the
+    # first-presented option); solid = the one that does
+    LS = {'n1': (0, (3, 1.6)), 'n2': '-'}
     for ch in chans:
         for cond, col in (('vertex', VERTEX), ('ips', IPS)):
             q = c[(c.channel == ch) & (c.condition == cond)].sort_values('x')
