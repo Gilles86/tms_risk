@@ -442,6 +442,40 @@ answers a different question: at which STAGE the representation degrades, and
 WHERE IN PAYOFF SPACE. It does not need to re-derive Figure 3 to do that, and
 claiming it does would be the overreach.
 
+### What the `percx` interaction actually is
+
+σ_perceptual at 7 CHF, all four cells:
+
+| | vertex | IPS | cTBS effect |
+|---|---|---|---|
+| risky **second** | 0.161 | 0.206 | **+28.5%**, P = 0.993 |
+| risky **first** | 0.168 | 0.188 | +12.0%, P = 0.842 |
+
+Baseline is the same in both trial types (main effect of order −8.8%,
+P = 0.19), so **the interaction lives entirely in the cTBS effect**: it is
+12.7% larger on risky-second trials, P = 0.105, 95% CrI [−29%, +8%].
+
+**What it is mechanistically: a scalar multiplier on the whole cTBS effect,
+indexed by trial type.** σ_perceptual is shared — ν₁ = σ_perc + σ_mem and
+ν₂ = σ_perc — so the interaction raises the noise on BOTH options equally
+within a trial, just by more on risky-second trials. It does not say the risky
+option is affected more, or the second-presented one; it says the effect is
+bigger in one condition.
+
+**Why that produces the slope asymmetry:** the decision SD is
+√((w₁ν₁)² + (w₂ν₂)²). A larger σ_perc raises both terms, so the psychometric
+curve flattens more wherever σ_perc rises more — which the interaction has
+simply declared to be risky-second trials. The asymmetry is arithmetic from the
+regressor, not a consequence of anything in the observer.
+
+**Contrast with `n1n2`, which does contain a mechanism.** There cTBS raises ν₂,
+the noise on whichever option came second: the safe option on risky-first
+trials, the risky option on risky-second trials. *One* parameter change,
+different behavioural consequences by order, because the risky and safe options
+sit at different points on a payoff-dependent noise function and receive
+different prior pull. That is an explanation — it is just too weak, delivering
+15% of the observed asymmetry.
+
 ### Why the `*x` models are not the answer, despite fitting it better
 
 `percx` and `n1n2x` do reproduce about 45% of the order asymmetry, converge
