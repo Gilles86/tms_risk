@@ -272,114 +272,135 @@ and the two limitation sentences.
 
 ---
 
-# Section-by-section revision plan for TMS_paper_v11
+# Audit of `notes/paper/TMS_paper_v12_draft.docx` (as of 2026-09-09 15:59)
 
-Line numbers are from `notes/paper/TMS_paper_v11.txt`. Work top to bottom; only
-the sections listed need touching.
+Paragraph numbers are lines in `notes/paper/TMS_paper_v12_draft.txt`, produced
+by
 
-## Abstract (l. 14)
+    python -c "import docx;d=docx.Document('TMS_paper_v12_draft.docx');
+    open('TMS_paper_v12_draft.txt','w').write(chr(10).join(p.text for p in d.paragraphs))"
 
-One change. Whatever it currently claims about the cognitive model, the claim
-that survives is **where in payoff space the noise moves**, not the size of the
-behavioural effect the model reproduces. If the abstract says the model
-"explains" or "accounts for" the choice effect, weaken to "localises": cTBS
-increased representational noise on the second-presented option at small
-payoffs. See §10 — the model underpredicts the effect size four-fold.
+Re-run it after any edit; the equations are OMML objects and drop out of the
+text conversion, so anything that looks like a gap (¶133, ¶135, ¶149, ¶169…)
+is an equation, not a missing sentence.
 
-## Results § Experimental approach (l. 242)
+**v12 is much further along than the v11-keyed plan this file used to carry.**
+It already reports the position-indexed model, already has the Weber-violation
+section, already refuses the per-participant brain–behaviour correlation, and
+already frames the PPC p-values correctly. What follows is only what is left.
 
-No change.
+## A. One error, not a pending number — fix this first
 
-## Results § the stake-size / choice section (from l. 634)
+**¶80: "The model converged without any adjustment to sampler or priors
+(r̂ ≤ 1.002, ESS ≥ 1727)."** That pair of numbers comes from
+`notes/analyses/weber_affine_convergence.md`, which recorded a fit under the
+**raw (pre-KLW) choice rule**. Under the consistent rule that the paper now
+describes, the same model at default priors gives **r̂ 1.12 / ESS 42**. The
+sentence as written is not merely stale, it asserts the opposite of the truth
+and would not survive a reviewer running the code.
 
-* The model-comparison paragraph gets the new ELPD numbers (§3 and
-  `notes/supp_table1.md`). Two claims are decisive and should be stated as
-  such: cTBS moves the noise function at all (`nullind` 7.8 dSE worse) and it
-  is not the memory channel alone (`mem` 4.6 dSE worse). The claim that is NOT
-  supported is which channel carries it — the top five models are within
-  1.2 dSE, so say the comparison does not resolve it and that the reported
-  model is chosen on convergence and parsimony.
-* Delete any sentence implying the model set was compared under one choice rule
-  in v11; it was not (§1). The refit is the reason the numbers changed.
-* Add the sensitivity sentence for the reported model's prior (§11).
+Replace with ⟦RHAT⟧ / ⟦ESS⟧ and, if the final fit needs the noise-anchor prior,
+one sentence saying so. Do not write "without any adjustment" unless the final
+sweep earns it.
 
-## Results § Linking Neural and Behavioral cTBS Effects (l. 788–822)
+## B. Numbers to tokenise (all in `notes/PLACEHOLDERS.md`)
 
-The heaviest edit in the paper.
+| ¶ | In the draft now | Replace with |
+|---|---|---|
+| 80 | ΔELPD = 35.6, dSE 8.8 (power vs Weber) | ⟦ELPD_WEBER⟧ (⟦ELPD_WEBER_DSE⟧) — the draft's pair is a raw-choice-rule number |
+| 80 | "See Table XXXX" | Supplementary Table 1, and cite Fig. S2 |
+| 80 | "all \|r\| ≤ 0.07 between the two options" | recompute on the final trace |
+| 80 | 0.029 log units, [0.002, 0.057], p = 0.020 | ⟦DNU7⟧, ⟦DNU7_CRI⟧, ⟦DNU7_P⟧ |
+| 80 | "33 of 35 participants" | ⟦N_INCREASE⟧ |
+| 80 | "p = 0.27 and p = 0.23", "p = 0.18" | ⟦DNU_FIRST_P1⟧ / ⟦DNU_FIRST_P2⟧, ⟦DNU_SECOND_HIGH_P⟧ |
+| 81 | 10.7%, 2.5%, 8.1%, −2.1%, 17 CHF, 14 CHF, −1.8% | all re-derived from the final mechanism extraction |
+| 82 | "the model has [N] free parameters per participant" | count it on the final model |
+| 82 | "r = [0.92 or 0.93]", "[95 or 97]%" | ⟦PPC_R⟧, ⟦PPC_COVERAGE⟧ |
+| 82 | +0.053 against [−0.014, +0.044], p = 0.005 | ⟦PPC_FAIL⟧ |
+| 82 | order contrast p = 0.09 / slope p = 0.84 / three-way p = 0.51 | ⟦PPC_ORDER⟧, ⟦PPC_SLOPE_ORDER⟧, ⟦PPC_THREEWAY⟧ |
+| 85 | "95% posterior interval [x, y]" | ⟦BB_INTERVAL⟧ — **still blocked**, leave the brackets |
+| 74 | "3, 5, or 7 anchor payoffs" | ⟦SPLINE_ORDERS⟧ once the spline ladder lands |
 
-* **Keep** the model-free result: Δ nPRF amplitude × Δ choice consistency on
-  risky-second trials, and the site-specificity that follows it. Unaffected.
-* **Replace** `bootstrap 95% CI [0.37, 0.67]` (l. 810) with the per-draw
-  posterior interval — §4. It is the last maximum-likelihood interval in the
-  manuscript.
-* **Delete** the model-parameter correlation entirely and replace with one
-  sentence: the model-free link does not reappear in the model's
-  per-participant noise parameters. Do **not** report r = 0.31; it has the
-  wrong sign and is not site-specific (§4).
-* **Add** one sentence on why that is not a reliability failure: the perceptual
-  channel's attenuation ceiling is 0.71, the memory channel's 0.36 (§5).
+¶82 also says "eight targeted posterior predictive checks … Seven of the eight";
+keep it consistent with ⟦PPC_N_PASS⟧ / ⟦PPC_N_TOTAL⟧ rather than hard-coding.
 
-## Discussion (l. 823)
+## C. Methods gaps — whole sentences that are simply absent
 
-* The limitation sentence about the psychometric function being ~7% too flat
-  (§10).
-* The sentence about underpredicting the effect size (§10). Better volunteered
-  than found by a reviewer.
-* If the Discussion currently leans on individual differences in the model
-  parameters, cut that — §4 and the per-participant PPC say the model's
-  predicted contrasts are compressed (SD 0.09 against 0.20 observed).
+§ *Model estimation* (¶177–190) describes the offset parameterisation and the
+random-effects structure well, and then stops. It contains **no sampler
+settings, no convergence criterion, no prior specification and no statement of
+how ELPD was computed.** A methods reviewer will ask for all four. Add, at the
+end of ¶190:
 
-## Methods § Participants (l. 1048)
+* the sampler: ⟦SAMPLER⟧;
+* the gate: ⟦CONV_GATE⟧, and that every model reported met it;
+* the priors, including ⟦TAU_PRIOR⟧ if the final fit uses it, and that it
+  applies to the noise anchors only;
+* LOO-CV via Pareto-smoothed importance sampling (Vehtari et al. 2017), that
+  ΔELPD is paired with the SE of the paired difference, and that all
+  compared models were fitted under one prior and one sampler configuration.
 
-The 75 / 73 / 37 / 35 paragraph and the exclusion criteria, both written out in
-full in §7. v11 has an arithmetic slip here.
+§ *The flexible PMC model* (¶164–176) documents **only the spline model**, with
+"1st 3rd degree spline, with bounds between 7 and 112" at ¶169. The main text
+reports the **power law** (¶74, ¶80) and uses the anchor models as a robustness
+check. Methods must define the power law that Results reports — the
+two-parameter form, what b = 0 means, and that the anchor models are the
+flexible alternative — otherwise the reported model has no Methods entry at all.
 
-## Methods § Cognitive computational modeling (l. 1227)
+§ *The PMC model* (¶141–143): this is where the choice rule lives. Check the
+equation objects carry the **KLW-consistent** form (§1 of this file): the
+decision variable is the noisy posterior mean, so its SD is w·ν with
+w = σ_p²/(σ_p² + ν²), and the comparison is normalised by
+√((w₁ν₁)² + (w₂ν₂)²). ¶75 already states the shrinkage weight as
+σ_p²/(σ_p² + ν²), so the text is consistent; verify the display equations are
+too, since they survive the .docx but not the .txt conversion.
 
-* The choice equation in its consistent form — §1. This is TODO 1 and the code
-  changed, so the equation in the text must change with it.
-* The payoff means stay as they are (§6), but check they are not in the same
-  sentence as the priors' centres.
+Nowhere does the paper state that **every** model in it — including the probit
+— is hierarchical Bayesian with partial pooling and that no maximum-likelihood
+estimator or bootstrap CI is used anywhere. One sentence, in § *Cognitive
+computational modeling* (¶122), and the reliability and error-bar questions
+answer themselves.
 
-## Methods § The flexible PMC model (l. 1374)
+## D. Prose that should change, beyond the numbers
 
-* "spline 3 to 9 free parameters" → only 3, 5 and 7 were fitted.
-* The basis is **piecewise-linear through anchor payoffs**, not a B-spline, and
-  the free parameters are the noise SD's own values at those payoffs. §8.
+**¶80, the model-choice justification.** As written the case is orthogonality
+plus flexibility. That is true but it is the weaker half. Add the reason from
+§2: the position-indexed model is **the only member of the family that can
+express the order-specificity the paper is about**, and ELPD deliberately does
+not adjudicate between placements (⟦ELPD_UNRESOLVED⟧ dSE). Saying "model
+comparison establishes X, Y and Z but not W, and here is why we chose within W
+on other grounds" is stronger than implying ELPD settled it.
 
-## Methods § Model estimation (l. 1423)
+**¶82, the underprediction.** "an underprediction of roughly fourfold" reads as
+a confession. It is on the sharpest of eight statistics, and on the scale a
+reader actually reads — choice proportions — the model recovers the *shape* of
+the order dependence and ⟦ASYM_FRACTION⟧ of its size (⟦ASYM_MODEL⟧ against an
+observed ⟦ASYM_OBS⟧). Keep the honesty; add the shape result immediately after,
+so the paragraph ends on what the model does rather than on what it misses. The
+existing explanation (partial pooling shrinks contrasts by construction, and
+none of the eight statistics is in the likelihood) is correct and well put —
+keep it verbatim.
 
-* The sampler settings must be the reported model's actual stamp from
-  `trace.posterior.attrs`, not generic ones.
-* State the convergence criterion (r̂ ≤ 1.01 and ESS ≥ 400 on group-level
-  parameters) and that models failing it are excluded from the comparison and
-  listed in Supp Table 1.
-* State the prior on the between-subject SDs and the sensitivity (§11).
+**Title of the section at ¶71** — "localizes the cTBS effect to the foreground
+option" — "foreground" appears nowhere else in the paper and is not defined.
+Use the second-presented option, or define the term at first use.
 
-## Methods § Different priors (l. 1330)
+## E. Already right — do not touch
 
-Add the one-sentence justification for excluding prior-shift models, with the
-supplementary figure — §9. Currently the exclusion is asserted; now there is
-evidence for it.
-
-## Figure and table captions
-
-* Figure 5: name the estimand. Panels c and g are population-level; e and f are
-  the posterior of the mean over the 35 sampled participants, which is
-  narrower. A reader comparing them will otherwise see a contradiction.
-* Figure 5 h/i: "slope of a linear-probability fit within each cell,
-  participants pooled; the same statistic is applied to the observed and to
-  each posterior draw's simulated choices, so absolute values are attenuated
-  equally on both sides."
-* Supp Table 1: the caption already states the convergence criterion and lists
-  the excluded models. Keep that — it is the part a reviewer will look for.
-
-## Do not touch
-
-Figures 1–4 and their text. The nPRF, decoding and model-free psychophysics
-results are unchanged by any of this.
-
----
+* **¶75, the prior-fixing justification.** Exactly the §9 argument, including
+  the identifiability point and the stress-study contrast. Leave it.
+* **¶86, the refusal to correlate per-participant model parameters.** Exactly
+  §4, with the right reasons in the right order.
+* **¶82's framing** of a posterior predictive p as a warning sign rather than a
+  discovery. Rare and correct.
+* **¶78, the Figure 5 caption.** Correctly separates the population-level
+  parameter (panels c, g) from the posterior of the mean over 35 participants
+  (e, f), and states that the same statistic is applied to observed and
+  simulated choices so both are attenuated equally. That sentence is what makes
+  panels h and i legitimate; keep it.
+* **¶62–68, the Weber-violation section**, and ¶69–70 on stake specificity.
+* **¶103–114, participants and exclusions.** The arithmetic that was wrong in
+  v11 is right here: 78 → 37 invited → 35 analysed.
 
 # How we "know" it is perceptual — what was actually tested
 

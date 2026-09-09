@@ -31,7 +31,7 @@ from matplotlib.gridspec import GridSpec
 from scipy import stats
 
 IPS, VERTEX = '#d62728', '#2ca02c'          # house convention: red = stimulated
-MNAMES = {0: 'None', 1: 'Amplitude', 2: 'All four', 3: 'Amplitude + σ',
+MNAMES = {0: 'None', 1: 'Amplitude only', 2: 'All four', 3: 'Amplitude + σ',
           4: 'μ + σ (tuning)', 5: 'Amplitude + baseline'}
 MCOLORS = {0: '#C4C4C4', 1: '#2F2F2F', 2: '#9A9A9A', 3: '#9A9A9A',
            4: '#3B5BA5', 5: '#D1885C'}
@@ -40,8 +40,8 @@ CANONICAL = 1
 mpl.rcParams.update({
     'font.family': 'Helvetica',
     'font.sans-serif': ['Helvetica', 'Helvetica Neue', 'TeX Gyre Heros', 'Arial'],
-    'font.size': 9, 'axes.labelsize': 9, 'axes.titlesize': 9.5,
-    'xtick.labelsize': 7.5, 'ytick.labelsize': 8, 'legend.fontsize': 7.5,
+    'font.size': 7, 'axes.labelsize': 8, 'axes.titlesize': 8,
+    'xtick.labelsize': 7, 'ytick.labelsize': 7, 'legend.fontsize': 7,
     'mathtext.fontset': 'stixsans',
     'axes.linewidth': 0.8, 'axes.spines.top': False, 'axes.spines.right': False,
     'axes.labelpad': 4,
@@ -55,12 +55,12 @@ mpl.rcParams.update({
 })
 
 
-def strip_mean(ax, x, vals, color, width=.28, ms=6.5, dot=10):
+def strip_mean(ax, x, vals, color, width=.28, ms=4.8, dot=10):
     jit = (np.random.RandomState(0).rand(len(vals)) - .5) * width
     ax.scatter(x + jit, vals, s=dot, color=color, alpha=.38, lw=0, zorder=2)
     m, se = np.nanmean(vals), stats.sem(vals, nan_policy='omit')
-    ax.errorbar(x, m, yerr=se, fmt='D', ms=ms, color=color, mec='0.15', mew=1.3,
-                elinewidth=1.3, capsize=0, zorder=4)
+    ax.errorbar(x, m, yerr=se, fmt='D', ms=ms, color=color, mec='0.15', mew=1.1,
+                elinewidth=1.0, capsize=0, zorder=4)
 
 
 def model_ticks(ax, models):
@@ -111,7 +111,9 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     axA = fig.add_subplot(top[0, 0])
     axA.imshow(load_panel_image(panel_a))
     axA.set_axis_off()
-    axA.set_title('nPRF map, example subject', pad=16)
+    axA.text(.5, .015, 'Preferred numerosity', transform=axA.transAxes,
+             ha='center', va='top', fontsize=7, color='.3')
+    axA.set_title('nPRF map, example subject', pad=6)
     letters['A'] = axA
 
     # ------------------------- B: amplitude by preferred numerosity + densities
@@ -140,15 +142,15 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     print(f'B amplitude: vertex {ps["vertex"].median():.4f} -> ips '
           f'{ps["ips"].median():.4f}  t({len(ps)-1})={t:+.3f}  p1={p/2:.4f}')
     axB.text(0.03, 0.97, f'cTBS lowers amplitude\nt({len(ps)-1}) = {abs(t):.2f}, '
-             f'p = {p/2:.3f} (one-sided)',
+             f'p = {p/2:.3f}',
              transform=axB.transAxes, fontsize=7, color='0.3', va='top', ha='left')
-    axB.set_title('nPRF amplitude after cTBS', pad=16)
-    axB.set_ylabel('Amplitude (% signal change)')
+    axB.set_title('nPRF amplitude after cTBS', pad=6)
+    axB.set_ylabel('Amplitude (% signal)')
     axB.set_xlabel(None)
     axB.set_xlim(0, 34)
     axB.set_xticks([0, 10, 20, 30])
     axB.set_yticks([0, 1, 2, 3])
-    axB.set_ylim(0, 3.2)
+    axB.set_ylim(0, 3.7)
     axB.tick_params(labelbottom=False)
     letters['B'] = axB
 
@@ -158,7 +160,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
                  legend=False)
     sns.kdeplot(x=pd.concat([beh.n1, beh.n2]).dropna(), color='k', lw=1.2,
                 ls='--', ax=axB2, legend=False)
-    axB2.text(2.6, 0.155, 'Preferred\n(voxels)', color='0.35', fontsize=7,
+    axB2.text(13.0, 0.150, 'Preferred\n(voxels)', color='0.35', fontsize=7,
               va='top', ha='left')
     axB2.text(24.0, 0.055, 'Presented\n(stimuli)', color='k', fontsize=7,
               va='bottom', ha='left')
@@ -167,19 +169,20 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     axB2.set_yticks([0, 0.1])
 
     # ------------------------------------------------- C: decoding accuracy
-    subC = top[0, 2].subgridspec(2, 1, height_ratios=[2.6, 1.15])
-    axC = fig.add_subplot(subC[0, 0])
+    axC = fig.add_subplot(top[0, 2])
     axC.axhline(0, color='.6', lw=.8, ls='--', zorder=0)
     strip_mean(axC, 0, dec.vertex.values, VERTEX)
     strip_mean(axC, 1, dec.ips.values, IPS)
     t, p = stats.ttest_rel(dec.ips, dec.vertex)
     print(f'C decoding: vertex {dec.vertex.mean():.4f} -> ips {dec.ips.mean():.4f}'
           f'  t({len(dec)-1})={t:+.3f}  p2={p:.4f}')
-    axC.text(0.5, 1.005, f'p = {p:.3f}', transform=axC.get_xaxis_transform(),
-             ha='center', va='bottom', fontsize=7, color='.35')
-    axC.set_title('Decoding accuracy', pad=16)
+    axC.text(0.03, 0.97, f'cTBS lowers accuracy\nt({len(dec)-1}) = {abs(t):.2f}, '
+             f'p = {p:.3f}', transform=axC.transAxes, fontsize=7, color='0.3',
+             va='top', ha='left')
+    axC.set_title('Trial-wise decoding', pad=6)
     axC.set_ylabel('Decoding accuracy (r)')
     axC.set_xlim(-0.6, 1.6)
+    axC.set_ylim(-0.16, 0.42)
     letters['C'] = axC
 
     # ------------------------------------- D/E/F: encoding-model comparison
@@ -188,16 +191,16 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     for i, m in enumerate(models):
         g = grid[grid.model == m]
         strip_mean(axD, i, (g.cvr2 - g.null).values, MCOLORS.get(m, '.4'))
-    axD.set_title('Out-of-sample fit', pad=16)
+    axD.set_title('Out-of-sample fit', pad=6)
     axD.set_ylabel('cvR² − null')
-    axD.text(0.01, 0.0, 'Null', transform=axD.get_yaxis_transform(), fontsize=7,
-             color='.45', va='bottom', ha='left')
     tD, pD = stats.ttest_rel(
         grid[grid.model == CANONICAL].set_index('subject').cvr2,
         grid[grid.model == CANONICAL].set_index('subject')['null'])
     axD.set_ylim(top=0.13)
-    axD.text(0.97, 0.97, f'Amplitude model best\nt(34) = {tD:.2f}, p = {pD:.3f}',
-             transform=axD.transAxes, fontsize=7, color='0.3', va='top', ha='right')
+    nD = grid[grid.model == CANONICAL].shape[0]
+    axD.text(0.03, 0.97,
+             f'Amplitude-only beats null\nt({nD - 1}) = {tD:.2f}, p = {pD:.3f}',
+             transform=axD.transAxes, fontsize=7, color='0.3', va='top', ha='left')
     letters['D'] = axD
 
     axE = fig.add_subplot(bot[0, 1])
@@ -205,23 +208,27 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     for i, m in enumerate(models):
         strip_mean(axE, i, grid[grid.model == m].frac_beats_null.values,
                    MCOLORS.get(m, '.4'))
-    axE.set_title('Voxels beating the null', pad=16)
+    axE.set_title('Voxels beating the null', pad=6)
     axE.set_ylabel('Fraction of voxels')
+    axE.set_xlabel('nPRF parameters free to differ between sessions')
     letters['E'] = axE
 
     axF = fig.add_subplot(bot[0, 2])
     axF.axhline(0, color='.6', lw=.8, ls='--', zorder=0)
     w = grid.pivot_table(index='subject', columns='model', values='cvr2')
     others = [m for m in models if m != CANONICAL]
+    pmax = 0.
     for i, m in enumerate(others):
         diff = (w[m] - w[CANONICAL]).dropna().values
         strip_mean(axF, i, diff, MCOLORS.get(m, '.4'))
         t, p = stats.ttest_1samp(diff, 0)
-        ptxt = f'{p:.3f}'.lstrip('0') if p >= .001 else '<.001'
-        axF.text(i, 1.01, f'p {ptxt}', transform=axF.get_xaxis_transform(),
-                 ha='center', va='bottom', fontsize=6.5, color='.35')
-    axF.set_title('Versus the amplitude model', pad=16)
-    axF.set_ylabel('Δ cvR² (model − amplitude)')
+        pmax = max(pmax, p)
+    ptxt = 'all p < 0.001' if pmax < .001 else f'all p \u2264 {pmax:.3f}'
+    axF.text(0.03, 0.97, f'Every alternative fits worse\n{ptxt}',
+             transform=axF.transAxes, fontsize=7, color='0.3', va='top',
+             ha='left')
+    axF.set_title('Versus the amplitude-only model', pad=6)
+    axF.set_ylabel('Δ cvR²')
     letters['F'] = axF
 
     # ------------------------------------------------------------- finishing
@@ -239,9 +246,10 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     # lowercase panel letters, 8 pt bold: Nature / Nature Comms house style and
     # what every other figure in this paper uses. 12 pt is out of spec.
     for letter, a in letters.items():
-        a.text(-0.16 if letter != 'A' else -0.02, 1.06, letter.lower(),
-               transform=a.transAxes, fontsize=9, fontweight='bold',
-               va='bottom', ha='right', family='Arial')
+        a.annotate(letter.lower(), xy=(0, 1), xycoords='axes fraction',
+                   xytext=(-6 if letter == 'A' else -34, 6),
+                   textcoords='offset points', fontsize=8, fontweight='bold',
+                   family='Arial', va='bottom', ha='right')
 
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=0.02)
