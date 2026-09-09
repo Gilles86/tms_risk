@@ -68,13 +68,34 @@ mpl.rcParams.update({
 #:   rung   P(risky) against the risky/safe ratio   -- WHERE on the psychometric
 #:          function (the same axis as Figure 3a)
 #:   stake  P(risky) against stake terciles         -- how much is at issue
+#:   slope  the psychometric SLOPE contrast against stake -- the DIRECT
+#:          signature of a noise change, because noise is what flattens a
+#:          psychometric function. The P(risky) views show the effect on
+#:          choice; only this one shows it is a change in DISCRIMINABILITY
+#:          rather than a shift in preference.
 VIEWS = {'safe': ('n_safe', 'Safe payoff (CHF)'),
          'rung': ('frac', 'Risky / safe payoff'),
-         'stake': ('stake_bin', 'Stake tercile')}
+         'stake': ('stake_bin', 'Stake tercile'),
+         'slope': ('stake_bin', 'Stake (CHF)')}
+#: the slope table stores its paired contrast under different column names,
+#: one row per stimulation arm with the contrast repeated -- so it is renamed
+#: and de-duplicated rather than given its own code path
+SLOPE_COLS = {'d_slope_observed': 'observed', 'd_slope': 'model',
+              'lo_contrast': 'lo', 'hi_contrast': 'hi',
+              'stake_chf_contrast': 'stake_chf'}
 
 
 def load(dd, label, view='safe'):
     xk = VIEWS[view][0]
+    if view == 'slope':
+        f = dd / f'ppc_anchor.slope.{label}.tsv'
+        if not f.exists():
+            raise SystemExit(f'no slope table for {label}\n  expected {f}')
+        d = pd.read_csv(f, **READ)
+        d = (d[['order', 'stake_bin'] + list(SLOPE_COLS)]
+             .rename(columns=SLOPE_COLS)
+             .drop_duplicates(subset=['order', 'stake_bin']))
+        return None, d
     lev = dd / f'ppc_anchor.{view}.{label}.tsv'
     dif = dd / f'ppc_anchor.delta_{view}.{label}.tsv'
     if not dif.exists():
@@ -90,7 +111,7 @@ def covered(d):
     return ((d.observed >= d.lo) & (d.observed <= d.hi))
 
 
-def table(labels, names, data_dir, views=('safe', 'rung', 'stake')):
+def table(labels, names, data_dir, views=('safe', 'rung', 'stake', 'slope')):
     dd = Path(data_dir) / 'ppc_anchor'
     rows = []
     for lab, nm in zip(labels, names):
@@ -154,15 +175,18 @@ def figure(labels, names, data_dir, out_stem, view='safe'):
             ax.plot(x[~inside], o.observed.values[~inside], 'o', ms=4.4,
                     color='#b2182b', zorder=5)
             ax.set_xticks(x)
-            ax.set_xticklabels([f'{v:.1f}'.rstrip('0').rstrip('.')
-                                for v in o[xk]])
-            ax.set_ylim(-.06, .16)
+            xt = (o.stake_chf if view == 'slope' else o[xk])
+            ax.set_xticklabels([f'{v:.0f}' if v >= 5 else
+                                f'{v:.1f}'.rstrip('0').rstrip('.') for v in xt])
+            ax.set_ylim(-.32, .16) if view == 'slope' else ax.set_ylim(-.06, .16)
             if r == 0:
                 ax.set_title(nm, fontsize=8)
             if r == 1:
                 ax.set_xlabel(xlab)
             if c == 0:
-                ax.set_ylabel(f'{order}\nΔ P(risky), IPS − vertex')
+                q_ = ('Δ slope, IPS − vertex' if view == 'slope'
+                      else 'Δ P(risky), IPS − vertex')
+                ax.set_ylabel(f'{order}\n{q_}')
             k = int(covered(o).sum())
             ax.text(.03, .97, f'{k}/{len(o)} covered', transform=ax.transAxes,
                     fontsize=6.5, va='top', ha='left',
@@ -219,8 +243,9 @@ if __name__ == '__main__':
                     default=str(REPO / 'notes/figures/ppc_design_grid'))
     ap.add_argument('--out_tsv',
                     default=str(REPO / 'notes/data/ppc_design_grid.tsv'))
-    ap.add_argument('--views', nargs='+', default=['safe', 'rung', 'stake'],
-                    choices=['safe', 'rung', 'stake'])
+    ap.add_argument('--views', nargs='+',
+                    default=['safe', 'rung', 'stake', 'slope'],
+                    choices=['safe', 'rung', 'stake', 'slope'])
     a = ap.parse_args()
     main(a.labels, a.names or a.labels, a.data_dir, a.out_stem, a.out_tsv,
          tuple(a.views))
