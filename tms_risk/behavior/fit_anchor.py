@@ -50,7 +50,7 @@ LABEL_RE = re.compile(
     r'(null|nullind|n1|n2|n1n2|perc|mem|percmem'
     r'|pmu|psd|pmusd|n1n2pmu|n1n2psd|n1psd|n2psd|n2pmusd|n1n2pmusd'
     r'|spmu|spsd|spmusd|percpsd|percpmu|percmempmu|percpmusd|percmempsd'
-    r'|n2x|n1n2x|percx|percmemx)$')
+    r'|sd|sdsplit|sdtotal|sdnull|sdpmu|n2x|n1n2x|percx|percmemx)$')
 
 #: placement -> (memory_model, noise channels carrying the cTBS regressor,
 #: prior parameters carrying it). Prior names are given bare here and get the
@@ -96,6 +96,18 @@ PLACEMENT = {
     'mem':      ('shared_perceptual_noise', ['memory_noise_sd'], []),
     'percmem':  ('shared_perceptual_noise',
                  ['perceptual_noise_sd', 'memory_noise_sd'], []),
+    # The (level, ratio) rotation of n1/n2: theta_n1 = total + split/2,
+    # theta_n2 = total - split/2, with `split` signed and itself a smooth
+    # function of magnitude. Same likelihood as `n1n2` -- a reparameterisation,
+    # not a restriction -- but in coordinates that cut the ridge: the four
+    # group means correlate at r 0.97 as (n1, n2) and -0.39 to -0.64 as
+    # (level, ratio), condition number 231. `split` is ALSO the quantity the
+    # paper wants: the cTBS effect on it IS the order asymmetry.
+    'sd':       ('sum_difference', ['total_noise_sd', 'split_noise_sd'], []),
+    'sdsplit':  ('sum_difference', ['split_noise_sd'], []),
+    'sdtotal':  ('sum_difference', ['total_noise_sd'], []),
+    'sdnull':   ('sum_difference', [], []),
+    'sdpmu':    ('sum_difference', ['total_noise_sd', 'split_noise_sd'], _PMU),
     # cTBS on the magnitude prior instead of, or as well as, the noise.
     # Baseline for all of these is `nullind`.
     'pmu':      ('independent', [], _PMU),

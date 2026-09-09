@@ -988,7 +988,11 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                     ax.tick_params(labelbottom=False)
                     ax.set_xlabel('')
                 if r_ == 0:
-                    ax.set_title(order, fontsize=7.5)
+                    # h/i are the only panels showing DATA rather than
+                    # parameters, so they say so rather than leaving the reader
+                    # to infer it from the presence of markers
+                    ax.set_title(f'Posterior predictive\n{order.lower()}',
+                                 fontsize=7.5, linespacing=1.35)
                     if k == 'h':
                         # descending slope curves leave the LOWER left empty;
                         # a rising/flat P(risky) leaves the UPPER left
