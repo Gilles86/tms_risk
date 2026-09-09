@@ -91,3 +91,39 @@ default priors with its diagnostics stated. Until that is settled, S3's
 "Both options" rung is greyed, which reads oddly for the reported model. The
 caption should say the comparison is at PRIOR_SPEC defaults and that the
 reported fit uses the prior given in Methods.
+
+---
+
+# One prior, one sampler: the final sweep
+
+**As of now the set is NOT commensurable.** It has been fitted in three groups:
+
+| group | prior | sampler |
+|---|---|---|
+| ladder + n1n2 τ sweep | τ_noise 0.15 / 0.10 / 0.20 | 8 × 15 000, tune 10 000, ta 0.99 |
+| spl4/6/7, cspl3/5/7, the pmu family | PRIOR_SPEC defaults | 8 × 9 000, tune 8 000, ta 0.95 |
+| baseline (Fig. 4 c/d) | defaults | 8 × 9 000, tune 6 000, ta 0.95 — different dataset, fine |
+
+An ELPD table whose rows differ in prior *and* in how long they sampled is not
+a model comparison. The first two groups have to be merged before anything is
+reported.
+
+**Plan.** The τ decision is the only thing blocking it, and it comes from the
+sweep now running (`n1n2` at 0.10, 0.15, 0.20, all at 8 × 15 000). Rule: take
+the mildest τ that clears r̂ ≤ 1.01 and ESS ≥ 400, defaults if `n1n2` clears
+them unaided.
+
+Then fire `~/fit_final_sweep.sh` once — 21 models, one prior, one sampler
+setting, into `derivatives/cogmodels.final`:
+
+* placement: n1n2, n1, n2, nullind, perc, percmem, mem
+* shape: weber, weber-nullind, genweber, affine
+* smooth resolution: cspl3/5/7 and their nullind controls
+* piecewise-linear robustness: spl3, spl4, spl5, spl7
+
+Everything downstream — Supp Table 1, S2, S4 and the main-text ΔELPD numbers —
+then comes from that one sweep, and the current fits become working material.
+
+Two things this deliberately does not include: the `*x` order-interaction
+models and the prior-shift models, which are argued out in the handoff and
+belong in the table as fitted alternatives rather than in the ladder.
