@@ -359,6 +359,17 @@ def apply_priors(model, df, space):
             # the anchor prior it replaces.
             p = PRIORS['noise']
             info['mu_intercept'] = 0.0
+        elif '_split_' in key:
+            # `split` is a signed LOG-RATIO, log(sigma_n1 / sigma_n2), not a
+            # noise level -- so it centres at 0 (both options equally noisy),
+            # NOT at log(0.25) like the anchor channels. Without this branch the
+            # generic `_power_` rule below catches it and asserts a priori that
+            # the first-presented option is four times QUIETER than the second,
+            # which is both strongly informative and the wrong direction.
+            # sigma 0.75 (the noise width) spans ratios 0.22 to 4.5 at 2 SD,
+            # comfortably covering the 2.0-to-0.95 range the baseline fit shows.
+            p = PRIORS['noise']
+            info['mu_intercept'] = 0.0
         elif any(t in key for t in ('_weber_', '_affine_', '_power_',
                                     '_genweber_',
                                     '_spl3_', '_spl4_', '_spl5_', '_spl6_',
