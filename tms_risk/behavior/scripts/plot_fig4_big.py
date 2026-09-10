@@ -108,6 +108,12 @@ MEM, PERC = '0.25', '0.25'
 FIRST_C, SECOND_C = '0.62', '0.15'
 RISKY, SAFE = '#8172B2', '0.25'
 P_RISKY = 0.55
+#: Presentation order is DISPLAYED by the option that came FIRST, matching the
+#: manuscript. The data key stays `Risky second` -- it is what `risky_first`
+#: maps to throughout the repo and what every TSV contains -- and only the
+#: drawn text changes. They are the same trials: if the risky option came
+#: second, the safe one came first.
+ORDER_LABEL = {'Risky first': 'Risky first', 'Risky second': 'Safe first'}
 ORDERS = ['Risky first', 'Risky second']
 STAKE = {0: 'Low', 1: 'High'}
 
@@ -775,7 +781,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         ax.set_xticks(np.arange(5))
         ax.set_xticklabels(['7', '10', '14', '20', '28'])
         ax.set_xlabel('Safe payoff (CHF)')
-        ax.set_title(order, fontsize=7.5)
+        ax.set_title(ORDER_LABEL[order], fontsize=7.5)
         if k == 'f':
             ax.set_ylabel('cTBS effect (%)')
         else:
@@ -868,7 +874,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                                 o_.groupby('stake_bin').stake_chf.mean()])
             ax.set_xlim(-.35, len(xs) - .65)
             ax.set_xlabel('Stake (CHF)')
-            ax.set_title(order, fontsize=7.5)
+            ax.set_title(ORDER_LABEL[order], fontsize=7.5)
             if k == 'h':
                 ax.set_ylabel('Psychometric slope\n(ΔP per log ratio'
                               + (', per participant)' if ppc_kind == 'slope2'
@@ -904,7 +910,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             ax.set_xlim(-.45, len(o_) - .55)
             ax.set_ylim(-9, 14)
             ax.set_xlabel('Stake (CHF)')
-            ax.set_title(order, fontsize=7.5)
+            ax.set_title(ORDER_LABEL[order], fontsize=7.5)
             if k == 'h':
                 ax.set_ylabel('cTBS effect on P(risky)\n(IPS − Vertex, %%points)'
                               .replace('%%', '%'))
@@ -1000,7 +1006,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                     # h/i are the only panels showing DATA rather than
                     # parameters, so they say so rather than leaving the reader
                     # to infer it from the presence of markers
-                    ax.set_title(f'Posterior predictive\n{order.lower()}',
+                    ax.set_title(f'Posterior predictive\n{ORDER_LABEL[order].lower()}',
                                  fontsize=7.5, linespacing=1.35)
                     if k == 'h':
                         # descending slope curves leave the LOWER left empty;
@@ -1037,7 +1043,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             ax.set_xlim(xs.min() * .93, xs.max() * 1.07)
             ax.set_ylim(.15, .95)
             ax.set_xlabel('Risky / safe payoff')
-            ax.set_title(order, fontsize=7.5)
+            ax.set_title(ORDER_LABEL[order], fontsize=7.5)
             # a RISING psychometric leaves the top-left and bottom-right empty
             if k == 'h':
                 ax.set_ylabel('P(chose risky)')
@@ -1132,7 +1138,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                                         sorted(o[XKEY].unique())])
                     ax.minorticks_off()
             ax.set_xlabel(XLAB)
-            ax.set_title(order, fontsize=7.5)
+            ax.set_title(ORDER_LABEL[order], fontsize=7.5)
             if k == 'h':
                 ax.set_ylabel('P(chose risky)')
                 ax.text(.04, .95, 'IPS', color=IPS, transform=ax.transAxes,
@@ -1163,7 +1169,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             if kk in 'jm':
                 ax.set_ylabel(ylab)
             if row == 0:
-                ax.set_title(order, fontsize=7.5)
+                ax.set_title(ORDER_LABEL[order], fontsize=7.5)
         if mprob is not None:
             lo = min(a.get_ylim()[0] for a in axs)
             hi = max(a.get_ylim()[1] for a in axs)

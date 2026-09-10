@@ -29,6 +29,12 @@ import pandas as pd
 import seaborn as sns
 
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
+#: Presentation order is DISPLAYED by the option that came FIRST, matching the
+#: manuscript. The data key stays `Risky second` -- it is what `risky_first`
+#: maps to throughout the repo and what every TSV contains -- and only the
+#: drawn text changes. They are the same trials: if the risky option came
+#: second, the safe one came first.
+ORDER_LABEL = {'Risky first': 'Risky first', 'Risky second': 'Safe first'}
 IPS, VERTEX = '#d62728', '#2ca02c'
 #: canonical, and matching CLAUDE.md rather than drifting from it
 FIRST, SECOND = '0.62', '0.15'
@@ -150,7 +156,7 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
         ax.set_ylim(.02, 1.0)
         ax.set_yticks([.25, .5, .75, 1])
         ax.set_xlabel('Log ratio, relative to\nthat cell\'s indifference point')
-        ax.set_title(order, fontsize=9.5)
+        ax.set_title(ORDER_LABEL[order], fontsize=9.5)
         # The slope belongs beside the curves it summarises, not two panels
         # away: the reader should be able to check that the number matches what
         # they just saw.
@@ -391,7 +397,7 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
     # open up the bottom so the note does not sit on the flat Weber line
     lo_, hi_ = ax.get_ylim()
     ax.set_ylim(lo_ - .30 * (hi_ - lo_), hi_)
-    key(ax, [('Risky second', '0.35', '-'),
+    key(ax, [(ORDER_LABEL['Risky second'], '0.35', '-'),
              ('Risky first', '0.35', (0, (2.5, 1.5)))], x=.05, y=.16, dy=.095)
 
     fig.suptitle(f'Baseline session, before any stimulation · {place_note}',

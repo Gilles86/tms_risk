@@ -170,14 +170,14 @@ def main(data_dir, reference, out_stem):
           'ΔELPD is the PAIRED difference against '
           'the model reported in the main text, with the standard error of that '
           'difference (dSE) in brackets; positive values favour the alternative. '
-          '`p_loo` is the effective number of parameters. `Targeted` is the '
-          'number of the eight targeted posterior predictive statistics that '
-          "fall inside the model's own 95% predictive interval; `Grid` is the "
-          'same count over the 34 cells the design itself fixes (5 safe '
-          'payoffs x 2 presentation orders x 2 stimulation arms, across four '
-          'views of the same choices). Eleven models score 8/8 on the targeted '
-          'statistics, so that column is necessary but not diagnostic; `Grid` '
-          'is the one that separates them.', '',
+          '`p_loo` is the effective number of parameters. `Grid` counts how '
+          'many of the 34 cells the design itself fixes -- five safe payoffs x '
+          'two presentation orders x two stimulation arms, read four ways -- '
+          "fall inside the model's own 95% posterior predictive interval for "
+          'the IPS - vertex contrast, computed per posterior draw. `Targeted` '
+          'is the corresponding count over eight summary statistics chosen a '
+          'priori; it is reported for completeness only, since eleven of these '
+          'models score 8/8 on it and it therefore does not separate them.', '',
           fmt(T, reference)]
     if excluded:
         md += ['', '**Excluded for non-convergence.** '

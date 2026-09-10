@@ -271,3 +271,67 @@ the two conditions as levels with 95% credible intervals, joined by a
 connector, with Δ and the posterior probability annotated. Add: *"Fitted with
 random intercepts only, as in de Hollander et al. (2024a); the connector is
 dark where the 95% interval on the difference excludes zero."*
+
+---
+
+## 7. Methods, posterior predictive checks — confirmations
+
+Answers to the three flagged points, read off `extract_anchor_ppc.py`. All
+three can be stated as fact; nothing here is a guess.
+
+1. **Number of draws: 400.** `--n_draws` defaults to 400 and every reported
+   table was produced at that default (the value is also written into each
+   output as `n_draws`). Draws are thinned evenly across the eight chains.
+2. **Binary choices, not probabilities.** The simulation draws a Bernoulli
+   outcome per trial per draw: `sim = rng.random(p_risky.shape) < p_risky`,
+   seeded with `default_rng(0)`. So the predictive intervals include binomial
+   sampling noise on top of parameter uncertainty, which is the wider and the
+   correct comparison for an observed proportion. Say so explicitly.
+3. **Equal-tailed 95% intervals**, the 2.5th and 97.5th percentiles
+   (`np.quantile(..., .025)` / `.975`) throughout — not HDIs.
+
+**The 420-cell calibration sentence is correct as drafted**: 35 participants ×
+2 presentation orders × 3 stake terciles × 2 stimulation arms = 420, and that
+is exactly what `ppc_subject.<label>.tsv` contains.
+
+### The eight targeted statistics — corrected list
+
+The reconstruction from token names is close but wrong in three places. Every
+statistic is built from `dp(order, b)` = the IPS − vertex difference in the
+proportion of risky choices, within presentation order `order` and **stake
+tercile** `b` ∈ {low, middle, high}. Stakes are terciles of each participant's
+own stake distribution, not a continuous variable.
+
+| Name | What it is |
+|---|---|
+| `dp_second_high` | cTBS effect on safe-first trials, **highest stake tercile only** |
+| `dp_second_mean` | cTBS effect on safe-first trials, averaged over the three terciles |
+| `dp_first_mean` | the same, for risky-first trials |
+| `order_contrast` | `dp_second_mean − dp_first_mean` |
+| `stake_slope_second` | **high minus low tercile**, safe-first: the stake gradient *of the cTBS effect* |
+| `three_way` | that gradient for safe-first minus the same for risky-first |
+| `slope_second_ctbs` | cTBS effect on the psychometric slope, safe-first trials |
+| `slope_contrast` | that slope effect, safe-first minus risky-first |
+
+Three corrections to the draft paragraph:
+
+* "the cTBS effect at high stakes" is **safe-first trials at the highest stake
+  tercile** specifically (`dp_second_high`), not a general high-stake effect.
+* The list omits `stake_slope_second`. It is not "the cTBS effect at high
+  stakes" — it is the **difference between the high and low terciles**, i.e.
+  how much the cTBS effect itself depends on stake within safe-first trials.
+* Stakes enter as **three terciles** everywhere, in these eight statistics and
+  in the design grid alike. The draft should say tercile rather than leave it
+  open.
+
+Everything else in the drafted paragraph matches the code, including the
+linear-probability slope fit with participants pooled and the point about the
+same attenuation applying to observed and simulated choices.
+
+### One wording change for consistency with the figures
+
+As of 2026-09-10 all figures label presentation order by **the option that
+appeared first**: "Risky first" and "Safe first". The drafted Methods text
+already uses that convention — keep it, and make sure the Results text and
+figure captions match. The underlying data key is still `risky_first`, and
+"Safe first" and "Risky second" denote the same trials.

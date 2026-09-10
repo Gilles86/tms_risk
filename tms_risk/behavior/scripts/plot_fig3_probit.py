@@ -55,6 +55,12 @@ VERTEX, IPS = '#2ca02c', '#d62728'
 # Weight carries the inference -- near-black where the interval excludes zero, muted
 # grey where it does not, so the two rows that matter are the two the eye lands on.
 DIFF, DIFF_NS = '#2b2b2b', '#b6b6b6'
+#: Presentation order is DISPLAYED by the option that came FIRST, matching the
+#: manuscript. The data key stays `Risky second` -- it is what `risky_first`
+#: maps to throughout the repo and what every TSV contains -- and only the
+#: drawn text changes. They are the same trials: if the risky option came
+#: second, the safe one came first.
+ORDER_LABEL = {'Risky first': 'Risky first', 'Risky second': 'Safe first'}
 ORDERS = ['Risky first', 'Risky second']
 
 mpl.rcParams.update({
@@ -276,7 +282,8 @@ def main(data_dir, label, out_stem):
     # --- row labels once at the far left, and one title per block
     for ax, order in zip(lefts, ORDERS):
         pos = ax.get_position()
-        fig.text(.004, (pos.y0 + pos.y1) / 2, order.replace(' ', '\n'), fontsize=9,
+        fig.text(.004, (pos.y0 + pos.y1) / 2,
+                 ORDER_LABEL[order].replace(' ', '\n'), fontsize=9,
                  ha='left', va='center', linespacing=1.25)
 
     y = lefts[0].get_position().y1 + .045

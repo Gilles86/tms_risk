@@ -48,6 +48,12 @@ from tms_risk.behavior.scripts.ppc_design_grid import VIEWS, load, covered
 
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
 REPO = Path(__file__).resolve().parents[3]
+#: Presentation order is DISPLAYED by the option that came FIRST, matching the
+#: manuscript. The data key stays `Risky second` -- it is what `risky_first`
+#: maps to throughout the repo and what every TSV contains -- and only the
+#: drawn text changes. They are the same trials: if the risky option came
+#: second, the safe one came first.
+ORDER_LABEL = {'Risky first': 'Risky first', 'Risky second': 'Safe first'}
 ORDERS = ['Risky first', 'Risky second']
 #: the one hard-coded palette rule in this repo: IPS (stimulated) is red,
 #: vertex (sham) is green, always -- never inverted, never used for order.
@@ -179,7 +185,7 @@ def level_panel(ax, d, view, order, show_ylab, show_xlab, show_title):
         # order is never a hue -- it is already the row -- so it is named in
         # words here, folded into the one y-label the row shows, rather than
         # as a second rotated text next to the first (the two collided)
-        ax.set_ylabel(f'{order}\n{meta["ylabel"]}')
+        ax.set_ylabel(f'{ORDER_LABEL[order]}\n{meta["ylabel"]}')
 
 
 def level_coverage(dd, lab):
@@ -239,9 +245,16 @@ def coverage_panel(ax, dd, ladder):
         ax.text(103, yy, nm, fontsize=6.8, va='center', color=c,
                 linespacing=1.25)
     ax.set_yticks([])
-    ax.axvline(100, color='0.75', lw=.8, ls=(0, (3, 2)), zorder=1)
+    # The reference is 95%, not 100%. These are 95% predictive intervals, so a
+    # correctly specified model is EXPECTED to miss about one cell in twenty --
+    # a line at 100 marks a target no correct model should hit and makes every
+    # model look deficient. At 95 the line separates at-nominal from below it,
+    # which is the question being asked.
+    ax.axvline(95, color='0.6', lw=.9, ls=(0, (3, 2)), zorder=1)
+    ax.text(95, len(rows) - .28, 'Nominal 95%', fontsize=6.2, color='0.45',
+            ha='center', va='bottom')
     ax.set_xlim(0, 138)
-    ax.set_xticks([0, 50, 100])
+    ax.set_xticks([0, 50, 95])
     ax.set_ylim(-.8, len(rows) - .2)
     ax.set_xlabel('Cells covered (%)')
     ax.set_title('The contrast separates the models; the levels do not',

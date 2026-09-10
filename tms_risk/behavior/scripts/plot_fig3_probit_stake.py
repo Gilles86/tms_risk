@@ -35,6 +35,12 @@ from scipy import stats as ss
 
 VERTEX, IPS = '#2ca02c', '#d62728'
 DIFF = '#2b2b2b'
+#: Presentation order is DISPLAYED by the option that came FIRST, matching the
+#: manuscript. The data key stays `Risky second` -- it is what `risky_first`
+#: maps to throughout the repo and what every TSV contains -- and only the
+#: drawn text changes. They are the same trials: if the risky option came
+#: second, the safe one came first.
+ORDER_LABEL = {'Risky first': 'Risky first', 'Risky second': 'Safe first'}
 ORDERS = ['Risky first', 'Risky second']
 STAKES = ['Low stake', 'High stake']
 CELLS = [(o, s) for o in ORDERS for s in STAKES]
@@ -228,7 +234,8 @@ def main(data_dir, out_stem, tag):
     # --- row labels once at the far left, order on top of stake
     for cell in CELLS:
         pos = axA[cell].get_position()
-        fig.text(.004, (pos.y0 + pos.y1) / 2, f'{cell[0]}\n{cell[1]}', fontsize=9,
+        fig.text(.004, (pos.y0 + pos.y1) / 2,
+                 f'{ORDER_LABEL[cell[0]]},\n{cell[1].lower()}', fontsize=9,
                  ha='left', va='center', linespacing=1.3, color='.15')
 
     # One title per COLUMN, each centred over the column it names, rather than
