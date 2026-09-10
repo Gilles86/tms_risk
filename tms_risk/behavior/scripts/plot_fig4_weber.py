@@ -92,7 +92,7 @@ BASE_LABELS = {'position': ('log-power-nullind', 'log-weber-nullind', 'nullind')
 
 
 def main(data_dir, out_stem, label, weber_label, bids_folder,
-         panels='abde', channels='stage', curves_tsv=None):
+         panels='abde', channels='stage', curves_tsv=None, forms=None):
     dd = Path(data_dir)
     CHANS = CHANNELS[channels]
     # Panels c and f are OFF by default. c ("size of the violation") only
@@ -256,7 +256,11 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
     # visible rather than asserted.
     ax = AX['e']
     place = label.split('-')[2]
-    forms = ['affine', 'power', 'spl3', 'cspl3', 'cspl5', 'spl5']
+    # smooth forms first: the point of the bundle is that the shape does not
+    # depend on the functional form, and a piecewise-linear curve invites
+    # the reader to look at its kinks instead of its shape. `--forms` can
+    # override.
+    forms = forms or ['power', 'cspl3', 'cspl5', 'cspl7', 'affine']
     avail = set(c_all.label.unique())
     forms = [f_ for f_ in forms if f'log-{f_}-{place}' in avail]
     # Both channels, every form. The forms are drawn as one bundle rather than
@@ -374,6 +378,9 @@ if __name__ == '__main__':
                     help="'stage' (perceptual/memory, the default and what "
                          "Figure 5 uses) or 'position' (n1/n2, which does not "
                          "sample: baseline r_hat 1.05 / ESS 115)")
+    ap.add_argument('--forms', nargs='+', default=None,
+                    help='flexible noise forms to bundle in panel d (default: '
+                         'power + the smooth cspl family)')
     ap.add_argument('--curves_tsv', default=None,
                     help='extra anchor_curves TSV to merge in, e.g. the '
                          'shared-family baseline extraction')
@@ -391,4 +398,4 @@ if __name__ == '__main__':
                          "predicted-consistency panel")
     a = ap.parse_args()
     main(a.data_dir, a.out_stem, a.model_label, a.weber_label, a.bids_folder,
-         a.panels, a.channels, a.curves_tsv)
+         a.panels, a.channels, a.curves_tsv, a.forms)
