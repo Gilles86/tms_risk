@@ -58,6 +58,27 @@ that the baseline identifies the two stages directly — not that the alternativ
 failed. Report `spl5-n1n2` or `spl7-n1n2` as the position-indexed robustness
 check.
 
+### One Methods sentence on why the parameterisation matters
+
+Gilles wants this touched on briefly. It must NOT say the stage parameterisation
+is "necessary for convergence" — `spl5-n1n2` and `spl7-n1n2` converge at ESS
+2 822 and 14 412 and a reviewer refitting would find them. Accurate wording,
+about two sentences, in Methods (Model estimation), not Results:
+
+> At the two-parameter power form, the position-indexed parameterisation
+> (separate noise functions for the first- and second-presented option) does not
+> sample reliably: its low anchor falls at the bottom of the payoff range, where
+> presentations are almost all safe options, so it trades against the mean of
+> the safe magnitude prior — the least well-identified parameter in the model,
+> since the safe option takes only five distinct values. The stage-indexed
+> parameterisation shares one perceptual component between the two options and
+> is not subject to this trade-off; with four or more spline anchors the
+> position-indexed models sample cleanly and give the same answer (Supp. Fig. X).
+
+Why this is the better sentence: it names the cause, it is checkable, and it
+turns a sampling annoyance into a statement about what the design can and cannot
+identify — which is a real limitation worth reporting.
+
 ## 3. Numbers to use
 
 All tokens are in `notes/PLACEHOLDERS.md`. Keep the ⟦…⟧ brackets intact.
