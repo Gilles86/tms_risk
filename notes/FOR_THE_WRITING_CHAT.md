@@ -319,6 +319,7 @@ sweep earns it.
 | 82 | +0.053 against [−0.014, +0.044], p = 0.005 | ⟦PPC_FAIL⟧ |
 | 82 | order contrast p = 0.09 / slope p = 0.84 / three-way p = 0.51 | ⟦PPC_ORDER⟧, ⟦PPC_SLOPE_ORDER⟧, ⟦PPC_THREEWAY⟧ |
 | 85 | "95% posterior interval [x, y]" | ⟦BB_INTERVAL⟧ — **still blocked**, leave the brackets |
+| 78 | Fig. 5 caption: "panels e and f show the posterior of the mean over the 35 sampled participants, which is narrower" | **stale** — those panels now draw the same population-level interval panel c does. Delete the clause; nothing in the figure is shaded on a different footing any more. |
 | 74 | "3, 5, or 7 anchor payoffs" | ⟦SPLINE_ORDERS⟧ once the spline ladder lands |
 
 ¶82 also says "eight targeted posterior predictive checks … Seven of the eight";
@@ -380,6 +381,15 @@ so the paragraph ends on what the model does rather than on what it misses. The
 existing explanation (partial pooling shrinks contrasts by construction, and
 none of the eight statistics is in the likelihood) is correct and well put —
 keep it verbatim.
+
+**¶81, the decomposition paragraph.** The percentages quoted for the risky
+and safe options (+8.1%, −1.8%, etc.) come from traces whose 95% credible
+interval covers zero at EVERY safe payoff — e.g. the risky option at the
+largest safe payoff is +4.0% [−1.5, +9.6]. They are a decomposition of the
+model's arithmetic, not effects. Quote them as "the model attributes X to
+…", never as findings, and do not attach a p to them. The two SOLID traces
+(perceived ratio, decision SD) are the ones that enter choice and are the
+ones to lead with.
 
 **Title of the section at ¶71** — "localizes the cTBS effect to the foreground
 option" — "foreground" appears nowhere else in the paper and is not defined.

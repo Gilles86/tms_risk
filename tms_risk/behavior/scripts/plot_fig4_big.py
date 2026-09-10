@@ -760,8 +760,17 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 if key + '_lo' in q:
                     ax.fill_between(x, q[key + '_lo'], q[key + '_hi'],
                                     color=col, alpha=.16, lw=0, zorder=1)
-                ax.plot(x, q[key], 'o', ms=ms, color=col, zorder=3)
-                ax.plot(x, q[key], ls=ls, lw=lw, color=col, zorder=2)
+                # markers only on traces whose interval actually clears zero
+                # somewhere. The two dashed decomposition traces are
+                # intermediate quantities and their bands cover zero at every
+                # safe payoff; drawn with dots they read as measured points and
+                # the eye follows the line instead of the band.
+                clears = (key + '_lo' not in q or
+                          bool(((q[key + '_lo'] > 0) | (q[key + '_hi'] < 0)).any()))
+                if clears:
+                    ax.plot(x, q[key], 'o', ms=ms, color=col, zorder=3)
+                ax.plot(x, q[key], ls=ls, lw=lw if clears else lw * .85,
+                        color=col, alpha=1.0 if clears else .75, zorder=2)
             ax.set_ylim(*YL)
         ax.set_xticks(np.arange(5))
         ax.set_xticklabels(['7', '10', '14', '20', '28'])
