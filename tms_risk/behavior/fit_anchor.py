@@ -706,6 +706,14 @@ def main():
         ap_suffix += f'.{args.prior_estimate}'
     if anchors is not None:
         ap_suffix += '.a' + '-'.join(f'{a:g}' for a in model.anchors)
+    # EVERY option that changes the posterior must reach the filename. --init
+    # and --prior_mu_sigma did not, so three jobs varying only those wrote the
+    # same path concurrently: one read a half-written file, one could not lock
+    # it, and the third overwrote the original trace.
+    if args.init is not None:
+        ap_suffix += '.' + args.init.replace('+', '')
+    if args.prior_mu_sigma is not None:
+        ap_suffix += f'.pms{args.prior_mu_sigma:g}'
     if args.level_slope:
         ap_suffix += '.ls'
     if args.sum_coding:
