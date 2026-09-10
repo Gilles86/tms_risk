@@ -13,25 +13,35 @@ none of them changes a sign or a conclusion.
 
 | token | current | status |
 |---|---|---|
-| ⟦MODEL_NAME⟧ | power-law PMCM with cTBS free on both presented options (`log-power-n1n2`) | **FINAL** — the model choice is decided; only its prior is pending |
-| ⟦RHAT⟧ / ⟦ESS⟧ | 1.02 / 384 | pending — must clear 1.01 / 400 or be reported with the prior in Methods |
-| ⟦DNU7⟧ | 0.029 log units | pending |
-| ⟦DNU7_CRI⟧ | [0.002, 0.057] | pending |
-| ⟦DNU7_P⟧ | 0.020 | pending |
-| ⟦N_INCREASE⟧ | 33 of 35 | pending |
-| ⟦DNU_FIRST_P1⟧ / ⟦DNU_FIRST_P2⟧ | 0.27 / 0.23 | pending |
-| ⟦DNU_SECOND_HIGH_P⟧ | 0.18 | pending |
-| ⟦CRED_UPPER⟧ | ~22 CHF | pending — where the credible band on Δν ends |
+| ⟦MODEL_NAME⟧ | power-law PMCM, stage-indexed, cTBS on perceptual noise + the prior means (`log-power-percpmu`) | **FINAL** |
+| ⟦RHAT⟧ / ⟦ESS⟧ | 1.000 / 11016 | **FINAL** — clears the gate with room |
+| ⟦DNU7⟧ | +18.3% (0.029 log units) | pending — final sweep |
+| ⟦DNU7_CRI⟧ | [+0.003, +0.061] log units | pending |
+| ⟦DNU7_P⟧ | 0.96 | pending |
+| ⟦DNU_HIGH⟧ | +0.1% at 112 CHF, not credible | pending |
+| ⟦CRED_UPPER⟧ | ~18 CHF | pending |
+| ⟦SAFE_PMU⟧ / ⟦SAFE_PMU_P⟧ | −14% (10.7 → 9.2 CHF) / 0.944 | pending |
+| ⟦RISKY_PMU⟧ | +4%, p 0.34 — null | pending |
+| ⟦MEM_RATIO⟧ | 0.41 (baseline memory noise, 112 vs 7 CHF) | **FINAL** |
 
 ## Results — model comparison
 
+Every ⟦ELPD_*⟧ comes from the single LOO pass over the placement ladder; all are
+PAIRED against ⟦MODEL_NAME⟧ with the dSE of the paired difference.
+
 | token | current | status |
 |---|---|---|
-| ⟦ELPD_NULL⟧ / ⟦ELPD_NULL_DSE⟧ | 100.3 / 13.0 | pending |
-| ⟦ELPD_WEBER⟧ / ⟦ELPD_WEBER_DSE⟧ | 34.1 / 9.6 | pending — **the draft's 35.6 / 8.8 is a raw-choice-rule number** |
-| ⟦ELPD_MEM⟧ / ⟦ELPD_MEM_DSE⟧ | 44.7 / 10.0 | pending |
-| ⟦ELPD_N1⟧ / ⟦ELPD_N2⟧ | 24.0 / 27.0 | pending |
-| ⟦ELPD_UNRESOLVED⟧ | 0.6 | pending — the dSE within which the surviving placements sit |
+| ⟦ELPD_NULL⟧ / ⟦ELPD_NULL_DSE⟧ / ⟦SE_NULL⟧ | 111.4 / 13.7 / 8.1 | pending |
+| ⟦ELPD_MEM⟧ / ⟦ELPD_MEM_DSE⟧ / ⟦SE_MEM⟧ | 46.9 / 9.9 / 4.7 | pending |
+| ⟦ELPD_SPMU⟧ / ⟦ELPD_SPMU_DSE⟧ / ⟦SE_SPMU⟧ | 25.7 / 6.8 / 3.8 | pending — **the rung that makes the noise effect necessary** |
+| ⟦ELPD_PERCMEM⟧ / ⟦SE_PERCMEM⟧ | 5.8 / 1.5 | pending — do NOT read as establishing the prior shift |
+| ⟦ELPD_PERCMEMPMU⟧ | 0.01 (dSE 1.15) — an exact tie | pending |
+| ⟦ELPD_PW⟧ / ⟦ELPD_PW_DSE⟧ | 1.6 / 2.9 | pending — Weber memory, 14 params vs 16 |
+| ⟦GRID_COV⟧ | 21 | pending — of 22 design-grid cells |
+
+**Retired tokens** (the claims they served are withdrawn): ⟦ELPD_WEBER⟧,
+⟦ELPD_N1⟧, ⟦ELPD_N2⟧, ⟦ELPD_UNRESOLVED⟧, ⟦ASYM_FRACTION⟧, ⟦DNU_FIRST_P1⟧,
+⟦DNU_FIRST_P2⟧, ⟦DNU_SECOND_HIGH_P⟧, ⟦N_INCREASE⟧.
 
 ## Results — posterior predictive checks
 
@@ -45,7 +55,9 @@ none of them changes a sign or a conclusion.
 | ⟦PPC_SLOPE_SECOND⟧ | −0.103, [−0.108, +0.108], p = 0.97 | pending — barely covered; do not lean on it |
 | ⟦PPC_SLOPE_ORDER⟧ | −0.094, [−0.158, +0.130], p = 0.84 | pending |
 | ⟦PPC_HIGH_STAKE⟧ | +0.037, [−0.036, +0.071], p = 0.20 | pending |
-| ⟦PPC_FAIL⟧ | +0.053 against [−0.014, +0.044], p = 0.005 | pending |
+| ⟦PPC_OBS_SECOND⟧ | +0.053 | **FINAL** — observed cTBS effect on risky-second choice proportions |
+| ⟦PPC_FAIL⟧ | +0.024 predicted, ppp 0.04 | pending |
+| ⟦PPC_FAIL_NOISEONLY⟧ | +0.006 (perc) / +0.011 (percmem), ppp < 0.01 | pending |
 | ⟦PPC_FRACTION⟧ | about a quarter | pending |
 | ⟦PPC_CELLS⟧ / ⟦PPC_R⟧ / ⟦PPC_COVERAGE⟧ | 420 / 0.93 / 97% | pending |
 | ⟦ASYM_OBS⟧ / ⟦ASYM_MODEL⟧ | +4.7 / +1.9 percentage points | pending |
