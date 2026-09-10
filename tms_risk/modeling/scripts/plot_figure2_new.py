@@ -40,8 +40,8 @@ CANONICAL = 1
 mpl.rcParams.update({
     'font.family': 'Helvetica',
     'font.sans-serif': ['Helvetica', 'Helvetica Neue', 'TeX Gyre Heros', 'Arial'],
-    'font.size': 7, 'axes.labelsize': 8, 'axes.titlesize': 8,
-    'xtick.labelsize': 7, 'ytick.labelsize': 7, 'legend.fontsize': 7,
+    'font.size': 8, 'axes.labelsize': 8.5, 'axes.titlesize': 9,
+    'xtick.labelsize': 8, 'ytick.labelsize': 8, 'legend.fontsize': 8,
     'mathtext.fontset': 'stixsans',
     'axes.linewidth': 0.8, 'axes.spines.top': False, 'axes.spines.right': False,
     'axes.labelpad': 4,
@@ -141,7 +141,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     t, p = stats.ttest_rel(ps['ips'], ps['vertex'])
     print(f'B amplitude: vertex {ps["vertex"].median():.4f} -> ips '
           f'{ps["ips"].median():.4f}  t({len(ps)-1})={t:+.3f}  p1={p/2:.4f}')
-    axB.text(0.03, 0.97, f'cTBS lowers amplitude\nt({len(ps)-1}) = {abs(t):.2f}, '
+    axB.text(0.03, 0.97, f't({len(ps)-1}) = {abs(t):.2f}, '
              f'p = {p/2:.3f}',
              transform=axB.transAxes, fontsize=7, color='0.3', va='top', ha='left')
     axB.set_title('nPRF amplitude after cTBS', pad=6)
@@ -176,7 +176,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     t, p = stats.ttest_rel(dec.ips, dec.vertex)
     print(f'C decoding: vertex {dec.vertex.mean():.4f} -> ips {dec.ips.mean():.4f}'
           f'  t({len(dec)-1})={t:+.3f}  p2={p:.4f}')
-    axC.text(0.03, 0.97, f'cTBS lowers accuracy\nt({len(dec)-1}) = {abs(t):.2f}, '
+    axC.text(0.03, 0.97, f't({len(dec)-1}) = {abs(t):.2f}, '
              f'p = {p:.3f}', transform=axC.transAxes, fontsize=7, color='0.3',
              va='top', ha='left')
     axC.set_title('Trial-wise decoding', pad=6)
@@ -199,7 +199,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     axD.set_ylim(top=0.13)
     nD = grid[grid.model == CANONICAL].shape[0]
     axD.text(0.03, 0.97,
-             f'Amplitude-only beats null\nt({nD - 1}) = {tD:.2f}, p = {pD:.3f}',
+             f't({nD - 1}) = {tD:.2f}, p = {pD:.3f}',
              transform=axD.transAxes, fontsize=7, color='0.3', va='top', ha='left')
     letters['D'] = axD
 
@@ -210,7 +210,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
                    MCOLORS.get(m, '.4'))
     axE.set_title('Voxels beating the null', pad=6)
     axE.set_ylabel('Fraction of voxels')
-    axE.set_xlabel('nPRF parameters free to differ between sessions')
+    axE.set_xlabel('Session-specific parameters')
     letters['E'] = axE
 
     axF = fig.add_subplot(bot[0, 2])
@@ -224,7 +224,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
         t, p = stats.ttest_1samp(diff, 0)
         pmax = max(pmax, p)
     ptxt = 'all p < 0.001' if pmax < .001 else f'all p \u2264 {pmax:.3f}'
-    axF.text(0.03, 0.97, f'Every alternative fits worse\n{ptxt}',
+    axF.text(0.03, 0.97, f'{ptxt}',
              transform=axF.transAxes, fontsize=7, color='0.3', va='top',
              ha='left')
     axF.set_title('Versus the amplitude-only model', pad=6)
@@ -248,7 +248,7 @@ def main(voxel_tsv, decoding_tsv, grid_tsv, panel_a, bids_folder, out_stem):
     for letter, a in letters.items():
         a.annotate(letter.lower(), xy=(0, 1), xycoords='axes fraction',
                    xytext=(-6 if letter == 'A' else -34, 6),
-                   textcoords='offset points', fontsize=8, fontweight='bold',
+                   textcoords='offset points', fontsize=9, fontweight='bold',
                    family='Arial', va='bottom', ha='right')
 
     for ext in ['pdf', 'png', 'svg']:

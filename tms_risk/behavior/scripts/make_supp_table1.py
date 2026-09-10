@@ -10,9 +10,17 @@ ELPD differences are PAIRED and reported against the model the paper reports,
 with the standard error of the difference (dSE), which accounts for the
 correlation between models evaluated on the same trials.
 
-`checks` counts how many of the seven targeted posterior predictive statistics
-fall inside the model's own 95% predictive interval. It is the criterion that
-separates the families; ELPD alone mostly reflects the bulk choice curve.
+Two posterior-predictive columns, because the first turned out not to
+discriminate. `checks` counts how many of the EIGHT TARGETED statistics fall
+inside the model's own 95% predictive interval -- and eleven of these twenty
+models score 8/8, including the priors-only model with no noise change at all,
+so passing it is necessary and nowhere near sufficient. `grid` counts the
+DESIGN'S OWN CELLS: 34 contrasts fixed by the 5 safe payoffs x 2 orders x 2
+arms before any data existed, across four views of the same choices
+(P(risky) against safe payoff, against the risky/safe ratio, against stake,
+and the psychometric SLOPE against stake). Nothing there is binned or chosen
+post hoc, there are four times as many of them, and they do separate the
+models -- so `grid` is the column to read.
 
     python -m tms_risk.behavior.scripts.make_supp_table1
 """
@@ -29,22 +37,53 @@ REPO = Path(__file__).resolve().parents[3]
 
 #: label -> (noise function, what cTBS is allowed to change)
 ROWS = [
-    # WHERE the cTBS effect acts (power law throughout)
-    ('log-power-n1n2',     'Power', 'Noise on both options'),
-    ('log-power-percmem',  'Power', 'Perceptual + memory noise'),
-    ('log-power-perc',     'Power', 'Perceptual noise only'),
-    ('log-power-n2',       'Power', 'Noise on 2nd-presented option'),
-    ('log-power-n1',       'Power', 'Noise on 1st-presented option'),
-    ('log-power-mem',      'Power', 'Memory noise only'),
-    ('log-power-nullind',  'Power', 'No cTBS effect'),
-    # WHAT SHAPE the noise function takes (cTBS on both options throughout)
-    ('log-spl3-n1n2',      'Spline, 3 knots', 'Noise on both options'),
-    ('log-spl5-n1n2',      'Spline, 5 knots', 'Noise on both options'),
-    ('log-genweber-n1n2',  'Generalised Weber', 'Noise on both options'),
-    ('log-weber-n1n2',     'Weber, constant ν', 'Noise on both options'),
-    ('log-spl3-nullind',   'Spline, 3 knots', 'No cTBS effect'),
-    ('log-weber-nullind',  'Weber, constant ν', 'No cTBS effect'),
+    # WHERE the cTBS effect acts (power law throughout, so the rungs differ
+    # ONLY in what the perturbation is allowed to move)
+    ('log-power-percmempmu',      'Power', 'Perceptual + memory noise, prior means'),
+    ('log-power-percpmu',         'Power', 'Perceptual noise + prior means'),
+    ('log-power-percmem',         'Power', 'Perceptual + memory noise'),
+    ('log-power-perc',            'Power', 'Perceptual noise only'),
+    ('log-power-spmu',            'Power', 'Prior means only, no noise change'),
+    ('log-power-mem',             'Power', 'Memory noise only'),
+    ('log-power-null',            'Power', 'No cTBS effect'),
+    # SAME placements with a Weber (constant-nu) memory channel, so the two
+    # channels take different forms rather than the same one
+    ('log-power+weber-percmempmu', 'Power perc. + Weber mem.', 'Perceptual + memory noise, prior means'),
+    ('log-power+weber-percpmu',    'Power perc. + Weber mem.', 'Perceptual noise + prior means'),
+    ('log-power+weber-percmem',    'Power perc. + Weber mem.', 'Perceptual + memory noise'),
+    ('log-power+weber-perc',       'Power perc. + Weber mem.', 'Perceptual noise only'),
+    ('log-power+weber-null',       'Power perc. + Weber mem.', 'No cTBS effect'),
+    # HOW FLEXIBLE the noise function needs to be, placement held at the
+    # reported one. Piecewise-linear and natural-cubic ("smooth") bases over
+    # the same payoff range, 3 to 7 anchors per channel.
+    ('log-spl3-percpmu',   'Spline, 3 anchors',        'Perceptual noise + prior means'),
+    ('log-spl4-percpmu',   'Spline, 4 anchors',        'Perceptual noise + prior means'),
+    ('log-spl5-percpmu',   'Spline, 5 anchors',        'Perceptual noise + prior means'),
+    ('log-spl6-percpmu',   'Spline, 6 anchors',        'Perceptual noise + prior means'),
+    ('log-spl7-percpmu',   'Spline, 7 anchors',        'Perceptual noise + prior means'),
+    ('log-cspl3-percpmu',  'Smooth spline, 3 anchors', 'Perceptual noise + prior means'),
+    ('log-cspl5-percpmu',  'Smooth spline, 5 anchors', 'Perceptual noise + prior means'),
+    ('log-cspl7-percpmu',  'Smooth spline, 7 anchors', 'Perceptual noise + prior means'),
 ]
+
+
+def grid_cov(dd, lab):
+    """Coverage over the design's own cells, pooled across the four views.
+
+    Reuses `ppc_design_grid.load` rather than reimplementing the file layout,
+    so the table and the design-grid figure can never disagree about what a
+    cell is or which of them a model covers.
+    """
+    from tms_risk.behavior.scripts.ppc_design_grid import load, covered, VIEWS
+    ok = n = 0
+    for v in VIEWS:
+        try:
+            _, d = load(dd / 'ppc_anchor', lab, v)
+        except SystemExit:
+            continue
+        ok += int(covered(d).sum())
+        n += len(d)
+    return f'{ok}/{n}' if n else '--'
 
 
 def main(data_dir, reference, out_stem):
@@ -90,6 +129,7 @@ def main(data_dir, reference, out_stem):
             row['checks'] = f'{int(st.covered.sum())}/{len(st)}'
         else:
             row['checks'] = '--'
+        row['grid'] = grid_cov(dd, lab)
         if lab in chk.index:
             row['rhat'] = float(chk.loc[lab, 'max_rhat'])
             row['ess'] = int(chk.loc[lab, 'min_ess_bulk'])
@@ -99,12 +139,16 @@ def main(data_dir, reference, out_stem):
         row['label'] = lab
         (out if ok else excluded).append(row)
 
-    T = pd.DataFrame(out).sort_values('ELPD', ascending=False)
+    # ROWS order, not ELPD order: the table answers two separate
+    # questions and sorting by ELPD interleaves them into one
+    # ranking the paper never claims
+    T = pd.DataFrame(out)
     T.to_csv(f'{out_stem}.tsv', sep='\t', index=False)
 
     def fmt(df, ref_lab):
-        lines = ['| Noise function | cTBS affects | ELPD | ΔELPD (dSE) | p_loo | PPC | r̂ | ESS |',
-                 '|---|---|---:|---:|---:|:---:|---:|---:|']
+        lines = ['| Noise function | cTBS affects | ELPD | ΔELPD (dSE) | '
+                 'p_loo | Targeted | Grid | r̂ | ESS |',
+                 '|---|---|---:|---:|---:|:---:|:---:|---:|---:|']
         for _, r in df.iterrows():
             d = ('reference' if r.label == ref_lab
                  else ('--' if not np.isfinite(r.dELPD)
@@ -112,21 +156,28 @@ def main(data_dir, reference, out_stem):
             star = ' **' if r.label == ref_lab else ' '
             lines.append(f'|{star}{r.Model}{star.strip()} | {r.cTBS_affects} | '
                          f'{r.ELPD:.1f} | {d} | {r.p_loo:.0f} | {r.checks} | '
-                         f'{r.rhat:.3f} | {r.ess} |')
+                         f'{r.grid} | {r.rhat:.3f} | {r.ess} |')
         return '\n'.join(lines)
 
     md = ['# Supplementary Table 1. Model comparison', '',
           'Expected log predictive density (ELPD, leave-one-out; Vehtari et al., '
           '2017) for every candidate model that met the convergence criterion '
           '(r̂ ≤ 1.01 and effective sample size ≥ 400 on all '
-          'group-level parameters). Every model holds the magnitude '
-          'priors fixed across stimulation sessions. ΔELPD is the PAIRED '
-          'difference against '
+          'group-level parameters). The upper block varies WHAT the '
+          'perturbation is allowed to move with the noise function held at '
+          'the power law; the lower block varies HOW FLEXIBLE the noise '
+          'function is with the placement held at the reported one. '
+          'ΔELPD is the PAIRED difference against '
           'the model reported in the main text, with the standard error of that '
           'difference (dSE) in brackets; positive values favour the alternative. '
-          '`p_loo` is the effective number of parameters. `PPC` is the number of '
-          'the seven targeted posterior predictive statistics that fall inside '
-          "the model's own 95% predictive interval.", '',
+          '`p_loo` is the effective number of parameters. `Targeted` is the '
+          'number of the eight targeted posterior predictive statistics that '
+          "fall inside the model's own 95% predictive interval; `Grid` is the "
+          'same count over the 34 cells the design itself fixes (5 safe '
+          'payoffs x 2 presentation orders x 2 stimulation arms, across four '
+          'views of the same choices). Eleven models score 8/8 on the targeted '
+          'statistics, so that column is necessary but not diagnostic; `Grid` '
+          'is the one that separates them.', '',
           fmt(T, reference)]
     if excluded:
         md += ['', '**Excluded for non-convergence.** '
@@ -142,7 +193,7 @@ def main(data_dir, reference, out_stem):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser()
     ap.add_argument('--data_dir', default=str(REPO / 'notes/data'))
-    ap.add_argument('--reference', default='log-power-n1n2.mapjitter.klw')
+    ap.add_argument('--reference', default='log-power-percpmu.mapjitter.klw')
     ap.add_argument('--out_stem', default=str(REPO / 'notes/supp_table1'))
     a = ap.parse_args()
     main(a.data_dir, a.reference, a.out_stem)

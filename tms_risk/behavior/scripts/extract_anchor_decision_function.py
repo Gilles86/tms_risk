@@ -38,7 +38,9 @@ from scipy.stats import norm
 from bauer.models.anchor_noise import NOISE_FORMS, AnchorNoiseMixin
 
 NAME_RE = re.compile(r'^(log|chf)_(perc|mem|n1|n2)_'
-                     r'(weber|affine|power|genweber|spl3|spl5|spl7|spl9|cspl3|cspl5|cspl7)_sd(\d*)$')
+                     r'(' + '|'.join(sorted(NOISE_FORMS, key=len,
+                                              reverse=True))
+                     + r')_sd(\d*)$')
 SHARED = ('null', 'perc', 'mem', 'percmem', 'spsd', 'spmusd', 'percpsd',
           'percmempsd', 'percx', 'percmemx')
 

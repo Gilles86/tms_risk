@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-power-percpmu.mapjitter.klw	log	power	percpmu	shared_perceptual_noise	8	-4148.098182928399	46.79492998835071	188.19929001451737	0.0	0.6240621939699412

@@ -32,15 +32,16 @@ INK = '#1a1a1a'
 CONTROL = '#9c9c9c'
 
 ROI_ORDER = ['NPCr2cm-cluster', 'NPC12r', 'NPCl', 'NF1', 'NTO']
-ROI_LABEL = {'NPCr2cm-cluster': 'Stim.\nsite', 'NPC12r': 'Right\npariet.',
-             'NPCl': 'Left\npariet.', 'NF1': 'Frontal', 'NTO': 'Occip.\ntemp.'}
+ROI_LABEL = {'NPCr2cm-cluster': 'Stimulation\nsite',
+             'NPC12r': 'Right\nparietal', 'NPCl': 'Left\nparietal',
+             'NF1': 'Frontal', 'NTO': 'Occipito-\ntemporal'}
 
 
 def set_style():
     mpl.rcParams.update({
         'font.family': 'Helvetica',
         'font.sans-serif': ['Helvetica', 'Helvetica Neue', 'Arial'],
-        'font.size': 9, 'axes.labelsize': 9, 'axes.titlesize': 9,
+        'font.size': 8, 'axes.labelsize': 8.5, 'axes.titlesize': 9,
         'xtick.labelsize': 8, 'ytick.labelsize': 8, 'legend.fontsize': 8,
         'mathtext.fontset': 'stixsans',
         'axes.linewidth': 0.8, 'axes.spines.top': False, 'axes.spines.right': False,
@@ -90,8 +91,8 @@ def panel_a(ax, d):
     xs = np.linspace(x.min(), x.max(), 50)
     ax.plot(xs, np.polyval(fit, xs), color=INK, lw=1.2, zorder=2)
 
-    ax.set_xlabel('Δ nPRF gain (IPS − vertex)')
-    ax.set_ylabel('Δ Choice consistency\n(IPS − vertex)')
+    ax.set_xlabel('Δ nPRF gain (IPS − Vertex)')
+    ax.set_ylabel('Δ Choice consistency\n(IPS − Vertex)')
     ax.set_xticks([-1, -0.5, 0, 0.5])
     ax.set_yticks([-6, -3, 0, 3, 6])
     ax.text(0.03, 0.95, f'r({len(x)-2}) = {r:.2f}, p = {p:.3f}',
@@ -158,21 +159,40 @@ def panel_c(ax, quality='log_abs_err'):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default=str(FIGS / 'brain_behavior_link.pdf'))
+    ap.add_argument('--with-trialwise', action='store_true',
+                    help='add the within-subject decoding-precision panel; off '
+                         'by default because it carries no stimulation contrast')
     args = ap.parse_args()
+    with_trialwise = args.with_trialwise
 
     set_style()
     d = load().dropna(subset=ROI_ORDER + ['consistency_rsecond',
                                           'consistency_rfirst'])
 
-    fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.5), constrained_layout=True,
-                             gridspec_kw={'width_ratios': [1.05, 1.45, 0.7]})
+    # Panel c is OFF by default, and not because its data is missing. It
+    # correlates trial-wise decoding precision with psychometric slope WITHIN
+    # participants -- a claim in which stimulation plays no part at all. This
+    # figure's job is the cTBS causal chain, and a panel with no stimulation
+    # contrast in it dilutes that and invites the reader to ask what it is
+    # doing here. `--with-trialwise` restores it for a reviewer response.
+    have_c = with_trialwise and (
+        DATA / 'bb_trialwise_byorder_log_abs_err.tsv').exists()
+    ncol = 3 if have_c else 2
+    fig, axes = plt.subplots(
+        1, ncol, figsize=(7.25 if have_c else 6.9, 2.5),
+        constrained_layout=True,
+        gridspec_kw={'width_ratios': [1.0, 1.7, 0.7][:ncol]})
     panel_a(axes[0], d)
     panel_b(axes[1], d)
-    panel_c(axes[2])
+    if have_c:
+        panel_c(axes[2])
+    elif with_trialwise:
+        print('  --with-trialwise asked for, but no '
+              'bb_trialwise_byorder_log_abs_err.tsv on disk; panel c skipped')
 
     for ax, letter in zip(axes, 'abc'):
-        ax.text(-0.28, 1.06, letter, transform=ax.transAxes, fontsize=11,
-                fontweight='bold', va='bottom', ha='left')
+        ax.text(-0.28, 1.06, letter, transform=ax.transAxes, fontsize=9,
+                fontweight='bold', family='Arial', va='bottom', ha='left')
     sns.despine(fig=fig, offset=4, trim=False)
 
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)

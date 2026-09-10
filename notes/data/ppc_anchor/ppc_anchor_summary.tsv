@@ -1,2 +1,2 @@
 label	space	form	placement	grand_mean_gap	rmse_stake	n_draws
-log-spl5-n1n2.mapjitter.klw	log	spl5	n1n2	-0.007141466443694955	0.02539249763501532	400
+log-spl6-percpmu.mapjitter.klw	log	spl6	percpmu	-0.009137023174885739	0.022296249125467023	400

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-cspl5-n1n2.pathfinder	log	cspl5	n1n2	independent	14	-4171.641139269484	47.07715632281953	295.44392431467713	0.0001199760047990402	0.837765992436727

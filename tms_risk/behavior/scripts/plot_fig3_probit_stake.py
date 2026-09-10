@@ -62,11 +62,21 @@ BOLD = dict(fontname='Arial', fontweight='bold')
 
 XT = [1.5, 2, 2.5, 3]
 RISK_NEUTRAL = 1 / .55
+#: chance level on the RNP axis, the risk-neutral probability itself
+RISK_NEUTRAL_P = .55
 
+#: Panel B plots the two conditions as LEVELS with their credible intervals,
+#: not the difference as a density. Figure 3b,c shows exactly these two
+#: parameters in exactly that grammar, and this figure is the same analysis
+#: split by stake -- a reader moving between them should not have to relearn
+#: how to read a panel. The difference is still reported, as the annotated
+#: delta and p, which is what the density was for.
 SPECS = [
-    dict(par='slope', xlabel='Δ Psychometric slope', ticks=[-1., -.5, 0., .5, 1.],
+    dict(par='slope', ylabel='Psychometric slope', fmt='{:+.2f}',
+         title='Choice consistency',
          anchors=('Less consistent', 'More consistent')),
-    dict(par='rnp', xlabel='Δ Risk-neutral probability', ticks=[-.05, 0., .05, .10, .15],
+    dict(par='rnp', ylabel='Risk-neutral\nprobability', fmt='{:+.3f}',
+         title='Risk attitude',
          anchors=('Risk-averse', 'Risk-seeking')),
 ]
 
@@ -154,53 +164,66 @@ def main(data_dir, out_stem, tag):
     a0.legend(loc='lower right', fontsize=8, handlelength=1.5, borderpad=.2,
               labelspacing=.2, borderaxespad=.2)
 
-    # --- B: the paired difference posterior per cell. One x-range and one density
-    # scale per parameter across ALL FOUR cells, so heights and offsets compare.
+    # --- B: the two conditions as levels, one y-range per parameter across all
+    # four cells so the panels compare. Same grammar as Figure 3b,c.
     stats = {}
     for spec in SPECS:
         par = spec['par']
         deltas = {c: paired_delta(post, par, *c) for c in CELLS}
-        allv = np.concatenate(list(deltas.values()))
-        pad = .07 * np.ptp(allv)
-        grid = np.linspace(allv.min() - pad, allv.max() + pad, 512)
-        scale = max(ss.gaussian_kde(d)(grid).max() for d in deltas.values())
+        lv = {}
+        for cell in CELLS:
+            for stim in ('vertex', 'ips'):
+                v = post[(post.parameter == par) & (post.order == cell[0])
+                         & (post.stake == cell[1])
+                         & (post.stimulation_condition == stim)].value.values
+                lv[cell + (stim,)] = (v.mean(), *np.quantile(v, [.025, .975]))
+        allv = np.concatenate([[q[1], q[2]] for q in lv.values()])
+        pad = .10 * np.ptp(allv)
+        ylo, yhi = allv.min() - pad, allv.max() + pad * 2.4
 
         for cell in CELLS:
             ax = axB[(cell[0], cell[1], par)]
             d = deltas[cell]
             lo, hi = np.quantile(d, [.025, .975])
-            p = pfmt(d)
-            stats[(par,) + cell] = (d.mean(), lo, hi, p)
+            pstr = pfmt(d)
+            stats[(par,) + cell] = (d.mean(), lo, hi, pstr)
+            credible = (lo > 0) or (hi < 0)
 
-            ax.plot([0, 0], [-.34, 1.12], color='.6', lw=.7, ls='--', zorder=1)
-            dens = ss.gaussian_kde(d)(grid) / scale
-            ax.fill_between(grid, 0, dens, color=DIFF, alpha=.3, lw=0, zorder=2)
-            ax.plot(grid, np.where(dens > .01, dens, np.nan), color=DIFF, lw=.9,
-                    zorder=3)
-            ax.plot([lo, hi], [-.22, -.22], color=DIFF, lw=1.7,
-                    solid_capstyle='round', zorder=4)
-            ax.plot([d.mean()], [-.22], 'o', ms=4.2, color=DIFF, mec='white',
-                    mew=.8, zorder=5)
-            ax.axhline(0, color='.75', lw=.6, zorder=1)
-            ax.text(.98, .99, p, transform=ax.transAxes, ha='right', va='top',
-                    fontsize=8, color='.15')
-
-            ax.set_xlim(grid[0], grid[-1])
-            ax.set_ylim(-.60, 1.15)
-            ax.set_yticks([])
-            for side in ('left', 'top', 'right'):
-                ax.spines[side].set_visible(False)
-            ax.set_xticks(spec['ticks'])
+            if par == 'rnp':
+                ax.axhline(RISK_NEUTRAL_P, color='.75', lw=.7, ls='--', zorder=1)
+            m_v, m_i = lv[cell + ('vertex',)][0], lv[cell + ('ips',)][0]
+            # the connector carries the contrast: dark when the interval on the
+            # difference clears zero, grey when it does not, so the reader sees
+            # the verdict on the same mark that shows the change
+            ax.plot([0, 1], [m_v, m_i], '-', lw=1.4,
+                    color='.15' if credible else '.62', zorder=2)
+            for x, stim, col, mk in ((0, 'vertex', VERTEX, 'o'),
+                                     (1, 'ips', IPS, 's')):
+                mu, q_lo, q_hi = lv[cell + (stim,)]
+                ax.plot([x, x], [q_lo, q_hi], color=col, lw=1.6,
+                        solid_capstyle='butt', zorder=3)
+                ax.plot([x], [mu], mk, ms=4.6, color=col, zorder=4)
+            ax.text(.5, .985, f"Δ {spec['fmt'].format(d.mean())}   {pstr}",
+                    transform=ax.transAxes, ha='center', va='top', fontsize=7.5,
+                    color='.15' if credible else '.5',
+                    **(BOLD if credible else {}))
+            ax.set_xlim(-.55, 1.55)
+            ax.set_ylim(ylo, yhi)
+            ax.set_xticks([0, 1])
             if cell == last:
-                sns.despine(ax=ax, left=True, offset={'bottom': 3})
-                ax.set_xlabel(spec['xlabel'])
-                for x, lab, ha in zip((.02, .98), spec['anchors'],
-                                      ('left', 'right')):
-                    ax.text(x, .02, lab, transform=ax.transAxes, ha=ha,
-                            va='bottom', fontsize=7.5, color='.35', style='italic')
+                sns.despine(ax=ax, offset={'bottom': 3, 'left': 3})
+                ax.set_xticklabels(['Vertex', 'IPS'])
+                ax.set_xlabel('')
             else:
-                ax.spines['bottom'].set_visible(False)
-                ax.set_xticklabels([]); ax.tick_params(axis='x', length=0)
+                sns.despine(ax=ax, bottom=True, offset={'left': 3})
+                ax.set_xticklabels([])
+                ax.tick_params(axis='x', length=0)
+            # every row, not just the top one: the four rows are separate
+            # axes with their own tick labels, and a single label at the top
+            # makes the reader carry it three panels down
+            ax.set_ylabel(spec['ylabel'], fontsize=7.5,
+                          linespacing=1.15)
+            ax.tick_params(labelsize=7.5)
 
     # --- row labels once at the far left, order on top of stake
     for cell in CELLS:
@@ -208,17 +231,22 @@ def main(data_dir, out_stem, tag):
         fig.text(.004, (pos.y0 + pos.y1) / 2, f'{cell[0]}\n{cell[1]}', fontsize=9,
                  ha='left', va='center', linespacing=1.3, color='.15')
 
+    # One title per COLUMN, each centred over the column it names, rather than
+    # one title spanning both parameters -- the two columns are different
+    # quantities and a shared heading made the reader look for the y-label to
+    # find out which was which.
     y = axA[CELLS[0]].get_position().y1 + .028
-    blocks = [('A', a0, a0, 'Proportion of risky choices'),
-              ('B', axB[CELLS[0] + (SPECS[0]['par'],)],
-               axB[CELLS[0] + (SPECS[1]['par'],)],
-               'Psychophysical parameters (IPS − vertex)')]
+    blocks = [('A', a0, a0, 'Proportion of risky choices')]
+    for i, spec in enumerate(SPECS):
+        ax0 = axB[CELLS[0] + (spec['par'],)]
+        blocks.append(('B' if i == 0 else '', ax0, ax0, spec['title']))
     for letter, first, lastax, title in blocks:
         x0, x1 = first.get_position().x0, lastax.get_position().x1
-        fig.text(x0 - .048, y, letter, fontsize=11.5, va='baseline', ha='left',
-                 **BOLD)
-        fig.text((x0 + x1) / 2, y, title, fontsize=9.5, ha='center', va='baseline',
-                 **BOLD)
+        if letter:
+            fig.text(x0 - .048, y, letter, fontsize=11.5, va='baseline',
+                     ha='left', **BOLD)
+        fig.text((x0 + x1) / 2, y, title, fontsize=9.5, ha='center',
+                 va='baseline', **BOLD)
 
     # below the axes area entirely; the tight bbox grows to include it
     fig.text(.004, -.028, RE_NOTE, fontsize=7.5, color='.45', style='italic',

@@ -62,7 +62,7 @@ mpl.rcParams.update({
     'font.sans-serif': ['Helvetica', 'Helvetica Neue', 'TeX Gyre Heros', 'Arial'],
     # Nothing here goes below 7.5 pt: at 7.25 in wide these are read at print size,
     # and 6-point annotations are unreadable on paper however clean they look on screen.
-    'font.size': 8.5, 'axes.labelsize': 9.5, 'axes.titlesize': 9.5,
+    'font.size': 8, 'axes.labelsize': 8.5, 'axes.titlesize': 9,
     'xtick.labelsize': 8, 'ytick.labelsize': 8, 'legend.fontsize': 8,
     'axes.linewidth': .8, 'axes.spines.top': False, 'axes.spines.right': False,
     'axes.labelpad': 3,
@@ -73,7 +73,10 @@ mpl.rcParams.update({
     'pdf.fonttype': 42, 'ps.fonttype': 42, 'svg.fonttype': 'none',
     'figure.dpi': 150, 'savefig.dpi': 300,
 })
-sns.set_context('paper')
+# NO `sns.set_context` here. It does not scale the block above, it REPLACES it:
+# calling it re-set font.size 8.5 -> 9.6, axes.linewidth 0.8 -> 1.0 and tick
+# size 3 -> 4.8, which is why this figure printed visibly heavier than the
+# other four. Removed 2026-09-10.
 
 # macOS ships Helvetica as a .ttc whose faces matplotlib cannot index, so every weight
 # resolves to Regular and `fontweight='bold'` is silently a no-op. Arial Bold is a
@@ -136,17 +139,18 @@ def main(data_dir, label, out_stem):
     rat = pd.read_csv(data / 'localnoise_delta_by_ratio.tsv', sep='\t')
     obs = pd.read_csv(data / f'ppc_fig3a.{label}.tsv', sep='\t')
 
+
     # Presentation order is the ROW variable in BOTH blocks: "Risky first" is always
     # the top row, "Risky second" always the bottom, labelled once at the far left.
     # So the cTBS effect reads as a displacement away from zero in B in the same rows
     # where the two psychometric functions separate in A.
     # narrower than the published version: block B no longer needs room for a
     # density, only for two intervals on a common axis
-    fig = plt.figure(figsize=(6.3, 3.6))
-    outer = fig.add_gridspec(1, 2, width_ratios=[1.05, 1.35], wspace=.28,
-                             left=.155, right=.985, top=.885, bottom=.16)
+    fig = plt.figure(figsize=(7.25, 3.9))
+    outer = fig.add_gridspec(1, 2, width_ratios=[1.05, 1.35], wspace=.30,
+                             left=.135, right=.985, top=.875, bottom=.155)
     gsA = outer[0].subgridspec(2, 1, hspace=.14)
-    gsB = outer[1].subgridspec(2, 2, hspace=.20, wspace=.55)
+    gsB = outer[1].subgridspec(2, 2, hspace=.20, wspace=.60)
 
     # --- A: psychometric functions, observed proportions over the probit fit
     lefts = []
@@ -156,7 +160,7 @@ def main(data_dir, label, out_stem):
         ax.axvline(RISK_NEUTRAL, color='.75', lw=.7, ls='--', zorder=0)
         o = obs[obs.order == order]
         r = rat[rat.order == order].set_index('bin')
-        for stim, colr, mk in [('vertex', VERTEX, 'o'), ('ips', IPS, 's')]:
+        for stim, colr, mk in [('vertex', VERTEX, 'o'), ('ips', IPS, 'o')]:
             g = o[o.stim == stim].sort_values('frac')
             ax.fill_between(g.frac, r.loc[g.bin, f'probit_{stim}_lo'].values,
                             r.loc[g.bin, f'probit_{stim}_hi'].values,
@@ -240,7 +244,7 @@ def main(data_dir, label, out_stem):
             xs = {'vertex': 0, 'ips': 1}
             ax.plot([0, 1], [cell[(order, 'vertex')][1], cell[(order, 'ips')][1]],
                     color='.2' if sig else '.65', lw=1.4, zorder=2)
-            for cond, ccol, mk in (('vertex', VERTEX, 'o'), ('ips', IPS, 's')):
+            for cond, ccol, mk in (('vertex', VERTEX, 'o'), ('ips', IPS, 'o')):
                 q = cell[(order, cond)]
                 ax.plot([xs[cond]] * 2, q[[0, 2]], color=ccol, lw=1.5,
                         solid_capstyle='round', zorder=3)
@@ -285,9 +289,10 @@ def main(data_dir, label, out_stem):
                rights[(SPECS[1]['par'], ORDERS[0])], SPECS[1]['col_title'])]
     for letter, first, last, title in blocks:
         x0, x1 = first.get_position().x0, last.get_position().x1
-        fig.text(x0 - .048, y, letter, fontsize=11.5, va='baseline', ha='left', **BOLD)
-        fig.text((x0 + x1) / 2, y, title, fontsize=9.5, ha='center', va='baseline',
+        fig.text(x0 - .040, y, letter, fontsize=9, va='baseline', ha='left',
                  **BOLD)
+        fig.text((x0 + x1) / 2, y, title, fontsize=8.5, ha='center',
+                 va='baseline')
 
     for ext in ['pdf', 'png', 'svg']:
         fig.savefig(f'{out_stem}.{ext}', bbox_inches='tight', pad_inches=.03)

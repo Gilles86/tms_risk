@@ -105,7 +105,7 @@ def glyph_key(ax, entries, x=.04, y=.96, dy=.085, seg=.075, fs=6.0):
                 fontsize=fs, va='center', zorder=5)
 IPS, VERTEX = '#d62728', '#2ca02c'
 MEM, PERC = '0.25', '0.25'
-FIRST_C, SECOND_C = '0.58', '0.12'
+FIRST_C, SECOND_C = '0.62', '0.15'
 RISKY, SAFE = '#8172B2', '0.25'
 P_RISKY = 0.55
 ORDERS = ['Risky first', 'Risky second']
@@ -114,8 +114,8 @@ STAKE = {0: 'Low', 1: 'High'}
 mpl.rcParams.update({
     'font.family': 'Helvetica',
     'font.sans-serif': ['Helvetica', 'Helvetica Neue', 'TeX Gyre Heros', 'Arial'],
-    'font.size': 7, 'axes.labelsize': 7.5, 'axes.titlesize': 8,
-    'xtick.labelsize': 6.5, 'ytick.labelsize': 6.5, 'legend.fontsize': 6.5,
+    'font.size': 7.5, 'axes.labelsize': 8, 'axes.titlesize': 8.5,
+    'xtick.labelsize': 7, 'ytick.labelsize': 7, 'legend.fontsize': 7,
     'axes.linewidth': 0.8, 'axes.spines.top': False, 'axes.spines.right': False,
     'axes.labelpad': 2.5, 'xtick.direction': 'out', 'ytick.direction': 'out',
     'xtick.major.size': 2.5, 'ytick.major.size': 2.5,
@@ -483,7 +483,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     ax.set_xlim(6.4, 118)
     ax.set_title('cTBS effect on noise', fontsize=7.5)
     ax.set_xlabel('Payoff (CHF)')
-    ax.set_ylabel('Δν, IPS − vertex')
+    ax.set_ylabel('Δν, IPS − Vertex')
     # the interval type stays here: the BAR's meaning is the statistical claim,
     # so naming the interval is part of naming the mark, not caption bookkeeping
     glyph_key(ax, [('P(Δν > 0) > 0.95', 'k', 'bar', dict(lw=3.0))],
@@ -591,7 +591,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
         ax2.set_ylim(-.7, len(rows_) - .3)
         ax2.xaxis.set_ticks_position('top')
         ax2.xaxis.set_label_position('top')
-        ax2.set_xlabel('cTBS effect on prior (IPS − vertex, log)',
+        ax2.set_xlabel('cTBS effect on prior (IPS − Vertex, log)',
                        fontsize=5.6, labelpad=2)
         ax2.tick_params(labelsize=5.6, length=2, pad=1)
         ax2.spines['bottom'].set_visible(False)
@@ -906,7 +906,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             ax.set_xlabel('Stake (CHF)')
             ax.set_title(order, fontsize=7.5)
             if k == 'h':
-                ax.set_ylabel('cTBS effect on P(risky)\n(IPS − vertex, %%points)'
+                ax.set_ylabel('cTBS effect on P(risky)\n(IPS − Vertex, %%points)'
                               .replace('%%', '%'))
             else:
                 ax.tick_params(labelleft=False)
@@ -1190,9 +1190,10 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
                 if not len(q):
                     continue
                 q = q.iloc[0]
-                short = '1st' if nm.startswith('First') else (
-                    '2nd' if nm.startswith('Second') else nm.split()[0][:4])
-                lab = f'ν {short} @ {xa:.0f} CHF'
+                short = ('first-presented' if nm.startswith('First')
+                         else 'second-presented' if nm.startswith('Second')
+                         else nm.split()[0].lower())
+                lab = f'ν {short}, {xa:.0f} CHF'
                 rows.append((lab, q['mid'], q.lo, q.hi,
                              '0.35' if unaffected(chan) else col))
             if unaffected(chan):          # one entry, not two identical ones
@@ -1280,7 +1281,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
 
-    def _letter_dx_pts(ax, buffer=4.0, lo=-42.0, hi=-6.0):
+    def _letter_dx_pts(ax, buffer=4.0, lo=-62.0, hi=-6.0):
         x0 = ax.get_window_extent(renderer=renderer).x0
         left_px = x0
         for tick in ax.get_yticklabels():
@@ -1303,7 +1304,7 @@ def main(data_dir, out_stem, label, observed_tsv, with_probit=False,
             ax = AX[k]
             ann = ax.annotate(letter, xy=(0, 1), xycoords='axes fraction',
                               xytext=(_letter_dx_pts(ax), 6),
-                              textcoords='offset points', fontsize=8.5,
+                              textcoords='offset points', fontsize=9,
                               fontweight='bold', family='Arial', va='bottom',
                               annotation_clip=False)
             ann.set_in_layout(False)

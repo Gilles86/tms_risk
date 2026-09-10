@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-cspl5-percmem.pathfinder	log	cspl5	percmem	shared_perceptual_noise	14	-4173.61245310943	46.45914215714096	249.63261777726666	0.0001199760047990402	0.8055999706555979

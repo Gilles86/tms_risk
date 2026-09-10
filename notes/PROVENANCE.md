@@ -44,10 +44,48 @@ usual here, see [Which fit is which](#which-fit-is-which).
 
 ## Main figures
 
-### Current set (2026-09, anchor parameterisation)
+### THE SUBMITTED SET (2026-09-10)
 
-**These are the rows that matter.** Everything below this block is the history of
-how the figures got here; read it only to resolve an older `<label>`.
+These nine PDFs are the figures the manuscript ships with, and they are the only
+files under `notes/figures/` that git tracks (see the exception block in
+`.gitignore`). Everything else there is scratch and is ignored; superseded
+renders are in `notes/figures/archive/2026-09-10_superseded/`.
+
+Rebuild any of them with the command in the last column. Figure 1 is a
+hand-made schematic with no script.
+
+| # | File | Rebuild with |
+|---|---|---|
+| 2 | `figure2_new.pdf` | `python -m tms_risk.modeling.scripts.plot_figure2_new` |
+| 3 | `fig3_probit.pdf` | `python -m tms_risk.behavior.scripts.plot_fig3_probit` |
+| 4 | `fig4_stage.pdf` | `python -m tms_risk.behavior.scripts.plot_fig4_weber --channels stage --curves_tsv notes/data/basefx_curves.tsv --forms power cspl3 cspl4 cspl5 cspl6 cspl7 spl3 spl4 spl5 spl6 affine --out_stem notes/figures/fig4_stage` |
+| 5 | `fig5_pmc_mechanism.pdf` | `python -m tms_risk.behavior.scripts.plot_fig4_big --model_label log-power-percpmu.mapjitter.klw --ppc slope_stake --out_stem notes/figures/fig5_pmc_mechanism` |
+| 6 | `fig6_brain_behavior.pdf` | `python -m tms_risk.behavior.scripts.plot_brain_behavior_link --out notes/figures/fig6_brain_behavior.pdf` |
+| S1 | `SUPP_S1_probit_by_stake.pdf` | `python -m tms_risk.behavior.scripts.plot_fig3_probit_stake --tag ri --out notes/figures/SUPP_S1_probit_by_stake` |
+| S2 | `SUPP_S2_model_comparison.pdf` | `python -m tms_risk.behavior.scripts.plot_elpd_ladder --out_stem notes/figures/SUPP_S2_model_comparison --curves_tsv notes/data/flex_curves.tsv` |
+| S3 | `SUPP_S3_ppc_design_grid.pdf` | `python -m tms_risk.behavior.scripts.plot_supp_ppc --out_stem notes/figures/SUPP_S3_ppc_design_grid` |
+| S4 | `SUPP_S4_noise_flexibility.pdf` | `python -m tms_risk.behavior.scripts.plot_noise_flexibility --cohort baseline --curves_tsv notes/data/basefx_curves.tsv --out_stem notes/figures/SUPP_S4_noise_flexibility` |
+
+**The reported model is `log-power-percpmu.mapjitter.klw`** — power-law noise,
+cTBS acting on perceptual noise and on the two prior means, KLW choice rule.
+
+**Two cohorts, and they are easy to confuse.** Figures 2, 3, 5, 6, S1, S2 and
+S3 are the **cTBS cohort** (n = 35, sessions 2–3). Figure 4 and S4 are the
+**pre-stimulation baseline** (n = 73, session 1). Their pointwise-LOO files
+live in separate directories — `notes/data/loo_anchor/` and
+`notes/data/loo_baseline/` — because both cohorts have fits at the `null`
+placement and a single flat directory silently let one cohort's reference be
+used for the other's figure. That happened once; the directory split is what
+prevents it.
+
+**Cut from the manuscript on 2026-09-10**, and not to be reinstated without a
+decision: the position-indexed (n1/n2) noise models, and the fits that free the
+prior widths. Traces and TSVs still exist; the paper does not use them.
+
+### Older rows
+
+Everything below this block is the history of how the figures got here; read it
+only to resolve an older `<label>`.
 
 | Item | Produced by | Reads | Writes |
 |---|---|---|---|

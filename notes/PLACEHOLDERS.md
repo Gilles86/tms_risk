@@ -235,3 +235,293 @@ whichever POSITION that option occupied on that trial", not as properties of the
 risky and safe options. Add half a sentence saying so, or the equation implies
 noise is a property of option type, which is the one thing the model does not
 assume.
+
+---
+
+# Round 3 — 2026-09-10 (answers to the 66-token inventory)
+
+## Block C — the placement-ladder LOO pass: **DONE, all FINAL**
+
+Paired against `log-power-percpmu.mapjitter.klw`, ArviZ PSIS-LOO, pointwise,
+`notes/data/loo_anchor/`. Regenerate any time with
+`python -m tms_risk.behavior.scripts.make_supp_table1`.
+
+| Token | Value |
+|---|---|
+| ⟦ELPD_NULL⟧ | −111.4 |
+| ⟦ELPD_NULL_DSE⟧ | 13.7 |
+| ⟦SE_NULL⟧ | 8.1 |
+| ⟦ELPD_MEM⟧ | −46.9 |
+| ⟦ELPD_MEM_DSE⟧ | 10.1 |
+| ⟦SE_MEM⟧ | 4.6 |
+| ⟦ELPD_SPMU⟧ | −25.7 |
+| ⟦ELPD_SPMU_DSE⟧ | 6.7 |
+| ⟦SE_SPMU⟧ | 3.8 |
+| ⟦ELPD_PERCMEM⟧ | −5.8 |
+| ⟦SE_PERCMEM⟧ | 1.4 |
+| ⟦ELPD_PERCMEMPMU⟧ | +0.0 |
+| ⟦ELPD_PERCMEMPMU_DSE⟧ | 1.1 |
+| ⟦ELPD_PW⟧ | −1.6 |
+| ⟦ELPD_PW_DSE⟧ | 2.7 |
+
+Marginal ELPDs, if the table wants them: percpmu −4148.1 (SE 46.8),
+percmempmu −4148.1 (46.8), percmem −4153.9 (46.7), perc −4155.2 (46.7),
+spmu −4173.8 (47.0), mem −4195.0 (46.7), null −4259.5 (46.3).
+
+**Supplementary Table 1 is regenerated** at `notes/supp_table1.md` — 20 rows,
+every one passing r̂ ≤ 1.01 and ESS ≥ 400.
+
+## Block G — two prose claims
+
+**1. "LOO computed with ArviZ PSIS-LOO."** ✅ TRUE. `extract_anchor_loo.py:25`
+calls `az.loo(idata, pointwise=True)`, which is PSIS-LOO (Vehtari, Gelman &
+Gabry 2017). Keep the sentence.
+
+**2. "percpmu is the only model at 8/8."** ❌ **FALSE — delete or rewrite this.**
+Now that all 20 models have a PPC extraction on the same eight statistics,
+**eleven** reach 8/8: percpmu, percmempmu, `power+weber-percmempmu`, spl3, spl4,
+spl5, spl6, spl7, cspl3, cspl5, cspl7 — **and `spmu`, the priors-only model with
+no noise change at all.**
+
+This matters more than a wording fix. The eight targeted statistics do **not**
+separate the mechanism; the priors-only model passes all of them. What separates
+it is:
+
+- **ELPD**: spmu is 25.7 worse, 3.8 SE. This is the number that rules out a
+  pure prior shift, and it should carry that claim in the text.
+- **the psychometric-SLOPE view of the design grid**: spmu covers 5/6 slope
+  cells against percpmu's 6/6. It is the only PPC view that is diagnostic,
+  which is exactly as expected — a prior shift moves the indifference point,
+  a noise change flattens the slope.
+
+Design-grid coverage (28+ cells the design fixes, `notes/data/ppc_grid_placement.tsv`):
+percpmu 32/34, percmempmu 32/34, spmu 31/34, percmem 30/34, perc 29/34,
+mem 28/34, null 27/34.
+
+**Consequence for ¶80 and the Discussion**: do not write that the PPCs single
+out the reported model. Write that ELPD rules out the priors-only and
+noise-only accounts, and that the PPCs confirm the reported model reproduces
+every targeted statistic. That is what the numbers support.
+
+## Block E — the four with no value
+
+**⟦SPLINE_ORDERS⟧.** The stage (perceptual/memory) parameterisation was fitted
+at these anchor counts. Note the two cohorts differ, and Fig. 4d is BASELINE:
+
+- **cTBS cohort** (n = 35, `cogmodels.anchor`, `*-percpmu`): 2 (power), 3, 4, 5,
+  6, 7 piecewise-linear; 3, 5, 7 smooth. Weber (1), smooth 4 and smooth 6 are
+  fitting now (job 5715656).
+- **Baseline** (n = 73, `cogmodels.baseline`, `*-null`) — **this is the set
+  Fig. 4d draws from**: 1 (Weber), 2 (power), 5 piecewise-linear; smooth 3 and 5
+  present, smooth 7 and affine fitting (5714965); smooth 4/6 and linear 3/4/6/7
+  fitting (5715644).
+
+So the current draft's "2, 3, 4, 5 and 7 anchors" describes neither set exactly.
+Hold this token until the two jobs land — I will give you one sentence per
+cohort.
+
+**⟦SFIG_N1N2⟧.** Recommend **Supplementary Figure 3**, since Supp. Fig. 2 is
+already the ELPD ladder. Final numbering is yours once the supplement is
+assembled; what matters is that all three uses point at the same figure. Its
+content is settled (§8 above: spl5/spl7/cspl5-n1n2, ~19–28% at low payoffs on
+both presented options).
+
+**⟦PSD_RISKY_P⟧ / ⟦PSD_SAFE_P⟧.** Refit submitted under the sweep's own
+settings (mapjitter, 8 chains, 5000 tune / 9000 draws — job 5715682), so the
+"pathfinder-initialised, outside the sweep" caveat can be dropped. Until it
+lands the honest form is the explicit attribution: 0.377 / 0.187 from
+`percpsd.pathfinder.klw`. **Do not quote the draft's 0.39 / 0.22** — those are
+from neither fit.
+
+**⟦BB_INTERVAL⟧.** Still blocked; the hierarchical probit has not converged.
+
+## Block F — three prose numbers that can still move
+
+All three are baseline-fit quantities, and the baseline flexibility set is
+being refitted right now (5714965, 5715644), so tokenise them:
+
+- "2.25-fold [1.86, 2.82]" → ⟦PERC_RATIO⟧ ⟦PERC_RATIO_CRI⟧ (¶74, Fig. 4c caption)
+- "roughly 19 to 28%" → ⟦N1N2_RANGE⟧ (¶80). Current value stands: 19–28%.
+- "about a factor of two" / "by about half" → derive from ⟦PPC_FRACTION⟧ once
+  the final percpmu PPC is in; do not hand-round independently in two places.
+
+## A correction to what I told you on 2026-09-09
+
+I previously said the PPCs carry the prior-shift claim and ELPD does not. Half
+right. ELPD does not separate percpmu from percmem (5.8, 1.4 SE) — that part
+stands. But the PPCs do not separate them decisively either (32/34 vs 30/34),
+and the priors-only model passes all eight targeted statistics. The prior shift
+rests on the ELPD tie with percmempmu, the design-grid edge, and the direct
+posterior on `safe_prior_mu` — not on the targeted PPCs.
+
+---
+
+# Round 4 — 2026-09-10
+
+## ⟦BB_INTERVAL⟧ — resolved, not dropped
+
+The blocked thing was a hierarchical *probit*, which is not what this token
+needs. `anchor_brain_behavior_posterior.py` correlates the nPRF amplitude
+change with the per-participant noise change **per posterior draw**, so it
+gives both the point estimate from posterior means and a genuine credible
+interval, with no probit anywhere. Run on the reported model
+(`notes/data/bb_posterior.log-power-percpmu.mapjitter.klw.tsv`):
+
+| parameter | r (posterior means) | r [95% CrI] | P(r < 0) |
+|---|---:|---|---:|
+| perceptual noise @ 112 CHF | **−0.266** | −0.195 [−0.405, +0.027] | 0.957 |
+| perceptual noise @ 7 CHF | +0.296 | +0.192 [−0.084, +0.442] | 0.083 |
+| safe prior μ | +0.173 | +0.039 [−0.294, +0.361] | 0.410 |
+| risky prior μ | −0.072 | −0.046 [−0.308, +0.229] | 0.630 |
+
+Report the **posterior-mean r** as the headline (that is the quantity the
+scatter plot shows) and the CrI beside it. Spearman agrees with Pearson to
+within 0.02 throughout. Note the sign: the amplitude change tracks the noise
+change at the HIGH payoff anchor, and the shrinkage between the two columns is
+partial pooling doing its job.
+
+## The `8/8` column was PPCs, and it does not discriminate
+
+`8/8` meant the eight targeted posterior predictive statistics. Eleven of
+twenty models scored 8/8, so the column is necessary and not diagnostic.
+
+Following the "use more PPCs" fix, Supplementary Table 1 now carries a second
+column, `Grid` — the 34 cells the DESIGN fixes (5 safe payoffs x 2 orders x 2
+arms, across four views: P(risky) vs safe payoff, vs risky/safe ratio, vs
+stake, and the psychometric SLOPE vs stake). Four times as many cells, none of
+them chosen post hoc, and they do order the placement ladder:
+
+    percpmu 32/34 · percmempmu 32 · spmu 31 · percmem 30 · perc 29 · mem 28 · null 27
+
+**But the priors-only model still reaches 31/34.** No posterior-predictive
+criterion at any resolution separates it from the reported model; **ELPD does,
+at 25.7 nats and 3.8 SE.** So the paper's claim that the noise change is
+necessary must rest on ELPD, with the PPCs supporting rather than carrying it.
+
+---
+
+# Round 5 — 2026-09-10: the supplementary figure set
+
+Four figures, each tied to one claim the main text makes. Files are named by
+their proposed number, so the number is unambiguous everywhere.
+
+| # | File (`notes/figures/`) | What it settles | Cited at |
+|---|---|---|---|
+| **S1** | `SUPP_S1_ppc_design_grid.pdf` | **Which** posterior predictive checks, and how the alternatives do on them | ¶80, ¶82, Methods |
+| **S2** | `SUPP_S2_model_comparison.pdf` | Where the cTBS effect acts — the placement ladder | ¶80, Supp. Table 1 |
+| **S3** | `SUPP_S3_noise_flexibility.pdf` | Whether the power law's shape is the data's or the form's | ¶74, Fig. 4 caption |
+| **S4** | ⟦SFIG_N1N2⟧, not yet built | Position-indexed (n1/n2) robustness fits | ¶80, Methods ×2 |
+
+The draft already cites "Fig. S2" for the ELPD ladder, so S2 keeps that slot
+and nothing has to be renumbered. ⟦SFIG_N1N2⟧ = **S4**.
+
+`SUPP_S3b_noise_flexibility_ctbs.pdf` is the same three panels on the cTBS
+cohort. Keep it as a reviewer-response figure rather than a numbered
+supplement — it answers a different question (how flexible must the noise
+function be when a stimulation effect is also being fitted) and having both
+numbered invites exactly the cohort confusion S3's caption exists to prevent.
+
+## Replacing the "only model at 8/8" sentence
+
+The eight targeted statistics are still fine to report; they are just not
+diagnostic, and the text must not claim they single out anything. Suggested
+substance for ¶80 (wording yours):
+
+> The reported model reproduces all eight targeted posterior predictive
+> statistics, but so do ten of the nineteen alternatives, including one in
+> which cTBS changes only the magnitude priors — so we assessed fit against
+> the design's own cells instead (Fig. S1): the 34 IPS − vertex contrasts
+> defined by five safe payoffs × two presentation orders × two stimulation
+> arms, read four ways, each computed per posterior draw. The reported model
+> covers 32 of 34. Coverage falls monotonically as the mechanism is removed —
+> 30 without the prior shift, 29 with perceptual noise alone, 27 with no cTBS
+> effect — but the priors-only model still reaches 31, so **no
+> posterior-predictive criterion separates it; the model comparison does**
+> (ΔELPD = 25.7, dSE 6.7).
+
+## S3 changes the flexibility claim — read this before writing ¶74
+
+With the full baseline ladder fitted (1 to 7 anchors, both bases, n = 73),
+paired ΔELPD against the power law:
+
+| anchors | piecewise linear | smooth |
+|---:|---:|---:|
+| 1 (Weber) | −47.4 (11.2) | — |
+| 2 (power) | reference | reference |
+| 3 | **+19.5 (9.5)** | **+16.9 (10.2)** |
+| 4 | +16.2 (11.6) | +6.6 (11.5) |
+| 5 | −3.2 (12.2) | −14.8 (13.0) |
+| 6 | −20.6 (13.3) | −16.6 (14.5) |
+| 7 | — | −27.3 (14.9) |
+
+**On the baseline data, three anchors beats two by about 2 SE.** The claim
+"two anchors is not significantly worse than three" is true on the cTBS cohort
+(+5.0, dSE 5.6 — 0.9 SE) but NOT on the baseline. Do not write it unqualified.
+
+What is safe to claim, and what S3's panels b and c show, is that the SHAPE is
+not an artefact of the form: every fit from 2 to 7 anchors traces the same
+monotone rise in perceptual noise (0.17 to 0.35 over the payoff range) and the
+same fall in memory noise. The 3-anchor gain buys curvature in the memory
+channel around 14-20 CHF, not a different perceptual story. And Weber is
+rejected outright at 47 nats / 4.2 SE, which is the claim Figure 4c actually
+needs.
+
+---
+
+# Round 6 — 2026-09-10: levels vs contrast, and the final supplementary set
+
+## Ranking models by the LEVELS would mislead — say so, don't hide it
+
+Supplementary Fig. S3's panels a-h plot choice PROPORTIONS (levels); its panel
+i counts the paired IPS − vertex CONTRAST. Different denominators, and they
+rank the model set differently:
+
+| model | contrast (of 34) | levels (of 68) |
+|---|---:|---:|
+| Perceptual + memory noise, prior means | 32 | 57 |
+| **Perceptual noise + prior means** (reported) | **32** | 57 |
+| Perceptual + memory noise | 30 | 57 |
+| Perceptual noise only | 29 | 55 |
+| Prior means only, no noise change | 31 | **58** |
+| Memory noise only | 28 | 55 |
+| No cTBS effect | 27 | 53 |
+
+The levels span 53-58 across the entire ladder, and the **priors-only model
+comes first** — ahead of the reported one. Even "no cTBS effect at all"
+reaches 53/68. The levels are dominated by the psychometric function itself,
+which every model in the family fits; the stimulation effect is a small
+perturbation on top and is swamped. The contrast removes the part every model
+gets right and orders the ladder monotonically, 32 down to 27.
+
+Both are now drawn in S3 panel i, titled *"The contrast separates the models;
+the levels do not."* Reporting only the contrast would invite exactly the
+question this pre-empts.
+
+**A limitation to state, not to bury**: the reported model covers 57 of 68
+levels but 32 of 34 contrasts, and the weakest view is the risky/safe ratio at
+18/24. The model fits the DIFFERENCE better than the levels. That is expected
+in direction — the contrast cancels subject-level heterogeneity a group-level
+band does not model — but a reviewer will find it, so a sentence conceding it
+is cheaper than being caught.
+
+## Final supplementary figure set
+
+| # | File in `notes/figures/` | Content |
+|---|---|---|
+| S1 | *(the draft's existing S1 — unchanged)* | |
+| **S2** | `SUPP_S2_model_comparison.pdf` | **a** placement ladder · **b** the effect estimated under every noise form · **c** the perceptual noise functions themselves, IPS vs vertex, with ΔELPD per form and a directional significance rug |
+| **S3** | `SUPP_S3_ppc_design_grid.pdf` | **a-h** choice proportions against the design's cells, IPS red vs vertex green, misses ringed · **i** coverage on the contrast and on the levels |
+| **S4** | `SUPP_S4_noise_flexibility.pdf` | Baseline (n = 73): what extra anchors buy, and the noise functions from 1 to 7 anchors inside the power law's own credible band |
+| S5 | ⟦SFIG_N1N2⟧, still to build | Position-indexed (n1/n2) robustness fits |
+
+Not numbered, keep as a reviewer-response figure:
+`SUPP_Sx_noise_flexibility_ctbs.pdf` — S4's panels on the cTBS cohort.
+
+## The rug in S2c is DIRECTIONAL — the text must match
+
+It marks P(IPS > vertex) > 0.95. At the reported model's 7 CHF anchor that is
+**0.963**, so the two-sided 95% interval marginally includes zero:
+**+0.029 log units [−0.003, +0.061]**. The draft's ⟦DNU7⟧ ("0.029, [0.002,
+0.057], p = 0.020") is not what the current fit gives — same point estimate,
+but the interval crosses zero. Write it as a directional posterior probability,
+not as a two-sided credible interval.

@@ -30,8 +30,14 @@ import seaborn as sns
 
 READ = dict(sep='\t', keep_default_na=False, na_values=[''])
 IPS, VERTEX = '#d62728', '#2ca02c'
-FIRST, SECOND = '0.55', '0.15'
-WEBER = '#C44E52'
+#: canonical, and matching CLAUDE.md rather than drifting from it
+FIRST, SECOND = '0.62', '0.15'
+#: ORANGE, not red. Red means cTBS-to-IPS in every other figure in this paper,
+#: and '#C44E52' is indistinguishable from '#d62728' at print size -- a reader
+#: arriving from Figure 3 or 5 reads this reference line as a stimulation
+#: condition. Weber-versus-flexible is a MODEL contrast, and the project
+#: reserves blue/orange for those.
+WEBER = '#E1812C'
 
 mpl.rcParams.update({
     'font.family': 'Helvetica',
@@ -114,7 +120,10 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
         AX.setdefault(k, _skip)
 
     # -- a, b: the curves themselves --------------------------------------
-    LOW, HIGH = '#3B5BA5', '#C44E52'
+    # blue/orange: stake level is neither a stimulation condition nor a
+    # model contrast, but red here would still read as IPS to anyone
+    # coming from Figures 2, 3 or 5
+    LOW, HIGH = '#3B5BA5', '#E1812C'
     # Hierarchical Bayesian probit and its posterior predictive -- never the
     # maximum-likelihood fit. An s.e.m. bar on an observed point answers how
     # precisely we measured it; the band here answers whether the model could
@@ -179,6 +188,7 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
             ax.set_yticklabels([])
 
     # -- c: the same thing as a number ------------------------------------
+    _noise_ylim = []
     ax = AX['c']
     xs = {'low': 0, 'high': 1}
     for order, col in [('Risky first', FIRST), ('Risky second', SECOND)]:
@@ -240,14 +250,24 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
                     (s.x.iloc[-1], s['mid'].iloc[-1]),
                     xytext=(4, dy), textcoords='offset points', color=col,
                     fontsize=7.8, va='center', linespacing=1.4)
-        ax.plot([s.x.iloc[0], s.x.iloc[-1]], [s['mid'].iloc[0]] * 2,
-                color=WEBER, lw=1.0, ls=(0, (3, 2)), zorder=1)
+        # The ACTUAL Weber fit, not a horizontal line through the power law's
+        # value at 7 CHF. Those are different quantities, and drawing the
+        # second one with the first one's dash and label put two different
+        # things behind one mark -- panel d draws the fitted Weber model, so
+        # the two panels disagreed about what the dashed line meant and sat at
+        # visibly different heights.
+        w = c_all[(c_all.label == weber_label) & (c_all.channel == chan)
+                  & (c_all.condition == 'vertex')].sort_values('x')
+        if len(w):
+            ax.plot([w.x.iloc[0], w.x.iloc[-1]], [w['mid'].iloc[0]] * 2,
+                    color=WEBER, lw=1.0, ls=(0, (3, 2)), zorder=1)
     logx(ax)
     ax.set_xlim(6.4, 420)
     ax.set_xlabel('Payoff (CHF)')
     ax.set_ylabel('Representational noise ν (log units)')
     ax.set_title('Fitted noise', fontsize=9.5)
     key(ax, [("Weber's law (constant ν)", WEBER, (0, (3, 2)))], x=.05, y=.95)
+    _noise_ylim.append(ax.get_ylim())
 
     # -- e: every noise form we fitted, on one axis -------------------------
     # The Occam panel. If the flexible forms found structure the power law
@@ -267,7 +287,13 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
     # six labelled lines: that they are indistinguishable IS the result, and
     # naming each would invite the reader to look for a difference that is not
     # there. Weber is the one that separates, so it is the one that is marked.
-    for chan, ls, nm, ycol in [(CHANS[0][0], (0, (3, 1.8)), CHANS[0][1], FIRST),
+    # DASH MEANS WEBER, here as in panel c -- and only Weber. It used to
+    # encode the channel in this panel and the Weber reference in the one
+    # beside it, so the same mark meant two things within one figure. The two
+    # channels are already separated by colour, by a direct label, and by
+    # sitting in non-overlapping bands of the y-axis; they do not need a third
+    # encoding, and certainly not one that is spoken for.
+    for chan, ls, nm, ycol in [(CHANS[0][0], '-', CHANS[0][1], FIRST),
                                (CHANS[1][0], '-', CHANS[1][1], SECOND)]:
         for f_ in forms:
             q = c_all[(c_all.label == f'log-{f_}-{place}')
@@ -278,7 +304,8 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
         qw = c_all[(c_all.label == f'log-weber-{place}') & (c_all.channel == chan)
                    & (c_all.condition == 'vertex')].sort_values('x')
         if len(qw):
-            ax.plot(qw.x, qw['mid'], color=WEBER, lw=1.5, ls=ls, zorder=3)
+            ax.plot(qw.x, qw['mid'], color=WEBER, lw=1.5, ls=(0, (3, 2)),
+                    zorder=3)
         q2 = c_all[(c_all.label == f'log-power-{place}') & (c_all.channel == chan)
                    & (c_all.condition == 'vertex')].sort_values('x')
         if len(q2):
@@ -291,9 +318,17 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
     ax.set_xlabel('Payoff (CHF)')
     ax.set_ylabel('Representational noise ν (log units)')
     ax.set_title(f'{len(forms)} flexible forms, and Weber', fontsize=9.5)
-    key(ax, [('Weber', WEBER, '-'),
+    _noise_ylim.append(ax.get_ylim())
+    key(ax, [("Weber's law (constant ν)", WEBER, (0, (3, 2))),
              (f'{len(forms)} flexible forms', '0.35', '-')], x=.05, y=.96,
         dy=.075, seg=.06)
+
+    if len(_noise_ylim) == 2:
+        ylo = min(v[0] for v in _noise_ylim)
+        yhi = max(v[1] for v in _noise_ylim)
+        for k_ in ('c', 'e'):
+            if k_ in AX:
+                AX[k_].set_ylim(ylo, yhi)
 
     # -- f: panel c's quantity, predicted -----------------------------------
     # A residual on choice PROPORTIONS cannot separate these models: both fit
@@ -362,7 +397,7 @@ def main(data_dir, out_stem, label, weber_label, bids_folder,
     fig.suptitle(f'Baseline session, before any stimulation · {place_note}',
                  fontsize=8.5, color='0.35', y=1.005)
     for letter, k in zip('abcdefgh', keys):
-        AX[k].text(-.20, 1.07, letter, transform=AX[k].transAxes, fontsize=10.5,
+        AX[k].text(-.20, 1.07, letter, transform=AX[k].transAxes, fontsize=9,
                    fontweight='bold', family='Arial', va='bottom')
     sns.despine(fig=fig, offset=3)
     for ext in ('pdf', 'png'):

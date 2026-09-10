@@ -1,10 +1,21 @@
-Model	cTBS_affects	ELPD	p_loo	dELPD	dSE	checks	rhat	ess	label
-Power	Perceptual + memory noise	-4153.918067912235	183.24193834794596	1.2747745194641134	1.5060704761560164	6/7	1.0	4873	log-power-percmem.mapjitter.klw
-Power	Perceptual noise only	-4155.192842431699	177.48640030773277	0.0	0.0	5/7	1.0	5179	log-power-perc.mapjitter.klw
-Spline, 5 knots	Noise on both options	-4170.494603451951	282.585823706851	-15.301761020251357	12.085826020065754	6/7	1.0	2822	log-spl5-n1n2.mapjitter.klw
-Power	Noise on 1st-presented option	-4173.128459332427	203.7591467122984	-17.935616900728178	10.405836681275042	--	1.01	1585	log-power-n1.mapjitter.klw.sps0.15
-Weber, constant ν	Noise on both options	-4184.42509757887	178.91118083409265	-29.23225514717045	12.045486932573722	--	1.0	9083	log-weber-n1n2.mapjitter.klw
-Power	Memory noise only	-4194.9872359960655	167.53763591728966	-39.79439356436589	9.549024285658405	--	1.0	3778	log-power-mem.mapjitter.klw
-Power	No cTBS effect	-4250.645853158737	153.81084306479806	-95.45301072703806	14.07286262061331	--	1.0	1419	log-power-nullind.mapjitter.klw
-Spline, 3 knots	No cTBS effect	-4254.49412066618	173.5641283906857	-99.30127823448107	15.004275038136962	5/7	1.01	1235	log-spl3-nullind.klw
-Weber, constant ν	No cTBS effect	-4262.695583340974	135.21979427359292	-107.50274090927415	14.965475496400165	--	1.0	5350	log-weber-nullind.mapjitter.klw
+Model	cTBS_affects	ELPD	p_loo	dELPD	dSE	checks	grid	rhat	ess	label
+Power	Perceptual + memory noise, prior means	-4148.088123198904	192.58133437826473	0.010059729495809577	1.149233839772229	8/8	32/34	1.0	11368	log-power-percmempmu.mapjitter.klw
+Power	Perceptual noise + prior means	-4148.098182928399	188.19929001451737	0.0	0.0	8/8	32/34	1.0	11016	log-power-percpmu.mapjitter.klw
+Power	Perceptual + memory noise	-4153.918067912235	183.24193834794596	-5.819884983835461	4.145402206401617	7/8	30/34	1.0	4873	log-power-percmem.mapjitter.klw
+Power	Perceptual noise only	-4155.192842431699	177.48640030773277	-7.0946595032995745	4.099619560618181	6/8	29/34	1.0	5179	log-power-perc.mapjitter.klw
+Power	Prior means only, no noise change	-4173.812205611209	170.03322706903964	-25.7140226828096	6.727600726432218	8/8	31/34	1.0	12851	log-power-spmu.mapjitter.klw
+Power	Memory noise only	-4194.9872359960655	167.53763591728966	-46.889053067665465	10.13736379584688	7/8	28/34	1.0	3778	log-power-mem.mapjitter.klw
+Power	No cTBS effect	-4259.4871136634265	138.50479636001546	-111.3889307350279	13.659698684816258	6/8	27/34	1.0	2422	log-power-null.klw
+Power perc. + Weber mem.	Perceptual + memory noise, prior means	-4150.35834198115	191.31474304808623	-2.260159052751195	2.82660389649381	8/8	32/34	1.0	10898	log-power+weber-percmempmu.mapjitter.klw
+Power perc. + Weber mem.	Perceptual noise + prior means	-4149.692636832404	185.79350198248903	-1.5944539040043981	2.67013696244292	7/8	32/34	1.0	10556	log-power+weber-percpmu.mapjitter.klw
+Power perc. + Weber mem.	Perceptual + memory noise	-4156.109407603544	182.14167751247396	-8.011224675144462	4.858190877382499	6/8	29/34	1.0	7293	log-power+weber-percmem.mapjitter.klw
+Power perc. + Weber mem.	Perceptual noise only	-4155.030877091852	175.04511064818416	-6.932694163452281	4.880195252371409	5/8	29/34	1.0	7842	log-power+weber-perc.mapjitter.klw
+Power perc. + Weber mem.	No cTBS effect	-4259.045808196938	136.5268528012739	-110.94762526853853	13.857237078078983	6/8	27/34	1.0	11001	log-power+weber-null.mapjitter.klw
+Spline, 3 anchors	Perceptual noise + prior means	-4143.10073225214	215.0976376591157	4.997450676259923	5.577828115174557	8/8	32/34	1.0	8698	log-spl3-percpmu.mapjitter.klw
+Spline, 4 anchors	Perceptual noise + prior means	-4145.406114109311	234.52734947017737	2.6920688190888917	7.719611413011597	8/8	32/34	1.0	10303	log-spl4-percpmu.mapjitter.klw
+Spline, 5 anchors	Perceptual noise + prior means	-4158.095600315821	239.43739520148935	-9.997417387420537	8.251100314673598	8/8	32/34	1.0	10162	log-spl5-percpmu.mapjitter.klw
+Spline, 6 anchors	Perceptual noise + prior means	-4165.079805185672	247.80788119546924	-16.98162225727232	9.63393156951954	8/8	32/34	1.0	16199	log-spl6-percpmu.mapjitter.klw
+Spline, 7 anchors	Perceptual noise + prior means	-4174.094313437505	259.48030071844505	-25.996130509104887	10.11827708854246	8/8	32/34	1.0	15352	log-spl7-percpmu.mapjitter.klw
+Smooth spline, 3 anchors	Perceptual noise + prior means	-4146.296909974761	221.1341704878805	1.8012729536385592	6.576502487816526	8/8	32/34	1.0	6519	log-cspl3-percpmu.mapjitter.klw
+Smooth spline, 5 anchors	Perceptual noise + prior means	-4152.971273986766	248.35776795999527	-4.8730910583664855	9.768838404311586	8/8	32/34	1.0	9946	log-cspl5-percpmu.mapjitter.klw
+Smooth spline, 7 anchors	Perceptual noise + prior means	-4170.954656366997	260.69077968614783	-22.856473438597952	11.089911809905182	8/8	32/34	1.0	13089	log-cspl7-percpmu.mapjitter.klw

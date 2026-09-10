@@ -67,4 +67,18 @@ crash-*.pklz
 # worth 260 MB of history. The source-data TSVs *are* tracked.
 notes/figures/
 notes/paper/
+
+# ...with one exception. The figures actually submitted are tracked, because
+# "regenerable from notes/data" is only true of the CURRENT code, and a year
+# from now the useful question is what the paper showed, not what the scripts
+# would now produce. Everything else under notes/figures/ stays ignored.
+!notes/figures/figure2_new.pdf
+!notes/figures/fig3_probit.pdf
+!notes/figures/fig4_stage.pdf
+!notes/figures/fig5_pmc_mechanism.pdf
+!notes/figures/fig6_brain_behavior.pdf
+!notes/figures/SUPP_S1_probit_by_stake.pdf
+!notes/figures/SUPP_S2_model_comparison.pdf
+!notes/figures/SUPP_S3_ppc_design_grid.pdf
+!notes/figures/SUPP_S4_noise_flexibility.pdf
 ._*

@@ -2,12 +2,27 @@
 
 Combined cTBS-TMS + 7T fMRI study of how parietal magnitude
 representations causally shape risk preferences (de Hollander, Moisa
-& Ruff). Manuscript draft: `notes/paper/TMS_paper_v8_with_CR_comments.pdf`.
+& Ruff). Current manuscript: `notes/paper/TMS_paper_v13_draft_REDLINE.docx`.
 
 > **Looking for the code behind a specific figure, table or statistic?**
 > [`notes/PROVENANCE.md`](notes/PROVENANCE.md) has one row per published item:
 > which script produces it, what it reads, what it writes, and whether the
-> number in the current draft is still current.
+> number in the current draft is still current. Its first section lists the
+> nine submitted figures with the exact command that rebuilds each.
+
+> **Revising the manuscript?** [`notes/HANDOVER_v13.md`](notes/HANDOVER_v13.md)
+> is the current instruction set: every placeholder token with its value, which
+> figures to use, and the text changes outstanding.
+
+### The reported model, in one line
+
+`log-power-percpmu.mapjitter.klw` — power-law representational noise, cTBS
+acting on perceptual noise and on the two magnitude prior means, with the
+KLW-consistent choice rule. Fitted on 35 participants; Figure 4 and
+Supplementary Figure 4 instead use the 73-participant pre-stimulation
+baseline. **The two cohorts have separate pointwise-LOO directories**
+(`notes/data/loo_anchor/` and `notes/data/loo_baseline/`) because both contain
+fits at the `null` placement and mixing them is silent — see PROVENANCE.
 
 The pipeline targets numerosity-tuned right parietal cortex with cTBS
 (vertex control vs. parietal) and measures effects on (a) nPRF

@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-affine-null.mapjitter.klw	log	affine	null	shared_perceptual_noise	8	-4570.304304543763	46.06333175455943	248.95104349840767	0.00023089355806972986	0.7538211516011518

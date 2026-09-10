@@ -1,0 +1,3 @@
+trace	ok	max_rhat	min_ess_bulk	divergences	chains	draws	n_par	worst_par	family	constrained	bauer_commit	size_gb
+log-power-n1n2.mapjitter.klw.objective	True	1.0	5903.0	0	8	3000	8	log_n1_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.2019179807975888
+log-power-percmem.mapjitter.klw.objective	True	1.0	9953.0	0	8	3000	8	log_mem_power_sd112_mu[Intercept]	-	-	93c2e9ae968b2ac5c12859a63bee731d3e3a71a1	1.2018338572233915

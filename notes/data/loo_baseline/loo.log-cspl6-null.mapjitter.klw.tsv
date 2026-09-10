@@ -1,0 +1,2 @@
+label	space	form	placement	memory_model	n_par	elpd_loo	se	p_loo	frac_k_gt_07	max_k
+log-cspl6-null.mapjitter.klw	log	cspl6	null	shared_perceptual_noise	16	-4586.477042659851	45.991460803191	337.65529227796196	0.00023089355806972986	0.8248050101062643
