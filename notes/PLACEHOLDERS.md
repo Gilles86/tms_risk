@@ -97,3 +97,141 @@ PAIRED against ⟦MODEL_NAME⟧ with the dSE of the paired difference.
   the model does not generate the order dependence (§10, §"No model in the
   family…").
 * The prior-shift justification (§9).
+
+
+---
+
+# Answers to the writing chat's verification queries (2026-09-10)
+
+Sources: `notes/data/anchor_mechanism.log-power-percpmu.mapjitter.klw.tsv`
+(`behavior/scripts/extract_anchor_mechanism.py`),
+`notes/data/ppc_anchor/ppc_stats.*.tsv` (`extract_anchor_ppc.py`),
+`notes/data/anchor_curves_baseline_shared.tsv` (`extract_anchor_curves.py`),
+and the trace attrs read directly.
+
+## 1. Mechanism decomposition (Results ¶81)
+
+| token | value | note |
+|---|---|---|
+| ⟦XOVER_RS⟧ | **24 CHF** | risky-second; log-interpolated between the 20 and 28 CHF cells |
+| ⟦XOVER_RF⟧ | **no crossover within the tested range** | risky-first: decision SD +7.3% still exceeds perceived ratio +6.8% at 28 CHF |
+| ⟦DSD_7_RS⟧ / ⟦DRATIO_7_RS⟧ | +13.7% / +3.8% | |
+| ⟦DSD_28_RS⟧ / ⟦DRATIO_28_RS⟧ | +7.2% / +9.0% | |
+| ⟦DRATIO_7_RF⟧ | +3.0% | risky-first, and POSITIVE — the draft's "starts from a small negative value (−1.8%)" no longer holds |
+| ⟦DVAL_RISKY⟧ | +1.0% [−2.0, +4.1] at 7 CHF to +4.0% [−1.5, +9.6] at 28 | |
+| ⟦DVAL_SAFE⟧ | −2.2% [−6.4, +1.8] at 7 CHF to −4.5% [−9.2, +0.4] at 28 | |
+
+**Both option-value intervals cover zero in all ten cells**, so the sentence you
+wanted is supported. **The draft's ¶81 numbers (17 CHF, 14 CHF, 10.7%, 2.5%,
+8.1%, −2.1%, −1.8%) are from the earlier model and must all be replaced.**
+
+## 2. ⟦N_PARAMS_PP⟧ = **12** per participant
+
+Two noise anchors x2 conditions on the perceptual channel (4), two on the
+memory channel with no cTBS term (2), risky and safe prior means x2 conditions
+(4), and the two prior SDs with no cTBS term (2).
+
+## 3. ⟦PRIORS⟧
+
+> Group-level means were given Normal priors — N(log 0.25, 0.75) on each noise
+> anchor, N(log-payoff mean, 1.0) on each prior mean and N(log empirical SD,
+> 0.5) on each prior width — with the same scale halved to 0.25 for every
+> stimulation contrast. Between-participant SDs were half-Cauchy with scale
+> 0.30 (noise), 0.75 (prior means) and 0.40 (prior widths), and 0.30 / 0.15 /
+> 0.15 on the corresponding contrasts. Individual parameters used a non-centred
+> ("offset") parameterisation throughout.
+
+**⟦TAU_PRIOR⟧ is confirmed unused**: the trace stamps
+`tms_risk_slope_priors = sigma_slope=None tau_slope=None` and the label carries
+no `.tn`/`.ti` suffix, so the reported fit is at the default prior spec
+`v1-2026-08-28`. **Delete ⟦TAU_PRIOR⟧ from the manuscript.**
+
+## 4. ⟦SAMPLER⟧ — the current token is WRONG
+
+Trace stamp: `chains=8 tune=8000 draws=9000 ta=0.95 find_init=mapjitter`.
+⟦SAMPLER⟧ currently reads "8 chains, 10 000 tuning, 15 000 draws, target_accept
+0.99". **Replace with 8 chains, 8 000 tuning, 9 000 draws, target_accept 0.95,
+initialised from a jittered MAP.** LOO is ArviZ `az.compare`, i.e. PSIS-LOO
+(Vehtari et al. 2017); Pareto-k is reported per model.
+
+## 5. The three inconsistencies
+
+* **⟦PPC_FRACTION⟧ = 0.46**, not "about a quarter": 0.024 predicted against
+  0.053 observed. "About a quarter" was `n1n2`'s number (0.013/0.053) and is
+  withdrawn with it. Write "roughly half" or "a factor of two".
+* **⟦PPC_N_PASS⟧ / ⟦PPC_N_TOTAL⟧ = 8 / 8.** The 7/8 was stale. There is no
+  contradiction with ppp = 0.04: "covered" means the observed value lies inside
+  the 95% predictive interval, i.e. ppp between 0.025 and 0.975.
+  Your sentence is **correct with one caveat**: among the models evaluated on
+  all eight statistics, `percpmu` is the only one at 8/8 (`n1n2`, `percmem`,
+  `power+weber-percpmu` and `spl5-n1n2` are each 7/8). Several older fits show
+  "7/7" only because their extraction predates the eighth statistic — do not
+  count those as ties.
+* **⟦ELPD_PERCMEMPMU_DSE⟧ = 1.15** (provisional; final value from the LOO pass).
+
+## 6. Figure 4 in stage coordinates — baseline, n = 73
+
+| token | value |
+|---|---|
+| ⟦B_PERC⟧ | **+0.294** [+0.224, +0.373] |
+| ⟦B_MEM⟧ | **−0.325** [−0.570, −0.083] |
+| perceptual fold-change 7 → 112 CHF | **2.26x** [1.86, 2.82] |
+| ⟦MEM_RATIO⟧ | **0.41** [0.21, 0.80] — confirmed, and it is the memory channel's 112/7 ratio |
+
+Note these are NOT the draft's b = 0.081 / 0.357: those were the first- and
+second-presented options in the position parameterisation. Since
+σ(second-presented) = σ_perceptual exactly, the old 0.357 and the new +0.294 are
+the same claim about the same channel fitted two ways — but only the stage fit
+converges (r̂ 1.000 / ESS 8 388 against r̂ 1.05 / ESS 115), so quote the new
+pair. **⟦SPLINE_ORDERS⟧ for Fig. 4d is still pending** — weber, power and affine
+are fitted in the stage parameterisation; cspl3/5/7 are running.
+
+## 7. Power-law parameterisation — as you wrote it
+
+Confirmed. The free parameters are the noise SD's **values at 7 and 112 CHF**
+(`log_perc_power_sd7`, `log_perc_power_sd112`), interpolated log-linearly in log
+payoff, and the stimulation regressor acts on each of those two anchor values.
+It is **not** parameterised as (a, b); the exponent is a derived quantity.
+
+## 8. ⟦SFIG_N1N2⟧ — position-indexed robustness
+
+cTBS effect at the lowest well-sampled anchor, group level:
+
+| fit | r̂ | ESS | first-presented | second-presented |
+|---|---:|---:|---|---|
+| `spl5-n1n2` | 1.000 | 2 822 | +22.5% @13 CHF, P = 0.97 | +27.8% @13, P = 0.93 |
+| `spl7-n1n2` | 1.000 | 14 412 | +27.8% @14 CHF, P = 0.98 | +25.3% @14, P = 0.90 |
+| `cspl5-n1n2` | 1.000 | 9 621 | +19.0% @13 CHF, P = 0.97 | +19.6% @13, P = 0.90 |
+
+The "same answer" sentence carries a number: **a ~19–28% increase at low
+payoffs, on both presented options, with no credible difference between them.**
+
+## 9. ⟦PSD_RISKY_P⟧ / ⟦PSD_SAFE_P⟧ — close, but not from the sweep
+
+`percpsd.pathfinder.klw` gives P(<0) = 0.377 for the risky prior width and
+P(>0) = 0.187 for the safe one. The draft's 0.39 / 0.22 are near these but come
+from a **pathfinder-initialised fit outside the one-prior sweep**. Either refit
+`percpsd` under the sweep's settings or attribute the numbers explicitly.
+
+## 10. Supplementary Table 1 — pending
+
+The single LOO pass is still running. It covers the placement ladder (null, mem,
+spmu, perc, percmem, percpmu, percmempmu, each with its `power+weber` twin) and
+the noise-form sweep at `percpmu`. The retired rows (⟦ELPD_WEBER⟧, ⟦ELPD_N1⟧,
+⟦ELPD_N2⟧, ⟦ELPD_UNRESOLVED⟧) are not in it.
+
+## 11. Choice rule — confirmed, with one wording caution
+
+`bauer/core.py:169-197` and `models/risky_choice.py:596-607`: the **noise is
+indexed by presentation POSITION** (`n1_evidence_sd = perceptual + memory`,
+`n2_evidence_sd = perceptual`) and the **prior by option TYPE**
+(`n1_prior_mu = where(risky_first, risky_prior_mu, safe_prior_mu)`, and the
+mirror for n2). The decision variable is the difference of the two noisy
+posterior means, normalised by √((w₁ν₁)² + (w₂ν₂)²) with w = σ_p²/(σ_p² + ν²)
+(`posterior_mean_sd`), evaluated through the cumulative normal.
+
+So your equation is right, but ν_x and ν_c must be read as "the noise of
+whichever POSITION that option occupied on that trial", not as properties of the
+risky and safe options. Add half a sentence saying so, or the equation implies
+noise is a property of option type, which is the one thing the model does not
+assume.
