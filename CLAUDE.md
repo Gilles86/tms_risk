@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Analysis code for the combined cTBS-TMS + 7T fMRI study **"Risk Attitudes Causally Rely on Parietal Magnitude Representations"** (de Hollander, Moisa & Ruff). The paper draft is at `notes/paper/TMS_paper_v9.pdf` (audit + open items: `notes/v9_plan.md`). The pipeline targets numerosity-tuned right parietal cortex with cTBS (vertex control vs. parietal) and measures effects on (a) nPRF responses, (b) trial-by-trial decoding accuracy, (c) psychophysical choice consistency / risk-neutral probability, and (d) parameters of the Perceptual-and-Memory-based Choice (PMC) model and its **Flexible PMC** extension (B-spline noise function over magnitude).
+Analysis code for the combined cTBS-TMS + 3T fMRI (Philips Achieva) study **"Risk Attitudes Causally Rely on Parietal Magnitude Representations"** (de Hollander, Moisa & Ruff). The paper draft is at `notes/paper/TMS_paper_v9.pdf` (audit + open items: `notes/v9_plan.md`). The pipeline targets numerosity-tuned right parietal cortex with cTBS (vertex control vs. parietal) and measures effects on (a) nPRF responses, (b) trial-by-trial decoding accuracy, (c) psychophysical choice consistency / risk-neutral probability, and (d) parameters of the Perceptual-and-Memory-based Choice (PMC) model and its **Flexible PMC** extension (B-spline noise function over magnitude).
 
 Three layered analyses sit on top of the same BIDS dataset (`/data/ds-tmsrisk` locally; `/shares/zne.uzh/gdehol/ds-tmsrisk` on the cluster):
 
@@ -124,6 +124,29 @@ group-level parameters only (per-subject offsets would swamp the table).
 
 Then `plot_pmc_explained` rebuilds the whole mechanism figure from the pulled TSVs
 alone — no trace, no bauer, no GPU. See `notes/pmc_refit_results.md`.
+
+## Interactive surface viewers (the paper's web companion)
+
+`~/git/tms_risk_viewers` is a static pycortex site: group maps on fsaverage, one
+viewer per participant on their own flattened surface, a gallery, and the Figure-2b
+amplitudes. Rebuild it with (details and inputs in `notes/PROVENANCE.md`):
+
+```bash
+~/mambaforge/envs/tms_risk/bin/python -m tms_risk.surface.sample_model1_to_surface      # NPZ maps
+~/mambaforge/envs/pycortex2/bin/python -m tms_risk.visualize.import_flatmaps            # once
+~/mambaforge/envs/pycortex2/bin/python -m tms_risk.visualize.make_static_viewers --out_dir ~/git/tms_risk_viewers
+```
+
+- pycortex subjects are `tms.sub-XX`, imported from the **local**
+  `derivatives/freesurfer` recon; the cluster's `fmriprep/sourcedata/freesurfer` is a
+  different recon (sub-45 differs) and has no `surf/`. The flatmaps came from
+  `surface/slurm_jobs/autoflatten.sh` on sciencecluster with those surfaces uploaded;
+  its `autoflatten_xla_fix/sitecustomize.py` is required (jaxlib 0.11 aborts on an XLA
+  flag autoflatten sets, surfacing only as `BrokenProcessPool`).
+- fsaverage's pycortex cache is shared with other projects: `build_group` sets it
+  aside and restores it, because a custom `overlay_file` needs `recache=True`.
+- Chrome caches the bundle's `*_[inflated]_*.svg`/`.ctm` across rebuilds; check a
+  rebuild on a fresh port or a `Cache-Control: no-store` server.
 
 ## The choice rule is KLW-consistent, and there is only one model set
 

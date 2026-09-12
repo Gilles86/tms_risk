@@ -389,3 +389,42 @@ ssh sciencecloud 'cd /data/git/tms_risk && git fetch origin && git checkout clea
 
 `libs/bauer` is a submodule and is pinned separately; check `git -C libs/bauer log -1`
 on the node matches what the traces are stamped with before trusting a refit.
+
+## Interactive surface viewers — the paper's web companion (2026-09-11)
+
+A static site (`~/git/tms_risk_viewers`, not yet published): the group maps on
+fsaverage, one viewer per participant on their own surface, a thumbnail gallery and
+the per-participant Figure-2b amplitudes.
+
+| Item | Script | Reads | Writes |
+|---|---|---|---|
+| m1 maps (cvR², null cvR², R², μ, σ, amplitude per arm, 2 cm ROI, target distance) on fsnative and fsaverage, per participant; group reductions | `surface/sample_model1_to_surface.py` | `encoding_model2.model-1.smoothed/`, **`encoding_model2.model-1.smoothed.cv.20260806/`** (the converged cluster cvR²; the local `.cv` is the Nov-2025 10-iteration fit), `glm_stim1.denoise.smoothed/`, `ips_masks/`, `stim_coordinates/`, `freesurfer/` | `derivatives/surface_viewer/sub-XX/*_desc-model1_maps.npz`, `group_space-fsaverage_desc-model1_maps.npz` |
+| Flatmaps of all 35 participants | `surface/slurm_jobs/autoflatten.sh` (cluster, array 1-35; needs `autoflatten_xla_fix/`) → `visualize/import_flatmaps.py` | local `freesurfer/sub-XX/surf/` uploaded to `derivatives/autoflatten/subjects/` on the cluster | `freesurfer/sub-XX/surf/?h.autoflatten.flat.patch.3d`; pycortex `tms.sub-XX` flat surfaces |
+| The site | `visualize/make_static_viewers.py` (+ `visualize/roi_overlays.py`) | the NPZs above, `notes/data/prf_voxels_m1.tsv`, `surface_masks/` | `~/git/tms_risk_viewers/{index.html,group/,sub-XX/,img/}` |
+
+The amplitude panel reproduces Figure 2b exactly from `prf_voxels_m1.tsv`
+(`in_mask_null`): median 1.06 → 0.76, t(34) = 2.43, p₁ = 0.010, 22/35 lower after IPS.
+The fsaverage **vertex-wise** amplitude map is weak and not lateralised (mean t = −0.63
+in right NPC1+2 vs −0.54 in left; ~5 % of vertices t < −2): targets differ in location
+between people, so it is shown as descriptive only, with that caveat on the page.
+
+---
+
+## Response times and accumulator models (added 2026-09-12)
+
+The paper has never used the RTs. These rows are the RT work, and they are NOT
+part of the submitted figure set.
+
+| Item | Produced by | Reads | Writes |
+|---|---|---|---|
+| **Model-free RT effect of cTBS** — quantile functions by stimulation x accuracy, and the IPS − vertex contrast by quantile / stake / order. Hierarchical posterior on the per-subject paired contrasts (no bootstrap, no SEM) | `behavior/scripts/extract_rt_quantiles.py` → `behavior/scripts/plot_rt_quantiles.py` | `get_all_behavior()` via `fit_model.get_data` | `notes/data/rt_quantiles.tsv`, `rt_quantile_contrast.tsv`, `rt_by_stake_order.tsv`, `rt_stake_order_contrast.tsv`, `error_stake_order_contrast.tsv`; `notes/figures/rt_ctbs.*` |
+| **The one converged RDM fit** — parameters, noise curves, choice+RT PPCs for `rdm_logflex2m2b_wd1_hn_op_dm0` (1 of 27 traces in `cogmodels.rdmlogflex` that passes the gate) | `scratchpad/extract_rdm_ppc.py` (cluster, bauer pinned at `34e64a6` via `~/git/bauer-powerlaw`) → `behavior/scripts/plot_rdm_converged.py` | the **trace** | `notes/data/rdm_converged_{params,curves,contrast,meta}.tsv`, `notes/data/rdm_ppc/*.tsv`; `notes/figures/rdm_converged.*` |
+| **RDM x anchor PMC** — the paper's own choice model with a Wald-race response layer | `behavior/rdm_anchor.py` + `behavior/fit_anchor.py --response rdm`, submitted by `behavior/slurm_jobs/fit_anchor_rdm.sh` | `get_data()` | `<bids>/derivatives/cogmodels.anchor.rdm/model-<label>.rdm_trace.netcdf` |
+
+Findings, and the three bauer defects the new module routes around:
+`notes/analyses/rdm_anchor_2026-09-12.md`. **The headline caveat**: every
+pre-existing `rdm_*` risk fit in this project cancels the win probability out of
+the drift (bauer's `_drifts_from_post_and_prior` adds `log p` to the posterior
+AND the centering baseline), so those models have no channel for risk attitude;
+the converged one over-predicts P(chose risky) by 10 points as a result. New
+fits default to `--p_stance eu`, which keeps it.
